@@ -154,6 +154,7 @@ This reframes the Miller Lab findings: gamma doesn't carry "rich content"—it c
     year: 2025,
     status: 'submitted',
     github: 'todd866/coherence-gate',
+    pdf: 'https://raw.githubusercontent.com/todd866/coherence-gate/main/coherence_gate_scaling.pdf',
     image: 'coherence-gate-scaling.jpeg',
     description: `[Oscillating neural networks](https://www.nature.com/articles/s41467-025-64471-2) can extract powerful relational patterns from data. But simulating them on digital computers requires $O(N^2)$ operations per timestep—making large systems impractical. Physical coupling (electrical circuits, optical systems) does this automatically at $O(K)$ operations, offering 100-1000× better energy efficiency.
 
@@ -174,6 +175,7 @@ This isn't a temporary limitation—it's fundamental. The paper proposes the "co
     year: 2025,
     status: 'submitted',
     github: 'todd866/lsd-dimensionality',
+    pdf: 'https://raw.githubusercontent.com/todd866/lsd-dimensionality/main/lsd_dimensionality.pdf',
     description: `Psychedelics like LSD and psilocybin don't flood the brain with chaos—they temporarily expand its computational flexibility. By activating 5-HT2A receptors on deep brain cells, they amplify dendritic gain and unlock dormant neural patterns that are normally suppressed.
 
 The expansion is transient: after the drug wears off, dimensionality returns to baseline, but the brain has reorganised onto new, therapeutic attractors. This explains the mystery of lasting therapeutic changes after brief acute experiences.`,
@@ -194,6 +196,7 @@ The expansion is transient: after the drug wears off, dimensionality returns to 
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5846665',
     github: 'todd866/nonergodic-development',
+    pdf: 'https://raw.githubusercontent.com/todd866/nonergodic-development/main/nonergodic_development.pdf',
     description: `Development isn't a recipe written in your genes that executes the same way every time. Biological systems develop through high-dimensional state spaces too vast to fully explore—they get "trapped" in particular developmental patterns based on environmental history.
 
 The same genes can produce wildly different outcomes depending on which pathway an organism follows. [Sierra et al. (2025)](https://www.science.org/doi/10.1126/sciadv.adw0685) recently showed that cooperative mammals have dramatically lower cancer rates than competitive ones, interpreting this through group selection—cancer as an adaptation that benefits competitive populations by culling old individuals. This paper offers an alternative: cancer is cellular defection in the [Price equation](https://en.wikipedia.org/wiki/Price_equation) sense, and cooperative animals are cooperative at every level. The same coherence that prevents cells from defecting into cancerous states is what enables organisms to cooperate socially.
@@ -215,6 +218,7 @@ In cooperative environments, developmental trajectories remain stable within hea
     year: 2025,
     status: 'submitted',
     github: 'todd866/clinical-validity-bounds',
+    pdf: 'https://raw.githubusercontent.com/todd866/clinical-validity-bounds/main/manuscript.pdf',
     description: `When patients have many interacting diseases—kidney disease plus lung disease plus heart failure—no amount of AI data can make algorithms reliable at predicting outcomes. This isn't a technology problem; it's a fundamental mismatch between what computers can handle and how complex real patients actually are.
 
 Think of it like navigating a 3D maze with only a 2D map: no matter how detailed your map is, it won't help.`,
@@ -244,6 +248,7 @@ The source of undecidability is the *dimensional bottleneck*—the mismatch betw
       'Categorical formulation: unclassifiable subobjects of the final coalgebra $\\Sigma^\\mathbb{N}$',
     ],
     github: 'todd866/oscillatory-incompleteness',
+    pdf: 'https://raw.githubusercontent.com/todd866/oscillatory-incompleteness/main/manuscript.pdf',
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
@@ -253,6 +258,7 @@ The source of undecidability is the *dimensional bottleneck*—the mismatch betw
     year: 2025,
     status: 'submitted',
     github: 'todd866/dimensional-work',
+    pdf: 'https://raw.githubusercontent.com/todd866/dimensional-work/main/manuscript_prx.pdf',
     description: `When information processing systems compress high-dimensional dynamics into lower-dimensional representations, they face two thermodynamic costs: the traditional Landauer cost of erasing bits, plus an additional "geometric work" cost from projecting curvy dynamics onto simpler manifolds.
 
 This explains why biological systems favour oscillatory, coherent dynamics—coherence naturally reduces dimensionality, lowering the energetic rent of information processing.`,
@@ -273,6 +279,7 @@ This explains why biological systems favour oscillatory, coherent dynamics—coh
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5573915',
     github: 'todd866/limits-of-falsifiability',
+    pdf: 'https://raw.githubusercontent.com/todd866/limits-of-falsifiability/main/paper2_shadow_geometry.pdf',
     description: `When you project high-dimensional biological data (like gene expression from thousands of genes) into 2D visualisations like t-SNE or UMAP, you're not just simplifying—you're hallucinating structure. About 75% of the "neighbours" you see in a 2D plot weren't actually neighbours in the original high-dimensional space.
 
 This paper provides the mathematical toolkit for measuring exactly how much your projections lie. It quantifies topological aliasing—points that appear close in 2D but were far apart in the original space—and shows it's not a bug in algorithms but a geometric inevitability.`,
@@ -343,6 +350,7 @@ This challenges Levin's bioelectric code framework: rather than fast voltage sig
       'Phase transition at critical coupling corresponds to gastrulation',
     ],
     github: 'todd866/embryodimensionality',
+    pdf: 'https://raw.githubusercontent.com/todd866/embryodimensionality/main/embryo_oscillators.pdf',
   },
   {
     slug: 'abiogenesis-chemistry',
@@ -370,6 +378,7 @@ Validated on scRNA-seq data (GSE120575): immunotherapy responders have 2.3× hig
       'Regeneration tradeoff: deep attractors → cancer aggression, no regeneration',
     ],
     github: 'todd866/immune-cooperation',
+    pdf: 'https://raw.githubusercontent.com/todd866/immune-cooperation/main/immune_cooperation.pdf',
   },
   {
     slug: 'mri-coherence-controller',
