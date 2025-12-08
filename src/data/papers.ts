@@ -285,17 +285,17 @@ This paper provides the mathematical toolkit for measuring exactly how much your
   },
   {
     slug: 'minimal-embedding',
-    title: 'Minimal Embedding Dimension for Cyclic Decision Processes',
+    title: 'Minimal Embedding Dimension for Self-Intersection-Free Recurrent Processes',
     journal: 'Information Geometry',
     year: 2025,
     status: 'submitted',
-    description: `Cyclic decision processes—like the OODA loop (observe, orient, decide, act)—require at least 3 dimensions to avoid self-intersection. In 2D, the trajectory would collide with itself; in 3D, it spirals cleanly.
+    description: `Cyclic processes on statistical manifolds require at least 3 dimensions to avoid self-intersection. Below $k=3$, state trajectories collide, forcing categorical (discrete) representations. At $k \\geq 3$, continuous temporal dynamics become possible.
 
-This isn't just geometry—it's a constraint on any physical system implementing feedback loops.`,
-    whyItMatters: `Provides a lower bound on the complexity needed for adaptive decision-making. Systems with fewer than 3 effective dimensions cannot implement clean feedback cycles.`,
+This identifies a critical threshold in information geometry: the transition from forced discretization to smooth recurrence.`,
+    whyItMatters: `Provides a lower bound on the complexity needed for any system implementing feedback loops. Systems with fewer than 3 effective dimensions cannot represent continuous cycles—they're forced into discrete states.`,
     keyFindings: [
-      'Minimal embedding dimension = 3 for non-self-intersecting cycles',
-      'Applies to OODA loops, control systems, metabolic cycles',
+      '$k=3$ is minimal embedding dimension for self-intersection-free cycles',
+      '$k \\leq 2$ forces categorical representations through state conflation',
       'Information-geometric derivation from Fisher metric',
       'Connects to Takens embedding theorem',
     ],
