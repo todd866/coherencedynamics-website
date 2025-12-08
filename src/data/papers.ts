@@ -112,7 +112,7 @@ This explains why visual binding takes 30-50ms, why flies perceive time faster t
 The paper proves a structural limit: when internal complexity exceeds what we can measure, reconstructing internal states becomes mathematically impossible, not just difficult.`,
     whyItMatters: `If substrate dimensionality is the limiting factor, scaling parameters on digital hardware faces a hard ceiling we may already be approaching. Also raises questions about consciousness in field-based vs graph-based architectures.`,
     keyFindings: [
-      'Digital substrates have D_substrate ≈ 1; biological brains have ~10^14-18 degrees of freedom',
+      'Digital substrates have $D_{\\text{substrate}} \\approx 1$; biological brains have $\\sim 10^{14}$–$10^{18}$ degrees of freedom',
       'Projection singularity: a fundamental impossibility for interpreting systems beyond measurement capacity',
       'Three substrate classes with distinct capability ceilings',
       'Consciousness may require volumetric field coupling, not just graph connectivity',
