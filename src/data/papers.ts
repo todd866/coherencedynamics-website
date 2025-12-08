@@ -19,7 +19,7 @@ export const papers: Paper[] = [
   {
     slug: 'falsifiability',
     title: 'The Limits of Falsifiability: Dimensionality, Measurement Thresholds, and the Sub-Landauer Domain in Biological Systems',
-    journal: 'BioSystems',
+    journal: 'BioSystems (October 2025)',
     year: 2025,
     status: 'published',
     doi: '10.1016/j.biosystems.2025.105608',
@@ -41,7 +41,7 @@ Worse, many biological patterns operate below the Landauer limit—the minimum e
   {
     slug: 'timing-inaccessibility',
     title: "Timing Inaccessibility and the Projection Bound: Resolving Maxwell's Demon for Continuous Biological Substrates",
-    journal: 'BioSystems',
+    journal: 'BioSystems (November 2025)',
     year: 2025,
     status: 'published',
     doi: '10.1016/j.biosystems.2025.105632',
