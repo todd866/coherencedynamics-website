@@ -8,8 +8,7 @@ export default function AboutPage() {
           Ian Todd is a third year medical student from Sydney.
         </p>
         <p className="text-gray-400 mb-8">
-          ian@coherencedynamics.com<br />
-          itod2305@uni.sydney.edu.au
+          ian@coherencedynamics.com
         </p>
       </section>
 
