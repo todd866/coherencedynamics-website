@@ -7,6 +7,7 @@ export interface Paper {
   doi?: string;
   ssrn?: string;
   github?: string;
+  pdf?: string; // direct link to PDF (e.g., GitHub raw URL)
   simulation?: string; // slug of companion simulation
   image?: string; // filename in /images/ (e.g., 'falsifiability.jpeg')
   description: string;

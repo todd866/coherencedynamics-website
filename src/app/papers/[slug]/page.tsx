@@ -75,6 +75,16 @@ export default async function PaperPage({
               GitHub &rarr;
             </a>
           )}
+          {paper.pdf && (
+            <a
+              href={paper.pdf}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-red-400 hover:text-red-300"
+            >
+              PDF &rarr;
+            </a>
+          )}
           {paper.simulation && (
             <Link
               href={`/simulations/${paper.simulation}`}
