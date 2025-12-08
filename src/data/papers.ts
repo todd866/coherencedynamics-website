@@ -69,6 +69,7 @@ Biological systems exploit this by integrating weak signals across many dimensio
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4978594',
+    image: 'high-dimensional-coherence.jpeg',
     description: `Intelligence isn't unique to humans—it emerges whenever a system can maintain high-dimensional dynamics that collapse to coherent outputs. From bacteria tracking chemical gradients to brains navigating social complexity, the same principle applies: explore a vast space internally, commit only when you must.
 
 The brain doesn't compute by enumerating possibilities like a digital computer. It evolves through a high-dimensional landscape where incompatible solutions coexist peacefully until behaviour demands a choice. This isn't just elegant—it's thermodynamically necessary.`,
@@ -87,6 +88,7 @@ The brain doesn't compute by enumerating possibilities like a digital computer. 
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5018691',
+    image: 'coherence-time.jpeg',
     description: `Your brain's processing speed isn't limited by how fast neurons fire—it's limited by how quickly distributed networks can synchronise their oscillations. Synchronisation time grows exponentially as more brain regions must coordinate, creating a fundamental trade-off: larger, more flexible networks process information more slowly.
 
 This explains why visual binding takes 30-50ms, why flies perceive time faster than humans, and why consciousness may depend more on synchronised fields than individual spikes.`,
