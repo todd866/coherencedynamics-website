@@ -326,11 +326,20 @@ The bottleneck compresses the space, bringing points closer together. Noise adds
   {
     slug: 'embryo-oscillators',
     title: 'Slow Bioelectric Oscillations Dominate Morphological Information Capacity',
-    journal: 'TBD',
+    journal: 'Development',
     year: 2025,
     status: 'in_prep',
-    description: `Embryonic development relies on slow bioelectric oscillations to coordinate morphogenesis. Fast signals (neural-like) can't carry enough information across the spatial scales required for organ formation. Slow oscillations dominate because they match the timescale of developmental decisions.`,
-    whyItMatters: `Suggests that bioelectric pattern formation operates under information-theoretic constraints, not just biochemical ones.`,
+    description: `Morphological capacity in embryonic development scales as $D_{\\text{morph}} \\propto 1/\\sqrt{f}$, making slow developmental timescales fundamental rather than incidental. Gap junction networks in 10,000-cell embryos create effective dimensionality $D_{\\text{morph}} \\sim 100$–$1000$.
+
+Slow gene oscillators (periods ~1–10 hours) contribute >90% of morphological capacity despite being outnumbered by faster voltage and calcium modes.`,
+    whyItMatters: `The speed-accuracy tradeoff $\\varepsilon \\sim T_{\\text{osc}}/T_{\\text{dev}}$ explains species-specific developmental timing and temperature sensitivity ($R^2 = 0.90$ across 7 species from C. elegans to humans).`,
+    keyFindings: [
+      'Dimensional collapse via gap junction coupling',
+      'Slow oscillators dominate morphological information capacity',
+      'Pattern error rate predicts cross-species developmental timing',
+      'Phase transition at critical coupling corresponds to gastrulation',
+    ],
+    github: 'todd866/embryodimensionality',
   },
   {
     slug: 'abiogenesis-chemistry',
@@ -343,12 +352,21 @@ The bottleneck compresses the space, bringing points closer together. Noise adds
   },
   {
     slug: 'immune-cooperation',
-    title: 'Immune Cooperation as Dimensional Surveillance: Why the Adaptive System Monitors Complexity, Not Pathogens',
+    title: 'The Physics of Immune Cooperation: Dimensional Surveillance and Attractor Enforcement',
     journal: 'BioSystems',
     year: 2025,
     status: 'in_prep',
-    description: `The adaptive immune system doesn't primarily detect pathogens—it monitors local complexity. Cancer cells trigger immune responses not because they're "non-self" but because they increase local dimensional complexity. Infection is similar: the immune system responds to dimensional anomalies.`,
-    whyItMatters: `Explains autoimmunity, cancer immune evasion, and tolerance from a unified dimensional perspective.`,
+    description: `Immunity is dimensional surveillance. Cells embedded in functional tissue exhibit high effective dimensionality—complex, context-sensitive dynamics. Cells that have "defected" (cancer, viral infection, senescence) exhibit low dimensionality—they've collapsed into simpler attractors. Immune receptors function as synchronization probes measuring dynamical complexity.
+
+Validated on scRNA-seq data (GSE120575): immunotherapy responders have 2.3× higher effective dimensionality ($D_{\\text{eff}}$ = 28.3 vs 12.3) than non-responders.`,
+    whyItMatters: `Health is high dimensionality maintained at criticality; disease is dimensional collapse. This reframes autoimmunity (sensor exhaustion), cancer immune evasion (attractor mimicry), and the regeneration-cancer tradeoff (attractor depth).`,
+    keyFindings: [
+      'Responders: 2.3× higher effective dimensionality than non-responders',
+      'Entropy dissociation: low-D + high noise = collapsed attractor signature',
+      'Dynamical friction: T-cell exhaustion from coupling to low-D targets',
+      'Regeneration tradeoff: deep attractors → cancer aggression, no regeneration',
+    ],
+    github: 'todd866/immune-cooperation',
   },
   {
     slug: 'mri-coherence-controller',
