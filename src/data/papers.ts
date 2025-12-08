@@ -232,16 +232,17 @@ Think of it like navigating a 3D maze with only a 2D map: no matter how detailed
     journal: 'Synthese',
     year: 2025,
     status: 'submitted',
-    description: `When continuous physical systems with many interacting parts produce symbols we can observe, those symbols must necessarily be incomplete—there will always be true facts about what the system does that we cannot predict or explain using any fixed theory.
+    description: `A Gödel-style incompleteness theorem for dynamical systems that generate symbolic codes from high-dimensional oscillatory dynamics via coarse-grained observation. Any effective theory capable of reasoning about their symbolic outputs is necessarily incomplete.
 
-This reinterprets Gödel's famous incompleteness theorem as a fundamental constraint on any physical system that forms symbols from continuous oscillating dynamics.`,
-    whyItMatters: `Explains why some aspects of clinical judgement and expertise cannot be fully captured in algorithmic form: the brain operates in higher dimensions than our symbolic theories can accommodate.`,
+The source of undecidability is the *dimensional bottleneck*—the mismatch between high-dimensional pre-symbolic dynamics and the low-dimensional symbolic interface.`,
+    whyItMatters: `Physical systems that produce symbols from continuous dynamics inherit Gödelian structure. This includes neural systems, gene regulatory networks, and any observation process that discretizes continuous oscillations.`,
     keyFindings: [
-      'Any consistent theory describing symbolic outputs from oscillatory systems is necessarily incomplete',
-      'Information loss from high-D continuous space through low-D measurement creates Gödelian structure',
-      'Applies to neural oscillations, gene networks, ecological cycles',
+      'Theorem 4: Any consistent, recursively axiomatizable theory of oscillatory systems is incomplete',
+      'The dimensional bottleneck (high-D → low-D) creates undecidable propositions',
       'Physical self-referential oscillator embodies Gödel sentence in dynamical form',
+      'Categorical formulation: unclassifiable subobjects of the final coalgebra $\\Sigma^\\mathbb{N}$',
     ],
+    github: 'todd866/oscillatory-incompleteness',
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
