@@ -79,7 +79,7 @@ export default async function PaperPage({
               href={`/simulations/${paper.simulation}`}
               className="text-orange-400 hover:text-orange-300"
             >
-              Try Simulation &rarr;
+              Try Simulation (alpha) &rarr;
             </Link>
           )}
         </div>
