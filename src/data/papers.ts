@@ -12,6 +12,7 @@ export interface Paper {
   description: string;
   whyItMatters?: string;
   keyFindings?: string[];
+  workflow?: string; // AI workflow statement
 }
 
 export const papers: Paper[] = [
@@ -37,6 +38,7 @@ Worse, many biological patterns operate below the Landauer limit—the minimum e
       'Quantum measurement necessarily collapses coherent states, destroying the phenomenon being studied',
       'Proposes scale-aware, ensemble-based epistemology as alternative to binary hypothesis testing',
     ],
+    workflow: 'Claude 4.5 Sonnet (Anthropic) for drafting and conceptual development; GPT-5 (OpenAI) and Grok (xAI) for feedback and review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'timing-inaccessibility',
@@ -59,6 +61,7 @@ Biological systems exploit this by integrating weak signals across many dimensio
       'Digital tracking costs scale exponentially; projection costs scale logarithmically',
       'Explains 10^5 to 10^8× efficiency gap between brains and silicon',
     ],
+    workflow: 'Claude 4.5 Sonnet (Anthropic) for drafting and conceptual development; GPT-5 (OpenAI) and Grok (xAI) for feedback and review. Author reviewed all content and takes full responsibility.',
   },
 
   // === UNDER REVIEW ===
@@ -80,6 +83,7 @@ The brain doesn't compute by enumerating possibilities like a digital computer. 
       'Collision-free computation: biology evolves reversibly until output',
       'Code formation emerges from dimensional mismatch between high-D thought and low-D communication',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'coherence-time',
@@ -99,6 +103,7 @@ This explains why visual binding takes 30-50ms, why flies perceive time faster t
       'Explains 1000-fold range of flicker fusion frequency across species',
       'Under stress, perception slows while reaction time stays constant (dual pathway prediction)',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'substrate-dimensionality',
@@ -117,6 +122,7 @@ The paper proves a structural limit: when internal complexity exceeds what we ca
       'Three substrate classes with distinct capability ceilings',
       'Consciousness may require volumetric field coupling, not just graph connectivity',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'cortical-oscillations',
@@ -138,6 +144,7 @@ This reframes the Miller Lab findings: gamma doesn't carry "rich content"—it c
       'Flexible thinking requires $\\geq 3$ dimensions; paradox tolerance is a signature of maturity',
       'Noise forces categorical collapse as information-theoretic necessity',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'coherence-gate-scaling',
@@ -157,6 +164,7 @@ This isn't a temporary limitation—it's fundamental. The paper proposes the "co
       'Coherence gate: let oscillators synchronise naturally, monitor via sparse taps',
       'Implementable via CMOS arrays, photonic resonators, or memristive crossbars',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'lsd-dimensionality',
@@ -175,6 +183,7 @@ The expansion is transient: after the drug wears off, dimensionality returns to 
       'Three-phase model: overshoot → refractory collapse → recanalization',
       'Geometric (LSD) vs organic (psilocybin) visuals quantified via spectral centroid',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'nonergodic-development',
@@ -196,6 +205,7 @@ In cooperative environments, developmental trajectories remain stable within hea
       'Cancer as cellular bifurcation into alternative stable states',
       'Fractal coherence: same mechanism prevents cancer and enables social cooperation',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'clinical-validity-bounds',
@@ -214,6 +224,7 @@ Think of it like navigating a 3D maze with only a 2D map: no matter how detailed
       '14 tests with 5% false positive rate → 50% chance of spurious finding',
       'Validated on 425,216 hospital admissions from MIMIC-IV',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'oscillatory-incompleteness',
@@ -231,6 +242,7 @@ This reinterprets Gödel's famous incompleteness theorem as a fundamental constr
       'Applies to neural oscillations, gene networks, ecological cycles',
       'Physical self-referential oscillator embodies Gödel sentence in dynamical form',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'dimensional-landauer',
@@ -249,6 +261,7 @@ This explains why biological systems favour oscillatory, coherent dynamics—coh
       'Coherence reduces work: as oscillators synchronise, projection cost drops',
       'Deep learning autoencoders show effort explosion below intrinsic data dimension',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'biological-shadows',
@@ -268,6 +281,7 @@ This paper provides the mathematical toolkit for measuring exactly how much your
       '<0.001% of state space is actually sampled in typical experiments',
       'Validated across 4 standard scRNA-seq datasets (n = 90,300 cells)',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'minimal-embedding',
@@ -285,6 +299,7 @@ This isn't just geometry—it's a constraint on any physical system implementing
       'Information-geometric derivation from Fisher metric',
       'Connects to Takens embedding theorem',
     ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
 
   // === IN PREPARATION ===

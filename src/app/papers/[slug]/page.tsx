@@ -148,6 +148,15 @@ export default async function PaperPage({
 {`Todd, I. (${paper.year}). ${paper.title}. ${paper.journal}.${paper.doi ? `\nhttps://doi.org/${paper.doi}` : ''}`}
         </pre>
       </section>
+
+      {/* Workflow */}
+      {paper.workflow && (
+        <section className="mt-8 pt-4 border-t border-gray-800">
+          <p className="text-xs text-gray-500">
+            <span className="font-medium">Workflow:</span> {paper.workflow}
+          </p>
+        </section>
+      )}
     </main>
   );
 }
