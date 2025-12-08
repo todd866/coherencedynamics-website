@@ -125,6 +125,7 @@ The paper proves a structural limit: when internal complexity exceeds what we ca
     year: 2025,
     status: 'submitted',
     github: 'todd866/brainwavedimensionality',
+    image: 'cortical-oscillations.jpeg',
     description: `Brain waves operate as a cascade of filters. Slower waves maintain a high-dimensional "canvas" with thousands of neurons in concert; faster waves compress information more tightly. At the tightest compression (gamma), the brain commits to clear categories. At moderate compression (beta), it retains flexibility to hold multiple ideas simultaneously.
 
 This explains why stress, sleep deprivation, and immaturity produce rigid thinking: when signals get noisier, the brain collapses toward categorical processing because that's more robust to interference.`,
