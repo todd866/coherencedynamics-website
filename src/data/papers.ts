@@ -313,7 +313,9 @@ The key application is the brain: high-dimensional ephaptic field dynamics must 
     status: 'in_prep',
     description: `Discrete codes emerge spontaneously when continuous high-dimensional data passes through a bandwidth-limited noisy channel. The key insight: you need *both* a dimensional bottleneck *and* noise—neither alone is sufficient.
 
-The bottleneck compresses the space, bringing points closer together. Noise adds uncertainty, making nearby points indistinguishable. The system learns to space codes apart to avoid confusion. This is a topological phase transition: continuous $O(2)$ symmetry breaks to discrete $C_6$ symmetry.`,
+The bottleneck compresses the space, bringing points closer together. Noise adds uncertainty, making nearby points indistinguishable. The system learns to space codes apart to avoid confusion. This is a topological phase transition: continuous $O(2)$ symmetry breaks to discrete $C_6$ symmetry.
+
+*Note: The GitHub repo contains an early demo—this will require significant theoretical development before submission.*`,
     whyItMatters: `This is the foundational mechanism behind all the other papers. Thoughts become words, neural activity becomes behavior, genes become phenotypes—all through the same bottleneck + noise mechanism forcing discretization.`,
     keyFindings: [
       'Bottleneck alone: continuous ring preserved',
