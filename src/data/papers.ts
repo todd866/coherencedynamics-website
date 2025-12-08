@@ -225,7 +225,7 @@ Think of it like navigating a 3D maze with only a 2D map: no matter how detailed
     whyItMatters: `Explains why EHR alerts feel useless in complex patients and why experienced doctors often override them. You're not ignoring evidence—you're recognising that the algorithm is operating outside its valid range. This gives a framework to justify clinical override.`,
     keyFindings: [
       'AI performs worst not on sickest patients, but on moderate complexity (zone of maximum entropy)',
-      'Healthy patients: D_eff = 44.3; sick patients collapse to D_eff = 29.5',
+      'Healthy patients: $D_{\\text{eff}} = 44.3$; sick patients collapse to $D_{\\text{eff}} = 29.5$',
       '14 tests with 5% false positive rate → 50% chance of spurious finding',
       'Validated on 425,216 hospital admissions from MIMIC-IV',
     ],
