@@ -292,7 +292,7 @@ This paper provides the mathematical toolkit for measuring exactly how much your
     description: `Cyclic processes on statistical manifolds require at least 3 dimensions to avoid self-intersection. Below $k=3$, state trajectories collide, forcing categorical (discrete) representations. At $k \\geq 3$, continuous temporal dynamics become possible.
 
 The key application is the brain: high-dimensional ephaptic field dynamics must compress into low-dimensional cortical representations. This k=3 threshold determines whether neural dynamics can remain continuous or are forced into discrete categorical states.`,
-    whyItMatters: `When high-dimensional systems (like ephaptic fields) project into low-dimensional readouts (like cortical activity), k=3 is the critical boundary. Below it, continuous dynamics become impossible—the system is forced into categorical representations.`,
+    whyItMatters: `When high-dimensional systems (like ephaptic fields) project into low-dimensional readouts (like cortical activity), k=3 is the critical boundary. Below it, continuous dynamics become impossible—the system is forced into categorical representations. The same constraint applies to neural network latent spaces and any dimensionality reduction scheme.`,
     keyFindings: [
       '$k=3$ is minimal embedding dimension for self-intersection-free cycles',
       '$k \\leq 2$ forces categorical representations through state conflation',
