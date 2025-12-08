@@ -60,17 +60,9 @@ export default function PapersPage() {
           <h2 className="text-xl font-semibold mb-4 text-gray-500">
             In Preparation ({inPrep.length})
           </h2>
-          <div className="space-y-4 opacity-60">
+          <div className="space-y-4">
             {inPrep.map(paper => (
-              <div
-                key={paper.slug}
-                className="block p-4 border border-gray-800 rounded-lg"
-              >
-                <h3 className="font-medium text-white">{paper.title}</h3>
-                <p className="text-gray-500 text-sm mt-1">
-                  Target: {paper.journal}
-                </p>
-              </div>
+              <PaperCard key={paper.slug} paper={paper} />
             ))}
           </div>
         </section>
