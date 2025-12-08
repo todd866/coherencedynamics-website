@@ -25,3 +25,8 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Ensure KaTeX math inherits parent font size */
+.katex {
+  font-size: 1em !important;
+}

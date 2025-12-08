@@ -27,12 +27,12 @@ export const papers: Paper[] = [
     image: 'falsifiability.jpeg',
     description: `Karl Popper's falsifiability criterion—the bedrock of scientific method—doesn't work universally in biology. This paper shows why.
 
-Biological systems exist in absurdly high-dimensional spaces. A single cell needs thousands of variables to describe. When you try to test a yes/no hypothesis about such systems, you're projecting all that complexity onto a single bit. For a modest 100-neuron circuit, a binary test preserves about 10^-100 of the information. That's functionally zero.
+Biological systems exist in absurdly high-dimensional spaces. A single cell needs thousands of variables to describe. When you try to test a yes/no hypothesis about such systems, you're projecting all that complexity onto a single bit. For a modest 100-neuron circuit, a binary test preserves about $10^{-100}$ of the information. That's functionally zero.
 
-Worse, many biological patterns operate below the Landauer limit—the minimum energy needed to record one bit (~3×10^-21 J). Sub-threshold neural fluctuations, quantum coherence in photosynthesis, ephaptic coupling between neurons: these patterns are too weak to measure discretely, yet they're causally important through collective effects.`,
+Worse, many biological patterns operate below the Landauer limit—the minimum energy needed to record one bit ($\\sim 3 \\times 10^{-21}$ J). Sub-threshold neural fluctuations, quantum coherence in photosynthesis, [ephaptic coupling](https://news.mit.edu/2023/brain-networks-encoding-memory-come-together-via-electric-fields-0724) between neurons: these patterns are too weak to measure discretely, yet they're causally important through collective effects.`,
     whyItMatters: `This isn't saying "biology is too complicated." It's identifying a fundamental physical limit on what binary hypothesis testing can tell us about high-dimensional systems. Falsifiability works for low-dimensional, strong-signal biology (enzyme kinetics, action potentials). But for consciousness, evolution on fitness landscapes, ecological networks, protein folding—we need different validation methods.`,
     keyFindings: [
-      'Binary projection of high-D systems destroys nearly all information (10^-100 preservation for 100-neuron circuits)',
+      'Binary projection of high-D systems destroys nearly all information ($10^{-100}$ preservation for 100-neuron circuits)',
       'Sub-Landauer patterns exist below measurement thresholds yet remain causally significant',
       'Quantum measurement necessarily collapses coherent states, destroying the phenomenon being studied',
       'Proposes scale-aware, ensemble-based epistemology as alternative to binary hypothesis testing',
@@ -106,6 +106,7 @@ This explains why visual binding takes 30-50ms, why flies perceive time faster t
     journal: 'Biological Cybernetics',
     year: 2025,
     status: 'submitted',
+    image: 'substrate-dimensionality.jpeg',
     description: `Modern AI achieves enormous algorithmic complexity on substrates with essentially one degree of freedom—the global clock. Biological brains exploit vastly higher substrate dimensionality through asynchronous, continuous dynamics. This dimensional mismatch may explain why AI plateaus, resists interpretation, and may never achieve genuine consciousness.
 
 The paper proves a structural limit: when internal complexity exceeds what we can measure, reconstructing internal states becomes mathematically impossible, not just difficult.`,
@@ -142,13 +143,13 @@ This explains why stress, sleep deprivation, and immaturity produce rigid thinki
     year: 2025,
     status: 'submitted',
     github: 'todd866/coherence-gate',
-    description: `Oscillating neural networks can extract powerful relational patterns from data. But simulating them on digital computers requires O(N²) operations per timestep—making large systems impractical. Physical coupling (electrical circuits, optical systems) does this automatically at O(K) operations, offering 100-1000× better energy efficiency.
+    description: `[Oscillating neural networks](https://www.nature.com/articles/s41467-025-64471-2) can extract powerful relational patterns from data. But simulating them on digital computers requires $O(N^2)$ operations per timestep—making large systems impractical. Physical coupling (electrical circuits, optical systems) does this automatically at $O(K)$ operations, offering 100-1000× better energy efficiency.
 
 This isn't a temporary limitation—it's fundamental. The paper proposes the "coherence gate" as a hardware primitive for neuromorphic chips.`,
     whyItMatters: `Identifies a hard scaling barrier for oscillatory neural networks on digital hardware and shows a concrete path forward through dedicated analogue implementations.`,
     keyFindings: [
-      'Digital simulation: O(N²) operations; physical coupling: O(K) operations',
-      '86× energy advantage at 100 oscillators; 224× at 400 oscillators',
+      'Digital simulation: $O(N^2)$ operations; physical coupling: $O(K)$ operations',
+      '$86\\times$ energy advantage at 100 oscillators; $224\\times$ at 400 oscillators',
       'Coherence gate: let oscillators synchronise naturally, monitor via sparse taps',
       'Implementable via CMOS arrays, photonic resonators, or memristive crossbars',
     ],

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { papers, getPaperBySlug } from '@/data/papers';
+import Markdown from '@/components/Markdown';
 
 export function generateStaticParams() {
   return papers.map((paper) => ({ slug: paper.slug }));
@@ -85,6 +86,14 @@ export default async function PaperPage({
         </div>
       </div>
 
+      {/* Main description - first paragraph only */}
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-3 text-white">What&apos;s this about?</h2>
+        <Markdown className="text-gray-300 leading-relaxed">
+          {paper.description.split('\n\n')[0]}
+        </Markdown>
+      </section>
+
       {/* Paper image */}
       {paper.image && (
         <div className="mb-8">
@@ -98,21 +107,22 @@ export default async function PaperPage({
         </div>
       )}
 
-      {/* Main description */}
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3 text-white">What&apos;s this about?</h2>
-        <div className="text-gray-300 leading-relaxed whitespace-pre-line">
-          {paper.description}
-        </div>
-      </section>
+      {/* Rest of description */}
+      {paper.description.split('\n\n').length > 1 && (
+        <section className="mb-8">
+          <Markdown className="text-gray-300 leading-relaxed">
+            {paper.description.split('\n\n').slice(1).join('\n\n')}
+          </Markdown>
+        </section>
+      )}
 
       {/* Why it matters */}
       {paper.whyItMatters && (
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-3 text-white">Why it matters</h2>
-          <p className="text-gray-300 leading-relaxed">
+          <Markdown className="text-gray-300 leading-relaxed">
             {paper.whyItMatters}
-          </p>
+          </Markdown>
         </section>
       )}
 
@@ -124,7 +134,7 @@ export default async function PaperPage({
             {paper.keyFindings.map((finding, index) => (
               <li key={index} className="text-gray-300 flex items-start">
                 <span className="text-gray-500 mr-3">&bull;</span>
-                <span>{finding}</span>
+                <Markdown className="inline">{finding}</Markdown>
               </li>
             ))}
           </ul>
