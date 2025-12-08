@@ -291,8 +291,8 @@ This paper provides the mathematical toolkit for measuring exactly how much your
     status: 'submitted',
     description: `Cyclic processes on statistical manifolds require at least 3 dimensions to avoid self-intersection. Below $k=3$, state trajectories collide, forcing categorical (discrete) representations. At $k \\geq 3$, continuous temporal dynamics become possible.
 
-This identifies a critical threshold in information geometry: the transition from forced discretization to smooth recurrence.`,
-    whyItMatters: `Provides a lower bound on the complexity needed for any system implementing feedback loops. Systems with fewer than 3 effective dimensions cannot represent continuous cycles—they're forced into discrete states.`,
+The key application is the brain: high-dimensional ephaptic field dynamics must compress into low-dimensional cortical representations. This k=3 threshold determines whether neural dynamics can remain continuous or are forced into discrete categorical states.`,
+    whyItMatters: `When high-dimensional systems (like ephaptic fields) project into low-dimensional readouts (like cortical activity), k=3 is the critical boundary. Below it, continuous dynamics become impossible—the system is forced into categorical representations.`,
     keyFindings: [
       '$k=3$ is minimal embedding dimension for self-intersection-free cycles',
       '$k \\leq 2$ forces categorical representations through state conflation',
