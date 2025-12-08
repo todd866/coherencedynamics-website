@@ -12,7 +12,7 @@ interface MarkdownProps {
 
 export default function Markdown({ children, className = '' }: MarkdownProps) {
   return (
-    <div className={className}>
+    <div className={className} style={{ fontSize: 'inherit' }}>
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeKatex]}
@@ -30,7 +30,7 @@ export default function Markdown({ children, className = '' }: MarkdownProps) {
           ),
           // Preserve paragraph spacing - inherit font from parent
           p: ({ children }) => (
-            <p className="mb-4 last:mb-0">{children}</p>
+            <p className="mb-4 last:mb-0" style={{ fontSize: 'inherit' }}>{children}</p>
           ),
         }}
       >
