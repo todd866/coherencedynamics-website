@@ -326,13 +326,13 @@ The bottleneck compresses the space, bringing points closer together. Noise adds
   {
     slug: 'embryo-oscillators',
     title: 'Slow Bioelectric Oscillations Dominate Morphological Information Capacity',
-    journal: 'Development',
+    journal: 'BioSystems',
     year: 2025,
     status: 'in_prep',
     description: `Morphological capacity in embryonic development scales as $D_{\\text{morph}} \\propto 1/\\sqrt{f}$, making slow developmental timescales fundamental rather than incidental. Gap junction networks in 10,000-cell embryos create effective dimensionality $D_{\\text{morph}} \\sim 100$–$1000$.
 
-Slow gene oscillators (periods ~1–10 hours) contribute >90% of morphological capacity despite being outnumbered by faster voltage and calcium modes.`,
-    whyItMatters: `The speed-accuracy tradeoff $\\varepsilon \\sim T_{\\text{osc}}/T_{\\text{dev}}$ explains species-specific developmental timing and temperature sensitivity ($R^2 = 0.90$ across 7 species from C. elegans to humans).`,
+This challenges Levin's bioelectric code framework: rather than fast voltage signals encoding morphological "software," the information-theoretic constraints suggest slow oscillations dominate because high-frequency signals can't carry enough bits across developmental timescales.`,
+    whyItMatters: `The speed-accuracy tradeoff $\\varepsilon \\sim T_{\\text{osc}}/T_{\\text{dev}}$ explains species-specific developmental timing and temperature sensitivity ($R^2 = 0.90$ across 7 species). Levin's framework may overestimate what fast bioelectric signals can achieve.`,
     keyFindings: [
       'Dimensional collapse via gap junction coupling',
       'Slow oscillators dominate morphological information capacity',
