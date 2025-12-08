@@ -101,7 +101,10 @@ export default function Home() {
         </Link>
 
         <Link href="/simulations" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
-          <h2 className="text-lg font-semibold mb-3 text-white">Interactive Simulations</h2>
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-lg font-semibold text-white">Interactive Simulations</h2>
+            <span className="text-xs px-2 py-0.5 bg-amber-900/50 text-amber-400 rounded">Early Alpha</span>
+          </div>
           <p className="text-gray-400 mb-4">
             Play with the ideas. Simulations that let you explore coherence dynamics,
             nonergodic development, and clinical decision-making.

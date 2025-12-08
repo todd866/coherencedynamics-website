@@ -70,10 +70,18 @@ export default function SimulationsPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <h1 className="text-3xl font-bold mb-4 text-white">Interactive Simulations</h1>
-      <p className="text-gray-400 mb-12 max-w-3xl">
+      <p className="text-gray-400 mb-6 max-w-3xl">
         Play with the ideas. Each simulation is a companion to a research paper,
         letting you explore the concepts hands-on.
       </p>
+
+      {/* Early Alpha notice */}
+      <div className="mb-12 p-4 border border-amber-700/50 bg-amber-900/20 rounded-lg">
+        <p className="text-amber-400 text-sm">
+          <span className="font-semibold">Early Alpha</span> — These simulations are rough works-in-progress.
+          Expect bugs, placeholder graphics, and incomplete features. We&apos;re building in public.
+        </p>
+      </div>
 
       <div className="grid gap-6">
         {simulations.map((sim) => {
