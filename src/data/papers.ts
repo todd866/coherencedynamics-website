@@ -214,7 +214,7 @@ In cooperative environments, developmental trajectories remain stable within hea
   {
     slug: 'clinical-validity-bounds',
     title: 'The Dimensional Validity Bound: When Clinical Algorithms Fail Complex Patients',
-    journal: 'npj Digital Medicine',
+    journal: 'npj Health Systems',
     year: 2025,
     status: 'submitted',
     github: 'todd866/clinical-validity-bounds',
