@@ -8,8 +8,8 @@
  * Right: Scrolling narrative text
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, useScroll } from 'framer-motion';
 import { StoryBundle, TelemetryKeyframe, Scene } from '@/lib/types';
 import { storyLogger } from '@/lib/logger';
 

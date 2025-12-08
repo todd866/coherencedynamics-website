@@ -22,7 +22,7 @@ export default async function ControlProblemPage() {
 
   try {
     bundle = await getStoryBundle();
-  } catch (e) {
+  } catch {
     // Fallback for development - show instructions
     return (
       <main className="min-h-screen bg-black text-white p-8">

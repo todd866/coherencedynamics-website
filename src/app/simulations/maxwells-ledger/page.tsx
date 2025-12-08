@@ -20,7 +20,7 @@ export default function MaxwellsLedger() {
   const [events, setEvents] = useState<Event[]>([]);
   const [digitalEnergy, setDigitalEnergy] = useState(0);
   const [biologicalEnergy, setBiologicalEnergy] = useState(0);
-  const [paths, setPaths] = useState<Path[]>([]);
+  const [, setPaths] = useState<Path[]>([]);
   const [output, setOutput] = useState<number | null>(null);
   const [phase, setPhase] = useState<'idle' | 'collecting' | 'committing' | 'done'>('idle');
   const [speed, setSpeed] = useState(1);

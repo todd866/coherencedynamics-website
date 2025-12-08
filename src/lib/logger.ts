@@ -48,7 +48,7 @@ class StoryLogger {
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem(LOG_KEY, JSON.stringify(this.events));
-      } catch (e) {
+      } catch {
         // localStorage full, clear old events
         this.events = this.events.slice(-100);
       }
