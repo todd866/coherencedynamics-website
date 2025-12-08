@@ -1,0 +1,1839 @@
+{
+  "meta": {
+    "title": "Control Problem",
+    "subtitle": "A scrollytelling experience",
+    "vehicle": "Fenghuang Heavy Lifter",
+    "route": {
+      "origin": {
+        "name": "Shanghai",
+        "code": "PVG",
+        "lat": 31.2,
+        "lon": 121.5
+      },
+      "destination": {
+        "name": "Los Angeles",
+        "code": "LAX",
+        "lat": 34.0,
+        "lon": -118.2
+      },
+      "distance_nm": 4900,
+      "distance_km": 9100,
+      "flight_time_min": 45
+    },
+    "themes": [
+      "energy_management",
+      "control_problem",
+      "superintelligence",
+      "physics_constraints"
+    ]
+  },
+  "scenes": [
+    {
+      "id": "briefing",
+      "title": "The Briefing",
+      "flight_phase": "pre_flight",
+      "scroll_range": [
+        0.0,
+        0.12
+      ],
+      "initial_state": {
+        "time_s": 0,
+        "mach": 0,
+        "altitude_km": 0,
+        "mass_kg": 540000
+      },
+      "beats": [
+        {
+          "text": "\"So that's all you're carrying?\" asked the journalist, \"Robot brains?\"",
+          "mood": "casual",
+          "duration_weight": 1.0,
+          "speaker": "journalist",
+          "camera": "cockpit"
+        },
+        {
+          "text": "\"Never underestimate the bandwidth of a truck full of tape drives, speeding down the highway!\"",
+          "mood": "casual",
+          "duration_weight": 1.0,
+          "speaker": "pilot"
+        },
+        {
+          "text": "The Fenghuang cargo jet was a sleek, stainless-steel machine, with the sharp lines of a 1960s fighter plane. But it was bigger. Much, much bigger.",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "camera": "exterior"
+        },
+        {
+          "text": "\"Shanghai to Los Angeles is forty-nine hundred nautical miles, flight time forty-five minutes...\"",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "highlight": "route_display"
+        }
+      ]
+    },
+    {
+      "id": "flight_profile",
+      "title": "Energy Management",
+      "flight_phase": "pre_flight",
+      "scroll_range": [
+        0.12,
+        0.2
+      ],
+      "initial_state": {
+        "time_s": 0,
+        "mach": 0,
+        "altitude_km": 0,
+        "mass_kg": 540000
+      },
+      "beats": [
+        {
+          "text": "\"Flight profile is straightforward. It's all about energy management.\"",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "highlight": "energy_caret"
+        },
+        {
+          "text": "\"Two hundred and fifty tons of methane is about twelve terajoules at rest; at Mach ten it's more like fourteen, at Mach twenty it's eighteen.\"",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "highlight": "fuel_gauge"
+        },
+        {
+          "text": "\"Skin temperature sets the speed limit.\"",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "highlight": "heat_load_bar"
+        }
+      ]
+    },
+    {
+      "id": "catapult",
+      "title": "Cat Shot",
+      "flight_phase": "catapult",
+      "scroll_range": [
+        0.2,
+        0.28
+      ],
+      "initial_state": {
+        "time_s": 0,
+        "mach": 0,
+        "altitude_km": 0,
+        "mass_kg": 540000
+      },
+      "beats": [
+        {
+          "text": "The pilot pushed the throttle forward, and a deep rumble was felt through the aircraft.",
+          "mood": "tense",
+          "duration_weight": 1.0,
+          "camera": "cockpit"
+        },
+        {
+          "text": "Suddenly, the catapult engaged. It was like the whole world had been tilted by 45 degrees.",
+          "mood": "urgent",
+          "duration_weight": 1.0,
+          "highlight": "velocity_vector",
+          "camera": "exterior"
+        },
+        {
+          "text": "Then a jerk as the cat disengaged, and a change in force-direction as the aircraft rotated to climb angle.",
+          "mood": "tense",
+          "duration_weight": 1.0,
+          "highlight": "attitude_indicator"
+        }
+      ]
+    },
+    {
+      "id": "rocket_climb",
+      "title": "Rocket Climb",
+      "flight_phase": "rocket_climb",
+      "scroll_range": [
+        0.28,
+        0.38
+      ],
+      "initial_state": {
+        "time_s": 30,
+        "mach": 0.9,
+        "altitude_km": 3,
+        "mass_kg": 490000
+      },
+      "beats": [
+        {
+          "text": "Climb out was slow at first, but the aircraft was rapidly getting lighter.",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "camera": "exterior"
+        },
+        {
+          "text": "Methane and liquid oxygen drained from the tanks at 1400 pounds per second.",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "highlight": "fuel_gauge"
+        },
+        {
+          "text": "Soon they were at cruising altitude of a traditional jetliner, but the acceleration continued.",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "highlight": "altimeter"
+        }
+      ]
+    },
+    {
+      "id": "scramjet_transition",
+      "title": "Air Breathing",
+      "flight_phase": "scramjet_transition",
+      "scroll_range": [
+        0.38,
+        0.48
+      ],
+      "initial_state": {
+        "time_s": 180,
+        "mach": 3.0,
+        "altitude_km": 10.6,
+        "mass_kg": 320000
+      },
+      "beats": [
+        {
+          "text": "Then the rumble changed; the rocket engine was supplemented then replaced by the scramjet.",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "camera": "exterior"
+        },
+        {
+          "text": "The feeling of continuous acceleration dissipated.",
+          "mood": "calm",
+          "duration_weight": 1.0
+        },
+        {
+          "text": "\"How fast are we going now?\"",
+          "mood": "casual",
+          "duration_weight": 1.0,
+          "speaker": "journalist"
+        },
+        {
+          "text": "\"Quick. Mach five now, Mach ten later.\"",
+          "mood": "casual",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "highlight": "mach_indicator"
+        }
+      ]
+    },
+    {
+      "id": "scramjet_cruise",
+      "title": "Over the Pacific",
+      "flight_phase": "scramjet_cruise",
+      "scroll_range": [
+        0.48,
+        0.58
+      ],
+      "initial_state": {
+        "time_s": 600,
+        "mach": 10.0,
+        "altitude_km": 50,
+        "mass_kg": 220000
+      },
+      "beats": [
+        {
+          "text": "\"Main engine's shut down. We're over the Pacific.\"",
+          "mood": "calm",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "camera": "exterior"
+        },
+        {
+          "text": "\"And how's our energy right now?\"",
+          "mood": "casual",
+          "duration_weight": 1.0,
+          "speaker": "journalist"
+        },
+        {
+          "text": "\"Lots in the tank, and a little bit heating up the skin. Mach ten and altitude increasing.\"",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "highlight": "heat_load_bar"
+        }
+      ]
+    },
+    {
+      "id": "control_loss",
+      "title": "What If",
+      "flight_phase": "scramjet_cruise",
+      "scroll_range": [
+        0.58,
+        0.68
+      ],
+      "initial_state": {
+        "time_s": 660,
+        "mach": 10.0,
+        "altitude_km": 55,
+        "mass_kg": 210000
+      },
+      "beats": [
+        {
+          "text": "\"I gotta ask. What happens if we lose the engine?\"",
+          "mood": "tense",
+          "duration_weight": 1.0,
+          "speaker": "journalist"
+        },
+        {
+          "text": "\"We're not gliding to Los Angeles, if that's what you're asking.\"",
+          "mood": "tense",
+          "duration_weight": 1.0,
+          "speaker": "pilot"
+        },
+        {
+          "text": "\"The flight deck is an escape capsule, heat shield keeps us safe.\"",
+          "mood": "technical",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "camera": "cockpit"
+        },
+        {
+          "text": "\"Control the problem. Simplify.\"",
+          "mood": "calm",
+          "duration_weight": 1.0,
+          "speaker": "pilot"
+        }
+      ]
+    },
+    {
+      "id": "intercept",
+      "title": "Unable",
+      "flight_phase": "decision_point",
+      "scroll_range": [
+        0.68,
+        0.78
+      ],
+      "initial_state": {
+        "time_s": 720,
+        "mach": 10.0,
+        "altitude_km": 50,
+        "mass_kg": 200000
+      },
+      "beats": [
+        {
+          "text": "\"Sorry, they're asking us to hold position, I'm gonna get busy, standby.\"",
+          "mood": "urgent",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "highlight": "possibility_cones"
+        },
+        {
+          "text": "Maps and vectors and possibility cones. Los Angeles was no longer their intended destination.",
+          "mood": "tense",
+          "duration_weight": 1.0,
+          "highlight": "cross_range_corridor"
+        },
+        {
+          "text": "\"Negative, unable.\"",
+          "mood": "urgent",
+          "duration_weight": 1.0,
+          "speaker": "pilot"
+        },
+        {
+          "text": "\"I'm at Mach ten. Nothing you have can escort me. I need a runway, not a fighter jet.\"",
+          "mood": "urgent",
+          "duration_weight": 1.0,
+          "speaker": "pilot",
+          "highlight": "delta_v_readout"
+        }
+      ]
+    },
+    {
+      "id": "revelation",
+      "title": "Robot Brains",
+      "flight_phase": "decision_point",
+      "scroll_range": [
+        0.78,
+        0.88
+      ],
+      "initial_state": {
+        "time_s": 750,
+        "mach": 10.0,
+        "altitude_km": 50,
+        "mass_kg": 195000
+      },
+      "beats": [
+        {
+          "text": "\"I know that you know that we're not just carrying robot brains.\"",
+          "mood": "revelation",
+          "duration_weight": 1.0,
+          "speaker": "pilot"
+        },
+        {
+          "text": "\"Robot brains do stuff. They carry information.\"",
+          "mood": "revelation",
+          "duration_weight": 1.0,
+          "speaker": "pilot"
+        },
+        {
+          "text": "\"If it wasn't important, you'd make a phone call. If it is important, you send a robot.\"",
+          "mood": "revelation",
+          "duration_weight": 1.0,
+          "speaker": "pilot"
+        },
+        {
+          "text": "\"We're not going to Los Angeles.\"",
+          "mood": "tense",
+          "duration_weight": 1.0,
+          "speaker": "pilot"
+        }
+      ]
+    },
+    {
+      "id": "ejection",
+      "title": "Control Problem",
+      "flight_phase": "ejection",
+      "scroll_range": [
+        0.88,
+        0.95
+      ],
+      "initial_state": {
+        "time_s": 900,
+        "mach": 8.0,
+        "altitude_km": 60,
+        "mass_kg": 190000
+      },
+      "beats": [
+        {
+          "text": "\"Do you like swimming?\"",
+          "mood": "calm",
+          "duration_weight": 1.0,
+          "speaker": "pilot"
+        },
+        {
+          "text": "The journalist relaxed. The pilot had made the right choice.",
+          "mood": "revelation",
+          "duration_weight": 1.0
+        },
+        {
+          "text": "The pilot pulled the ejection handle. The capsule lifted them up and away.",
+          "mood": "urgent",
+          "duration_weight": 1.0,
+          "camera": "exterior"
+        }
+      ]
+    },
+    {
+      "id": "descent",
+      "title": "Nothing But Time",
+      "flight_phase": "descent",
+      "scroll_range": [
+        0.95,
+        1.0
+      ],
+      "initial_state": {
+        "time_s": 2700,
+        "mach": 0,
+        "altitude_km": 0,
+        "mass_kg": 5000
+      },
+      "beats": [
+        {
+          "text": "As the sun rose over the frigid water of the North Pacific, they watched the aircraft self-destruct.",
+          "mood": "calm",
+          "duration_weight": 1.0,
+          "camera": "exterior"
+        },
+        {
+          "text": "It was a long, lazy descent to the water, and they had nothing but time.",
+          "mood": "calm",
+          "duration_weight": 1.0
+        },
+        {
+          "text": "It was going to be a long wait.",
+          "mood": "calm",
+          "duration_weight": 1.0
+        }
+      ]
+    }
+  ],
+  "telemetry": {
+    "keyframes": [
+      {
+        "scroll": 0.0,
+        "t": 0,
+        "pos": {
+          "alt_km": 0,
+          "dist_km": 0,
+          "lat": 31.2,
+          "lon": 121.5
+        },
+        "vel": {
+          "mach": 0.0,
+          "mps": 0.0,
+          "hdg": 45.0
+        },
+        "mass": {
+          "total_kg": 540000,
+          "ch4_kg": 250000,
+          "lox_kg": 150000
+        },
+        "energy": {
+          "kinetic_tj": 0.0,
+          "chemical_tj": 12.5,
+          "total_tj": 12.5
+        },
+        "thermal": {
+          "skin_k": 288,
+          "skin_pct": 0
+        },
+        "prop": {
+          "mode": "ground",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 1744.9,
+          "max_turn_deg": 180
+        }
+      },
+      {
+        "scroll": 0.12,
+        "t": 0,
+        "pos": {
+          "alt_km": 0,
+          "dist_km": 0,
+          "lat": 31.2,
+          "lon": 121.5
+        },
+        "vel": {
+          "mach": 0.0,
+          "mps": 0.0,
+          "hdg": 45.0
+        },
+        "mass": {
+          "total_kg": 540000,
+          "ch4_kg": 250000,
+          "lox_kg": 150000
+        },
+        "energy": {
+          "kinetic_tj": 0.0,
+          "chemical_tj": 12.5,
+          "total_tj": 12.5
+        },
+        "thermal": {
+          "skin_k": 288,
+          "skin_pct": 0
+        },
+        "prop": {
+          "mode": "ground",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 1744.9,
+          "max_turn_deg": 180
+        }
+      },
+      {
+        "scroll": 0.2,
+        "t": 0,
+        "pos": {
+          "alt_km": 0,
+          "dist_km": 0,
+          "lat": 31.2,
+          "lon": 121.5
+        },
+        "vel": {
+          "mach": 0.0,
+          "mps": 0.0,
+          "hdg": 45.0
+        },
+        "mass": {
+          "total_kg": 540000,
+          "ch4_kg": 250000,
+          "lox_kg": 150000
+        },
+        "energy": {
+          "kinetic_tj": 0.0,
+          "chemical_tj": 12.5,
+          "total_tj": 12.5
+        },
+        "thermal": {
+          "skin_k": 288,
+          "skin_pct": 0
+        },
+        "prop": {
+          "mode": "ground",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 1744.9,
+          "max_turn_deg": 180
+        }
+      },
+      {
+        "scroll": 0.22,
+        "t": 5,
+        "pos": {
+          "alt_km": 0,
+          "dist_km": 0.5,
+          "lat": 31.204,
+          "lon": 121.504
+        },
+        "vel": {
+          "mach": 0.25,
+          "mps": 85.8,
+          "hdg": 45.0
+        },
+        "mass": {
+          "total_kg": 532000,
+          "ch4_kg": 247000,
+          "lox_kg": 145000
+        },
+        "energy": {
+          "kinetic_tj": 0.002,
+          "chemical_tj": 12.35,
+          "total_tj": 12.352
+        },
+        "thermal": {
+          "skin_k": 288,
+          "skin_pct": 0
+        },
+        "prop": {
+          "mode": "rocket",
+          "thrust_kn": 2500
+        },
+        "dv": {
+          "remaining_mps": 1718.2,
+          "max_turn_deg": 0
+        }
+      },
+      {
+        "scroll": 0.25,
+        "t": 15,
+        "pos": {
+          "alt_km": 0,
+          "dist_km": 1.2,
+          "lat": 31.209,
+          "lon": 121.51
+        },
+        "vel": {
+          "mach": 0.45,
+          "mps": 154.3,
+          "hdg": 45.0
+        },
+        "mass": {
+          "total_kg": 515000,
+          "ch4_kg": 240000,
+          "lox_kg": 135000
+        },
+        "energy": {
+          "kinetic_tj": 0.006,
+          "chemical_tj": 12.0,
+          "total_tj": 12.006
+        },
+        "thermal": {
+          "skin_k": 288,
+          "skin_pct": 0
+        },
+        "prop": {
+          "mode": "rocket",
+          "thrust_kn": 2500
+        },
+        "dv": {
+          "remaining_mps": 1664.2,
+          "max_turn_deg": 180
+        }
+      },
+      {
+        "scroll": 0.28,
+        "t": 30,
+        "pos": {
+          "alt_km": 3,
+          "dist_km": 20,
+          "lat": 31.344,
+          "lon": 121.673
+        },
+        "vel": {
+          "mach": 0.9,
+          "mps": 308.7,
+          "hdg": 45.0
+        },
+        "mass": {
+          "total_kg": 485000,
+          "ch4_kg": 230000,
+          "lox_kg": 115000
+        },
+        "energy": {
+          "kinetic_tj": 0.023,
+          "chemical_tj": 11.5,
+          "total_tj": 11.523
+        },
+        "thermal": {
+          "skin_k": 312.0,
+          "skin_pct": 0.024
+        },
+        "prop": {
+          "mode": "rocket",
+          "thrust_kn": 2500
+        },
+        "dv": {
+          "remaining_mps": 1544.3,
+          "max_turn_deg": 180
+        }
+      },
+      {
+        "scroll": 0.32,
+        "t": 60,
+        "pos": {
+          "alt_km": 6,
+          "dist_km": 60,
+          "lat": 31.63,
+          "lon": 122.022
+        },
+        "vel": {
+          "mach": 0.9,
+          "mps": 308.7,
+          "hdg": 45.1
+        },
+        "mass": {
+          "total_kg": 445000,
+          "ch4_kg": 215000,
+          "lox_kg": 90000
+        },
+        "energy": {
+          "kinetic_tj": 0.021,
+          "chemical_tj": 10.75,
+          "total_tj": 10.771
+        },
+        "thermal": {
+          "skin_k": 289.0,
+          "skin_pct": 0.001
+        },
+        "prop": {
+          "mode": "rocket",
+          "thrust_kn": 2500
+        },
+        "dv": {
+          "remaining_mps": 1380.6,
+          "max_turn_deg": 180
+        }
+      },
+      {
+        "scroll": 0.38,
+        "t": 120,
+        "pos": {
+          "alt_km": 10.6,
+          "dist_km": 150,
+          "lat": 32.272,
+          "lon": 122.813
+        },
+        "vel": {
+          "mach": 0.9,
+          "mps": 308.7,
+          "hdg": 45.3
+        },
+        "mass": {
+          "total_kg": 400000,
+          "ch4_kg": 200000,
+          "lox_kg": 60000
+        },
+        "energy": {
+          "kinetic_tj": 0.019,
+          "chemical_tj": 10.0,
+          "total_tj": 10.019
+        },
+        "thermal": {
+          "skin_k": 255.0,
+          "skin_pct": 0
+        },
+        "prop": {
+          "mode": "rocket",
+          "thrust_kn": 2500
+        },
+        "dv": {
+          "remaining_mps": 1154.7,
+          "max_turn_deg": 180
+        }
+      },
+      {
+        "scroll": 0.42,
+        "t": 180,
+        "pos": {
+          "alt_km": 10.6,
+          "dist_km": 350,
+          "lat": 33.679,
+          "lon": 124.613
+        },
+        "vel": {
+          "mach": 3.0,
+          "mps": 1029.0,
+          "hdg": 45.8
+        },
+        "mass": {
+          "total_kg": 370000,
+          "ch4_kg": 180000,
+          "lox_kg": 50000
+        },
+        "energy": {
+          "kinetic_tj": 0.196,
+          "chemical_tj": 9.0,
+          "total_tj": 9.196
+        },
+        "thermal": {
+          "skin_k": 613.0,
+          "skin_pct": 0.322
+        },
+        "prop": {
+          "mode": "scramjet",
+          "thrust_kn": 800
+        },
+        "dv": {
+          "remaining_mps": 1068.3,
+          "max_turn_deg": 62.55
+        }
+      },
+      {
+        "scroll": 0.48,
+        "t": 360,
+        "pos": {
+          "alt_km": 25,
+          "dist_km": 1500,
+          "lat": 41.167,
+          "lon": 136.235
+        },
+        "vel": {
+          "mach": 6.0,
+          "mps": 1770.0,
+          "hdg": 48.3
+        },
+        "mass": {
+          "total_kg": 335000,
+          "ch4_kg": 150000,
+          "lox_kg": 45000
+        },
+        "energy": {
+          "kinetic_tj": 0.525,
+          "chemical_tj": 7.5,
+          "total_tj": 8.025
+        },
+        "thermal": {
+          "skin_k": 1300,
+          "skin_pct": 1.0
+        },
+        "prop": {
+          "mode": "scramjet",
+          "thrust_kn": 800
+        },
+        "dv": {
+          "remaining_mps": 1012.9,
+          "max_turn_deg": 33.25
+        }
+      },
+      {
+        "scroll": 0.55,
+        "t": 600,
+        "pos": {
+          "alt_km": 45,
+          "dist_km": 3500,
+          "lat": 50.326,
+          "lon": 162.984
+        },
+        "vel": {
+          "mach": 10.0,
+          "mps": 2950.0,
+          "hdg": 52.7
+        },
+        "mass": {
+          "total_kg": 300000,
+          "ch4_kg": 120000,
+          "lox_kg": 40000
+        },
+        "energy": {
+          "kinetic_tj": 1.305,
+          "chemical_tj": 6.0,
+          "total_tj": 7.305
+        },
+        "thermal": {
+          "skin_k": 1300,
+          "skin_pct": 1.0
+        },
+        "prop": {
+          "mode": "scramjet",
+          "thrust_kn": 800
+        },
+        "dv": {
+          "remaining_mps": 945.7,
+          "max_turn_deg": 18.45
+        }
+      },
+      {
+        "scroll": 0.62,
+        "t": 660,
+        "pos": {
+          "alt_km": 50,
+          "dist_km": 4500,
+          "lat": 52.07,
+          "lon": 179.251
+        },
+        "vel": {
+          "mach": 10.0,
+          "mps": 2950.0,
+          "hdg": 54.9
+        },
+        "mass": {
+          "total_kg": 288000,
+          "ch4_kg": 110000,
+          "lox_kg": 38000
+        },
+        "energy": {
+          "kinetic_tj": 1.253,
+          "chemical_tj": 5.5,
+          "total_tj": 6.753
+        },
+        "thermal": {
+          "skin_k": 1300,
+          "skin_pct": 1.0
+        },
+        "prop": {
+          "mode": "scramjet",
+          "thrust_kn": 800
+        },
+        "dv": {
+          "remaining_mps": 916.4,
+          "max_turn_deg": 17.87
+        }
+      },
+      {
+        "scroll": 0.68,
+        "t": 720,
+        "pos": {
+          "alt_km": 50,
+          "dist_km": 5500,
+          "lat": 51.474,
+          "lon": -164.063
+        },
+        "vel": {
+          "mach": 10.0,
+          "mps": 2950.0,
+          "hdg": 57.1
+        },
+        "mass": {
+          "total_kg": 280000,
+          "ch4_kg": 105000,
+          "lox_kg": 35000
+        },
+        "energy": {
+          "kinetic_tj": 1.218,
+          "chemical_tj": 5.25,
+          "total_tj": 6.468
+        },
+        "thermal": {
+          "skin_k": 1300,
+          "skin_pct": 1.0
+        },
+        "prop": {
+          "mode": "coasting",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 877.8,
+          "max_turn_deg": 17.11
+        }
+      },
+      {
+        "scroll": 0.75,
+        "t": 750,
+        "pos": {
+          "alt_km": 50,
+          "dist_km": 6500,
+          "lat": 48.64,
+          "lon": -148.572
+        },
+        "vel": {
+          "mach": 10.0,
+          "mps": 2950.0,
+          "hdg": 59.3
+        },
+        "mass": {
+          "total_kg": 274000,
+          "ch4_kg": 102000,
+          "lox_kg": 32000
+        },
+        "energy": {
+          "kinetic_tj": 1.192,
+          "chemical_tj": 5.1,
+          "total_tj": 6.292
+        },
+        "thermal": {
+          "skin_k": 1300,
+          "skin_pct": 1.0
+        },
+        "prop": {
+          "mode": "coasting",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 839.7,
+          "max_turn_deg": 16.36
+        }
+      },
+      {
+        "scroll": 0.82,
+        "t": 810,
+        "pos": {
+          "alt_km": 50,
+          "dist_km": 7200,
+          "lat": 45.546,
+          "lon": -138.974
+        },
+        "vel": {
+          "mach": 10.0,
+          "mps": 2950.0,
+          "hdg": 60.8
+        },
+        "mass": {
+          "total_kg": 270000,
+          "ch4_kg": 100000,
+          "lox_kg": 30000
+        },
+        "energy": {
+          "kinetic_tj": 1.175,
+          "chemical_tj": 5.0,
+          "total_tj": 6.175
+        },
+        "thermal": {
+          "skin_k": 1300,
+          "skin_pct": 1.0
+        },
+        "prop": {
+          "mode": "coasting",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 813.6,
+          "max_turn_deg": 15.85
+        }
+      },
+      {
+        "scroll": 0.88,
+        "t": 870,
+        "pos": {
+          "alt_km": 55,
+          "dist_km": 7600,
+          "lat": 43.446,
+          "lon": -133.99
+        },
+        "vel": {
+          "mach": 9.0,
+          "mps": 2655.0,
+          "hdg": 61.7
+        },
+        "mass": {
+          "total_kg": 266000,
+          "ch4_kg": 98000,
+          "lox_kg": 28000
+        },
+        "energy": {
+          "kinetic_tj": 0.938,
+          "chemical_tj": 4.9,
+          "total_tj": 5.838
+        },
+        "thermal": {
+          "skin_k": 1300,
+          "skin_pct": 1.0
+        },
+        "prop": {
+          "mode": "coasting",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 786.9,
+          "max_turn_deg": 17.04
+        }
+      },
+      {
+        "scroll": 0.92,
+        "t": 900,
+        "pos": {
+          "alt_km": 60,
+          "dist_km": 7800,
+          "lat": 42.319,
+          "lon": -131.63
+        },
+        "vel": {
+          "mach": 8.0,
+          "mps": 2360.0,
+          "hdg": 62.1
+        },
+        "mass": {
+          "total_kg": 140000,
+          "ch4_kg": 0,
+          "lox_kg": 0
+        },
+        "energy": {
+          "kinetic_tj": 0.39,
+          "chemical_tj": 0.0,
+          "total_tj": 0.39
+        },
+        "thermal": {
+          "skin_k": 1300,
+          "skin_pct": 1.0
+        },
+        "prop": {
+          "mode": "capsule",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 0,
+          "max_turn_deg": 0
+        }
+      },
+      {
+        "scroll": 0.95,
+        "t": 1200,
+        "pos": {
+          "alt_km": 40,
+          "dist_km": 7800,
+          "lat": 42.319,
+          "lon": -131.63
+        },
+        "vel": {
+          "mach": 0.5,
+          "mps": 147.5,
+          "hdg": 62.1
+        },
+        "mass": {
+          "total_kg": 140000,
+          "ch4_kg": 0,
+          "lox_kg": 0
+        },
+        "energy": {
+          "kinetic_tj": 0.002,
+          "chemical_tj": 0.0,
+          "total_tj": 0.002
+        },
+        "thermal": {
+          "skin_k": 288.0,
+          "skin_pct": 0.0
+        },
+        "prop": {
+          "mode": "capsule",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 0,
+          "max_turn_deg": 0
+        }
+      },
+      {
+        "scroll": 0.98,
+        "t": 2000,
+        "pos": {
+          "alt_km": 5,
+          "dist_km": 7800,
+          "lat": 42.319,
+          "lon": -131.63
+        },
+        "vel": {
+          "mach": 0.1,
+          "mps": 34.3,
+          "hdg": 62.1
+        },
+        "mass": {
+          "total_kg": 140000,
+          "ch4_kg": 0,
+          "lox_kg": 0
+        },
+        "energy": {
+          "kinetic_tj": 0.0,
+          "chemical_tj": 0.0,
+          "total_tj": 0.0
+        },
+        "thermal": {
+          "skin_k": 256.0,
+          "skin_pct": 0
+        },
+        "prop": {
+          "mode": "capsule",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 0,
+          "max_turn_deg": 0
+        }
+      },
+      {
+        "scroll": 1.0,
+        "t": 2700,
+        "pos": {
+          "alt_km": 0,
+          "dist_km": 7800,
+          "lat": 42.319,
+          "lon": -131.63
+        },
+        "vel": {
+          "mach": 0.0,
+          "mps": 0.0,
+          "hdg": 62.1
+        },
+        "mass": {
+          "total_kg": 140000,
+          "ch4_kg": 0,
+          "lox_kg": 0
+        },
+        "energy": {
+          "kinetic_tj": 0.0,
+          "chemical_tj": 0.0,
+          "total_tj": 0.0
+        },
+        "thermal": {
+          "skin_k": 288,
+          "skin_pct": 0
+        },
+        "prop": {
+          "mode": "capsule",
+          "thrust_kn": 0
+        },
+        "dv": {
+          "remaining_mps": 0,
+          "max_turn_deg": 0
+        }
+      }
+    ],
+    "interpolation": "linear",
+    "units": {
+      "altitude": "km",
+      "distance": "km",
+      "velocity": "m/s",
+      "mass": "kg",
+      "energy": "TJ",
+      "temperature": "K",
+      "thrust": "kN"
+    }
+  },
+  "hud_elements": {
+    "energy_caret": {
+      "id": "energy_caret",
+      "label": "Energy Vector",
+      "description": "Shows direction of total energy change (\u0116)",
+      "position": "center",
+      "color_scheme": "energy"
+    },
+    "velocity_vector": {
+      "id": "velocity_vector",
+      "label": "Velocity Vector",
+      "description": "Flight path marker - where you're actually going",
+      "position": "center",
+      "color_scheme": "primary"
+    },
+    "possibility_cones": {
+      "id": "possibility_cones",
+      "label": "Reachability",
+      "description": "Destinations reachable with remaining \u0394v",
+      "position": "overlay",
+      "color_scheme": "warning"
+    },
+    "heat_load_bar": {
+      "id": "heat_load_bar",
+      "label": "Skin Temperature",
+      "description": "\u03c3T\u2074 proportion of maximum safe temperature",
+      "position": "left",
+      "color_scheme": "thermal"
+    },
+    "fuel_gauge": {
+      "id": "fuel_gauge",
+      "label": "Propellant",
+      "description": "Methane and LOX remaining",
+      "position": "right",
+      "color_scheme": "fuel"
+    },
+    "delta_v_readout": {
+      "id": "delta_v_readout",
+      "label": "\u0394v Budget",
+      "description": "Remaining velocity change capability",
+      "position": "bottom_right",
+      "color_scheme": "primary"
+    },
+    "cross_range_corridor": {
+      "id": "cross_range_corridor",
+      "label": "Cross-Range",
+      "description": "Maximum lateral deviation from current path",
+      "position": "overlay",
+      "color_scheme": "neutral"
+    },
+    "mach_indicator": {
+      "id": "mach_indicator",
+      "label": "Mach",
+      "description": "Current velocity as multiple of speed of sound",
+      "position": "top_left",
+      "color_scheme": "primary"
+    },
+    "altimeter": {
+      "id": "altimeter",
+      "label": "Altitude",
+      "description": "Height above mean sea level",
+      "position": "left",
+      "color_scheme": "primary"
+    },
+    "route_display": {
+      "id": "route_display",
+      "label": "Route",
+      "description": "Great circle path Shanghai \u2192 Los Angeles",
+      "position": "map_overlay",
+      "color_scheme": "neutral"
+    },
+    "attitude_indicator": {
+      "id": "attitude_indicator",
+      "label": "Attitude",
+      "description": "Aircraft pitch, roll, and yaw",
+      "position": "center",
+      "color_scheme": "primary"
+    }
+  },
+  "route": {
+    "origin": {
+      "name": "Shanghai",
+      "lat": 31.2,
+      "lon": 121.5
+    },
+    "destination": {
+      "name": "Los Angeles",
+      "lat": 34.0,
+      "lon": -118.2
+    },
+    "waypoints": [
+      {
+        "progress": 0.0,
+        "lat": 31.2,
+        "lon": 121.5
+      },
+      {
+        "progress": 0.01,
+        "lat": 31.852,
+        "lon": 122.293
+      },
+      {
+        "progress": 0.02,
+        "lat": 32.498,
+        "lon": 123.098
+      },
+      {
+        "progress": 0.03,
+        "lat": 33.14,
+        "lon": 123.914
+      },
+      {
+        "progress": 0.04,
+        "lat": 33.776,
+        "lon": 124.742
+      },
+      {
+        "progress": 0.05,
+        "lat": 34.407,
+        "lon": 125.582
+      },
+      {
+        "progress": 0.06,
+        "lat": 35.031,
+        "lon": 126.435
+      },
+      {
+        "progress": 0.07,
+        "lat": 35.65,
+        "lon": 127.301
+      },
+      {
+        "progress": 0.08,
+        "lat": 36.262,
+        "lon": 128.18
+      },
+      {
+        "progress": 0.09,
+        "lat": 36.868,
+        "lon": 129.074
+      },
+      {
+        "progress": 0.1,
+        "lat": 37.467,
+        "lon": 129.981
+      },
+      {
+        "progress": 0.11,
+        "lat": 38.059,
+        "lon": 130.903
+      },
+      {
+        "progress": 0.12,
+        "lat": 38.644,
+        "lon": 131.841
+      },
+      {
+        "progress": 0.13,
+        "lat": 39.221,
+        "lon": 132.793
+      },
+      {
+        "progress": 0.14,
+        "lat": 39.79,
+        "lon": 133.761
+      },
+      {
+        "progress": 0.15,
+        "lat": 40.351,
+        "lon": 134.745
+      },
+      {
+        "progress": 0.16,
+        "lat": 40.903,
+        "lon": 135.746
+      },
+      {
+        "progress": 0.17,
+        "lat": 41.447,
+        "lon": 136.763
+      },
+      {
+        "progress": 0.18,
+        "lat": 41.982,
+        "lon": 137.797
+      },
+      {
+        "progress": 0.19,
+        "lat": 42.507,
+        "lon": 138.849
+      },
+      {
+        "progress": 0.2,
+        "lat": 43.022,
+        "lon": 139.918
+      },
+      {
+        "progress": 0.21,
+        "lat": 43.527,
+        "lon": 141.005
+      },
+      {
+        "progress": 0.22,
+        "lat": 44.022,
+        "lon": 142.11
+      },
+      {
+        "progress": 0.23,
+        "lat": 44.506,
+        "lon": 143.234
+      },
+      {
+        "progress": 0.24,
+        "lat": 44.979,
+        "lon": 144.377
+      },
+      {
+        "progress": 0.25,
+        "lat": 45.44,
+        "lon": 145.538
+      },
+      {
+        "progress": 0.26,
+        "lat": 45.889,
+        "lon": 146.718
+      },
+      {
+        "progress": 0.27,
+        "lat": 46.326,
+        "lon": 147.917
+      },
+      {
+        "progress": 0.28,
+        "lat": 46.75,
+        "lon": 149.135
+      },
+      {
+        "progress": 0.29,
+        "lat": 47.161,
+        "lon": 150.372
+      },
+      {
+        "progress": 0.3,
+        "lat": 47.559,
+        "lon": 151.628
+      },
+      {
+        "progress": 0.31,
+        "lat": 47.942,
+        "lon": 152.902
+      },
+      {
+        "progress": 0.32,
+        "lat": 48.312,
+        "lon": 154.196
+      },
+      {
+        "progress": 0.33,
+        "lat": 48.666,
+        "lon": 155.508
+      },
+      {
+        "progress": 0.34,
+        "lat": 49.006,
+        "lon": 156.838
+      },
+      {
+        "progress": 0.35,
+        "lat": 49.33,
+        "lon": 158.186
+      },
+      {
+        "progress": 0.36,
+        "lat": 49.638,
+        "lon": 159.552
+      },
+      {
+        "progress": 0.37,
+        "lat": 49.929,
+        "lon": 160.934
+      },
+      {
+        "progress": 0.38,
+        "lat": 50.205,
+        "lon": 162.333
+      },
+      {
+        "progress": 0.39,
+        "lat": 50.463,
+        "lon": 163.747
+      },
+      {
+        "progress": 0.4,
+        "lat": 50.704,
+        "lon": 165.177
+      },
+      {
+        "progress": 0.41,
+        "lat": 50.927,
+        "lon": 166.62
+      },
+      {
+        "progress": 0.42,
+        "lat": 51.132,
+        "lon": 168.078
+      },
+      {
+        "progress": 0.43,
+        "lat": 51.319,
+        "lon": 169.547
+      },
+      {
+        "progress": 0.44,
+        "lat": 51.487,
+        "lon": 171.028
+      },
+      {
+        "progress": 0.45,
+        "lat": 51.637,
+        "lon": 172.519
+      },
+      {
+        "progress": 0.46,
+        "lat": 51.768,
+        "lon": 174.02
+      },
+      {
+        "progress": 0.47,
+        "lat": 51.879,
+        "lon": 175.528
+      },
+      {
+        "progress": 0.48,
+        "lat": 51.971,
+        "lon": 177.044
+      },
+      {
+        "progress": 0.49,
+        "lat": 52.044,
+        "lon": 178.565
+      },
+      {
+        "progress": 0.5,
+        "lat": 52.097,
+        "lon": -179.91
+      },
+      {
+        "progress": 0.51,
+        "lat": 52.13,
+        "lon": -178.382
+      },
+      {
+        "progress": 0.52,
+        "lat": 52.143,
+        "lon": -176.852
+      },
+      {
+        "progress": 0.53,
+        "lat": 52.137,
+        "lon": -175.322
+      },
+      {
+        "progress": 0.54,
+        "lat": 52.111,
+        "lon": -173.793
+      },
+      {
+        "progress": 0.55,
+        "lat": 52.065,
+        "lon": -172.267
+      },
+      {
+        "progress": 0.56,
+        "lat": 51.999,
+        "lon": -170.744
+      },
+      {
+        "progress": 0.57,
+        "lat": 51.914,
+        "lon": -169.226
+      },
+      {
+        "progress": 0.58,
+        "lat": 51.809,
+        "lon": -167.715
+      },
+      {
+        "progress": 0.59,
+        "lat": 51.686,
+        "lon": -166.212
+      },
+      {
+        "progress": 0.6,
+        "lat": 51.543,
+        "lon": -164.717
+      },
+      {
+        "progress": 0.61,
+        "lat": 51.381,
+        "lon": -163.232
+      },
+      {
+        "progress": 0.62,
+        "lat": 51.2,
+        "lon": -161.759
+      },
+      {
+        "progress": 0.63,
+        "lat": 51.002,
+        "lon": -160.297
+      },
+      {
+        "progress": 0.64,
+        "lat": 50.785,
+        "lon": -158.849
+      },
+      {
+        "progress": 0.65,
+        "lat": 50.55,
+        "lon": -157.414
+      },
+      {
+        "progress": 0.66,
+        "lat": 50.298,
+        "lon": -155.994
+      },
+      {
+        "progress": 0.67,
+        "lat": 50.029,
+        "lon": -154.59
+      },
+      {
+        "progress": 0.68,
+        "lat": 49.743,
+        "lon": -153.202
+      },
+      {
+        "progress": 0.69,
+        "lat": 49.44,
+        "lon": -151.83
+      },
+      {
+        "progress": 0.7,
+        "lat": 49.122,
+        "lon": -150.476
+      },
+      {
+        "progress": 0.71,
+        "lat": 48.788,
+        "lon": -149.139
+      },
+      {
+        "progress": 0.72,
+        "lat": 48.439,
+        "lon": -147.821
+      },
+      {
+        "progress": 0.73,
+        "lat": 48.075,
+        "lon": -146.521
+      },
+      {
+        "progress": 0.74,
+        "lat": 47.696,
+        "lon": -145.239
+      },
+      {
+        "progress": 0.75,
+        "lat": 47.304,
+        "lon": -143.977
+      },
+      {
+        "progress": 0.76,
+        "lat": 46.897,
+        "lon": -142.733
+      },
+      {
+        "progress": 0.77,
+        "lat": 46.478,
+        "lon": -141.508
+      },
+      {
+        "progress": 0.78,
+        "lat": 46.045,
+        "lon": -140.302
+      },
+      {
+        "progress": 0.79,
+        "lat": 45.6,
+        "lon": -139.116
+      },
+      {
+        "progress": 0.8,
+        "lat": 45.143,
+        "lon": -137.948
+      },
+      {
+        "progress": 0.81,
+        "lat": 44.675,
+        "lon": -136.799
+      },
+      {
+        "progress": 0.82,
+        "lat": 44.195,
+        "lon": -135.669
+      },
+      {
+        "progress": 0.83,
+        "lat": 43.704,
+        "lon": -134.557
+      },
+      {
+        "progress": 0.84,
+        "lat": 43.202,
+        "lon": -133.463
+      },
+      {
+        "progress": 0.85,
+        "lat": 42.69,
+        "lon": -132.388
+      },
+      {
+        "progress": 0.86,
+        "lat": 42.169,
+        "lon": -131.33
+      },
+      {
+        "progress": 0.87,
+        "lat": 41.637,
+        "lon": -130.289
+      },
+      {
+        "progress": 0.88,
+        "lat": 41.097,
+        "lon": -129.266
+      },
+      {
+        "progress": 0.89,
+        "lat": 40.547,
+        "lon": -128.26
+      },
+      {
+        "progress": 0.9,
+        "lat": 39.989,
+        "lon": -127.27
+      },
+      {
+        "progress": 0.91,
+        "lat": 39.423,
+        "lon": -126.296
+      },
+      {
+        "progress": 0.92,
+        "lat": 38.849,
+        "lon": -125.338
+      },
+      {
+        "progress": 0.93,
+        "lat": 38.267,
+        "lon": -124.396
+      },
+      {
+        "progress": 0.94,
+        "lat": 37.677,
+        "lon": -123.469
+      },
+      {
+        "progress": 0.95,
+        "lat": 37.081,
+        "lon": -122.556
+      },
+      {
+        "progress": 0.96,
+        "lat": 36.478,
+        "lon": -121.658
+      },
+      {
+        "progress": 0.97,
+        "lat": 35.867,
+        "lon": -120.773
+      },
+      {
+        "progress": 0.98,
+        "lat": 35.251,
+        "lon": -119.902
+      },
+      {
+        "progress": 0.99,
+        "lat": 34.628,
+        "lon": -119.045
+      },
+      {
+        "progress": 1.0,
+        "lat": 34.0,
+        "lon": -118.2
+      }
+    ],
+    "key_points": [
+      {
+        "name": "Catapult Launch",
+        "progress": 0.0,
+        "lat": 31.2,
+        "lon": 121.5
+      },
+      {
+        "name": "Scramjet Transition",
+        "progress": 0.04,
+        "lat": 32.5,
+        "lon": 124.0
+      },
+      {
+        "name": "Mach 10 Cruise",
+        "progress": 0.4,
+        "lat": 42.0,
+        "lon": 165.0
+      },
+      {
+        "name": "Decision Point",
+        "progress": 0.72,
+        "lat": 38.5,
+        "lon": -155.0
+      },
+      {
+        "name": "Ejection",
+        "progress": 0.86,
+        "lat": 36.0,
+        "lon": -135.0
+      }
+    ]
+  }
+}
