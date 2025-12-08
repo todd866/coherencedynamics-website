@@ -306,6 +306,24 @@ The key application is the brain: high-dimensional ephaptic field dynamics must 
 
   // === IN PREPARATION ===
   {
+    slug: 'code-formation',
+    title: 'Code Formation: Discrete Symbols from Continuous Substrates',
+    journal: 'Physical Review E',
+    year: 2025,
+    status: 'in_prep',
+    description: `Discrete codes emerge spontaneously when continuous high-dimensional data passes through a bandwidth-limited noisy channel. The key insight: you need *both* a dimensional bottleneck *and* noise—neither alone is sufficient.
+
+The bottleneck compresses the space, bringing points closer together. Noise adds uncertainty, making nearby points indistinguishable. The system learns to space codes apart to avoid confusion. This is a topological phase transition: continuous $O(2)$ symmetry breaks to discrete $C_6$ symmetry.`,
+    whyItMatters: `This is the foundational mechanism behind all the other papers. Thoughts become words, neural activity becomes behavior, genes become phenotypes—all through the same bottleneck + noise mechanism forcing discretization.`,
+    keyFindings: [
+      'Bottleneck alone: continuous ring preserved',
+      'Noise alone: continuous ring preserved',
+      'Both together: discrete clusters emerge',
+      'Information capacity: $C \\approx k \\cdot \\log(1 + \\text{SNR})$',
+    ],
+    github: 'todd866/code-formation',
+  },
+  {
     slug: 'embryo-oscillators',
     title: 'Slow Bioelectric Oscillations Dominate Morphological Information Capacity',
     journal: 'TBD',
