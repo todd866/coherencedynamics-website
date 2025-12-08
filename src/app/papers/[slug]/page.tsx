@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { papers, getPaperBySlug } from '@/data/papers';
 
@@ -84,6 +85,19 @@ export default async function PaperPage({
           )}
         </div>
       </div>
+
+      {/* Paper image */}
+      {paper.image && (
+        <div className="mb-8">
+          <Image
+            src={`/images/${paper.image}`}
+            alt={paper.title}
+            width={800}
+            height={450}
+            className="rounded-xl w-full"
+          />
+        </div>
+      )}
 
       {/* Main description */}
       <section className="mb-8">

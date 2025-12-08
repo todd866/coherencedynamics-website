@@ -8,6 +8,7 @@ export interface Paper {
   ssrn?: string;
   github?: string;
   simulation?: string; // slug of companion simulation
+  image?: string; // filename in /images/ (e.g., 'falsifiability.jpeg')
   description: string;
   whyItMatters?: string;
   keyFindings?: string[];
@@ -23,6 +24,7 @@ export const papers: Paper[] = [
     status: 'published',
     doi: '10.1016/j.biosystems.2025.105608',
     simulation: 'protein-observer',
+    image: 'falsifiability.jpeg',
     description: `Karl Popper's falsifiability criterion—the bedrock of scientific method—doesn't work universally in biology. This paper shows why.
 
 Biological systems exist in absurdly high-dimensional spaces. A single cell needs thousands of variables to describe. When you try to test a yes/no hypothesis about such systems, you're projecting all that complexity onto a single bit. For a modest 100-neuron circuit, a binary test preserves about 10^-100 of the information. That's functionally zero.
@@ -44,6 +46,7 @@ Worse, many biological patterns operate below the Landauer limit—the minimum e
     status: 'published',
     doi: '10.1016/j.biosystems.2025.105632',
     simulation: 'maxwells-ledger',
+    image: 'timing-inaccessibility.jpeg',
     description: `Biology is astonishingly energy-efficient. The human brain runs at 20 watts while doing computations that would require megawatts on digital hardware. This paper explains why without invoking magic.
 
 The key insight: below a certain energy threshold (the Landauer limit), you can't irreversibly record *when* things happen. You can detect that something occurred, but not its temporal order. This creates massive "path degeneracy"—exponentially many micro-trajectories that all look the same from the outside.
