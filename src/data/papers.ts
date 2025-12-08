@@ -182,7 +182,7 @@ The expansion is transient: after the drug wears off, dimensionality returns to 
     github: 'todd866/nonergodic-development',
     description: `Development isn't a recipe written in your genes that executes the same way every time. Biological systems develop through high-dimensional state spaces too vast to fully explore—they get "trapped" in particular developmental patterns based on environmental history.
 
-The same genes can produce wildly different outcomes depending on which pathway an organism follows. Cooperative environments naturally guide development toward more coordinated, cancer-resistant states.`,
+The same genes can produce wildly different outcomes depending on which pathway an organism follows. [Cooperative environments naturally guide development toward more coordinated, cancer-resistant states](https://www.science.org/doi/10.1126/sciadv.adw0685).`,
     whyItMatters: `Reframes nature vs nurture, missing heritability in GWAS, and cancer as attractor escape. Environmental buffering and stress reduction become powerful interventions—not because they fix broken cells, but because stability itself enables healthy development.`,
     keyFindings: [
       'Twin Worlds: identical genotypes, different environments → dramatically different phenotypes',
