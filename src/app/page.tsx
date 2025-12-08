@@ -75,13 +75,13 @@ export default function Home() {
           <div className="space-y-6">
             <Image
               src="/images/measurement-changes-system.jpeg"
-              alt="Measurement collapses coherent superposition into a single state"
+              alt="Measurement projects high-dimensional biological state into low-dimensional observation"
               width={500}
               height={300}
               className="rounded-xl"
             />
             <p className="text-sm text-gray-500 text-center">
-              Measurement doesn&apos;t just read a system—it changes it.
+              Measurement projects complex dynamics into a simple feature.
             </p>
           </div>
         </div>
