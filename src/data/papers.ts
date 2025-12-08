@@ -126,14 +126,16 @@ The paper proves a structural limit: when internal complexity exceeds what we ca
     status: 'submitted',
     github: 'todd866/brainwavedimensionality',
     image: 'cortical-oscillations.jpeg',
-    description: `Brain waves operate as a cascade of filters. Slower waves maintain a high-dimensional "canvas" with thousands of neurons in concert; faster waves compress information more tightly. At the tightest compression (gamma), the brain commits to clear categories. At moderate compression (beta), it retains flexibility to hold multiple ideas simultaneously.
+    description: `[Earl Miller's lab at MIT](https://ekmillerlab.mit.edu/) has argued that gamma oscillations carry working memory content while beta provides top-down control—but their framework treats dimensionality as something that *increases* with faster oscillations. This paper argues the opposite: slower oscillations maintain higher-dimensional representations.
 
-This explains why stress, sleep deprivation, and immaturity produce rigid thinking: when signals get noisier, the brain collapses toward categorical processing because that's more robust to interference.`,
-    whyItMatters: `Connects brain rhythms to cognitive maturity in a concrete, measurable way. Suggests why protecting sleep and managing stress isn't just lifestyle advice—it's fundamental to retaining cognitive flexibility.`,
+Brain waves operate as a cascade of dimensional filters. Slower waves maintain a high-dimensional "canvas" with thousands of neurons in concert; faster waves compress information more tightly. At the tightest compression (gamma), the brain commits to clear categories. At moderate compression (beta), it retains flexibility to hold multiple ideas simultaneously.
+
+This reframes the Miller Lab findings: gamma doesn't carry "rich content"—it carries *compressed* content. The richness lives in slower rhythms that gamma reads out from. It also explains why stress, sleep deprivation, and immaturity produce rigid thinking: when signals get noisier, the brain collapses toward categorical processing because that's more robust to interference.`,
+    whyItMatters: `Inverts a major assumption in oscillatory neuroscience. If slow = high-D (not low-D), then interventions that enhance slow-wave activity (sleep, meditation, reduced stress) aren't just "calming"—they're expanding computational capacity.`,
     keyFindings: [
-      'Slow oscillations recruit ~3× more neurons in coordinated patterns than fast oscillations',
+      'Slow oscillations recruit $\\sim 3\\times$ more neurons in coordinated patterns than fast oscillations',
       'Discrete symbols emerge predictably around 2:1 compression ratio',
-      'Flexible thinking requires ≥3 dimensions; paradox tolerance is a signature of maturity',
+      'Flexible thinking requires $\\geq 3$ dimensions; paradox tolerance is a signature of maturity',
       'Noise forces categorical collapse as information-theoretic necessity',
     ],
   },
