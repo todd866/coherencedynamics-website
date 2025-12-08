@@ -299,6 +299,7 @@ This isn't just geometry—it's a constraint on any physical system implementing
       'Information-geometric derivation from Fisher metric',
       'Connects to Takens embedding theorem',
     ],
+    github: 'todd866/minimalembeddingdimension',
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
 
