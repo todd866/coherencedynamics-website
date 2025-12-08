@@ -89,7 +89,7 @@ The brain doesn't compute by enumerating possibilities like a digital computer. 
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5018691',
     image: 'coherence-time.jpeg',
-    description: `Your brain's processing speed isn't limited by how fast neurons fire—it's limited by how quickly distributed networks can synchronise their oscillations. Synchronisation time grows exponentially as more brain regions must coordinate, creating a fundamental trade-off: larger, more flexible networks process information more slowly.
+    description: `Your brain's processing speed isn't limited by how fast neurons fire—it's limited by how quickly distributed networks can [synchronise their oscillations](https://www.nature.com/articles/s41467-025-64471-2). Synchronisation time grows exponentially as more brain regions must coordinate, creating a fundamental trade-off: larger, more flexible networks process information more slowly.
 
 This explains why visual binding takes 30-50ms, why flies perceive time faster than humans, and why consciousness may depend more on synchronised fields than individual spikes.`,
     whyItMatters: `Provides a quantitative framework for understanding processing speed across species and brain states. Also explains the attention paradox: focusing narrows your flexibility but sharpens perception.`,
@@ -143,6 +143,7 @@ This explains why stress, sleep deprivation, and immaturity produce rigid thinki
     year: 2025,
     status: 'submitted',
     github: 'todd866/coherence-gate',
+    image: 'coherence-gate-scaling.jpeg',
     description: `[Oscillating neural networks](https://www.nature.com/articles/s41467-025-64471-2) can extract powerful relational patterns from data. But simulating them on digital computers requires $O(N^2)$ operations per timestep—making large systems impractical. Physical coupling (electrical circuits, optical systems) does this automatically at $O(K)$ operations, offering 100-1000× better energy efficiency.
 
 This isn't a temporary limitation—it's fundamental. The paper proposes the "coherence gate" as a hardware primitive for neuromorphic chips.`,
@@ -182,9 +183,9 @@ The expansion is transient: after the drug wears off, dimensionality returns to 
     github: 'todd866/nonergodic-development',
     description: `Development isn't a recipe written in your genes that executes the same way every time. Biological systems develop through high-dimensional state spaces too vast to fully explore—they get "trapped" in particular developmental patterns based on environmental history.
 
-The same genes can produce wildly different outcomes depending on which pathway an organism follows. [Sierra et al. (2025)](https://www.science.org/doi/10.1126/sciadv.adw0685) recently demonstrated this empirically: across 190 mammalian species, cooperative and gregarious animals show dramatically lower cancer rates than competitive, solitary ones. Their mathematical model reveals a "hydra effect"—in competitive species, oncogenic variants that kill older individuals can paradoxically increase population fitness by freeing resources for younger generations. Cooperative species, where elders contribute to caring and breeding, show the opposite pattern: cancer is selected against.
+The same genes can produce wildly different outcomes depending on which pathway an organism follows. [Sierra et al. (2025)](https://www.science.org/doi/10.1126/sciadv.adw0685) recently showed that cooperative mammals have dramatically lower cancer rates than competitive ones, interpreting this through group selection—cancer as an adaptation that benefits competitive populations by culling old individuals. This paper offers an alternative: cancer is cellular defection in the [Price equation](https://en.wikipedia.org/wiki/Price_equation) sense, and cooperative animals are cooperative at every level. The same coherence that prevents cells from defecting into cancerous states is what enables organisms to cooperate socially.
 
-This paper provides the dimensional framework explaining *why*. In competitive environments, developmental trajectories are unstable—small perturbations push cells toward cancerous attractors. In cooperative environments, the same genome navigates toward coordinated, cancer-resistant states because the environmental buffering maintains trajectories within healthy attractor basins. The mechanism preventing cancer at the cellular level is the same mechanism enabling cooperation at the social level: stability permits exploration of higher-dimensional developmental possibilities without catastrophic collapse.`,
+In cooperative environments, developmental trajectories remain stable within healthy attractor basins. In competitive environments, the same genome navigates unstable landscapes where cellular defection (cancer) becomes more likely. It's not that cancer is *selected for*—it's that cooperation is fractal: the mechanisms preventing cellular defection are the same mechanisms enabling social cooperation.`,
     whyItMatters: `Reframes nature vs nurture, missing heritability in GWAS, and cancer as attractor escape. Environmental buffering and stress reduction become powerful interventions—not because they fix broken cells, but because stability itself enables healthy development.`,
     keyFindings: [
       'Twin Worlds: identical genotypes, different environments → dramatically different phenotypes',
