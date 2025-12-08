@@ -10,7 +10,7 @@ function PaperCard({ paper }: { paper: Paper }) {
       <h3 className="font-medium text-white">{paper.title}</h3>
       <p className="text-gray-500 text-sm mt-1">
         {paper.journal} ({paper.year})
-        {paper.doi && <span className="ml-2 text-green-400">DOI</span>}
+        {paper.doi && <span className="ml-2 text-green-400">Published</span>}
         {paper.ssrn && <span className="ml-2 text-blue-400">Preprint</span>}
         {paper.github && <span className="ml-2 text-purple-400">GitHub</span>}
       </p>

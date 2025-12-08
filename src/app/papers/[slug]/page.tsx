@@ -37,22 +37,23 @@ export default async function PaperPage({
         {paper.status === 'published' ? 'Published' : paper.status === 'submitted' ? 'Under Review' : 'In Preparation'}
       </div>
 
-      <h1 className="text-3xl font-bold mb-4 text-white">{paper.title}</h1>
+      {paper.doi ? (
+        <a
+          href={`https://doi.org/${paper.doi}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-3xl font-bold mb-4 text-white hover:text-green-400 transition-colors block"
+        >
+          {paper.title} <span className="text-lg text-green-400">↗</span>
+        </a>
+      ) : (
+        <h1 className="text-3xl font-bold mb-4 text-white">{paper.title}</h1>
+      )}
 
       <div className="text-gray-400 mb-8">
         <p>{paper.journal} ({paper.year})</p>
 
         <div className="flex flex-wrap gap-4 mt-4">
-          {paper.doi && (
-            <a
-              href={`https://doi.org/${paper.doi}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-green-400 hover:text-green-300"
-            >
-              DOI &rarr;
-            </a>
-          )}
           {paper.ssrn && (
             <a
               href={paper.ssrn}
