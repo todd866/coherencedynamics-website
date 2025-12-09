@@ -157,10 +157,13 @@ The paper proves a structural limit: when internal complexity exceeds what we ca
 
 Brain waves operate as a cascade of dimensional filters. Slower waves maintain a high-dimensional "canvas" with thousands of neurons in concert; faster waves compress information more tightly. At the tightest compression (gamma), the brain commits to clear categories. At moderate compression (beta), it retains flexibility to hold multiple ideas simultaneously.
 
+The paper introduces a key theoretical argument from high-dimensional probability: *concentration of measure*. When many neurons coordinate (high participation ratio), Lévy's lemma guarantees that macroscopic measurements concentrate around their median. Slow waves don't appear "simple" because they're low-dimensional—they appear simple because they coordinate so many neurons that statistical concentration makes the readout smooth. Miller measures the projection and mistakes it for the substrate.
+
 This reframes the Miller Lab findings: gamma doesn't carry "rich content"—it carries *compressed* content. The richness lives in slower rhythms that gamma reads out from. It also explains why stress, sleep deprivation, and immaturity produce rigid thinking: when signals get noisier, the brain collapses toward categorical processing because that's more robust to interference.`,
     whyItMatters: `Inverts a major assumption in oscillatory neuroscience. If slow = high-D (not low-D), then interventions that enhance slow-wave activity (sleep, meditation, reduced stress) aren't just "calming"—they're expanding computational capacity.`,
     keyFindings: [
       'Slow oscillations recruit $\\sim 3\\times$ more neurons in coordinated patterns than fast oscillations',
+      'Concentration of measure explains why high-D coordination appears "simple" to external observers',
       'Discrete symbols emerge predictably around 2:1 compression ratio',
       'Flexible thinking requires $\\geq 3$ dimensions; paradox tolerance is a signature of maturity',
       'Noise forces categorical collapse as information-theoretic necessity',
