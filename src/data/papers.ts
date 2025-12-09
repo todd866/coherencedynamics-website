@@ -27,12 +27,13 @@ export const papers: Paper[] = [
     doi: '10.1016/j.biosystems.2025.105608',
     simulation: 'protein-observer',
     image: 'falsifiability.jpeg',
-    description: `Karl Popper's falsifiability criterion—the bedrock of scientific method—doesn't work universally in biology. This paper shows why.
+    description: `**Popper's falsifiability criterion breaks down for high-dimensional biological systems** — not because biology is messy, but because of a fundamental physical limit on what yes/no tests can tell us.
 
-Biological systems exist in absurdly high-dimensional spaces. A single cell needs thousands of variables to describe. When you try to test a yes/no hypothesis about such systems, you're projecting all that complexity onto a single bit. For a modest 100-neuron circuit, a binary test preserves about $10^{-100}$ of the information. That's functionally zero.
+Here's the problem: biological systems exist in absurdly high-dimensional spaces. A single cell needs thousands of variables to describe. When you try to test a yes/no hypothesis about such systems, you're projecting all that complexity onto a single bit. For a modest 100-neuron circuit, a binary test preserves about $10^{-100}$ of the information. That's not approximately zero — it's functionally indistinguishable from zero.
 
-Worse, many biological patterns operate below the Landauer limit—the minimum energy needed to record one bit ($\\sim 3 \\times 10^{-21}$ J). Sub-threshold neural fluctuations, quantum coherence in photosynthesis, [ephaptic coupling](https://news.mit.edu/2023/brain-networks-encoding-memory-come-together-via-electric-fields-0724) between neurons: these patterns are too weak to measure discretely, yet they're causally important through collective effects.`,
-    whyItMatters: `This isn't saying "biology is too complicated." It's identifying a fundamental physical limit on what binary hypothesis testing can tell us about high-dimensional systems. Falsifiability works for low-dimensional, strong-signal biology (enzyme kinetics, action potentials). But for consciousness, evolution on fitness landscapes, ecological networks, protein folding—we need different validation methods.`,
+It gets worse. Many biological patterns operate below the Landauer limit — the minimum energy needed to record one bit ($\\sim 3 \\times 10^{-21}$ J). Sub-threshold neural fluctuations, quantum coherence in photosynthesis, [ephaptic coupling](https://news.mit.edu/2023/brain-networks-encoding-memory-come-together-via-electric-fields-0724) between neurons: these patterns are too weak to measure discretely, yet they're causally important through collective effects. Measuring them destroys them.
+
+This isn't a call to abandon scientific rigor. Falsifiability works brilliantly for low-dimensional, strong-signal biology — enzyme kinetics, action potentials, Mendelian genetics. But for consciousness, protein folding, ecological networks, evolution on fitness landscapes — we need different validation methods. The paper proposes scale-aware, ensemble-based epistemology as an alternative.`,
     keyFindings: [
       'Binary projection of high-D systems destroys nearly all information ($10^{-100}$ preservation for 100-neuron circuits)',
       'Sub-Landauer patterns exist below measurement thresholds yet remain causally significant',
@@ -50,12 +51,13 @@ Worse, many biological patterns operate below the Landauer limit—the minimum e
     doi: '10.1016/j.biosystems.2025.105632',
     simulation: 'maxwells-ledger',
     image: 'timing-inaccessibility.jpeg',
-    description: `Biology is astonishingly energy-efficient. The human brain runs at 20 watts while doing computations that would require megawatts on digital hardware. This paper explains why without invoking magic.
+    description: `**The brain is 100,000× more energy-efficient than silicon because it defers thermodynamic costs** — computing reversibly until the moment it must commit to a discrete output.
 
-The key insight: below a certain energy threshold (the Landauer limit), you can't irreversibly record *when* things happen. You can detect that something occurred, but not its temporal order. This creates massive "path degeneracy"—exponentially many micro-trajectories that all look the same from the outside.
+Here's what makes this possible: below the Landauer limit ($\\sim 3 \\times 10^{-21}$ J), you can't irreversibly record *when* things happen. You can detect that something occurred, but not its temporal order. This creates massive "path degeneracy" — exponentially many micro-trajectories ($10^{50}$ to $10^{100}$ in neural systems) that all look the same from the outside.
 
-Biological systems exploit this by integrating weak signals across many dimensions, then paying the thermodynamic cost only when they commit to a discrete output. Digital computers, by contrast, pay for every bit at every clock cycle.`,
-    whyItMatters: `This reconciles biology's efficiency with thermodynamics. The brain doesn't violate physics—it uses a different computational strategy that defers costs. It also explains why analog/neuromorphic computing can be more efficient: they're exploiting the same principle.`,
+Biology exploits this systematically. The brain integrates weak signals across many dimensions, accumulating evidence without paying thermodynamic rent, then pays the Landauer cost only when it commits to a discrete output (a decision, a word, a muscle command). Digital computers, by contrast, pay for every bit at every clock cycle — they're burning energy to track timing information that biology simply ignores.
+
+This isn't a trick or an approximation. It's a fundamentally different computational strategy, and it explains why neuromorphic and analog computing can be so much more efficient: they're exploiting the same principle. The brain doesn't violate thermodynamics — it plays a different game.`,
     keyFindings: [
       'Derived the Projection Bound: energy cost scales with dimensional collapse, not bit operations',
       'Path degeneracies of 10^42 to 10^94 (proteins) and 10^50 to 10^100 (neural)',
@@ -74,10 +76,13 @@ Biological systems exploit this by integrating weak signals across many dimensio
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4978594',
     image: 'high-dimensional-coherence.jpeg',
-    description: `Intelligence isn't unique to humans—it emerges whenever a system can maintain high-dimensional dynamics that collapse to coherent outputs. From bacteria tracking chemical gradients to brains navigating social complexity, the same principle applies: explore a vast space internally, commit only when you must.
+    description: `**Intelligence emerges whenever a system maintains high-dimensional internal dynamics that collapse to coherent outputs** — and this architectural principle, not clever algorithms, explains the million-fold efficiency gap between brains and computers.
 
-The brain doesn't compute by enumerating possibilities like a digital computer. It evolves through a high-dimensional landscape where incompatible solutions coexist peacefully until behaviour demands a choice. This isn't just elegant—it's thermodynamically necessary.`,
-    whyItMatters: `Explains the million-fold energy efficiency gap between brains and computers as a fundamental architectural difference, not an engineering limitation. Also predicts why scaling digital AI hits diminishing returns.`,
+The human cortex operates 100–1000× beyond what external observers can track. It doesn't compute by enumerating possibilities like a digital computer. Instead, it evolves through a high-dimensional landscape where incompatible solutions coexist peacefully until behaviour demands a choice. You can simultaneously consider "fight" and "flee" and "negotiate" as superposed possibilities — until the moment you must act.
+
+This is thermodynamically necessary. Committing to discrete states costs energy (Landauer's principle). By deferring commitment and exploring reversibly, biological systems avoid paying that cost until the last possible moment. Digital computers pay for every bit at every clock cycle; brains pay only at the output.
+
+The same principle applies at every scale: bacteria tracking chemical gradients, immune cells recognising pathogens, social groups coordinating behaviour. Intelligence isn't a human monopoly — it's what happens when high-dimensional dynamics meet low-dimensional constraints.`,
     keyFindings: [
       'Observable dimensionality bound: external observers cannot track systems beyond a threshold',
       'Human cortex operates 100-1000× beyond this threshold',
@@ -94,10 +99,13 @@ The brain doesn't compute by enumerating possibilities like a digital computer. 
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5018691',
     image: 'coherence-time.jpeg',
-    description: `Your brain's processing speed isn't limited by how fast neurons fire—it's limited by how quickly distributed networks can [synchronise their oscillations](https://www.nature.com/articles/s41467-025-64471-2). Synchronisation time grows exponentially as more brain regions must coordinate, creating a fundamental trade-off: larger, more flexible networks process information more slowly.
+    description: `**The speed of thought is limited by how quickly brain regions can synchronise their oscillations** — not by how fast neurons fire. This creates a fundamental trade-off: larger, more flexible networks process information more slowly.
 
-This explains why visual binding takes 30-50ms, why flies perceive time faster than humans, and why consciousness may depend more on synchronised fields than individual spikes.`,
-    whyItMatters: `Provides a quantitative framework for understanding processing speed across species and brain states. Also explains the attention paradox: focusing narrows your flexibility but sharpens perception.`,
+Synchronisation time grows exponentially with the number of coordinating modules. Visual binding takes 30–50ms because that's how long it takes visual areas to [lock their oscillations](https://www.nature.com/articles/s41467-025-64471-2). Cross-sensory integration (seeing a face and hearing a voice as unified) takes 100–150ms because it requires more regions to coordinate.
+
+This explains the 1000-fold range of flicker fusion frequency across species — flies perceive time faster than humans because their smaller brains synchronise faster. It also explains the attention paradox: focusing narrows the network you're coordinating, which speeds up processing but reduces flexibility. Under stress, perception slows (larger synchronisation burden) while reaction time stays constant (the motor pathway is independent).
+
+Consciousness may depend more on these synchronised fields than on individual spikes. The binding problem — how distributed neural activity becomes unified experience — is reframed as a synchronisation problem with measurable timescales.`,
     keyFindings: [
       'Synchronisation time scales exponentially with number of coordinating modules',
       'Predicts visual binding (30-50ms) and cross-sensory integration (100-150ms) timescales',
@@ -113,10 +121,13 @@ This explains why visual binding takes 30-50ms, why flies perceive time faster t
     year: 2025,
     status: 'submitted',
     image: 'substrate-dimensionality.jpeg',
-    description: `Modern AI achieves enormous algorithmic complexity on substrates with essentially one degree of freedom—the global clock. Biological brains exploit vastly higher substrate dimensionality through asynchronous, continuous dynamics. This dimensional mismatch may explain why AI plateaus, resists interpretation, and may never achieve genuine consciousness.
+    description: `**AI may hit a hard capability ceiling because digital hardware has the wrong dimensionality** — one global clock versus $10^{14}$–$10^{18}$ continuous degrees of freedom in a biological brain.
 
-The paper proves a structural limit: when internal complexity exceeds what we can measure, reconstructing internal states becomes mathematically impossible, not just difficult.`,
-    whyItMatters: `If substrate dimensionality is the limiting factor, scaling parameters on digital hardware faces a hard ceiling we may already be approaching. Also raises questions about consciousness in field-based vs graph-based architectures.`,
+Modern AI achieves enormous algorithmic complexity, but it runs on substrates with essentially one degree of freedom: the global clock that synchronises all operations. Biological brains exploit vastly higher substrate dimensionality through asynchronous, continuous dynamics — every synapse, every dendritic branch, every ion channel is a semi-independent variable.
+
+This dimensional mismatch may explain three stubborn problems. First, why AI plateaus: scaling parameters doesn't add substrate dimensions. Second, why AI resists interpretation: you can't reconstruct internal states when the system operates beyond your measurement capacity. The paper proves this "projection singularity" is a mathematical impossibility, not just a practical difficulty. Third, why AI may never achieve consciousness: subjective experience may require volumetric field coupling (continuous 3D dynamics), not just graph connectivity (discrete node-edge structures).
+
+The implication is uncomfortable: we may already be approaching the ceiling of what digital hardware can achieve, regardless of how many parameters we add.`,
     keyFindings: [
       'Digital substrates have $D_{\\text{substrate}} \\approx 1$; biological brains have $\\sim 10^{14}$–$10^{18}$ degrees of freedom',
       'Projection singularity: a fundamental impossibility for interpreting systems beyond measurement capacity',
@@ -133,14 +144,15 @@ The paper proves a structural limit: when internal complexity exceeds what we ca
     status: 'submitted',
     github: 'todd866/brainwavedimensionality',
     image: 'cortical-oscillations.jpeg',
-    description: `[Earl Miller's lab at MIT](https://ekmillerlab.mit.edu/) has argued that gamma oscillations carry working memory content while beta provides top-down control—but their framework treats dimensionality as something that *increases* with faster oscillations. This paper argues the opposite: slower oscillations maintain higher-dimensional representations.
+    description: `**Slower brain waves are higher-dimensional, not lower** — inverting a major assumption in oscillatory neuroscience and reframing what sleep, meditation, and stress actually do to cognition.
 
-Brain waves operate as a cascade of dimensional filters. Slower waves maintain a high-dimensional "canvas" with thousands of neurons in concert; faster waves compress information more tightly. At the tightest compression (gamma), the brain commits to clear categories. At moderate compression (beta), it retains flexibility to hold multiple ideas simultaneously.
+[Earl Miller's lab at MIT](https://ekmillerlab.mit.edu/) has argued that gamma oscillations carry working memory content while beta provides top-down control. Their framework treats dimensionality as something that *increases* with faster oscillations. This paper argues the opposite.
 
-The paper introduces a key theoretical argument from high-dimensional probability: *concentration of measure*. When many neurons coordinate (high participation ratio), Lévy's lemma guarantees that macroscopic measurements concentrate around their median. Slow waves don't appear "simple" because they're low-dimensional—they appear simple because they coordinate so many neurons that statistical concentration makes the readout smooth. Miller measures the projection and mistakes it for the substrate.
+Brain waves operate as a cascade of dimensional filters. Slower waves maintain a high-dimensional "canvas" with thousands of neurons in concert ($\\sim 3\\times$ more than fast oscillations); faster waves compress information more tightly. At the tightest compression (gamma), the brain commits to clear categories. At moderate compression (beta), it retains flexibility to hold multiple ideas simultaneously.
 
-This reframes the Miller Lab findings: gamma doesn't carry "rich content"—it carries *compressed* content. The richness lives in slower rhythms that gamma reads out from. It also explains why stress, sleep deprivation, and immaturity produce rigid thinking: when signals get noisier, the brain collapses toward categorical processing because that's more robust to interference.`,
-    whyItMatters: `Inverts a major assumption in oscillatory neuroscience. If slow = high-D (not low-D), then interventions that enhance slow-wave activity (sleep, meditation, reduced stress) aren't just "calming"—they're expanding computational capacity.`,
+Why does this matter? Because slow waves don't appear "simple" because they're low-dimensional — they appear simple because they coordinate so many neurons that *concentration of measure* (Lévy's lemma) makes the readout smooth. Miller measures the projection and mistakes it for the substrate.
+
+The practical implications are significant. Interventions that enhance slow-wave activity — sleep, meditation, reduced stress — aren't just "calming." They're expanding computational capacity. Conversely, stress, sleep deprivation, and immaturity produce rigid thinking because noisy signals force the brain to collapse toward categorical processing. Flexible thinking requires $\\geq 3$ dimensions; paradox tolerance is a signature of maturity.`,
     keyFindings: [
       'Slow oscillations recruit $\\sim 3\\times$ more neurons in coordinated patterns than fast oscillations',
       'Concentration of measure explains why high-D coordination appears "simple" to external observers',
@@ -159,10 +171,13 @@ This reframes the Miller Lab findings: gamma doesn't carry "rich content"—it c
     github: 'todd866/coherence-gate',
     pdf: 'https://raw.githubusercontent.com/todd866/coherence-gate/main/coherence_gate_scaling.pdf',
     image: 'coherence-gate-scaling.jpeg',
-    description: `[Oscillating neural networks](https://www.nature.com/articles/s41467-025-64471-2) can extract powerful relational patterns from data. But simulating them on digital computers requires $O(N^2)$ operations per timestep—making large systems impractical. Physical coupling (electrical circuits, optical systems) does this automatically at $O(K)$ operations, offering 100-1000× better energy efficiency.
+    description: `**Oscillatory neural networks hit a hard scaling wall on digital hardware** — $O(N^2)$ operations per timestep — but physical coupling does the same computation at $O(K)$, offering 100–1000× better energy efficiency.
 
-This isn't a temporary limitation—it's fundamental. The paper proposes the "coherence gate" as a hardware primitive for neuromorphic chips.`,
-    whyItMatters: `Identifies a hard scaling barrier for oscillatory neural networks on digital hardware and shows a concrete path forward through dedicated analogue implementations.`,
+[Oscillating neural networks](https://www.nature.com/articles/s41467-025-64471-2) can extract powerful relational patterns from data by letting oscillators synchronise into meaningful clusters. But simulating all-to-all coupling on a digital computer requires checking every pair of oscillators at every timestep. For 400 oscillators, that's 160,000 operations per tick. Physical coupling — electrical circuits, optical resonators, memristive crossbars — does this automatically through the physics of the substrate.
+
+The numbers are striking: $86\\times$ energy advantage at 100 oscillators, $224\\times$ at 400 oscillators, and the gap grows quadratically. This isn't a temporary limitation waiting for better algorithms — it's fundamental to how digital hardware handles continuous dynamics.
+
+The paper proposes the "coherence gate" as a hardware primitive for neuromorphic chips: let oscillators synchronise naturally through physical coupling, then monitor the result via sparse measurement taps. Instead of simulating synchronisation, you let physics do the work and just read out the answer.`,
     keyFindings: [
       'Digital simulation: $O(N^2)$ operations; physical coupling: $O(K)$ operations',
       '$86\\times$ energy advantage at 100 oscillators; $224\\times$ at 400 oscillators',
@@ -179,10 +194,13 @@ This isn't a temporary limitation—it's fundamental. The paper proposes the "co
     status: 'submitted',
     github: 'todd866/lsd-dimensionality',
     pdf: 'https://raw.githubusercontent.com/todd866/lsd-dimensionality/main/lsd_dimensionality.pdf',
-    description: `Psychedelics like LSD and psilocybin don't flood the brain with chaos—they temporarily expand its computational flexibility. By activating 5-HT2A receptors on deep brain cells, they amplify dendritic gain and unlock dormant neural patterns that are normally suppressed.
+    description: `**Psychedelics work by temporarily expanding the brain's computational dimensionality** — and this gives us something concrete to measure, optimise, and eventually target without requiring the full psychedelic experience.
 
-The expansion is transient: after the drug wears off, dimensionality returns to baseline, but the brain has reorganised onto new, therapeutic attractors. This explains the mystery of lasting therapeutic changes after brief acute experiences.`,
-    whyItMatters: `Identifies "dimensionality" as the therapeutic mechanism—something concrete to measure and optimise. Enables precision dosing, risk stratification, and potentially new treatments that expand dimensionality without requiring the full psychedelic experience.`,
+LSD and psilocybin don't flood the brain with chaos. They activate 5-HT2A receptors on layer V pyramidal neurons, amplifying dendritic gain and unlocking dormant neural patterns that are normally suppressed. The result is a measurable increase in effective dimensionality: 8.6% for LSD (medium effect), 19.2% for psilocybin acutely.
+
+The expansion is transient — after the drug wears off, dimensionality returns to baseline — but the brain has reorganised onto new attractors. This explains the therapeutic mystery: why do brief acute experiences produce lasting changes in depression and addiction? Because the temporary dimensional expansion allows the system to find new stable states it couldn't reach from its previous configuration.
+
+The three-phase model (overshoot → refractory collapse → recanalization) predicts both therapeutic windows and risk factors. Geometric visuals (LSD) versus organic visuals (psilocybin) can be quantified via spectral centroid, providing objective markers for subjective experience. This opens the door to precision dosing, risk stratification, and potentially new treatments that target dimensionality directly.`,
     keyFindings: [
       'LSD: 8.6% increase in effective dimensionality (medium effect)',
       'Psilocybin: 19.2% increase acutely, returns to baseline after 1-2 weeks',
@@ -200,12 +218,13 @@ The expansion is transient: after the drug wears off, dimensionality returns to 
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5846665',
     github: 'todd866/nonergodic-development',
     pdf: 'https://raw.githubusercontent.com/todd866/nonergodic-development/main/nonergodic_development.pdf',
-    description: `Development isn't a recipe written in your genes that executes the same way every time. Biological systems develop through high-dimensional state spaces too vast to fully explore—they get "trapped" in particular developmental patterns based on environmental history.
+    description: `**The same genome can produce wildly different phenotypes depending on developmental history** — and this explains why GWAS studies miss so much heritability, why cancer rates vary dramatically between cooperative and competitive species, and why environmental stability is a powerful intervention.
 
-The same genes can produce wildly different outcomes depending on which pathway an organism follows. [Sierra et al. (2025)](https://www.science.org/doi/10.1126/sciadv.adw0685) recently showed that cooperative mammals have dramatically lower cancer rates than competitive ones, interpreting this through group selection—cancer as an adaptation that benefits competitive populations by culling old individuals. This paper offers an alternative: cancer is cellular defection in the [Price equation](https://en.wikipedia.org/wiki/Price_equation) sense, and cooperative animals are cooperative at every level. The same coherence that prevents cells from defecting into cancerous states is what enables organisms to cooperate socially.
+Development isn't a recipe written in your genes that executes the same way every time. Biological systems develop through high-dimensional state spaces too vast to fully explore — they get "trapped" in particular developmental patterns based on environmental history. Identical twins in different environments aren't just "influenced" differently; they navigate completely different dynamical landscapes.
 
-In cooperative environments, developmental trajectories remain stable within healthy attractor basins. In competitive environments, the same genome navigates unstable landscapes where cellular defection (cancer) becomes more likely. It's not that cancer is *selected for*—it's that cooperation is fractal: the mechanisms preventing cellular defection are the same mechanisms enabling social cooperation.`,
-    whyItMatters: `Reframes nature vs nurture, missing heritability in GWAS, and cancer as attractor escape. Environmental buffering and stress reduction become powerful interventions—not because they fix broken cells, but because stability itself enables healthy development.`,
+[Sierra et al. (2025)](https://www.science.org/doi/10.1126/sciadv.adw0685) recently showed that cooperative mammals have dramatically lower cancer rates than competitive ones, interpreting this through group selection — cancer as an adaptation that benefits competitive populations by culling old individuals. This paper offers an alternative that's both simpler and more general: cooperation is fractal. The same coherence that prevents cells from defecting into cancerous states is what enables organisms to cooperate socially. It's not that cancer is *selected for* — it's that competitive environments destabilise developmental trajectories at every level.
+
+Cancer, in this view, is cellular bifurcation into an alternative stable state. Cooperative environments keep trajectories within healthy attractor basins. Stress reduction and environmental buffering become powerful interventions — not because they fix broken cells, but because stability itself enables healthy development.`,
     keyFindings: [
       'Twin Worlds: identical genotypes, different environments → dramatically different phenotypes',
       'GWAS misses trajectory-based heritability entirely',
@@ -222,10 +241,13 @@ In cooperative environments, developmental trajectories remain stable within hea
     status: 'submitted',
     github: 'todd866/dimensional-work',
     pdf: 'https://raw.githubusercontent.com/todd866/dimensional-work/main/manuscript_prx.pdf',
-    description: `When information processing systems compress high-dimensional dynamics into lower-dimensional representations, they face two thermodynamic costs: the traditional Landauer cost of erasing bits, plus an additional "geometric work" cost from projecting curvy dynamics onto simpler manifolds.
+    description: `**Erasing a bit costs energy — but so does projecting high-dimensional dynamics onto lower-dimensional representations.** This "geometric work" is a new fundamental cost in information processing, and it explains why biological systems favour coherent, oscillatory dynamics.
 
-This explains why biological systems favour oscillatory, coherent dynamics—coherence naturally reduces dimensionality, lowering the energetic rent of information processing.`,
-    whyItMatters: `Information isn't just abstract symbols—it lives somewhere physically. Every time your brain extracts a useful signal from noisy, high-dimensional data, it's performing a geometric transformation with energetic cost. Dimensionality—not just the bit—is the fundamental resource.`,
+Landauer's principle says erasing one bit costs at least $kT \\ln 2$ of energy. But information doesn't exist in a vacuum — it lives somewhere physically, embedded in a dynamical system. When you extract a useful signal from noisy, high-dimensional data, you're not just erasing bits; you're projecting curved dynamics onto simpler manifolds. That projection has its own thermodynamic cost.
+
+The Dimensional Landauer Bound: $W = kT \\ln 2 \\times \\text{bits} + kT \\times \\text{geometric contraction cost}$. The second term depends on manifold curvature — how much you have to "bend" the dynamics to fit them into a lower-dimensional space.
+
+Why does this matter? Because coherence naturally reduces dimensionality. As oscillators synchronise, the projection cost drops — you're not fighting the dynamics anymore, you're riding them. This explains why brains use oscillatory coupling rather than independent firing: it's thermodynamically cheaper. Deep learning autoencoders show the same effect — training effort explodes when you try to compress below the data's intrinsic dimension.`,
     keyFindings: [
       'Dimensional Landauer Bound: work = kT ln2 × bits + kT × geometric contraction cost',
       'Control work scales with manifold curvature',
@@ -243,10 +265,13 @@ This explains why biological systems favour oscillatory, coherent dynamics—coh
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5573915',
     github: 'todd866/limits-of-falsifiability',
     pdf: 'https://raw.githubusercontent.com/todd866/limits-of-falsifiability/main/paper2_shadow_geometry.pdf',
-    description: `When you project high-dimensional biological data (like gene expression from thousands of genes) into 2D visualisations like t-SNE or UMAP, you're not just simplifying—you're hallucinating structure. About 75% of the "neighbours" you see in a 2D plot weren't actually neighbours in the original high-dimensional space.
+    description: `**75% of what you see in t-SNE and UMAP plots is wrong** — points that look like neighbours weren't actually close in the original high-dimensional data. This isn't a bug in the algorithms; it's a geometric inevitability.
 
-This paper provides the mathematical toolkit for measuring exactly how much your projections lie. It quantifies topological aliasing—points that appear close in 2D but were far apart in the original space—and shows it's not a bug in algorithms but a geometric inevitability.`,
-    whyItMatters: `Gives bioinformaticians concrete tools to quantify uncertainty in their visualisations. When a paper shows a UMAP with clear clusters and claims "we identified distinct cell types," there's a mathematical limit to that confidence. Instead of pretending your t-SNE is ground truth, you can report the aliasing rate.`,
+When you project high-dimensional biological data (like gene expression from thousands of genes) into 2D visualisations, you're not just simplifying — you're hallucinating structure. The paper provides the mathematical toolkit for measuring exactly how much your projections lie.
+
+The numbers are sobering: 75.5% of apparent 2D neighbours are topologically aliased (they weren't neighbours in high-D), and ~40% of cluster assignments are incorrect due to projection artifacts. Worse, typical experiments sample less than 0.001% of the available state space, so even if your projection were perfect, you'd still be making claims about a vast unobserved territory.
+
+This isn't an argument against visualisation — it's an argument for honesty about its limits. When a paper shows a UMAP with clear clusters and claims "we identified distinct cell types," there's a mathematical ceiling on that confidence. Validated across 4 standard scRNA-seq datasets (n = 90,300 cells), the paper gives bioinformaticians concrete tools to report aliasing rates alongside their visualisations.`,
     keyFindings: [
       '75.5% of apparent 2D neighbours are wrong (topological aliasing)',
       '~40% of cluster assignments are incorrect due to projection artifacts',
@@ -263,10 +288,13 @@ This paper provides the mathematical toolkit for measuring exactly how much your
     status: 'submitted',
     github: 'todd866/clinical-validity-bounds',
     pdf: 'https://raw.githubusercontent.com/todd866/clinical-validity-bounds/main/manuscript.pdf',
-    description: `Clinical AI systems are validated on datasets that systematically underrepresent complex patients. When a patient's effective dimensionality exceeds what the AI was trained on, predictions become unreliable—not because the AI is "wrong," but because the validation framework itself breaks down.
+    description: `**Clinical AI fails on complex patients because the validation math breaks down** — and we can now quantify exactly where. The critical threshold is around 3 comorbidities (r* ≈ 0.3), where classifier performance hits its minimum.
 
-MIMIC-IV analysis (N=425,216) reveals a U-shaped pattern: classifier performance is worst not for the simplest or most complex patients, but for those in the "zone of maximum entropy" around r* ≈ 0.3 (3 conditions). This is where dimensional mismatch between patient complexity and algorithmic capacity is greatest.`,
-    whyItMatters: `Explains why clinical AI that performs well in trials often fails in practice: trials select simpler patients. Proposes Dimensional Validity Audits as governance requirement before clinical AI deployment.`,
+Clinical AI systems are validated on datasets that systematically underrepresent complex patients. When a patient's effective dimensionality exceeds what the AI was trained on, predictions become unreliable — not because the AI is "wrong," but because the validation framework itself breaks down. You can't evaluate a system on territory it's never seen.
+
+MIMIC-IV analysis (N=425,216 admissions) reveals a surprising U-shaped pattern: classifier performance is worst not for the simplest or most complex patients, but for those in the "zone of maximum entropy" around 3 conditions. Very simple patients (1 condition) have predictable dynamics. Very complex patients (10+ conditions) have their own predictable patterns. It's the moderately complex patients — the majority of real clinical encounters — where dimensional mismatch between patient complexity and algorithmic capacity is greatest.
+
+This explains why clinical AI that performs well in trials often fails in practice: trials select simpler patients. The paper proposes Dimensional Validity Audits as a governance requirement before clinical AI deployment — don't just report overall AUC, report performance stratified by patient complexity.`,
     keyFindings: [
       'Critical ratio r* ≈ 0.3 marks maximum classifier instability',
       'U-shaped AUC: worst at moderate multimorbidity, not extremes',
@@ -281,10 +309,13 @@ MIMIC-IV analysis (N=425,216) reveals a U-shaped pattern: classifier performance
     journal: 'Information Geometry',
     year: 2025,
     status: 'submitted',
-    description: `Cyclic processes on statistical manifolds require at least 3 dimensions to avoid self-intersection. Below $k=3$, state trajectories collide, forcing categorical (discrete) representations. At $k \\geq 3$, continuous temporal dynamics become possible.
+    description: `**You need at least 3 dimensions for continuous cyclic dynamics — below that, trajectories collide and the system is forced into discrete categories.** This is a hard geometric constraint with implications for neural coding, latent spaces, and any dimensionality reduction scheme.
 
-The key application is the brain: high-dimensional ephaptic field dynamics must compress into low-dimensional cortical representations. This k=3 threshold determines whether neural dynamics can remain continuous or are forced into discrete categorical states.`,
-    whyItMatters: `When high-dimensional systems (like ephaptic fields) project into low-dimensional readouts (like cortical activity), k=3 is the critical boundary. Below it, continuous dynamics become impossible—the system is forced into categorical representations. The same constraint applies to neural network latent spaces and any dimensionality reduction scheme.`,
+Cyclic processes on statistical manifolds require $k \\geq 3$ to avoid self-intersection. Below this threshold, state trajectories collide — different times map to the same point — forcing categorical (discrete) representations. At $k \\geq 3$, continuous temporal dynamics become possible.
+
+The key application is the brain. High-dimensional ephaptic field dynamics must compress into low-dimensional cortical representations. When that compression goes below $k=3$, the system can no longer maintain continuous dynamics — it snaps into discrete categories. This may explain why certain cognitive operations feel "digital" (discrete decisions, yes/no judgments) while others feel "analog" (continuous perception, fluid reasoning).
+
+The same constraint applies to neural network latent spaces: if you compress too far, you lose the ability to represent continuous dynamics. The paper derives this from the Fisher information metric, connecting to Takens embedding theorem from dynamical systems.`,
     keyFindings: [
       '$k=3$ is minimal embedding dimension for self-intersection-free cycles',
       '$k \\leq 2$ forces categorical representations through state conflation',
@@ -302,12 +333,15 @@ The key application is the brain: high-dimensional ephaptic field dynamics must 
     journal: 'Physical Review E',
     year: 2025,
     status: 'in_prep',
-    description: `Discrete codes emerge spontaneously when continuous high-dimensional data passes through a bandwidth-limited noisy channel. The key insight: you need *both* a dimensional bottleneck *and* noise—neither alone is sufficient.
+    description: `**Discrete symbols emerge spontaneously when continuous data passes through a bandwidth-limited noisy channel** — and this is the foundational mechanism behind all the other papers. Thoughts become words, neural activity becomes behaviour, genes become phenotypes — all through the same bottleneck + noise mechanism forcing discretisation.
 
-The bottleneck compresses the space, bringing points closer together. Noise adds uncertainty, making nearby points indistinguishable. The system learns to space codes apart to avoid confusion. This is a topological phase transition: continuous $O(2)$ symmetry breaks to discrete $C_6$ symmetry.
+The key insight: you need *both* a dimensional bottleneck *and* noise. Neither alone is sufficient.
 
-*Note: The GitHub repo contains an early demo—this will require significant theoretical development before submission.*`,
-    whyItMatters: `This is the foundational mechanism behind all the other papers. Thoughts become words, neural activity becomes behavior, genes become phenotypes—all through the same bottleneck + noise mechanism forcing discretization.`,
+Bottleneck alone? The continuous ring compresses but stays continuous. Noise alone? The ring gets fuzzy but stays continuous. But *both together*? Discrete clusters emerge. The system learns to space codes apart to avoid confusion, breaking continuous $O(2)$ symmetry into discrete $C_6$ symmetry. It's a topological phase transition.
+
+Information capacity follows: $C \\approx k \\cdot \\log(1 + \\text{SNR})$. More dimensions (k) and better signal-to-noise ratio give you more discrete symbols. This explains why language has finite phonemes, why neural populations encode discrete categories, why genetic codes are digital despite the analogue chemistry underneath.
+
+*Note: The GitHub repo contains an early demo — this will require significant theoretical development before submission.*`,
     keyFindings: [
       'Bottleneck alone: continuous ring preserved',
       'Noise alone: continuous ring preserved',
@@ -322,10 +356,13 @@ The bottleneck compresses the space, bringing points closer together. Noise adds
     journal: 'BioSystems',
     year: 2025,
     status: 'in_prep',
-    description: `Morphological capacity in embryonic development scales as $D_{\\text{morph}} \\propto 1/\\sqrt{f}$, making slow developmental timescales fundamental rather than incidental. Gap junction networks in 10,000-cell embryos create effective dimensionality $D_{\\text{morph}} \\sim 100$–$1000$.
+    description: `**Slow bioelectric oscillations dominate morphological information — not because they're special, but because high-frequency signals can't carry enough bits across developmental timescales.** This challenges Levin's bioelectric code framework.
 
-This challenges Levin's bioelectric code framework: rather than fast voltage signals encoding morphological "software," the information-theoretic constraints suggest slow oscillations dominate because high-frequency signals can't carry enough bits across developmental timescales.`,
-    whyItMatters: `The speed-accuracy tradeoff $\\varepsilon \\sim T_{\\text{osc}}/T_{\\text{dev}}$ explains species-specific developmental timing and temperature sensitivity ($R^2 = 0.90$ across 7 species). Levin's framework may overestimate what fast bioelectric signals can achieve.`,
+Morphological capacity scales as $D_{\\text{morph}} \\propto 1/\\sqrt{f}$, making slow developmental timescales fundamental rather than incidental. Gap junction networks in 10,000-cell embryos create effective dimensionality $D_{\\text{morph}} \\sim 100$–$1000$ — but only the slow oscillations contribute meaningfully to pattern formation.
+
+Michael Levin's work has popularised the idea that bioelectric signals encode morphological "software" — that voltage patterns are a kind of cellular programming language. The information-theoretic analysis here suggests a more constrained picture: fast voltage signals simply don't have the bandwidth to specify complex morphology. The slow oscillations aren't just timing signals; they're the primary carriers of morphological information.
+
+The speed-accuracy tradeoff ($\\varepsilon \\sim T_{\\text{osc}}/T_{\\text{dev}}$) explains species-specific developmental timing and temperature sensitivity ($R^2 = 0.90$ across 7 species). Phase transition at critical gap junction coupling corresponds to gastrulation — the moment when the embryo commits to a body plan.`,
     keyFindings: [
       'Dimensional collapse via gap junction coupling',
       'Slow oscillators dominate morphological information capacity',
@@ -341,8 +378,13 @@ This challenges Levin's bioelectric code framework: rather than fast voltage sig
     journal: 'Origins of Life and Evolution of Biospheres',
     year: 2025,
     status: 'in_prep',
-    description: `Before life could replicate, it needed to maintain coherent chemical cycles against thermal noise. The dimensional framework suggests that autocatalytic cycles emerged first as thermodynamic necessities, with replication as a later refinement.`,
-    whyItMatters: `Reframes origin of life questions from "how did replication start" to "how did coherent cycles become self-sustaining."`,
+    description: `**Life needed coherent chemical cycles before it could replicate** — autocatalysis is the thermodynamic prerequisite for heredity, not the other way around.
+
+The origin of life question is usually framed as "how did replication start?" — RNA world, metabolism-first, and other hypotheses compete to explain the first self-copying molecule. The dimensional framework suggests a different question: how did coherent cycles become self-sustaining against thermal noise?
+
+Before a molecule can copy itself, the chemical environment must maintain coherent dynamics — cycles that persist despite thermal fluctuations. This is a dimensional constraint: random chemistry explores high-dimensional state space chaotically, but autocatalytic cycles collapse onto low-dimensional attractors. Replication is a refinement of this basic coherence, not its source.
+
+The implication: stop looking for the first replicator. Look for the first coherent cycle.`,
   },
   {
     slug: 'immune-cooperation',
@@ -350,10 +392,15 @@ This challenges Levin's bioelectric code framework: rather than fast voltage sig
     journal: 'BioSystems',
     year: 2025,
     status: 'in_prep',
-    description: `Immunity is dimensional surveillance. Cells embedded in functional tissue exhibit high effective dimensionality—complex, context-sensitive dynamics. Cells that have "defected" (cancer, viral infection, senescence) exhibit low dimensionality—they've collapsed into simpler attractors. Immune receptors function as synchronization probes measuring dynamical complexity.
+    description: `**Immunity is dimensional surveillance** — healthy cells exhibit high-dimensional dynamics, defectors collapse into simpler attractors, and immune receptors are synchronisation probes measuring dynamical complexity.
 
-Validated on scRNA-seq data (GSE120575): immunotherapy responders have 2.3× higher effective dimensionality ($D_{\\text{eff}}$ = 28.3 vs 12.3) than non-responders.`,
-    whyItMatters: `Health is high dimensionality maintained at criticality; disease is dimensional collapse. This reframes autoimmunity (sensor exhaustion), cancer immune evasion (attractor mimicry), and the regeneration-cancer tradeoff (attractor depth).`,
+Health is high dimensionality maintained at criticality. Disease is dimensional collapse. Cells embedded in functional tissue exhibit complex, context-sensitive dynamics ($D_{\\text{eff}}$ ≈ 28). Cells that have "defected" — cancer, viral infection, senescence — exhibit low dimensionality ($D_{\\text{eff}}$ ≈ 12). They've collapsed into simpler attractors, running simpler programs.
+
+Immune receptors function as synchronisation probes. When a T cell couples to a target, it's not just reading molecular signatures — it's measuring dynamical complexity. If the target's dynamics are too simple (low-D), the immune system flags it as defective.
+
+Validated on scRNA-seq data (GSE120575): immunotherapy responders have 2.3× higher effective dimensionality than non-responders. This reframes immunotherapy from "activating immune cells" to "restoring dimensional complexity."
+
+The framework also explains T-cell exhaustion (dynamical friction from coupling to low-D targets), autoimmunity (sensor exhaustion from chronic surveillance), and the regeneration-cancer tradeoff (deep attractors resist cancer but prevent regeneration).`,
     keyFindings: [
       'Responders: 2.3× higher effective dimensionality than non-responders',
       'Entropy dissociation: low-D + high noise = collapsed attractor signature',
