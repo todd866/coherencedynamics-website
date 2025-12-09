@@ -256,6 +256,26 @@ This paper provides the mathematical toolkit for measuring exactly how much your
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
+    slug: 'clinical-validity-bounds',
+    title: 'The Dimensional Validity Bound: Structural Limits of Clinical AI Evaluation in Multimorbidity',
+    journal: 'JAMIA',
+    year: 2025,
+    status: 'submitted',
+    github: 'todd866/clinical-validity-bounds',
+    pdf: 'https://raw.githubusercontent.com/todd866/clinical-validity-bounds/main/manuscript.pdf',
+    description: `Clinical AI systems are validated on datasets that systematically underrepresent complex patients. When a patient's effective dimensionality exceeds what the AI was trained on, predictions become unreliable—not because the AI is "wrong," but because the validation framework itself breaks down.
+
+MIMIC-IV analysis (N=425,216) reveals a U-shaped pattern: classifier performance is worst not for the simplest or most complex patients, but for those in the "zone of maximum entropy" around r* ≈ 0.3 (3 conditions). This is where dimensional mismatch between patient complexity and algorithmic capacity is greatest.`,
+    whyItMatters: `Explains why clinical AI that performs well in trials often fails in practice: trials select simpler patients. Proposes Dimensional Validity Audits as governance requirement before clinical AI deployment.`,
+    keyFindings: [
+      'Critical ratio r* ≈ 0.3 marks maximum classifier instability',
+      'U-shaped AUC: worst at moderate multimorbidity, not extremes',
+      'MIMIC-IV validation across 425,216 admissions',
+      'Proposes Dimensional Validity Audits for clinical AI governance',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and analysis code; GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+  },
+  {
     slug: 'minimal-embedding',
     title: 'Minimal Embedding Dimension for Self-Intersection-Free Recurrent Processes',
     journal: 'Information Geometry',
@@ -342,15 +362,6 @@ Validated on scRNA-seq data (GSE120575): immunotherapy responders have 2.3× hig
     ],
     github: 'todd866/immune-cooperation',
     pdf: 'https://raw.githubusercontent.com/todd866/immune-cooperation/main/immune_cooperation.pdf',
-  },
-  {
-    slug: 'mri-coherence-controller',
-    title: 'Coherence Metabolic Imaging via Photonic MRI Controllers',
-    journal: 'Magnetic Resonance in Medicine',
-    year: 2025,
-    status: 'in_prep',
-    description: `A photonic coherence computer attached to an MRI control loop could measure "computational hardness" as a new imaging contrast. Tissues with high coherence would show different signatures than disordered tissues, potentially detecting cancer or neurodegeneration before structural changes appear.`,
-    whyItMatters: `Would enable early detection of diseases characterised by loss of tissue coherence, using existing MRI infrastructure.`,
   },
 ];
 
