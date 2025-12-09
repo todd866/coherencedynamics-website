@@ -67,26 +67,6 @@ Biological systems exploit this by integrating weak signals across many dimensio
 
   // === UNDER REVIEW ===
   {
-    slug: 'clinical-validity-bounds',
-    title: 'The Dimensional Validity Bound: When Clinical Algorithms Fail Complex Patients',
-    journal: 'npj Health Systems',
-    year: 2025,
-    status: 'submitted',
-    github: 'todd866/clinical-validity-bounds',
-    pdf: 'https://raw.githubusercontent.com/todd866/clinical-validity-bounds/main/manuscript.pdf',
-    description: `When patients have many interacting diseases—kidney disease plus lung disease plus heart failure—no amount of AI data can make algorithms reliable at predicting outcomes. This isn't a technology problem; it's a fundamental mismatch between what computers can handle and how complex real patients actually are.
-
-Think of it like navigating a 3D maze with only a 2D map: no matter how detailed your map is, it won't help.`,
-    whyItMatters: `Explains why EHR alerts feel useless in complex patients and why experienced doctors often override them. You're not ignoring evidence—you're recognising that the algorithm is operating outside its valid range. This gives a framework to justify clinical override.`,
-    keyFindings: [
-      'AI performs worst not on sickest patients, but on moderate complexity (zone of maximum entropy)',
-      'Healthy patients: $D_{\\text{eff}} = 44.3$; sick patients collapse to $D_{\\text{eff}} = 29.5$',
-      '14 tests with 5% false positive rate → 50% chance of spurious finding',
-      'Validated on 425,216 hospital admissions from MIMIC-IV',
-    ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
-  },
-  {
     slug: 'high-dimensional-coherence',
     title: 'High-Dimensional Coherence in Biological Systems',
     journal: 'BioSystems (R1 revision)',
@@ -232,26 +212,6 @@ In cooperative environments, developmental trajectories remain stable within hea
       'Cancer as cellular bifurcation into alternative stable states',
       'Fractal coherence: same mechanism prevents cancer and enables social cooperation',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
-  },
-  {
-    slug: 'oscillatory-incompleteness',
-    title: 'Oscillatory Incompleteness: Gödel, Symbol Formation, and High-Dimensional Dynamics',
-    journal: 'Synthese',
-    year: 2025,
-    status: 'submitted',
-    description: `A Gödel-style incompleteness theorem for dynamical systems that generate symbolic codes from high-dimensional oscillatory dynamics via coarse-grained observation. Any effective theory capable of reasoning about their symbolic outputs is necessarily incomplete.
-
-The source of undecidability is the *dimensional bottleneck*—the mismatch between high-dimensional pre-symbolic dynamics and the low-dimensional symbolic interface.`,
-    whyItMatters: `Physical systems that produce symbols from continuous dynamics inherit Gödelian structure. This includes neural systems, gene regulatory networks, and any observation process that discretizes continuous oscillations.`,
-    keyFindings: [
-      'Theorem 4: Any consistent, recursively axiomatizable theory of oscillatory systems is incomplete',
-      'The dimensional bottleneck (high-D → low-D) creates undecidable propositions',
-      'Physical self-referential oscillator embodies Gödel sentence in dynamical form',
-      'Categorical formulation: unclassifiable subobjects of the final coalgebra $\\Sigma^\\mathbb{N}$',
-    ],
-    github: 'todd866/oscillatory-incompleteness',
-    pdf: 'https://raw.githubusercontent.com/todd866/oscillatory-incompleteness/main/manuscript.pdf',
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
