@@ -26,6 +26,7 @@ export const papers: Paper[] = [
     status: 'published',
     doi: '10.1016/j.biosystems.2025.105608',
     simulation: 'protein-observer',
+    image: 'falsifiability.png',
     description: `**Popper's falsifiability criterion breaks down for high-dimensional biological systems** — not because biology is messy, but because of a fundamental physical limit on what yes/no tests can tell us.
 
 Here's the problem: biological systems exist in absurdly high-dimensional spaces. A single cell needs thousands of variables to describe. When you try to test a yes/no hypothesis about such systems, you're projecting all that complexity onto a single bit. For a modest 100-neuron circuit, a binary test preserves about $10^{-100}$ of the information. That's not approximately zero — it's functionally indistinguishable from zero.
@@ -49,6 +50,7 @@ This isn't a call to abandon scientific rigor. Falsifiability works brilliantly 
     status: 'published',
     doi: '10.1016/j.biosystems.2025.105632',
     simulation: 'maxwells-ledger',
+    image: 'timing-inaccessibility.png',
     description: `**The brain is 100,000× more energy-efficient than silicon because it defers thermodynamic costs** — computing reversibly until the moment it must commit to a discrete output.
 
 Here's what makes this possible: below the Landauer limit ($\\sim 3 \\times 10^{-21}$ J), you can't irreversibly record *when* things happen. You can detect that something occurred, but not its temporal order. This creates massive "path degeneracy" — exponentially many micro-trajectories ($10^{50}$ to $10^{100}$ in neural systems) that all look the same from the outside.
