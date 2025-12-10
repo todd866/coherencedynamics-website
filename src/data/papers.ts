@@ -242,7 +242,8 @@ Cancer, in this view, is cellular bifurcation into an alternative stable state. 
     year: 2025,
     status: 'in_prep',
     github: 'todd866/dimensional-work',
-    pdf: 'https://raw.githubusercontent.com/todd866/dimensional-work/main/manuscript_prx.pdf',
+    pdf: 'https://raw.githubusercontent.com/todd866/dimensional-work/main/manuscript_pre.pdf',
+    simulation: 'curvature-cost',
     image: 'dimensional-landauer.png',
     description: `**Erasing a bit costs energy — but so does projecting high-dimensional dynamics onto lower-dimensional representations.** This "geometric work" is a new fundamental cost in information processing, and it explains why biological systems favour coherent, oscillatory dynamics.
 

@@ -1,34 +1,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import { papers, getPaperBySlug, getAdjacentPapers } from '@/data/papers';
+import { getPaperBySlug, getAdjacentPapers } from '@/data/papers';
 import Markdown from '@/components/Markdown';
 import PaperNavigation from '@/components/PaperNavigation';
+import DimensionalCostDemo from '@/components/DimensionalCostDemo';
 
-export function generateStaticParams() {
-  // Exclude papers with custom pages
-  const customPages = ['dimensional-landauer'];
-  return papers
-    .filter((paper) => !customPages.includes(paper.slug))
-    .map((paper) => ({ slug: paper.slug }));
-}
-
-export default async function PaperPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-  const paper = getPaperBySlug(slug);
-
-  if (!paper) {
-    notFound();
-  }
-
-  const { prev, next } = getAdjacentPapers(slug);
+export default function DimensionalLandauerPage() {
+  const paper = getPaperBySlug('dimensional-landauer')!;
+  const { prev, next } = getAdjacentPapers('dimensional-landauer');
 
   return (
-    <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <Link
         href="/papers"
         className="text-gray-400 hover:text-white mb-8 inline-block"
@@ -52,26 +34,6 @@ export default async function PaperPage({
         <p>{paper.journal} ({paper.year})</p>
 
         <div className="flex flex-wrap gap-4 mt-4">
-          {paper.doi && (
-            <a
-              href={`https://doi.org/${paper.doi}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-green-400 hover:text-green-300"
-            >
-              Published at {paper.journal} &rarr;
-            </a>
-          )}
-          {paper.ssrn && (
-            <a
-              href={paper.ssrn}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:text-blue-300"
-            >
-              SSRN Preprint &rarr;
-            </a>
-          )}
           {paper.github && (
             <a
               href={`https://github.com/${paper.github}`}
@@ -92,16 +54,19 @@ export default async function PaperPage({
               PDF &rarr;
             </a>
           )}
-          {paper.simulation && (
-            <Link
-              href={`/simulations/${paper.simulation}`}
-              className="text-orange-400 hover:text-orange-300"
-            >
-              Try Simulation (alpha) &rarr;
-            </Link>
-          )}
+          <Link
+            href="/simulations/curvature-cost"
+            className="text-orange-400 hover:text-orange-300"
+          >
+            Full Simulation &rarr;
+          </Link>
         </div>
       </div>
+
+      {/* Interactive Hero - The Cost of Curvature Demo */}
+      <section className="mb-10">
+        <DimensionalCostDemo />
+      </section>
 
       {/* Main description - first paragraph only */}
       <section className="mb-8">
@@ -111,25 +76,28 @@ export default async function PaperPage({
         </Markdown>
       </section>
 
-      {/* Paper image */}
-      {paper.image && (
-        <div className="mb-8 bg-white rounded-xl p-4 shadow-lg">
-          <Image
-            src={`/images/papers/${paper.image}`}
-            alt={paper.title}
-            width={800}
-            height={450}
-            className="rounded-lg w-full"
-          />
-        </div>
-      )}
-
       {/* Rest of description */}
       {paper.description.split('\n\n').length > 1 && (
         <section className="mb-8">
           <Markdown className="text-gray-300 leading-relaxed">
             {paper.description.split('\n\n').slice(1).join('\n\n')}
           </Markdown>
+        </section>
+      )}
+
+      {/* Static figure from paper - moved below description */}
+      {paper.image && (
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-3 text-white">Figure from Paper</h2>
+          <div className="bg-white rounded-xl p-4 shadow-lg">
+            <Image
+              src={`/images/papers/${paper.image}`}
+              alt={paper.title}
+              width={800}
+              height={450}
+              className="rounded-lg w-full"
+            />
+          </div>
         </section>
       )}
 

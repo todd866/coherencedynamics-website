@@ -248,57 +248,21 @@
       transform: scale(0.95);
     }
 
-    /* Joystick (Left side) */
-    #stick-zone {
-      bottom: 20px;
-      left: 20px;
-      width: 100px;
-      height: 100px;
-    }
-
-    /* Color buttons (Right side) */
+    /* Color buttons (centered at bottom) */
     #color-btn {
-      bottom: 20px;
-      right: 20px;
-      width: 80px;
-      height: 80px;
-      font-size: 9px;
+      bottom: 30px;
+      right: 30px;
+      width: 90px;
+      height: 90px;
+      font-size: 11px;
     }
 
     #color-left-btn {
-      bottom: 20px;
-      right: 110px;
-      width: 60px;
-      height: 60px;
-      font-size: 8px;
-    }
-
-    /* Context buttons */
-    .ctx-btn {
-      width: 50px;
-      height: 50px;
-      font-size: 8px;
-      border-radius: 8px;
-    }
-
-    #rot-l {
-      bottom: 110px;
-      right: 80px;
-    }
-
-    #rot-r {
-      bottom: 110px;
-      right: 20px;
-    }
-
-    #exp-btn {
-      bottom: 170px;
-      right: 20px;
-    }
-
-    #con-btn {
-      bottom: 170px;
-      right: 80px;
+      bottom: 30px;
+      left: 30px;
+      width: 90px;
+      height: 90px;
+      font-size: 11px;
     }
 
     /* ========== FULLSCREEN BUTTON ========== */
@@ -347,20 +311,9 @@
 
     <!-- Touch controls overlay -->
     <div id="touch-controls">
-      <!-- Movement joystick -->
-      <div id="stick-zone" class="touch-zone">MOVE</div>
-
       <!-- Color cycle buttons -->
-      <div id="color-left-btn" class="touch-zone">Q</div>
-      <div id="color-btn" class="touch-zone">COLOR</div>
-
-      <!-- Rotation buttons (3D+) -->
-      <div id="rot-l" class="touch-zone ctx-btn" style="display:none">ROT L</div>
-      <div id="rot-r" class="touch-zone ctx-btn" style="display:none">ROT R</div>
-
-      <!-- Expansion buttons (4D+) -->
-      <div id="exp-btn" class="touch-zone ctx-btn" style="display:none">EXP</div>
-      <div id="con-btn" class="touch-zone ctx-btn" style="display:none">CON</div>
+      <div id="color-left-btn" class="touch-zone">◀</div>
+      <div id="color-btn" class="touch-zone">▶</div>
     </div>
 
     <div id="start-overlay">

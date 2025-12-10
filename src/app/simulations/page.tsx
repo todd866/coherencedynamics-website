@@ -35,6 +35,14 @@ const simulations: Simulation[] = [
     status: 'playable',
   },
   {
+    slug: 'curvature-cost',
+    title: 'The Cost of Curvature',
+    description: "Bend a manifold, feel the heat. Particles confined to a 1D curve in 2D space dissipate more energy as curvature increases. Drag to bend the manifold and watch particles turn red as thermodynamic costs spike. Curvature = Heat.",
+    paper: 'Dimensional Landauer Bound',
+    paperSlug: 'dimensional-landauer',
+    status: 'playable',
+  },
+  {
     slug: 'bits-vs-dynamics',
     title: 'Bits vs Dynamics',
     description: "Compare two kinds of systems: billiard balls (bits) that lose energy at every collision, versus a Lorenz attractor (dynamics) that never settles but stays bounded. See the fundamental trade-off between addressability and coherence.",
