@@ -5,7 +5,8 @@
  * Uses renderer.ts for "The Flattening" mechanic - automatic visual mode switching.
  */
 import { COLORS, DIMENSION_CONFIGS, checkMatch, } from './types.js';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, CENTER_X, CENTER_Y, drawEntity, drawGlow, drawGlowText, drawSynthwaveGrid, drawTunnel, drawScanlines, drawVignette, applyRedShift, applyBlackHole, drawFlattenTransition, project3D, project4D, } from './renderer.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, CENTER_X, CENTER_Y, drawEntity, drawGlow, drawGlowText, drawTunnel, drawScanlines, drawVignette, applyRedShift, applyBlackHole, drawFlattenTransition, project3D, project4D, } from './renderer.js';
+import { cycleShape, shapeMatches, drawShape, } from './shapes.js';
 // =============================================================================
 // HELPERS
 // =============================================================================
@@ -240,137 +241,205 @@ export class Dim1Collision {
             }];
     }
 }
-// =============================================================================
-// DIMENSION 2: THE WEAVER
-// =============================================================================
 export class Dim2Weaver {
     constructor() {
         this.config = DIMENSION_CONFIGS[2];
-        this.roadOffset = 0;
+        this.walls = [];
         this.spawnTimer = 0;
-        this.distance = 0;
+        this.successfulPasses = 0;
+        this.playerShape = 'circle';
+        this.playerRotation = 0;
+        this.playerScale = 40;
+        this.shapeJustCycled = false;
     }
     init(state) {
-        state.position = [CENTER_X];
-        state.velocity = [0];
+        state.position = [CENTER_X, CANVAS_HEIGHT - 120];
+        state.velocity = [0, 0];
         state.entities = [];
-        this.roadOffset = 0;
-        this.distance = 0;
+        this.walls = [];
+        this.spawnTimer = 0;
+        this.successfulPasses = 0;
+        this.playerShape = 'circle';
+        this.playerRotation = 0;
     }
     update(state, input, dt) {
-        // Movement
-        const speed = 500;
+        // Movement (left/right only in 2D)
+        const speed = 400;
         if (input.left)
             state.position[0] -= speed * dt;
         if (input.right)
             state.position[0] += speed * dt;
-        state.position[0] = Math.max(100, Math.min(CANVAS_WIDTH - 100, state.position[0]));
-        // Color cycling handled by main.ts (single-press detection)
-        // Scroll road - faster
-        const roadSpeed = 250;
-        this.roadOffset += roadSpeed * dt;
-        this.distance += roadSpeed * dt;
-        // Spawn color zones - frequently
+        state.position[0] = Math.max(80, Math.min(CANVAS_WIDTH - 80, state.position[0]));
+        // Shape morphing: Q/E cycles shape type
+        if (input.cyclePrev && !this.shapeJustCycled) {
+            this.playerShape = cycleShape(this.playerShape, -1);
+            this.shapeJustCycled = true;
+        }
+        else if (input.cycleNext && !this.shapeJustCycled) {
+            this.playerShape = cycleShape(this.playerShape, 1);
+            this.shapeJustCycled = true;
+        }
+        else if (!input.cyclePrev && !input.cycleNext) {
+            this.shapeJustCycled = false;
+        }
+        // Rotation (A/D in 2D - preparing for 3D)
+        const rotSpeed = 3;
+        if (input.rotateLeft)
+            this.playerRotation -= rotSpeed * dt;
+        if (input.rotateRight)
+            this.playerRotation += rotSpeed * dt;
+        // Spawn walls
         this.spawnTimer += dt;
-        if (this.spawnTimer >= 1.5) {
+        if (this.spawnTimer >= 2.5) {
             this.spawnTimer = 0;
-            state.entities.push(...this.spawnEntities());
+            this.walls.push(this.spawnWall());
         }
-        // Update zones (move towards player) - fast
-        for (const entity of state.entities) {
-            entity.position[1] += 250 * dt;
-        }
-        // Check zone collision
-        const playerY = CANVAS_HEIGHT - 100;
-        state.entities = state.entities.filter(entity => {
-            if (entity.position[1] > playerY - 30 && entity.position[1] < playerY + 30) {
-                // In zone
-                const inZone = Math.abs(entity.position[0] - state.position[0]) < entity.size;
-                if (inZone) {
-                    const result = checkMatch(state.color, entity.color);
-                    if (result === 'perfect' || result === 'white') {
-                        state.saturation = Math.min(1, state.saturation + 0.02);
-                        state.score += 10;
-                    }
-                    else if (result === 'void') {
-                        state.saturation = 0;
-                    }
-                    else {
-                        state.saturation = Math.max(0, state.saturation - 0.05 * dt);
-                    }
+        // Update walls (move down)
+        const wallSpeed = 150;
+        const playerY = state.position[1];
+        this.walls = this.walls.filter(wall => {
+            wall.y += wallSpeed * dt;
+            // Check if wall is at player position
+            if (!wall.passed && wall.y > playerY - 30 && wall.y < playerY + 30) {
+                wall.passed = true;
+                // Check shape match
+                const match = shapeMatches(this.playerShape, this.playerRotation, wall.holeType, wall.holeRotation, 0.4 // ~23 degree tolerance
+                );
+                // Check position (is player centered in hole?)
+                const dx = state.position[0] - CENTER_X;
+                const positionOk = Math.abs(dx) < wall.holeScale * 0.5;
+                if (match.typeMatch && match.rotationMatch && positionOk) {
+                    // Perfect fit!
+                    state.saturation = Math.min(1, state.saturation + 0.15);
+                    state.streak++;
+                    state.score += 300 * state.streak;
+                    this.successfulPasses++;
+                }
+                else if (match.typeMatch && positionOk) {
+                    // Right shape, wrong rotation
+                    state.saturation = Math.max(0, state.saturation - 0.1);
+                    state.streak = 0;
+                }
+                else if (match.typeMatch) {
+                    // Right shape, wrong position
+                    state.saturation = Math.max(0, state.saturation - 0.15);
+                    state.streak = 0;
+                }
+                else {
+                    // Wrong shape - collision!
+                    state.saturation = Math.max(0, state.saturation - 0.25);
+                    state.streak = 0;
                 }
             }
-            return entity.position[1] < CANVAS_HEIGHT + 100;
+            // Remove if off screen
+            return wall.y < CANVAS_HEIGHT + 100;
         });
     }
     render(ctx, state) {
-        // Background - synthwave perspective grid using renderer
-        drawSynthwaveGrid(ctx, this.roadOffset, '#1a1a2e');
-        drawVignette(ctx, 0.4);
-        // Color zones - use drawEntity for Flattening support
-        for (const entity of state.entities) {
-            const symbol = entity.color === 'black' ? '█' : entity.color === 'white' ? '∞' : '□';
-            if (state.renderMode === 'flat') {
-                // Flat mode: code representation
-                ctx.font = `bold ${entity.size / 2}px monospace`;
-                ctx.textAlign = 'center';
-                ctx.fillStyle = COLORS[entity.color].hex;
-                ctx.globalAlpha = 0.6;
-                const zoneText = `[${entity.color.toUpperCase()}]`;
-                ctx.fillText(zoneText, entity.position[0], entity.position[1]);
-                ctx.globalAlpha = 1;
-            }
-            else {
-                // Geometric mode: colored zone
-                ctx.fillStyle = COLORS[entity.color].hex + '40';
-                ctx.fillRect(entity.position[0] - entity.size, entity.position[1] - 40, entity.size * 2, 80);
-                // Zone border
-                ctx.strokeStyle = COLORS[entity.color].hex;
-                ctx.lineWidth = 2;
-                ctx.shadowColor = COLORS[entity.color].hex;
-                ctx.shadowBlur = 10;
-                ctx.strokeRect(entity.position[0] - entity.size, entity.position[1] - 40, entity.size * 2, 80);
-                ctx.shadowBlur = 0;
-            }
+        // Background
+        drawVignette(ctx, 0.3);
+        // Draw grid lines for depth perception
+        ctx.strokeStyle = '#1a1a2e';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 10; i++) {
+            const y = (i / 10) * CANVAS_HEIGHT;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(CANVAS_WIDTH, y);
+            ctx.stroke();
         }
-        // Player - using drawEntity for automatic Flattening
-        const playerY = CANVAS_HEIGHT - 100;
-        drawGlow(ctx, state.position[0], playerY, 30, COLORS[state.color].hex, state.saturation);
-        drawEntity(ctx, state, state.position[0], playerY, 40, state.color, 'square');
-        // UI
-        drawGlowText(ctx, `DISTANCE: ${Math.floor(this.distance)}`, CENTER_X, 30, '#fff', 20, 5);
-        drawGlowText(ctx, `[←→] move  [Q/E] color`, CENTER_X, CANVAS_HEIGHT - 10, '#888', 14, 3);
+        // Draw walls (approaching from top)
+        for (const wall of this.walls) {
+            const wallHeight = 60;
+            const alpha = Math.min(1, (CANVAS_HEIGHT - wall.y) / CANVAS_HEIGHT);
+            // Wall background (solid)
+            ctx.fillStyle = `rgba(30, 30, 50, ${alpha * 0.9})`;
+            ctx.fillRect(0, wall.y - wallHeight / 2, CANVAS_WIDTH, wallHeight);
+            // Wall borders
+            ctx.strokeStyle = `rgba(0, 255, 249, ${alpha * 0.5})`;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, wall.y - wallHeight / 2, CANVAS_WIDTH, wallHeight);
+            // Draw hole outline (what shape player needs to be)
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            // Hole glow
+            ctx.shadowColor = '#00fff9';
+            ctx.shadowBlur = 20;
+            drawShape(ctx, wall.holeType, CENTER_X, wall.y, wall.holeScale, wall.holeRotation, '#00fff9', false, 3);
+            // Inner glow
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = alpha * 0.3;
+            drawShape(ctx, wall.holeType, CENTER_X, wall.y, wall.holeScale * 0.8, wall.holeRotation, '#00fff9', true);
+            ctx.restore();
+            // Shape hint text
+            ctx.font = '12px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = `rgba(0, 255, 249, ${alpha * 0.7})`;
+            ctx.fillText(wall.holeType.toUpperCase(), CENTER_X, wall.y - wall.holeScale - 15);
+        }
+        // Draw player shape
+        const playerY = state.position[1];
+        // Player glow
+        drawGlow(ctx, state.position[0], playerY, this.playerScale * 1.5, COLORS[state.color].hex, state.saturation);
+        // Player shape
+        ctx.shadowColor = COLORS[state.color].hex;
+        ctx.shadowBlur = 15 * state.saturation;
+        drawShape(ctx, this.playerShape, state.position[0], playerY, this.playerScale, this.playerRotation, COLORS[state.color].hex, true, 3);
+        ctx.shadowBlur = 0;
+        // Shape outline (thicker)
+        drawShape(ctx, this.playerShape, state.position[0], playerY, this.playerScale, this.playerRotation, '#fff', false, 2);
+        // UI - Current shape indicator
+        ctx.font = 'bold 16px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`SHAPE: ${this.playerShape.toUpperCase()}`, 20, 30);
+        // Progress
+        drawGlowText(ctx, `PASSES: ${this.successfulPasses}/10`, CENTER_X, 30, '#fff', 20, 5);
+        // Controls hint
+        drawGlowText(ctx, `[←→] move  [Q/E] morph  [A/D] rotate`, CENTER_X, CANVAS_HEIGHT - 15, '#888', 12, 3);
         // Screen effects
-        drawScanlines(ctx, 0.05);
+        drawScanlines(ctx, 0.03);
         // Excess state effects
         if (state.excessState === 'redshift') {
-            applyRedShift(ctx, 0.6);
+            applyRedShift(ctx, 0.5);
         }
         else if (state.excessState === 'blackhole') {
-            applyBlackHole(ctx, 0.6);
+            applyBlackHole(ctx, 0.5);
         }
     }
     checkAscension(state) {
-        return this.distance >= 5000;
+        return this.successfulPasses >= 10;
     }
     checkDeath(state) {
         return state.saturation <= 0;
     }
-    spawnEntities() {
-        const zones = [];
-        const numZones = Math.floor(Math.random() * 2) + 1;
-        for (let i = 0; i < numZones; i++) {
-            const isBlack = Math.random() < 0.1;
-            const isWhite = !isBlack && Math.random() < 0.2;
-            zones.push({
-                id: Math.random().toString(36),
-                color: isBlack ? 'black' : isWhite ? 'white' : randomColor(),
-                position: [100 + Math.random() * (CANVAS_WIDTH - 200), -100],
-                velocity: [0, 0],
-                size: 80 + Math.random() * 120,
-            });
+    spawnWall() {
+        const shapes = ['circle', 'square', 'triangle'];
+        const holeType = shapes[Math.floor(Math.random() * shapes.length)];
+        // Random rotation (snapped to symmetry points for fairness)
+        let holeRotation = 0;
+        switch (holeType) {
+            case 'square':
+                holeRotation = (Math.floor(Math.random() * 4) * Math.PI) / 2;
+                break;
+            case 'triangle':
+                holeRotation = (Math.floor(Math.random() * 3) * Math.PI * 2) / 3;
+                break;
+            case 'circle':
+                holeRotation = 0; // Circle doesn't need rotation
+                break;
         }
-        return zones;
+        return {
+            id: Math.random().toString(36),
+            y: -50,
+            holeType,
+            holeRotation,
+            holeScale: 50 + Math.random() * 20, // Slightly variable hole sizes
+            passed: false,
+        };
+    }
+    spawnEntities() {
+        return []; // Using walls array instead
     }
 }
 // =============================================================================
