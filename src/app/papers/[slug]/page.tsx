@@ -176,11 +176,6 @@ export default async function PaperPage({
         prev={prev ? { slug: prev.slug, title: prev.title } : null}
         next={next ? { slug: next.slug, title: next.title } : null}
       />
-
-      {/* Keyboard hint */}
-      <p className="text-center text-xs text-gray-600 mt-4">
-        Use <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400">←</kbd> <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400">→</kbd> to navigate
-      </p>
     </main>
   );
 }
