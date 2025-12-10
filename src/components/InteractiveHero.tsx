@@ -1,20 +1,18 @@
 'use client';
 
 /**
- * InteractiveHero - Homepage hero visualization for coherencedynamics.com
+ * InteractiveHero - "Discrete vs Continuous"
  *
- * Demonstrates the conceptual difference between "BITS" (discrete, isolated) and
- * "DYNAMICS" (continuous, coherent) through interactive canvas animations.
+ * LEFT PANEL (BITS):
+ * - Concept: "Atomic" / Discrete / Local
+ * - Physics: Hard elastic collisions only. No field forces. No gravity.
+ * - Interaction: Drag only (Direct manipulation).
  *
- * PHYSICS:
- * - BITS: Elastic collision with impulse-based bouncing, Brownian jiggle
- * - DYNAMICS: Lorenz attractor with render-time spacetime warp (math untouched)
- *
- * JUICE (polish):
- * - Elastic warp spring - smooth stretch and bounce-back
- * - Neon glow trails via additive blending
- * - Reactive bits - nudge away from cursor on hover
- * - Hot-head trails - bright tips showing flow direction
+ * RIGHT PANEL (DYNAMICS):
+ * - Concept: "Field" / Continuous / Global
+ * - Physics: Lorenz Attractor (Strange Attractor geometry).
+ * - Interaction: Spacetime Warp (Global distortion).
+ * - Feel: "Capacitor" - slow charge up on hold, slow viscous discharge on release.
  */
 
 import { useRef, useEffect, useCallback } from 'react';
@@ -38,7 +36,7 @@ interface LorenzPoint {
 
 // === CONSTANTS ===
 const COLORS = {
-  BLACK: '#050505', // Slightly off-black for warmth
+  BLACK: '#050505',
   WHITE: '#f1f5f9',
   RED: '#ef4444',
   GREEN: '#22c55e',
@@ -62,7 +60,7 @@ export default function InteractiveHero() {
   const interactionRef = useRef({
     isHoldingDynamics: false,
     stuckBitIndex: null as number | null,
-    warpIntensity: 0, // 0 = normal, 1 = fully warped (spring physics)
+    warpIntensity: 0,
   });
 
   const rotationRef = useRef(0);
@@ -86,7 +84,7 @@ export default function InteractiveHero() {
     // 1. Init Bits
     const initialBits: Bit[] = [];
     const seed = 42;
-    for (let i = 0; i < 180; i++) {
+    for (let i = 0; i < 160; i++) {
       const size = (3 + seededRandom(seed + i * 7) * 5) * SCALE;
       // Box-Muller dist for organic spread
       const u1 = seededRandom(seed + i * 2);
@@ -97,8 +95,8 @@ export default function InteractiveHero() {
       initialBits.push({
         x: LEFT_PANEL.x + LEFT_PANEL.width / 2 + randX * (LEFT_PANEL.width / 5),
         y: LEFT_PANEL.y + LEFT_PANEL.height / 2 + randY * (LEFT_PANEL.height / 5),
-        vx: (seededRandom(seed + i * 4) - 0.5) * 0.5,
-        vy: (seededRandom(seed + i * 5) - 0.5) * 0.5,
+        vx: (seededRandom(seed + i * 4) - 0.5) * 2.0, // Higher initial energy
+        vy: (seededRandom(seed + i * 5) - 0.5) * 2.0,
         color: SET1_COLORS[i % SET1_COLORS.length],
         size: size,
         mass: size * size,
@@ -120,9 +118,8 @@ export default function InteractiveHero() {
     }
 
     // Spawn trails
-    for (let p = 0; p < 25; p++) {
+    for (let p = 0; p < 30; p++) {
       let sx = x + p * 0.2, sy = y + p * 0.2, sz = z + p * 0.2;
-      // Diversify start positions
       for (let i = 0; i < 100 + p * 50; i++) {
         sx += (sigma * (sy - sx)) * dt;
         sy += (sx * (rho - sz) - sy) * dt;
@@ -130,8 +127,7 @@ export default function InteractiveHero() {
       }
 
       const trail: LorenzPoint[] = [];
-      // Fill initial trail
-      for (let i = 0; i < 250; i++) {
+      for (let i = 0; i < 200; i++) {
         sx += (sigma * (sy - sx)) * dt;
         sy += (sx * (rho - sz) - sy) * dt;
         sz += (sx * sy - beta * sz) * dt;
@@ -155,20 +151,19 @@ export default function InteractiveHero() {
       const ny = dy / dist;
       const overlap = minDist - dist;
 
-      // Soft separation
+      // Hard separation (No squish)
       const k = 0.5;
       b1.x -= nx * overlap * k;
       b1.y -= ny * overlap * k;
       b2.x += nx * overlap * k;
       b2.y += ny * overlap * k;
 
-      // Elastic Impulse
       const dvx = b1.vx - b2.vx;
       const dvy = b1.vy - b2.vy;
       const vn = dvx * nx + dvy * ny;
       if (vn > 0) return;
 
-      const restitution = 0.95; // Super bouncy
+      const restitution = 0.98; // Very high bounce (Billiards)
       let j = -(1 + restitution) * vn;
       j /= (1 / b1.mass + 1 / b2.mass);
 
@@ -194,8 +189,8 @@ export default function InteractiveHero() {
 
   // === ANIMATION LOOP ===
   useEffect(() => {
-    const FRICTION = 0.985;
-    const JIGGLE = 0.04;
+    const FRICTION = 0.995; // Almost no air resistance
+    const JIGGLE = 0.03;
 
     const loop = () => {
       const ctx = canvasRef.current?.getContext('2d');
@@ -207,9 +202,14 @@ export default function InteractiveHero() {
       const mousePos = mousePosRef.current;
       const { isHoldingDynamics, stuckBitIndex } = interactionRef.current;
 
-      // Smoothly interpolate warp intensity (Spring Effect)
-      const targetWarp = isHoldingDynamics ? 1.0 : 0.0;
-      interactionRef.current.warpIntensity += (targetWarp - interactionRef.current.warpIntensity) * 0.1;
+      // === DYNAMICS WARP (CAPACITOR LOGIC) ===
+      if (isHoldingDynamics) {
+         // Slow charge up (Gravity increasing)
+         interactionRef.current.warpIntensity = Math.min(1.2, interactionRef.current.warpIntensity + 0.005);
+      } else {
+         // Slow viscous snap-back
+         interactionRef.current.warpIntensity += (0 - interactionRef.current.warpIntensity) * 0.03;
+      }
       const currentWarp = interactionRef.current.warpIntensity;
 
       rotationRef.current += 0.0025;
@@ -227,7 +227,7 @@ export default function InteractiveHero() {
       ctx.fillText('BITS', 0.25 * W, 0.12 * H);
       ctx.font = `${16 * SCALE}px system-ui, sans-serif`;
       ctx.globalAlpha = 0.6;
-      ctx.fillText('Discrete · Isolated · O(n) cost', 0.25 * W, 0.18 * H);
+      ctx.fillText('Discrete · Atomic · Local', 0.25 * W, 0.18 * H);
 
       ctx.fillStyle = COLORS.GREEN;
       ctx.font = `bold ${32 * SCALE}px system-ui, sans-serif`;
@@ -235,11 +235,11 @@ export default function InteractiveHero() {
       ctx.fillText('DYNAMICS', 0.75 * W, 0.12 * H);
       ctx.font = `${16 * SCALE}px system-ui, sans-serif`;
       ctx.globalAlpha = 0.6;
-      ctx.fillText('Continuous · Coherent · O(1) cost', 0.75 * W, 0.18 * H);
+      ctx.fillText('Continuous · Fluid · Global', 0.75 * W, 0.18 * H);
       ctx.globalAlpha = 1.0;
 
       // ==========================================
-      // LEFT PANEL: REACTIVE BITS
+      // LEFT PANEL: DISCRETE BITS
       // ==========================================
       const bits = bitsRef.current;
 
@@ -247,39 +247,20 @@ export default function InteractiveHero() {
         const b = bits[i];
 
         if (i === stuckBitIndex && mousePos) {
-          // Dragging logic
+          // Dragging (External Force)
           const ddx = mousePos.x - b.x;
           const ddy = mousePos.y - b.y;
           b.vx += ddx * 0.1;
           b.vy += ddy * 0.1;
-          b.vx *= 0.7; // Heavy damping
+          b.vx *= 0.7;
           b.vy *= 0.7;
         } else {
-          // Brownian Heat
+          // Brownian Heat (Temperature)
           b.vx += (Math.random() - 0.5) * JIGGLE;
           b.vy += (Math.random() - 0.5) * JIGGLE;
 
-          // Mouse Repulsion (Personal Space) - bits nudge away from cursor
-          if (mousePos && !isHoldingDynamics && mousePos.x < RIGHT_PANEL.x) {
-            const ddx = b.x - mousePos.x;
-            const ddy = b.y - mousePos.y;
-            const dist = Math.sqrt(ddx * ddx + ddy * ddy);
-            const range = 80 * SCALE;
-            if (dist < range && dist > 0) {
-              const force = (1 - dist / range) * 0.5; // Gentle push
-              b.vx += (ddx / dist) * force;
-              b.vy += (ddy / dist) * force;
-            }
-          }
-
-          // Soft gravity to center (nonlinear - stronger at edges)
-          const cx = LEFT_PANEL.x + LEFT_PANEL.width / 2;
-          const cy = LEFT_PANEL.y + LEFT_PANEL.height / 2;
-          const ddx = cx - b.x;
-          const ddy = cy - b.y;
-          const dist = Math.sqrt(ddx * ddx + ddy * ddy);
-          b.vx += ddx * 0.00005 * (dist / 100);
-          b.vy += ddy * 0.00005 * (dist / 100);
+          // NO long-range forces here.
+          // Pure Newtonian inertia.
         }
 
         b.vx *= FRICTION;
@@ -287,14 +268,14 @@ export default function InteractiveHero() {
         b.x += b.vx;
         b.y += b.vy;
 
-        // Boundaries
-        if (b.x < LEFT_PANEL.x + b.size) { b.x = LEFT_PANEL.x + b.size; b.vx *= -0.8; }
-        if (b.x > LEFT_PANEL.x + LEFT_PANEL.width - b.size) { b.x = LEFT_PANEL.x + LEFT_PANEL.width - b.size; b.vx *= -0.8; }
-        if (b.y < LEFT_PANEL.y + b.size) { b.y = LEFT_PANEL.y + b.size; b.vy *= -0.8; }
-        if (b.y > LEFT_PANEL.y + LEFT_PANEL.height - b.size) { b.y = LEFT_PANEL.y + LEFT_PANEL.height - b.size; b.vy *= -0.8; }
+        // Hard Walls (Billiard Table)
+        if (b.x < LEFT_PANEL.x + b.size) { b.x = LEFT_PANEL.x + b.size; b.vx *= -0.9; }
+        if (b.x > LEFT_PANEL.x + LEFT_PANEL.width - b.size) { b.x = LEFT_PANEL.x + LEFT_PANEL.width - b.size; b.vx *= -0.9; }
+        if (b.y < LEFT_PANEL.y + b.size) { b.y = LEFT_PANEL.y + b.size; b.vy *= -0.9; }
+        if (b.y > LEFT_PANEL.y + LEFT_PANEL.height - b.size) { b.y = LEFT_PANEL.y + LEFT_PANEL.height - b.size; b.vy *= -0.9; }
       }
 
-      // Collisions
+      // Collisions (Atomic Interactions)
       for (let i = 0; i < bits.length; i++) {
         for (let j = i + 1; j < bits.length; j++) {
           resolveCollision(bits[i], bits[j]);
@@ -304,7 +285,7 @@ export default function InteractiveHero() {
       // Draw Bits
       bits.forEach(b => {
         ctx.fillStyle = b.color;
-        ctx.globalAlpha = 0.7;
+        ctx.globalAlpha = 0.9; // Solid
         ctx.beginPath();
         ctx.arc(b.x, b.y, b.size, 0, Math.PI * 2);
         ctx.fill();
@@ -312,7 +293,7 @@ export default function InteractiveHero() {
       ctx.globalAlpha = 1.0;
 
       // ==========================================
-      // RIGHT PANEL: NEON DYNAMICS
+      // RIGHT PANEL: WAVE DYNAMICS
       // ==========================================
       const lorenzParticles = lorenzParticlesRef.current;
       const lorenzScale = 5 * SCALE;
@@ -321,7 +302,7 @@ export default function InteractiveHero() {
       const dt = 0.007;
       const sigma = 10, rho = 28, beta = 8 / 3;
 
-      // Update Math (PURE - no interaction forces)
+      // Update Math
       lorenzParticles.forEach(p => {
         let { x, y, z } = p.state;
         const dx = sigma * (y - x);
@@ -332,24 +313,25 @@ export default function InteractiveHero() {
         z += dz * dt;
         p.state = { x, y, z };
         p.trail.push({ x, y, z });
-        if (p.trail.length > 250) p.trail.shift();
+        if (p.trail.length > 200) p.trail.shift();
       });
 
-      // Render Trails with Glow (additive blending)
+      // Render Trails
       ctx.globalCompositeOperation = 'screen';
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
-      // Helper to apply warp to a point
+      // Global Warp Function
       const applyWarp = (sx: number, sy: number): [number, number] => {
-        if (currentWarp > 0.01 && mousePos) {
+        if (currentWarp > 0.001 && mousePos) {
           const wdx = mousePos.x - sx;
           const wdy = mousePos.y - sy;
           const dist = Math.sqrt(wdx * wdx + wdy * wdy);
-          const radius = 300 * SCALE;
+          const radius = 350 * SCALE; // Large field of influence
 
           if (dist < radius) {
-            const strength = Math.pow(1 - dist / radius, 3) * 60 * SCALE * currentWarp;
+            // Gravity Well: Pulls the entire geometry towards the singularity
+            const strength = Math.pow(1 - dist / radius, 2) * 50 * SCALE * currentWarp;
             const angle = Math.atan2(wdy, wdx);
             sx += Math.cos(angle) * strength;
             sy += Math.sin(angle) * strength;
@@ -371,7 +353,6 @@ export default function InteractiveHero() {
           let sx = rcx + proj.x * lorenzScale;
           let sy = rcy + proj.y * lorenzScale;
 
-          // Apply elastic spacetime warp
           [sx, sy] = applyWarp(sx, sy);
 
           if (i === 0) {
@@ -381,12 +362,11 @@ export default function InteractiveHero() {
           }
         }
 
-        // Base trail color
-        ctx.strokeStyle = `rgba(34, 197, 94, 0.4)`;
+        ctx.strokeStyle = `rgba(34, 197, 94, 0.5)`;
         ctx.lineWidth = 1 * SCALE;
         ctx.stroke();
 
-        // Draw the "Head" (current position) brighter - hot tip effect
+        // Hot Tips (Flow Direction)
         if (p.trail.length > 0) {
           const last = p.trail[p.trail.length - 1];
           const proj = project3D(last.x, last.y, last.z - 25, rotation);
@@ -394,8 +374,7 @@ export default function InteractiveHero() {
           let sy = rcy + proj.y * lorenzScale;
           [sx, sy] = applyWarp(sx, sy);
 
-          // Glowing head - depth-faded
-          const alpha = Math.max(0.2, 1 - (proj.depth + 20) / 100);
+          const alpha = Math.max(0.1, 1 - (proj.depth + 20) / 100);
           ctx.fillStyle = `rgba(200, 255, 200, ${alpha})`;
           ctx.beginPath();
           ctx.arc(sx, sy, 1.5 * SCALE, 0, Math.PI * 2);
@@ -403,7 +382,7 @@ export default function InteractiveHero() {
         }
       });
 
-      ctx.globalCompositeOperation = 'source-over'; // Reset blending
+      ctx.globalCompositeOperation = 'source-over';
 
       animationRef.current = requestAnimationFrame(loop);
     };
