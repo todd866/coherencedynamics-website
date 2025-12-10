@@ -130,7 +130,7 @@ export default function Home() {
       <section className="mb-20">
         <h2 className="text-2xl font-bold mb-8 text-white">Featured Research</h2>
         <div className="space-y-6">
-          <Link href="/papers/falsifiability" className="block p-6 bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors">
+          <Link href="/papers/falsifiability" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-medium px-2 py-1 bg-green-900 text-green-300 rounded">
                 Published
@@ -145,7 +145,7 @@ export default function Home() {
             </p>
           </Link>
 
-          <Link href="/papers/timing-inaccessibility" className="block p-6 bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors">
+          <Link href="/papers/timing-inaccessibility" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-medium px-2 py-1 bg-green-900 text-green-300 rounded">
                 Published
@@ -160,7 +160,7 @@ export default function Home() {
             </p>
           </Link>
 
-          <Link href="/papers/dimensional-landauer" className="block p-6 bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors">
+          <Link href="/papers/dimensional-landauer" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-medium px-2 py-1 bg-yellow-900 text-yellow-300 rounded">
                 Under Review
