@@ -55,7 +55,7 @@ def create_hero_image():
 
     # Consistent sizing - larger for impact
     title_size = 64
-    subtitle_size = 24
+    subtitle_size = 32
 
     # Left panel: Bits (scattered random points - chaos, no structure)
     ax1 = fig.add_axes([0.03, 0.12, 0.44, 0.72], facecolor=BLACK)
@@ -122,7 +122,7 @@ def create_measurement_image():
     fig = plt.figure(figsize=(16, 9), facecolor=BLACK)
 
     title_size = 56
-    subtitle_size = 22
+    subtitle_size = 28
 
     # Left panel: Torus with many trajectories (high-dimensional state)
     ax1 = fig.add_axes([0.03, 0.12, 0.42, 0.72], facecolor=BLACK, projection='3d')

@@ -80,9 +80,6 @@ export default function Home() {
               height={300}
               className="rounded-xl"
             />
-            <p className="text-sm text-gray-500 text-center">
-              Measurement projects complex dynamics into a simple feature.
-            </p>
           </div>
         </div>
       </section>
