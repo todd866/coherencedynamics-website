@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import InteractiveHero from '@/components/InteractiveHero';
+import ObserverDemo from '@/components/ObserverDemo';
 
 export default function Home() {
   return (
@@ -69,14 +69,8 @@ export default function Home() {
               the difference between O(n) and O(1) scaling.
             </p>
           </div>
-          <div className="space-y-6">
-            <Image
-              src="/images/measurement-changes-system.png"
-              alt="Measurement projects high-dimensional biological state into low-dimensional observation"
-              width={500}
-              height={300}
-              className="rounded-xl"
-            />
+          <div className="flex items-center justify-center">
+            <ObserverDemo />
           </div>
         </div>
       </section>
