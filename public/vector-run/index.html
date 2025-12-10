@@ -2,13 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Vector Run: Ascension</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      touch-action: manipulation;
+      overscroll-behavior: none;
     }
 
     body {
@@ -21,6 +29,8 @@
       justify-content: center;
       min-height: 100vh;
       overflow: hidden;
+      position: fixed;
+      width: 100%;
     }
 
     h1 {
@@ -29,6 +39,7 @@
       color: #00fff9;
       text-shadow: 0 0 20px #00fff9;
       letter-spacing: 8px;
+      pointer-events: none;
     }
 
     .subtitle {
@@ -36,10 +47,36 @@
       color: #444;
       margin-bottom: 15px;
       letter-spacing: 2px;
+      pointer-events: none;
     }
 
     #game-container {
       position: relative;
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Fullscreen mode styles */
+    #game-container:fullscreen,
+    #game-container:-webkit-full-screen {
+      max-width: none;
+      width: 100vw;
+      height: 100vh;
+      background: #0a0a0a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #game-container:fullscreen canvas,
+    #game-container:-webkit-full-screen canvas {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
     }
 
     canvas {
@@ -47,6 +84,10 @@
       background: #0a0a0a;
       cursor: none;
       display: block;
+      width: 100%;
+      max-width: 800px;
+      height: auto;
+      aspect-ratio: 800/500;
     }
 
     canvas:focus {
@@ -60,6 +101,7 @@
       gap: 30px;
       margin-top: 12px;
       font-size: 12px;
+      pointer-events: none;
     }
 
     .hud-item {
@@ -102,6 +144,11 @@
       margin: 0 2px;
     }
 
+    /* Hide keyboard instructions on touch devices */
+    @media (hover: none) and (pointer: coarse) {
+      .instructions { display: none; }
+    }
+
     #start-overlay {
       position: absolute;
       top: 0;
@@ -128,6 +175,8 @@
       color: #666;
       font-size: 12px;
       margin-bottom: 30px;
+      text-align: center;
+      padding: 0 20px;
     }
 
     #start-overlay .start-btn {
@@ -158,6 +207,132 @@
       letter-spacing: 2px;
       text-transform: uppercase;
     }
+
+    /* ========== TOUCH CONTROLS ========== */
+    #touch-controls {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 5;
+      pointer-events: none;
+      display: none;
+    }
+
+    /* Show touch controls on touch devices */
+    @media (hover: none) and (pointer: coarse) {
+      #touch-controls { display: block; }
+    }
+
+    .touch-zone {
+      position: absolute;
+      pointer-events: auto;
+      border: 2px solid rgba(0, 255, 249, 0.3);
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(0, 255, 249, 0.6);
+      font-size: 10px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      transition: all 0.1s;
+    }
+
+    .touch-zone:active {
+      background: rgba(0, 255, 249, 0.3);
+      border-color: #00fff9;
+      color: #fff;
+      transform: scale(0.95);
+    }
+
+    /* Joystick (Left side) */
+    #stick-zone {
+      bottom: 20px;
+      left: 20px;
+      width: 100px;
+      height: 100px;
+    }
+
+    /* Color buttons (Right side) */
+    #color-btn {
+      bottom: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      font-size: 9px;
+    }
+
+    #color-left-btn {
+      bottom: 20px;
+      right: 110px;
+      width: 60px;
+      height: 60px;
+      font-size: 8px;
+    }
+
+    /* Context buttons */
+    .ctx-btn {
+      width: 50px;
+      height: 50px;
+      font-size: 8px;
+      border-radius: 8px;
+    }
+
+    #rot-l {
+      bottom: 110px;
+      right: 80px;
+    }
+
+    #rot-r {
+      bottom: 110px;
+      right: 20px;
+    }
+
+    #exp-btn {
+      bottom: 170px;
+      right: 20px;
+    }
+
+    #con-btn {
+      bottom: 170px;
+      right: 80px;
+    }
+
+    /* ========== FULLSCREEN BUTTON ========== */
+    #fullscreen-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(0, 255, 249, 0.3);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      color: rgba(0, 255, 249, 0.6);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      transition: all 0.2s;
+      pointer-events: auto;
+    }
+
+    #fullscreen-btn:hover,
+    #fullscreen-btn:active {
+      background: rgba(0, 255, 249, 0.2);
+      border-color: #00fff9;
+      color: #fff;
+    }
+
+    /* Hide fullscreen button if not supported */
+    @supports not ((-webkit-full-screen: true) or (fullscreen: true)) {
+      #fullscreen-btn { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -166,6 +341,28 @@
 
   <div id="game-container">
     <canvas id="game" width="800" height="500" tabindex="0"></canvas>
+
+    <!-- Fullscreen button -->
+    <button id="fullscreen-btn" title="Fullscreen">&#x26F6;</button>
+
+    <!-- Touch controls overlay -->
+    <div id="touch-controls">
+      <!-- Movement joystick -->
+      <div id="stick-zone" class="touch-zone">MOVE</div>
+
+      <!-- Color cycle buttons -->
+      <div id="color-left-btn" class="touch-zone">Q</div>
+      <div id="color-btn" class="touch-zone">COLOR</div>
+
+      <!-- Rotation buttons (3D+) -->
+      <div id="rot-l" class="touch-zone ctx-btn" style="display:none">ROT L</div>
+      <div id="rot-r" class="touch-zone ctx-btn" style="display:none">ROT R</div>
+
+      <!-- Expansion buttons (4D+) -->
+      <div id="exp-btn" class="touch-zone ctx-btn" style="display:none">EXP</div>
+      <div id="con-btn" class="touch-zone ctx-btn" style="display:none">CON</div>
+    </div>
+
     <div id="start-overlay">
       <h2>ASCENSION AWAITS</h2>
       <p>Match colors. Sync to the beat. Ascend through dimensions.</p>

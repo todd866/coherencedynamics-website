@@ -242,8 +242,9 @@ const keyMap = {
     'ShiftLeft': 'densityUp',
     'ShiftRight': 'densityDown',
 };
-export function createInputHandler() {
-    const input = createEmptyInput();
+export function createInputHandler(existingInput) {
+    // Use existing input object (shared with touch controls) or create new
+    const input = existingInput || createEmptyInput();
     const onKeyDown = (e) => {
         const key = keyMap[e.code];
         if (key) {
@@ -260,12 +261,13 @@ export function createInputHandler() {
     return {
         input,
         attach: (el) => {
-            el.addEventListener('keydown', onKeyDown);
-            el.addEventListener('keyup', onKeyUp);
+            // Use window for keyboard to prevent focus issues on mobile
+            window.addEventListener('keydown', onKeyDown);
+            window.addEventListener('keyup', onKeyUp);
         },
         detach: (el) => {
-            el.removeEventListener('keydown', onKeyDown);
-            el.removeEventListener('keyup', onKeyUp);
+            window.removeEventListener('keydown', onKeyDown);
+            window.removeEventListener('keyup', onKeyUp);
         },
     };
 }
@@ -283,7 +285,7 @@ export function updateBeat(state, audioTime, bpm) {
     }
     state.lastBeatTime = audioTime;
 }
-export function createGame(canvas) {
+export function createGame(canvas, externalInput) {
     const ctx = canvas.getContext('2d');
     const state = createInitialState();
     const dimensions = new Map();
@@ -293,7 +295,8 @@ export function createGame(canvas) {
         events.push(e);
         eventCallbacks.forEach(cb => cb(e));
     };
-    const inputHandler = createInputHandler();
+    // Pass external input (shared with touch controls) if provided
+    const inputHandler = createInputHandler(externalInput);
     inputHandler.attach(canvas);
     let running = false;
     let lastTime = 0;

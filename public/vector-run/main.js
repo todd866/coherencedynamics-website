@@ -6,7 +6,35 @@
 import { createGame, cycleColor } from './game.js';
 import { AudioEngine } from './audio.js';
 import { createDimension } from './dimensions.js';
+import { createEmptyInput } from './types.js';
 import { telemetry } from './telemetry.js';
+import { TouchControls } from './touch.js';
+// =============================================================================
+// FULLSCREEN SUPPORT
+// =============================================================================
+function toggleFullscreen() {
+    const container = document.getElementById('game-container');
+    if (!container)
+        return;
+    if (!document.fullscreenElement) {
+        // Enter fullscreen
+        if (container.requestFullscreen) {
+            container.requestFullscreen();
+        }
+        else if (container.webkitRequestFullscreen) {
+            container.webkitRequestFullscreen();
+        }
+    }
+    else {
+        // Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+        else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+    }
+}
 // =============================================================================
 // INITIALIZATION
 // =============================================================================
@@ -14,12 +42,18 @@ function init() {
     const canvas = document.getElementById('game');
     const overlay = document.getElementById('start-overlay');
     const startBtn = overlay?.querySelector('.start-btn');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
     if (!canvas) {
         console.error('Canvas element not found');
         return;
     }
-    // Create game instance
-    const game = createGame(canvas);
+    // Create shared input object for both keyboard and touch
+    const sharedInput = createEmptyInput();
+    // Initialize touch controls with shared input
+    const touchControls = new TouchControls(sharedInput);
+    touchControls.attach();
+    // Create game instance with shared input
+    const game = createGame(canvas, sharedInput);
     // Register dimension handlers using factory
     const levels = [0, 1, 2, 3, 4, 5, 'infinite'];
     levels.forEach(level => {
@@ -42,6 +76,8 @@ function init() {
         if (event.type === 'ascend' || event.type === 'drop') {
             const dim = typeof event.to === 'number' ? event.to : 5;
             audio.startDrone(dim);
+            // Update touch controls layout for new dimension
+            touchControls.updateLayout(game.state.dimension);
         }
     });
     // HUD update function
@@ -95,6 +131,8 @@ function init() {
         if (e.code === 'KeyQ')
             keyDownOnce.KeyQ = false;
     });
+    // Track color cycling state for touch
+    let touchColorCycleOnce = false;
     // Start button handler
     function startGame() {
         audio.init();
@@ -102,12 +140,26 @@ function init() {
         if (overlay) {
             overlay.style.display = 'none';
         }
+        // Set initial touch layout for 0D
+        touchControls.updateLayout(0);
         canvas.focus();
         game.start();
         // Start HUD update loop
         function hudLoop() {
             updateHUD();
             telemetry.sendState(game.state);
+            // Handle touch color cycling (check input state)
+            if (sharedInput.cycleNext && !touchColorCycleOnce) {
+                handleColorCycle(1);
+                touchColorCycleOnce = true;
+            }
+            else if (sharedInput.cyclePrev && !touchColorCycleOnce) {
+                handleColorCycle(-1);
+                touchColorCycleOnce = true;
+            }
+            else if (!sharedInput.cycleNext && !sharedInput.cyclePrev) {
+                touchColorCycleOnce = false;
+            }
             requestAnimationFrame(hudLoop);
         }
         hudLoop();
@@ -121,6 +173,14 @@ function init() {
             if (e.target === overlay) {
                 startGame();
             }
+        });
+    }
+    // Wire fullscreen button
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        fullscreenBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            toggleFullscreen();
         });
     }
     // Allow spacebar to start
