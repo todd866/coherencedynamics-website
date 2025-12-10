@@ -94,7 +94,7 @@ The same principle applies at every scale: bacteria tracking chemical gradients,
   {
     slug: 'coherence-time',
     title: 'Coherence Time in Neural Oscillator Assemblies Sets the Speed of Thought',
-    journal: 'BioSystems',
+    journal: 'BioSystems (submitted)',
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5018691',
@@ -117,7 +117,7 @@ Consciousness may depend more on these synchronised fields than on individual sp
   {
     slug: 'substrate-dimensionality',
     title: 'Substrate Dimensionality in Neural Systems: Limits on Capability, Interpretability, and Consciousness',
-    journal: 'Biological Cybernetics',
+    journal: 'Biological Cybernetics (submitted)',
     year: 2025,
     status: 'submitted',
     image: 'substrate-dimensionality.png',
@@ -139,7 +139,7 @@ The implication is uncomfortable: we may already be approaching the ceiling of w
   {
     slug: 'cortical-oscillations',
     title: 'The Dimensional Hierarchy of Cortical Oscillations: From Analog Substrate to Symbolic Codes',
-    journal: 'Journal of Computational Neuroscience',
+    journal: 'Journal of Computational Neuroscience (submitted)',
     year: 2025,
     status: 'submitted',
     github: 'todd866/brainwavedimensionality',
@@ -165,7 +165,7 @@ The practical implications are significant. Interventions that enhance slow-wave
   {
     slug: 'coherence-gate-scaling',
     title: 'Thermodynamic Scaling Limits of Algorithmic Oscillatory Synchronization',
-    journal: 'Neuromorphic Computing and Engineering',
+    journal: 'Neuromorphic Computing and Engineering (submitted)',
     year: 2025,
     status: 'submitted',
     github: 'todd866/coherence-gate',
@@ -189,7 +189,7 @@ The paper proposes the "coherence gate" as a hardware primitive for neuromorphic
   {
     slug: 'lsd-dimensionality',
     title: 'Psychedelics as Dimensionality Modulators: A Cortical Reservoir Theory of Serotonergic Plasticity',
-    journal: 'Nature Communications',
+    journal: 'Nature Communications (submitted)',
     year: 2025,
     status: 'submitted',
     github: 'todd866/lsd-dimensionality',
@@ -213,7 +213,7 @@ The three-phase model (overshoot → refractory collapse → recanalization) pre
   {
     slug: 'nonergodic-development',
     title: 'Nonergodic Development: How High-Dimensional Systems with Low-Dimensional Anchors Generate Phenotypes',
-    journal: 'BioSystems',
+    journal: 'BioSystems (submitted)',
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5846665',
@@ -238,7 +238,7 @@ Cancer, in this view, is cellular bifurcation into an alternative stable state. 
   {
     slug: 'dimensional-landauer',
     title: 'The Dimensional Landauer Bound: Geometric Work in Information Processing',
-    journal: 'Physical Review X',
+    journal: 'Physical Review X (submitted)',
     year: 2025,
     status: 'submitted',
     github: 'todd866/dimensional-work',
@@ -262,7 +262,7 @@ Why does this matter? Because coherence naturally reduces dimensionality. As osc
   {
     slug: 'biological-shadows',
     title: 'The Geometry of Biological Shadows: Quantifying Topological Aliasing in High-Dimensional Systems',
-    journal: 'BioSystems',
+    journal: 'BioSystems (submitted)',
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5573915',
@@ -287,7 +287,7 @@ This isn't an argument against visualisation — it's an argument for honesty ab
   {
     slug: 'clinical-validity-bounds',
     title: 'The Dimensional Validity Bound: Structural Limits of Clinical AI Evaluation in Multimorbidity',
-    journal: 'JAMIA',
+    journal: 'JAMIA (submitted)',
     year: 2025,
     status: 'submitted',
     github: 'todd866/clinical-validity-bounds',
@@ -311,7 +311,7 @@ This explains why clinical AI that performs well in trials often fails in practi
   {
     slug: 'minimal-embedding',
     title: 'Minimal Embedding Dimension for Self-Intersection-Free Recurrent Processes',
-    journal: 'Information Geometry',
+    journal: 'Information Geometry (submitted)',
     year: 2025,
     status: 'submitted',
     image: 'minimal-embedding.png',
@@ -336,7 +336,7 @@ The same constraint applies to neural network latent spaces: if you compress too
   {
     slug: 'code-formation',
     title: 'Code Formation: Discrete Symbols from Continuous Substrates',
-    journal: 'Physical Review E',
+    journal: 'Physical Review E (target)',
     year: 2025,
     status: 'in_prep',
     description: `**Discrete symbols emerge spontaneously when continuous data passes through a bandwidth-limited noisy channel** — and this is the foundational mechanism behind all the other papers. Thoughts become words, neural activity becomes behaviour, genes become phenotypes — all through the same bottleneck + noise mechanism forcing discretisation.
@@ -360,7 +360,7 @@ Information capacity follows: $C \\approx k \\cdot \\log(1 + \\text{SNR})$. More
   {
     slug: 'embryo-oscillators',
     title: 'Slow Bioelectric Oscillations Dominate Morphological Information Capacity',
-    journal: 'BioSystems',
+    journal: 'BioSystems (target)',
     year: 2025,
     status: 'in_prep',
     description: `**Slow bioelectric oscillations dominate morphological information — not because they're special, but because high-frequency signals can't carry enough bits across developmental timescales.** This challenges Levin's bioelectric code framework.
@@ -383,7 +383,7 @@ The speed-accuracy tradeoff ($\\varepsilon \\sim T_{\\text{osc}}/T_{\\text{dev}}
   {
     slug: 'abiogenesis-chemistry',
     title: 'Dimensional Constraints on Prebiotic Chemistry: Why Life Needed Cycles Before Replication',
-    journal: 'Origins of Life and Evolution of Biospheres',
+    journal: 'Origins of Life and Evolution of Biospheres (target)',
     year: 2025,
     status: 'in_prep',
     description: `**Life needed coherent chemical cycles before it could replicate** — autocatalysis is the thermodynamic prerequisite for heredity, not the other way around.
@@ -398,7 +398,7 @@ The implication: stop looking for the first replicator. Look for the first coher
   {
     slug: 'immune-cooperation',
     title: 'The Physics of Immune Cooperation: Dimensional Surveillance and Attractor Enforcement',
-    journal: 'BioSystems',
+    journal: 'BioSystems (target)',
     year: 2025,
     status: 'in_prep',
     image: 'immune-cooperation.png',
