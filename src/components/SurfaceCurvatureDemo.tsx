@@ -47,9 +47,11 @@ export default function SurfaceCurvatureDemo() {
   const [curvature, setCurvature] = useState(0.3);
   const [flowSpeed, setFlowSpeed] = useState(0.5);
   const [rotation, setRotation] = useState({ x: 0.6, y: 0.4 });
+  const [labMode, setLabMode] = useState(false); // Entropy-fighting mode
 
   // Interaction - camera drag
   const isDraggingRef = useRef(false);
+  const isStabilizingRef = useRef(false); // For lab mode
   const lastMouseRef = useRef({ x: 0, y: 0 });
   const historyRef = useRef<number[]>(new Array(100).fill(0));
 
@@ -134,8 +136,16 @@ export default function SurfaceCurvatureDemo() {
       const W = canvas.width;
       const H = canvas.height;
 
-      // Use curvature directly from slider
-      const newAmp = curvature;
+      // Lab mode: curvature drifts up unless stabilizing
+      // Explore mode: use slider directly
+      let newAmp = curvature;
+      if (labMode) {
+        // Entropy increases curvature, stabilizing decreases it
+        const drift = isStabilizingRef.current ? -0.015 : 0.003;
+        const nextCurvature = Math.max(0, Math.min(1, curvature + drift));
+        setCurvature(nextCurvature);
+        newAmp = nextCurvature;
+      }
 
       // Physics Update
       let totalDissipation = 0;
@@ -303,17 +313,23 @@ export default function SurfaceCurvatureDemo() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [curvature, confinement, flowSpeed, rotation, project, getSurfaceZ, getMeanCurvature]);
+  }, [curvature, confinement, flowSpeed, rotation, labMode, project, getSurfaceZ, getMeanCurvature]);
 
   // === HANDLERS ===
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    isDraggingRef.current = true;
-    lastMouseRef.current = { x: e.clientX, y: e.clientY };
+    if (labMode) {
+      // Lab mode: click to stabilize
+      isStabilizingRef.current = true;
+    } else {
+      // Explore mode: drag to rotate
+      isDraggingRef.current = true;
+      lastMouseRef.current = { x: e.clientX, y: e.clientY };
+    }
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, []);
+  }, [labMode]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
+    if (!isDraggingRef.current || labMode) return;
 
     const dx = e.clientX - lastMouseRef.current.x;
     const dy = e.clientY - lastMouseRef.current.y;
@@ -324,10 +340,11 @@ export default function SurfaceCurvatureDemo() {
       x: Math.max(-0.5, Math.min(1.5, r.x + dy * 0.008)),
       y: r.y + dx * 0.008,
     }));
-  }, []);
+  }, [labMode]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     isDraggingRef.current = false;
+    isStabilizingRef.current = false;
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
   }, []);
 
@@ -358,7 +375,11 @@ export default function SurfaceCurvatureDemo() {
 
       {/* Main Viewport */}
       <div
-        className="relative rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50 cursor-grab active:cursor-grabbing select-none"
+        className={`relative rounded-xl overflow-hidden border bg-slate-900 shadow-2xl shadow-black/50 select-none ${
+          labMode
+            ? 'border-amber-700/50 cursor-crosshair'
+            : 'border-slate-700 cursor-grab active:cursor-grabbing'
+        }`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -376,108 +397,163 @@ export default function SurfaceCurvatureDemo() {
           <div className="flex items-center gap-2">
             <div
               className={`w-2 h-2 rounded-full ${
-                curvature > 0.4 && flowSpeed > 0.4
+                curvature > 0.6
                   ? 'bg-red-500 animate-pulse'
-                  : flowSpeed > 0.3
+                  : curvature > 0.3
                   ? 'bg-amber-500'
                   : 'bg-emerald-500'
               }`}
             />
             <span
               className={
-                curvature > 0.4 && flowSpeed > 0.4
+                curvature > 0.6
                   ? 'text-red-400'
-                  : flowSpeed > 0.3
+                  : curvature > 0.3
                   ? 'text-amber-400'
                   : 'text-emerald-400'
               }
             >
-              {curvature > 0.4 && flowSpeed > 0.4
-                ? 'HIGH DISSIPATION (v × H)'
-                : flowSpeed > 0.3
-                ? 'FLOW ACTIVE'
-                : 'LOW FLOW'}
+              {labMode
+                ? (curvature > 0.6 ? 'ENTROPY RISING' : curvature > 0.3 ? 'MODERATE CURVATURE' : 'STABILIZED')
+                : (curvature > 0.4 && flowSpeed > 0.4 ? 'HIGH DISSIPATION (v × H)' : flowSpeed > 0.3 ? 'FLOW ACTIVE' : 'LOW FLOW')}
             </span>
           </div>
           <div className="text-slate-500 text-xs">
-            Flow: {flowSpeed.toFixed(2)} | Curvature: {curvature.toFixed(2)}
+            {labMode ? `Curvature: ${(curvature * 100).toFixed(0)}%` : `Flow: ${flowSpeed.toFixed(2)} | Curvature: ${curvature.toFixed(2)}`}
           </div>
         </div>
 
         {/* Prompt */}
         <div className="absolute bottom-4 left-4 pointer-events-none">
-          <span className="bg-slate-800/80 text-slate-400 px-2 py-1 rounded text-xs border border-slate-700">
-            Drag to rotate view
+          <span className={`px-2 py-1 rounded text-xs border ${
+            labMode
+              ? 'bg-amber-900/80 text-amber-300 border-amber-700'
+              : 'bg-slate-800/80 text-slate-400 border-slate-700'
+          }`}>
+            {labMode ? 'Hold to stabilize manifold' : 'Drag to rotate view'}
           </span>
         </div>
       </div>
 
       {/* Controls */}
       <div className="mt-4 p-4 border border-slate-700 rounded-lg bg-slate-900/50 space-y-3">
-        <div className="flex items-center gap-4">
-          <label className="text-slate-400 text-sm w-28">
-            Flow Speed:
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={flowSpeed}
-            onChange={(e) => setFlowSpeed(parseFloat(e.target.value))}
-            className="flex-1 accent-emerald-500"
-          />
-          <span className="text-slate-300 text-sm w-12 text-right font-mono">
-            {flowSpeed.toFixed(2)}
-          </span>
+        {/* Mode Toggle */}
+        <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+          <span className="text-slate-400 text-sm">Mode:</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setLabMode(false)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                !labMode
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+              }`}
+            >
+              Explore
+            </button>
+            <button
+              onClick={() => { setLabMode(true); setCurvature(0.2); }}
+              className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                labMode
+                  ? 'bg-amber-600 text-white'
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+              }`}
+            >
+              Lab
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <label className="text-slate-400 text-sm w-28">
-            Curvature:
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={curvature}
-            onChange={(e) => setCurvature(parseFloat(e.target.value))}
-            className="flex-1 accent-orange-500"
-          />
-          <span className="text-slate-300 text-sm w-12 text-right font-mono">
-            {curvature.toFixed(2)}
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <label className="text-slate-400 text-sm w-28">
-            Confinement:
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={confinement}
-            onChange={(e) => setConfinement(parseFloat(e.target.value))}
-            className="flex-1 accent-blue-500"
-          />
-          <span className="text-slate-300 text-sm w-12 text-right font-mono">
-            {confinement.toFixed(2)}
-          </span>
-        </div>
-        <p className="text-slate-500 text-xs mt-2">
-          <strong className="text-slate-400">Flow:</strong> Transport velocity across manifold.{' '}
-          <strong className="text-slate-400">Curvature:</strong> Surface bending.{' '}
-          <strong className="text-slate-400">Confinement:</strong> Binding strength.
-        </p>
+
+        {labMode ? (
+          /* Lab Mode: Entropy explanation */
+          <div className="text-slate-400 text-sm space-y-2">
+            <p>
+              <strong className="text-amber-400">Entropy mode:</strong> The surface naturally roughens over time.
+              <strong className="text-white"> Hold click</strong> to inject work and flatten the manifold.
+            </p>
+            <p className="text-slate-500 text-xs">
+              This demonstrates the continuous thermodynamic cost of maintaining low-dimensional structure
+              against entropic drift. Releasing returns the system toward equilibrium (high curvature).
+            </p>
+          </div>
+        ) : (
+          /* Explore Mode: Sliders */
+          <>
+            <div className="flex items-center gap-4">
+              <label className="text-slate-400 text-sm w-28">
+                Flow Speed:
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={flowSpeed}
+                onChange={(e) => setFlowSpeed(parseFloat(e.target.value))}
+                className="flex-1 accent-emerald-500"
+              />
+              <span className="text-slate-300 text-sm w-12 text-right font-mono">
+                {flowSpeed.toFixed(2)}
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <label className="text-slate-400 text-sm w-28">
+                Curvature:
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={curvature}
+                onChange={(e) => setCurvature(parseFloat(e.target.value))}
+                className="flex-1 accent-orange-500"
+              />
+              <span className="text-slate-300 text-sm w-12 text-right font-mono">
+                {curvature.toFixed(2)}
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <label className="text-slate-400 text-sm w-28">
+                Confinement:
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={confinement}
+                onChange={(e) => setConfinement(parseFloat(e.target.value))}
+                className="flex-1 accent-blue-500"
+              />
+              <span className="text-slate-300 text-sm w-12 text-right font-mono">
+                {confinement.toFixed(2)}
+              </span>
+            </div>
+            <p className="text-slate-500 text-xs mt-2">
+              <strong className="text-slate-400">Flow:</strong> Transport velocity across manifold.{' '}
+              <strong className="text-slate-400">Curvature:</strong> Surface bending.{' '}
+              <strong className="text-slate-400">Confinement:</strong> Binding strength.
+            </p>
+          </>
+        )}
       </div>
 
       {/* Caption */}
       <p className="mt-4 text-slate-400 text-center max-w-2xl mx-auto leading-relaxed">
-        <strong>The curvature cost:</strong>{' '}
-        Particles flowing across a curved surface dissipate heat proportional to <em>velocity × curvature</em>.
-        Watch particles turn <span className="text-red-400">red</span> as they navigate the peaks and valleys.
-        Flat surfaces allow fast, cool transport; curved surfaces exact a thermodynamic toll.
+        {labMode ? (
+          <>
+            <strong>Maintenance = Work:</strong>{' '}
+            Entropy constantly roughens the manifold. Your click injects <em>formation work</em> to restore order.
+            This is the thermodynamic cost of maintaining low-dimensional structure against the Second Law.
+          </>
+        ) : (
+          <>
+            <strong>The curvature cost:</strong>{' '}
+            Particles flowing across a curved surface dissipate heat proportional to <em>velocity × curvature</em>.
+            Watch particles turn <span className="text-red-400">red</span> as they navigate the peaks and valleys.
+          </>
+        )}
       </p>
     </div>
   );
