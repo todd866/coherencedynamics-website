@@ -189,47 +189,67 @@ Demonstrates bit erasure vs sub-Landauer operation through two simulated Maxwell
    - Clear explanation panel describing what to do
    - Key insight summary at bottom
 
-## Interactive Homepage Hero (Planned)
+### 4D Tesseract Shadow (`/simulations/dimensional-collapse`)
 
-The static "Bits vs Dynamics" hero image will become an interactive canvas demonstrating the key conceptual difference.
+**Companion paper:** High-Dimensional Coherence
 
-### Design Concept
+Demonstrates dimensional collapse using a true 4-dimensional hypercube projected to 2D.
 
-**Left Panel: BITS (isolated, incoherent)**
-- Scattered colored points floating in 3-space
-- Points move randomly (Brownian motion) but have NO long-range interactions
-- **Hover over any bit**: Shows tooltip with its coordinates `(x, y, z)` - the bit has a precise location
-- **Click**: Creates a new bit at click position with random color
-- Points can overlap/collide without affecting each other - they're independent
+**Key concepts:**
+- **4D geometry:** A tesseract has 16 vertices (all ±1 combinations in 4 dimensions) and 32 edges
+- **Dimensional collapse:** The 3D "shadow" you see is a projection of a 4D structure—information is lost
+- **Rotation through 4D:** XW, YW, ZW planes are rotation planes that include the 4th dimension
+- **Apparent complexity:** The tesseract is perfectly regular in 4D; apparent deformation is the projection
 
-**Right Panel: DYNAMICS (coupled, coherent)**
-- Lorenz attractor or similar chaotic trajectory
-- Continuous flow that forms coherent structure
-- **Hover anywhere**: The flow wobbles/perturbs but maintains structure - perturbation propagates through entire system
-- **Click**: Creates a "measurement point" - a fixed coordinate marker
-- **Click and hold**: Creates a "constant measurement" - the attractor deforms and REFORMS AROUND the measurement point, demonstrating how measurement constrains/projects the dynamics
-- Visible "wavy interactions" - lines connecting nearby trajectory points showing long-range coupling
+**Technical implementation:**
+- Component: `src/components/ObserverDemo.tsx`
+- Stereographic projection: 4D → 3D → 2D
+- Canvas-based animation with requestAnimationFrame
+- Direct drag interaction on tesseract rotates through 4D planes
+- Slider controls for continuous rotation speeds
 
-### Key Interactions to Implement
+**User interactions:**
+- **Drag on tesseract:** Rotate through XW (horizontal drag) and YW (vertical drag) planes
+- **Slider controls:** Set continuous rotation speeds for XW, YW, ZW planes
+- **fullPage prop:** Component accepts `fullPage={true}` for larger rendering on dedicated pages
 
-1. **Bit coordinate display**: When hovering over a bit on the left, show `(1.23, -0.45, 0.87)` style coordinates
-2. **Dynamics wobble**: When hovering over the right panel, add perturbation to Lorenz equations that decays over time
-3. **Click-to-measure**: Click on dynamics creates a fixed point; the attractor continues but is visually attracted/repelled by the measurement
-4. **Hold-to-constrain**: Holding mouse down on dynamics shows the system reforming around the constraint point - demonstrates projection/dimensional collapse
-5. **No bit interactions**: Bits on left should explicitly NOT interact - they can pass through each other
+**Key insight:** The 3D shape isn't "morphing"—the 4D tesseract is perfectly rigid. What you see as deformation is your measurement apparatus (the projection) collapsing 4D structure into 3D.
 
-### Implementation Notes
+### Bits vs Dynamics (`/simulations/bits-vs-dynamics`)
 
+**Companion paper:** Dimensional Landauer Bound
+
+Compares two fundamental system types: bits (billiard balls) vs dynamics (Lorenz attractor).
+
+**Key concepts:**
+- **Energy per bit:** Digital computers pay kT ln 2 per bit, per clock cycle (Landauer's bound)
+- **Energy per dimension:** Biological systems pay per dimension, deferred until commitment
+- **Coherence vs addressability:** You can't have independent bits AND coupled dynamics
+
+**Technical implementation:**
 - Component: `src/components/InteractiveHero.tsx`
-- Replace static Image with canvas-based interactive component
-- Use requestAnimationFrame for smooth animation
-- Lorenz attractor: dx/dt = σ(y-x), dy/dt = x(ρ-z)-y, dz/dt = xy-βz
-- Standard params: σ=10, ρ=28, β=8/3
-- For perturbation: add damped oscillation to trajectory when hovering
-- For measurement constraint: add spring force toward mouse position when holding
+- Split-panel canvas: billiards on left, Lorenz attractor on right
+- Physics simulation for elastic collisions with friction
+- Lorenz attractor integration with RK4
 
-### Conceptual Message
+**User interactions:**
+- **Left panel (Bits):** Click to spawn balls, drag spacetime warp slider to bend table
+- **Right panel (Dynamics):** Click and hold to create measurement constraint
 
-The contrast should make the physics visceral:
-- **Bits**: You can point at each one and say "this one is HERE" - but they don't know about each other
-- **Dynamics**: You can't isolate a single point - everything flows together. When you try to pin something down (measurement), the whole system reorganizes around your constraint
+**Key insight:** The billiard balls run out of energy; the attractor never does. Same fundamental physics, different organization.
+
+## Interactive Homepage Components
+
+The homepage (`/`) features two interactive visualizations embedded directly:
+
+### InteractiveHero (Bits vs Dynamics)
+- Location: Top of homepage, right column
+- Same component as `/simulations/bits-vs-dynamics`
+- Responsive sizing with `maxWidth` and `aspectRatio`
+
+### ObserverDemo (4D Tesseract)
+- Location: "Why Coherence Dynamics" section
+- Same component as `/simulations/dimensional-collapse`
+- Demonstrates dimensional collapse inline with the explanation text
+
+Both components are reused on their dedicated simulation pages with `fullPage={true}` for larger displays
