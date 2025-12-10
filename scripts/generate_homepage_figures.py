@@ -1,28 +1,32 @@
 #!/usr/bin/env python3
-"""Generate polished homepage figures for coherencedynamics.com"""
+"""Generate polished homepage figures for coherencedynamics.com
+
+Design principles:
+- Pure black background (#000000) to match site
+- Minimal text, let visuals speak
+- Consistent typography (Helvetica Neue or system sans-serif)
+- Consistent color palette: red for bits/digital, green for dynamics/biological
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.patches as mpatches
 
-# Set up professional styling - use system sans-serif with proper weights
+# Force consistent font
 plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['font.sans-serif'] = ['SF Pro Display', 'Helvetica Neue', 'Arial']
-plt.rcParams['font.weight'] = 'regular'
-plt.rcParams['axes.labelweight'] = 'regular'
-plt.rcParams['axes.titleweight'] = 'semibold'
+plt.rcParams['font.sans-serif'] = ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif']
+plt.rcParams['font.weight'] = 'light'
+plt.rcParams['text.color'] = '#f1f5f9'
+plt.rcParams['axes.labelcolor'] = '#f1f5f9'
 
-# Dark theme colors
-DARK_BG = '#000000'
-PANEL_BG = '#ffffff'
-TEXT_LIGHT = '#f1f5f9'
-TEXT_MUTED = '#94a3b8'
+# Color palette
+BLACK = '#000000'
+WHITE = '#f1f5f9'
+GRAY = '#6b7280'
 RED = '#ef4444'
 GREEN = '#22c55e'
 ORANGE = '#f97316'
 CYAN = '#06b6d4'
-PURPLE = '#a855f7'
 
 
 def generate_lorenz_attractor(n_points=10000):
@@ -42,174 +46,175 @@ def generate_lorenz_attractor(n_points=10000):
 
 
 def create_hero_image():
-    """Create the main hero image: Bits vs Dimensions comparison"""
+    """Create the main hero image: Bits vs Dynamics comparison
 
-    fig = plt.figure(figsize=(16, 10), facecolor=DARK_BG)
+    Clean, minimal design with two side-by-side visualizations
+    """
 
-    # Title text sizes - even larger
-    title_size = 42
-    subtitle_size = 26
-    tagline_size = 28
+    fig = plt.figure(figsize=(16, 9), facecolor=BLACK)
 
-    # Left panel: Bits (scattered points)
-    ax1 = fig.add_axes([0.02, 0.15, 0.46, 0.7], facecolor=PANEL_BG)
+    # Consistent sizing
+    title_size = 48
+    subtitle_size = 18
+
+    # Left panel: Bits (scattered random points - chaos, no structure)
+    ax1 = fig.add_axes([0.03, 0.12, 0.44, 0.72], facecolor=BLACK)
 
     np.random.seed(42)
-    n_points = 150
-    x = np.random.randn(n_points) * 0.8
-    y = np.random.randn(n_points) * 0.8
-    colors = plt.cm.Set1(np.random.randint(0, 8, n_points))
+    n_points = 200
+    x = np.random.randn(n_points) * 1.2
+    y = np.random.randn(n_points) * 1.2
 
-    ax1.scatter(x, y, c=colors, s=80, alpha=0.8, edgecolors='white', linewidths=0.5)
-    ax1.set_xlim(-2.5, 2.5)
-    ax1.set_ylim(-2.5, 2.5)
+    # Random colors - no coherence
+    colors = [plt.cm.Set1(i % 9) for i in range(n_points)]
+    sizes = np.random.uniform(30, 100, n_points)
+
+    ax1.scatter(x, y, c=colors, s=sizes, alpha=0.7, edgecolors='none')
+    ax1.set_xlim(-3, 3)
+    ax1.set_ylim(-3, 3)
     ax1.axis('off')
 
-    # Right panel: Dimensions (Lorenz attractor)
-    ax2 = fig.add_axes([0.52, 0.15, 0.46, 0.7], facecolor=PANEL_BG)
+    # Right panel: Dynamics (Lorenz attractor - structured, coherent)
+    ax2 = fig.add_axes([0.53, 0.12, 0.44, 0.72], facecolor=BLACK)
 
-    lx, ly, lz = generate_lorenz_attractor(8000)
+    lx, ly, lz = generate_lorenz_attractor(10000)
 
-    # Color by time for gradient effect
+    # Color gradient by time
     t = np.linspace(0, 1, len(lx))
-    points = np.array([lx, ly]).T.reshape(-1, 1, 2)
-    segments = np.concatenate([points[:-1], points[1:]], axis=1)
-
-    # Plot with color gradient
-    for i in range(0, len(lx)-1, 10):
-        color = plt.cm.viridis(t[i])
-        ax2.plot(lx[i:i+12], ly[i:i+12], color=color, linewidth=1.2, alpha=0.9)
+    for i in range(0, len(lx)-1, 8):
+        # Green color gradient
+        intensity = 0.4 + 0.6 * t[i]
+        color = (34/255 * intensity, 197/255 * intensity, 94/255 * intensity, 0.8)
+        ax2.plot(lx[i:i+10], ly[i:i+10], color=color, linewidth=1.0)
 
     ax2.set_xlim(-25, 25)
     ax2.set_ylim(-30, 30)
     ax2.axis('off')
 
-    # Panel titles - clean, professional styling
-    fig.text(0.25, 0.90, 'BITS', fontsize=title_size, fontweight=600,
+    # Labels - clean, minimal
+    fig.text(0.25, 0.88, 'BITS', fontsize=title_size, fontweight='bold',
              color=RED, ha='center', va='center')
-    fig.text(0.25, 0.86, 'Discrete  •  Isolated  •  O(n) cost',
-             fontsize=subtitle_size, color=RED, ha='center', va='center', alpha=0.85,
-             fontweight=300)
+    fig.text(0.25, 0.82, 'Discrete  ·  Isolated  ·  O(n) cost',
+             fontsize=subtitle_size, color=RED, ha='center', va='center', alpha=0.7)
 
-    fig.text(0.75, 0.90, 'DYNAMICS', fontsize=title_size, fontweight=600,
+    fig.text(0.75, 0.88, 'DYNAMICS', fontsize=title_size, fontweight='bold',
              color=GREEN, ha='center', va='center')
-    fig.text(0.75, 0.86, 'Continuous  •  Coherent  •  O(1) cost',
-             fontsize=subtitle_size, color=GREEN, ha='center', va='center', alpha=0.85,
-             fontweight=300)
+    fig.text(0.75, 0.82, 'Continuous  ·  Coherent  ·  O(1) cost',
+             fontsize=subtitle_size, color=GREEN, ha='center', va='center', alpha=0.7)
 
-    # Bottom tagline - clean styling
-    tagline = "High-dimensional systems are coherent systems. Bits are incoherent."
-
-    # Create rounded rectangle for tagline
-    bbox_props = dict(boxstyle="round,pad=0.5", facecolor='#111111',
-                      edgecolor='#333333', linewidth=2)
-    fig.text(0.5, 0.05, tagline, fontsize=tagline_size, fontweight='regular',
-             color=TEXT_LIGHT, ha='center', va='center', bbox=bbox_props)
+    # Bottom tagline
+    fig.text(0.5, 0.04,
+             'High-dimensional systems are coherent systems. Bits are not.',
+             fontsize=20, color=WHITE, ha='center', va='center', alpha=0.9)
 
     plt.savefig('../public/images/high-dimensional-coherence.png',
-                dpi=150, facecolor=DARK_BG, bbox_inches='tight', pad_inches=0.3)
+                dpi=150, facecolor=BLACK, bbox_inches='tight', pad_inches=0.2)
     plt.close()
     print("Created: high-dimensional-coherence.png")
 
 
 def create_measurement_image():
-    """Create the measurement/projection image"""
+    """Create the measurement/projection image
 
-    fig = plt.figure(figsize=(16, 9), facecolor=DARK_BG)
+    Shows high-dimensional dynamics being projected to low-dimensional observations
+    """
 
-    # Text sizes - larger
+    fig = plt.figure(figsize=(16, 9), facecolor=BLACK)
+
     title_size = 36
-    label_size = 26
-    annotation_size = 22
+    subtitle_size = 16
 
-    # Left panel: Torus (high-D state) - dark background to match
-    ax1 = fig.add_axes([0.02, 0.1, 0.45, 0.75], facecolor=DARK_BG, projection='3d')
+    # Left panel: Torus with many trajectories (high-dimensional state)
+    ax1 = fig.add_axes([0.03, 0.12, 0.42, 0.72], facecolor=BLACK, projection='3d')
 
-    # Generate torus
-    u = np.linspace(0, 2 * np.pi, 60)
-    v = np.linspace(0, 2 * np.pi, 60)
-    u, v = np.meshgrid(u, v)
-    R, r = 2, 0.8
-    x = (R + r * np.cos(v)) * np.cos(u)
-    y = (R + r * np.cos(v)) * np.sin(u)
-    z = r * np.sin(v)
+    R, r = 2.2, 0.8
 
-    ax1.plot_surface(x, y, z, cmap='viridis', alpha=0.9, linewidth=0.2,
-                     edgecolor='gray', antialiased=True)
+    # Draw many trajectories to fill the torus surface
+    n_trajectories = 40
+    for i in range(n_trajectories):
+        # Each trajectory starts at different phase
+        phase_u = i * 2 * np.pi / n_trajectories
+        phase_v = i * 0.3  # Offset in the other direction too
 
-    # Add trajectory on torus
-    t = np.linspace(0, 8*np.pi, 500)
-    traj_u = t
-    traj_v = t * 0.618  # Golden ratio for nice pattern
-    traj_x = (R + r * np.cos(traj_v)) * np.cos(traj_u)
-    traj_y = (R + r * np.cos(traj_v)) * np.sin(traj_u)
-    traj_z = r * np.sin(traj_v)
-    ax1.plot(traj_x, traj_y, traj_z, color='#f97316', linewidth=2, alpha=0.8)
+        t = np.linspace(0, 6*np.pi, 400)
+        traj_u = t + phase_u
+        traj_v = t * 0.618 + phase_v
 
-    ax1.set_xlim(-3, 3)
-    ax1.set_ylim(-3, 3)
+        traj_x = (R + r * np.cos(traj_v)) * np.cos(traj_u)
+        traj_y = (R + r * np.cos(traj_v)) * np.sin(traj_u)
+        traj_z = r * np.sin(traj_v)
+
+        # Vary brightness slightly for depth
+        brightness = 0.5 + 0.5 * (i / n_trajectories)
+        ax1.plot(traj_x, traj_y, traj_z,
+                color=(34/255 * brightness, 197/255 * brightness, 94/255 * brightness, 0.7),
+                linewidth=0.8)
+
+    ax1.set_xlim(-3.5, 3.5)
+    ax1.set_ylim(-3.5, 3.5)
     ax1.set_zlim(-2, 2)
     ax1.axis('off')
-    ax1.view_init(elev=25, azim=45)
-    ax1.set_facecolor(DARK_BG)
+    ax1.view_init(elev=25, azim=30)
+    ax1.set_facecolor(BLACK)
     ax1.xaxis.pane.fill = False
     ax1.yaxis.pane.fill = False
     ax1.zaxis.pane.fill = False
+    ax1.set_box_aspect([1, 1, 0.5])
 
-    # Right panel: Projected signals
-    ax2 = fig.add_axes([0.55, 0.1, 0.42, 0.75], facecolor=DARK_BG)
+    # Right panel: Projected time series
+    ax2 = fig.add_axes([0.55, 0.12, 0.42, 0.72], facecolor=BLACK)
 
-    # Generate noisy projections of torus trajectory
+    # Generate projections
     np.random.seed(42)
-    t_proj = np.linspace(0, 8*np.pi, 500)
+    t_proj = np.linspace(0, 10*np.pi, 800)
 
-    # Two different "measurements" (projections)
-    signal1 = np.sin(t_proj) + 0.3 * np.sin(3*t_proj) + 0.15 * np.random.randn(len(t_proj))
-    signal2 = np.cos(t_proj * 0.618) + 0.2 * np.cos(2*t_proj) + 0.15 * np.random.randn(len(t_proj))
+    # Two 1D projections of the torus trajectory
+    signal1 = np.sin(t_proj) + 0.3 * np.sin(3*t_proj)
+    signal2 = np.cos(t_proj * 0.618) + 0.2 * np.cos(2*t_proj)
 
-    ax2.plot(t_proj, signal1 + 2.5, color=CYAN, linewidth=1.5, alpha=0.9)
-    ax2.plot(t_proj, signal2 - 0.5, color=PURPLE, linewidth=1.5, alpha=0.9)
+    # Add measurement noise
+    signal1 += 0.1 * np.random.randn(len(t_proj))
+    signal2 += 0.1 * np.random.randn(len(t_proj))
 
-    # Dashed line between
-    ax2.axhline(y=1, color='#475569', linestyle='--', linewidth=1.5, alpha=0.6)
+    ax2.plot(t_proj, signal1 + 2.5, color=CYAN, linewidth=1.2, alpha=0.9)
+    ax2.plot(t_proj, signal2 - 0.5, color=ORANGE, linewidth=1.2, alpha=0.9)
 
-    ax2.set_xlim(0, 8*np.pi)
+    # Separator
+    ax2.axhline(y=1, color=GRAY, linestyle='--', linewidth=1, alpha=0.4)
+
+    ax2.set_xlim(0, 10*np.pi)
     ax2.set_ylim(-2.5, 5)
     ax2.axis('off')
 
-    # Titles - clean, professional styling
-    fig.text(0.25, 0.92, 'Biological Dynamics', fontsize=title_size, fontweight=600,
+    # Labels - matching hero image style
+    fig.text(0.24, 0.88, 'DYNAMICS', fontsize=title_size, fontweight='bold',
              color=GREEN, ha='center')
-    fig.text(0.25, 0.87, '(High-dimensional, Coherent)', fontsize=label_size,
-             color=GREEN, ha='center', alpha=0.85, fontweight=300)
+    fig.text(0.24, 0.83, 'High-dimensional  ·  Coherent',
+             fontsize=subtitle_size, color=GREEN, ha='center', alpha=0.7)
 
-    fig.text(0.76, 0.92, 'Discrete Observations', fontsize=title_size, fontweight=600,
+    fig.text(0.76, 0.88, 'OBSERVATIONS', fontsize=title_size, fontweight='bold',
              color=ORANGE, ha='center')
-    fig.text(0.76, 0.87, '(Low-dimensional, Bits)', fontsize=label_size,
-             color=ORANGE, ha='center', alpha=0.85, fontweight=300)
+    fig.text(0.76, 0.83, 'Low-dimensional  ·  Projected',
+             fontsize=subtitle_size, color=ORANGE, ha='center', alpha=0.7)
 
-    # Arrow with MEASURE label - clean styling
-    arrow_y = 0.5
-    fig.text(0.485, arrow_y + 0.05, 'MEASURE', fontsize=label_size, fontweight=600,
-             color=ORANGE, ha='center')
-
-    # Draw arrow
+    # Arrow
     arrow = mpatches.FancyArrowPatch(
-        (0.47, arrow_y), (0.54, arrow_y),
-        arrowstyle='->', mutation_scale=25,
-        color=ORANGE, linewidth=4,
+        (0.46, 0.5), (0.53, 0.5),
+        arrowstyle='->', mutation_scale=20,
+        color=GRAY, linewidth=2,
         transform=fig.transFigure, figure=fig
     )
     fig.patches.append(arrow)
+    fig.text(0.495, 0.56, 'MEASURE', fontsize=14, fontweight='bold',
+             color=GRAY, ha='center', alpha=0.8)
 
-    # Bottom annotation - larger, in a subtle box
-    bbox_props = dict(boxstyle="round,pad=0.4", facecolor='#111111',
-                      edgecolor='none', alpha=0.8)
-    fig.text(0.76, 0.08, 'Structure lost in projection', fontsize=annotation_size,
-             color=TEXT_MUTED, ha='center', style='italic', bbox=bbox_props)
+    # Bottom text
+    fig.text(0.5, 0.04,
+             'Structure is lost in projection. The map is not the territory.',
+             fontsize=20, color=WHITE, ha='center', va='center', alpha=0.9)
 
     plt.savefig('../public/images/measurement-changes-system.png',
-                dpi=150, facecolor=DARK_BG, bbox_inches='tight', pad_inches=0.2)
+                dpi=150, facecolor=BLACK, bbox_inches='tight', pad_inches=0.2)
     plt.close()
     print("Created: measurement-changes-system.png")
 
