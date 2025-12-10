@@ -73,6 +73,7 @@ This isn't a trick or an approximation. It's a fundamentally different computati
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4978594',
+    image: 'high-dimensional-coherence.png',
     description: `**Intelligence emerges whenever a system maintains high-dimensional internal dynamics that collapse to coherent outputs** — and this architectural principle, not clever algorithms, explains the million-fold efficiency gap between brains and computers.
 
 The human cortex operates 100–1000× beyond what external observers can track. It doesn't compute by enumerating possibilities like a digital computer. Instead, it evolves through a high-dimensional landscape where incompatible solutions coexist peacefully until behaviour demands a choice. You can simultaneously consider "fight" and "flee" and "negotiate" as superposed possibilities — until the moment you must act.
@@ -138,6 +139,7 @@ The implication is uncomfortable: we may already be approaching the ceiling of w
     year: 2025,
     status: 'submitted',
     github: 'todd866/brainwavedimensionality',
+    image: 'cortical-oscillations.png',
     description: `**Slower brain waves are higher-dimensional, not lower** — inverting a major assumption in oscillatory neuroscience and reframing what sleep, meditation, and stress actually do to cognition.
 
 [Earl Miller's lab at MIT](https://ekmillerlab.mit.edu/) has argued that gamma oscillations carry working memory content while beta provides top-down control. Their framework treats dimensionality as something that *increases* with faster oscillations. This paper argues the opposite.
@@ -164,6 +166,7 @@ The practical implications are significant. Interventions that enhance slow-wave
     status: 'submitted',
     github: 'todd866/coherence-gate',
     pdf: 'https://raw.githubusercontent.com/todd866/coherence-gate/main/coherence_gate_scaling.pdf',
+    image: 'coherence-gate-scaling.png',
     description: `**Oscillatory neural networks hit a hard scaling wall on digital hardware** — $O(N^2)$ operations per timestep — but physical coupling does the same computation at $O(K)$, offering 100–1000× better energy efficiency.
 
 [Oscillating neural networks](https://www.nature.com/articles/s41467-025-64471-2) can extract powerful relational patterns from data by letting oscillators synchronise into meaningful clusters. But simulating all-to-all coupling on a digital computer requires checking every pair of oscillators at every timestep. For 400 oscillators, that's 160,000 operations per tick. Physical coupling — electrical circuits, optical resonators, memristive crossbars — does this automatically through the physics of the substrate.
@@ -212,6 +215,7 @@ The three-phase model (overshoot → refractory collapse → recanalization) pre
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5846665',
     github: 'todd866/nonergodic-development',
     pdf: 'https://raw.githubusercontent.com/todd866/nonergodic-development/main/nonergodic_development.pdf',
+    image: 'nonergodic-development.png',
     description: `**The same genome can produce wildly different phenotypes depending on developmental history** — and this explains why GWAS studies miss so much heritability, why cancer rates vary dramatically between cooperative and competitive species, and why environmental stability is a powerful intervention.
 
 Development isn't a recipe written in your genes that executes the same way every time. Biological systems develop through high-dimensional state spaces too vast to fully explore — they get "trapped" in particular developmental patterns based on environmental history. Identical twins in different environments aren't just "influenced" differently; they navigate completely different dynamical landscapes.
@@ -305,6 +309,7 @@ This explains why clinical AI that performs well in trials often fails in practi
     journal: 'Information Geometry',
     year: 2025,
     status: 'submitted',
+    image: 'minimal-embedding.png',
     description: `**You need at least 3 dimensions for continuous cyclic dynamics — below that, trajectories collide and the system is forced into discrete categories.** This is a hard geometric constraint with implications for neural coding, latent spaces, and any dimensionality reduction scheme.
 
 Cyclic processes on statistical manifolds require $k \\geq 3$ to avoid self-intersection. Below this threshold, state trajectories collide — different times map to the same point — forcing categorical (discrete) representations. At $k \\geq 3$, continuous temporal dynamics become possible.
@@ -388,6 +393,7 @@ The implication: stop looking for the first replicator. Look for the first coher
     journal: 'BioSystems',
     year: 2025,
     status: 'in_prep',
+    image: 'immune-cooperation.png',
     description: `**Immunity is dimensional surveillance** — healthy cells exhibit high-dimensional dynamics, defectors collapse into simpler attractors, and immune receptors are synchronisation probes measuring dynamical complexity.
 
 Health is high dimensionality maintained at criticality. Disease is dimensional collapse. Cells embedded in functional tissue exhibit complex, context-sensitive dynamics ($D_{\\text{eff}}$ ≈ 28). Cells that have "defected" — cancer, viral infection, senescence — exhibit low dimensionality ($D_{\\text{eff}}$ ≈ 12). They've collapsed into simpler attractors, running simpler programs.
