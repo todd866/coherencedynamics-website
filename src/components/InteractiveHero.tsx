@@ -302,12 +302,43 @@ export default function InteractiveHero() {
       const dt = 0.007;
       const sigma = 10, rho = 28, beta = 8 / 3;
 
-      // Update Math
+      // Update Math - now with field interaction!
       lorenzParticles.forEach(p => {
         let { x, y, z } = p.state;
-        const dx = sigma * (y - x);
-        const dy = x * (rho - z) - y;
-        const dz = x * y - beta * z;
+        let dx = sigma * (y - x);
+        let dy = x * (rho - z) - y;
+        let dz = x * y - beta * z;
+
+        // FIELD INTERACTION: Mouse acts as force field on the differential equations
+        // This makes the chaos "react" to you, not just bend the image
+        if (isHoldingDynamics && mousePos && currentWarp > 0.01) {
+          // Project current 3D state to screen coords to calculate distance
+          const proj = project3D(x, y, z - 25, rotation);
+          const screenX = rcx + proj.x * lorenzScale;
+          const screenY = rcy + proj.y * lorenzScale;
+
+          const distToMouse = Math.sqrt(
+            (screenX - mousePos.x) ** 2 + (screenY - mousePos.y) ** 2
+          );
+
+          const influenceRadius = 200 * SCALE;
+          if (distToMouse < influenceRadius) {
+            // Perturb the derivatives based on mouse position
+            // This creates a "gravity well" in phase space
+            const strength = (1 - distToMouse / influenceRadius) * currentWarp * 2;
+
+            // Add perturbation to pull attractor toward/around mouse
+            // Using screen coords mapped back to phase space (simplified)
+            const pullX = ((mousePos.x - rcx) / lorenzScale - x) * strength * 0.5;
+            const pullY = ((mousePos.y - rcy) / lorenzScale - y) * strength * 0.5;
+
+            dx += pullX;
+            dy += pullY;
+            // Add some chaos to Z to make it more dramatic
+            dz += (Math.random() - 0.5) * strength * 5;
+          }
+        }
+
         x += dx * dt;
         y += dy * dt;
         z += dz * dt;

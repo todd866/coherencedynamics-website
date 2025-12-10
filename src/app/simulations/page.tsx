@@ -11,6 +11,14 @@ interface Simulation {
 
 const simulations: Simulation[] = [
   {
+    slug: 'code-collapse',
+    title: 'Dimensional Collapse → Code',
+    description: "Watch a 4D tesseract collapse into lines of code. Drag the slider to crush dimensions—see how chaotic 3D geometry snaps into flat rows of syntax. Code is just a 2D slice of higher-dimensional thought.",
+    paper: 'High-Dimensional Coherence',
+    paperSlug: 'high-dimensional-coherence',
+    status: 'playable',
+  },
+  {
     slug: 'dimensional-collapse',
     title: '4D Tesseract Shadow',
     description: "Watch a 4-dimensional hypercube projected to your screen. Drag to rotate through 4D space and see how the 3D 'shadow' morphs—demonstrating how dimensional collapse creates apparent complexity from simple structure.",

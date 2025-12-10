@@ -51,6 +51,8 @@ export default function ObserverDemo({ fullPage = false }: ObserverDemoProps) {
     xwSpeed: 0.3,
     ywSpeed: 0.0,
     zwSpeed: 0.0,
+    // 4D noise intensity (perturbs W dimension before projection)
+    noiseIntensity: 0.0,
     // 3D camera rotation
     cameraAngle: 0,
     // Drag state for tesseract
@@ -206,6 +208,13 @@ export default function ObserverDemo({ fullPage = false }: ObserverDemoProps) {
         p = rotate4D(p, state.ywAngle, 'yw');
         p = rotate4D(p, state.zwAngle, 'zw');
 
+        // Apply 4D NOISE - perturb W dimension before projection
+        // This proves that "unseen" noise in 4D causes visible 3D distortion
+        if (state.noiseIntensity > 0.001) {
+          const jitterW = (Math.random() - 0.5) * state.noiseIntensity * 2.0;
+          p.w += jitterW;
+        }
+
         // 4D → 3D
         const p3 = project4Dto3D(p);
 
@@ -255,29 +264,31 @@ export default function ObserverDemo({ fullPage = false }: ObserverDemoProps) {
 
       // --- RENDER SLIDER CONTROLS ---
       const sliderY = VIEW_HEIGHT + CONTROL_HEIGHT / 2;
-      const sliderWidth = (W - 100 * SCALE) / 3;
+      const sliderWidth = (W - 120 * SCALE) / 4; // Now 4 sliders
       const sliderHeight = 8 * SCALE;
-      const handleRadius = 12 * SCALE;
+      const handleRadius = 10 * SCALE;
 
       const sliders = [
-        { key: 'xw', label: 'XW Rotation', color: COLORS.XW, speed: state.xwSpeed },
-        { key: 'yw', label: 'YW Rotation', color: COLORS.YW, speed: state.ywSpeed },
-        { key: 'zw', label: 'ZW Rotation', color: COLORS.ZW, speed: state.zwSpeed },
+        { key: 'xw', label: 'XW Rotation', color: COLORS.XW, value: state.xwSpeed, max: 2 },
+        { key: 'yw', label: 'YW Rotation', color: COLORS.YW, value: state.ywSpeed, max: 2 },
+        { key: 'zw', label: 'ZW Rotation', color: COLORS.ZW, value: state.zwSpeed, max: 2 },
+        { key: 'noise', label: '4D Noise', color: '#f59e0b', value: state.noiseIntensity, max: 1 },
       ];
 
       sliders.forEach((slider, index) => {
-        const sliderX = 30 * SCALE + index * (sliderWidth + 20 * SCALE);
+        const sliderX = 20 * SCALE + index * (sliderWidth + 15 * SCALE);
 
         // Label
         ctx.fillStyle = slider.color;
-        ctx.font = `bold ${14 * SCALE}px system-ui`;
+        ctx.font = `bold ${12 * SCALE}px system-ui`;
         ctx.textAlign = 'left';
-        ctx.fillText(slider.label, sliderX, sliderY - 30 * SCALE);
+        ctx.fillText(slider.label, sliderX, sliderY - 25 * SCALE);
 
-        // Speed value
+        // Value display
         ctx.fillStyle = '#888';
-        ctx.font = `${12 * SCALE}px system-ui`;
-        ctx.fillText(`${slider.speed.toFixed(1)}`, sliderX + sliderWidth - 20 * SCALE, sliderY - 30 * SCALE);
+        ctx.font = `${10 * SCALE}px system-ui`;
+        ctx.textAlign = 'right';
+        ctx.fillText(`${slider.value.toFixed(2)}`, sliderX + sliderWidth, sliderY - 25 * SCALE);
 
         // Track background
         ctx.fillStyle = '#333';
@@ -286,7 +297,7 @@ export default function ObserverDemo({ fullPage = false }: ObserverDemoProps) {
         ctx.fill();
 
         // Track fill
-        const fillWidth = (slider.speed / 2) * sliderWidth;
+        const fillWidth = (slider.value / slider.max) * sliderWidth;
         ctx.fillStyle = slider.color;
         ctx.beginPath();
         ctx.roundRect(sliderX, sliderY - sliderHeight / 2, fillWidth, sliderHeight, sliderHeight / 2);
@@ -301,7 +312,7 @@ export default function ObserverDemo({ fullPage = false }: ObserverDemoProps) {
 
         // Handle border
         ctx.strokeStyle = slider.color;
-        ctx.lineWidth = 3 * SCALE;
+        ctx.lineWidth = 2 * SCALE;
         ctx.beginPath();
         ctx.arc(handleX, sliderY, handleRadius, 0, Math.PI * 2);
         ctx.stroke();
@@ -342,15 +353,15 @@ export default function ObserverDemo({ fullPage = false }: ObserverDemoProps) {
 
   const getSliderAtPoint = useCallback((x: number, y: number): string | null => {
     const sliderY = VIEW_HEIGHT + CONTROL_HEIGHT / 2;
-    const sliderWidth = (W - 100 * SCALE) / 3;
+    const sliderWidth = (W - 120 * SCALE) / 4; // Now 4 sliders
     const hitRadius = 30 * SCALE;
 
     // Check if near slider area
     if (Math.abs(y - sliderY) > hitRadius) return null;
 
-    const sliders = ['xw', 'yw', 'zw'];
-    for (let i = 0; i < 3; i++) {
-      const sliderX = 30 * SCALE + i * (sliderWidth + 20 * SCALE);
+    const sliders = ['xw', 'yw', 'zw', 'noise'];
+    for (let i = 0; i < 4; i++) {
+      const sliderX = 20 * SCALE + i * (sliderWidth + 15 * SCALE);
       if (x >= sliderX - hitRadius && x <= sliderX + sliderWidth + hitRadius) {
         return sliders[i];
       }
@@ -368,14 +379,17 @@ export default function ObserverDemo({ fullPage = false }: ObserverDemoProps) {
       if (slider) {
         stateRef.current.isDraggingSlider = slider;
         // Update slider value immediately
-        const sliderWidth = (W - 100 * SCALE) / 3;
-        const index = ['xw', 'yw', 'zw'].indexOf(slider);
-        const sliderX = 30 * SCALE + index * (sliderWidth + 20 * SCALE);
-        const value = Math.max(0, Math.min(2, (x - sliderX) / sliderWidth * 2));
+        const sliderWidth = (W - 120 * SCALE) / 4;
+        const sliders = ['xw', 'yw', 'zw', 'noise'];
+        const index = sliders.indexOf(slider);
+        const sliderX = 20 * SCALE + index * (sliderWidth + 15 * SCALE);
+        const maxVal = slider === 'noise' ? 1 : 2;
+        const value = Math.max(0, Math.min(maxVal, (x - sliderX) / sliderWidth * maxVal));
 
         if (slider === 'xw') stateRef.current.xwSpeed = value;
         else if (slider === 'yw') stateRef.current.ywSpeed = value;
         else if (slider === 'zw') stateRef.current.zwSpeed = value;
+        else if (slider === 'noise') stateRef.current.noiseIntensity = value;
       } else if (y < VIEW_HEIGHT) {
         // Clicking on tesseract area
         stateRef.current.isDraggingTesseract = true;
@@ -394,14 +408,17 @@ export default function ObserverDemo({ fullPage = false }: ObserverDemoProps) {
 
       if (state.isDraggingSlider) {
         // Update slider value
-        const sliderWidth = (W - 100 * SCALE) / 3;
-        const index = ['xw', 'yw', 'zw'].indexOf(state.isDraggingSlider);
-        const sliderX = 30 * SCALE + index * (sliderWidth + 20 * SCALE);
-        const value = Math.max(0, Math.min(2, (x - sliderX) / sliderWidth * 2));
+        const sliderWidth = (W - 120 * SCALE) / 4;
+        const sliders = ['xw', 'yw', 'zw', 'noise'];
+        const index = sliders.indexOf(state.isDraggingSlider);
+        const sliderX = 20 * SCALE + index * (sliderWidth + 15 * SCALE);
+        const maxVal = state.isDraggingSlider === 'noise' ? 1 : 2;
+        const value = Math.max(0, Math.min(maxVal, (x - sliderX) / sliderWidth * maxVal));
 
         if (state.isDraggingSlider === 'xw') state.xwSpeed = value;
         else if (state.isDraggingSlider === 'yw') state.ywSpeed = value;
         else if (state.isDraggingSlider === 'zw') state.zwSpeed = value;
+        else if (state.isDraggingSlider === 'noise') state.noiseIntensity = value;
       } else if (state.isDraggingTesseract) {
         // Rotate tesseract based on drag
         const dx = x - state.lastMouseX;
