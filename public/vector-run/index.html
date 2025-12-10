@@ -230,7 +230,7 @@
       pointer-events: auto;
       border: 2px solid rgba(0, 255, 249, 0.3);
       border-radius: 50%;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -248,21 +248,63 @@
       transform: scale(0.95);
     }
 
-    /* Color buttons (centered at bottom) */
+    /* Joystick (Left side) - for 2D+ movement */
+    #stick-zone {
+      bottom: 20px;
+      left: 20px;
+      width: 100px;
+      height: 100px;
+      display: none;
+    }
+
+    /* Color buttons (Right side) */
     #color-btn {
-      bottom: 30px;
-      right: 30px;
-      width: 90px;
-      height: 90px;
-      font-size: 11px;
+      bottom: 20px;
+      right: 20px;
+      width: 80px;
+      height: 80px;
+      font-size: 20px;
     }
 
     #color-left-btn {
-      bottom: 30px;
-      left: 30px;
-      width: 90px;
-      height: 90px;
-      font-size: 11px;
+      bottom: 20px;
+      right: 110px;
+      width: 60px;
+      height: 60px;
+      font-size: 18px;
+    }
+
+    /* Rotation buttons (3D+) */
+    .ctx-btn {
+      width: 50px;
+      height: 50px;
+      font-size: 8px;
+      border-radius: 8px;
+    }
+
+    #rot-l {
+      bottom: 110px;
+      right: 80px;
+      display: none;
+    }
+
+    #rot-r {
+      bottom: 110px;
+      right: 20px;
+      display: none;
+    }
+
+    /* Expansion buttons (4D+) */
+    #exp-btn {
+      bottom: 170px;
+      right: 20px;
+      display: none;
+    }
+
+    #con-btn {
+      bottom: 170px;
+      right: 80px;
+      display: none;
     }
 
     /* ========== FULLSCREEN BUTTON ========== */
@@ -311,9 +353,20 @@
 
     <!-- Touch controls overlay -->
     <div id="touch-controls">
-      <!-- Color cycle buttons -->
+      <!-- Joystick (Left side) - for 2D+ movement -->
+      <div id="stick-zone" class="touch-zone">MOVE</div>
+
+      <!-- Color cycle buttons (Right side) -->
       <div id="color-left-btn" class="touch-zone">◀</div>
       <div id="color-btn" class="touch-zone">▶</div>
+
+      <!-- Rotation buttons (3D+) -->
+      <div id="rot-l" class="touch-zone ctx-btn">ROT◀</div>
+      <div id="rot-r" class="touch-zone ctx-btn">ROT▶</div>
+
+      <!-- Expansion buttons (4D+) -->
+      <div id="exp-btn" class="touch-zone ctx-btn">+</div>
+      <div id="con-btn" class="touch-zone ctx-btn">−</div>
     </div>
 
     <div id="start-overlay">
