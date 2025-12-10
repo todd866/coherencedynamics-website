@@ -8,7 +8,7 @@ export default function CodeCollapsePage() {
         &larr; Back to Simulations
       </Link>
 
-      <h1 className="text-2xl font-bold mb-1 text-white">Dimensional Collapse → Code</h1>
+      <h1 className="text-2xl font-bold mb-1 text-white">Observer Window</h1>
       <p className="text-gray-500 text-sm mb-6">
         Companion to{' '}
         <Link href="/papers/high-dimensional-coherence" className="text-blue-400 hover:text-blue-300">
@@ -27,11 +27,15 @@ export default function CodeCollapsePage() {
           <div className="flex flex-wrap gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-              <span>Spatial (3D/4D)</span>
+              <span>4D Chaos</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <span>3D Shadow</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
-              <span>Linear (2D Code)</span>
+              <span>2D Code</span>
             </div>
           </div>
         </div>
@@ -39,60 +43,56 @@ export default function CodeCollapsePage() {
         {/* Info panel - takes 2 columns */}
         <div className="lg:col-span-2 space-y-4">
           <div className="border border-gray-800 rounded-lg p-4">
-            <h3 className="text-sm text-gray-500 mb-3">The Core Idea</h3>
+            <h3 className="text-sm text-gray-500 mb-3">The Core Insight</h3>
             <p className="text-gray-300 text-sm mb-3">
-              <strong className="text-white">Code is a 2D slice of higher-dimensional thought.</strong> What
-              you see as &quot;lines of code&quot; is a projection&mdash;a lossy compression of a much richer
-              geometric structure.
+              <strong className="text-white">You&apos;re not collapsing the object&mdash;you&apos;re collapsing the observer.</strong>{' '}
+              The 4D structure exists unchanged. What varies is the dimensionality of your observation window.
             </p>
             <p className="text-gray-400 text-sm">
-              The 4D tesseract represents the full &quot;idea space.&quot; As you collapse dimensions,
-              the chaotic cloud of symbols organizes into the flat, linear format we call &quot;syntax.&quot;
+              As your perceptual apparatus narrows from 4D to 2D, chaotic geometry is forced to
+              &quot;quantize&quot; into discrete grid positions. The code that emerges isn&apos;t
+              created&mdash;it&apos;s what high-dimensional structure looks like through a low-dimensional lens.
             </p>
           </div>
 
           <div className="border border-gray-800 rounded-lg p-4">
-            <h3 className="text-sm text-gray-500 mb-3">What the Slider Does</h3>
+            <h3 className="text-sm text-gray-500 mb-3">Meaning From the Unseen</h3>
             <p className="text-gray-300 text-sm mb-3">
-              <strong className="text-white">0% (Left):</strong> Full spatial representation. The characters
-              float in a 3D cloud, rotating through 4D space. This is the &quot;uncollapsed&quot; thought.
-            </p>
-            <p className="text-gray-400 text-sm mb-3">
-              <strong className="text-white">100% (Right):</strong> Full dimensional collapse. The Z-axis
-              vanishes. The Y-axis snaps to discrete rows. The X-axis quantizes to character positions.
-              The mess becomes syntax.
+              <strong className="text-white">The W-coordinate determines the character.</strong> Each symbol
+              you see is selected based on its position in the 4th dimension&mdash;a coordinate you
+              cannot directly observe.
             </p>
             <p className="text-gray-400 text-sm">
-              Watch the characters literally &quot;fall into lines&quot; as you slide right.
+              This demonstrates that the &quot;meaning&quot; of collapsed representations comes from
+              dimensions that are hidden from view. The syntax encodes information from spaces you
+              can&apos;t access.
             </p>
           </div>
 
           <div className="border border-gray-800 rounded-lg p-4">
-            <h3 className="text-sm text-gray-500 mb-3">Try This</h3>
+            <h3 className="text-sm text-gray-500 mb-3">Controls</h3>
             <ul className="text-gray-400 text-sm space-y-2">
               <li>
-                <strong className="text-white">Slow collapse:</strong> Drag the slider slowly from left
-                to right. Watch the transition from &quot;cloud&quot; to &quot;code.&quot;
+                <strong className="text-white">Topology:</strong> Switch between 4D polytopes&mdash;Tesseract,
+                5-Cell (simplex), 16-Cell (cross-polytope), 24-Cell (unique to 4D), and Glome (hypersphere).
               </li>
               <li>
-                <strong className="text-white">Rotate while collapsed:</strong> At 100%, drag the
-                visualization. Notice how the &quot;code&quot; distorts&mdash;the hidden dimensions are
-                still there.
+                <strong className="text-white">Rotation Injection:</strong> Set velocity for each of the 6
+                rotation planes. Center = stopped, left = reverse, right = forward.
               </li>
               <li>
-                <strong className="text-white">Snap back:</strong> Pull the slider to 0% and watch the
-                orderly rows explode back into chaotic geometry.
+                <strong className="text-white">Observation Dimensionality:</strong> Slide from 4D (chaos)
+                to 2D (code). Watch the non-linear snap&mdash;it resists, then suddenly crystallizes.
               </li>
             </ul>
           </div>
 
           <div className="border border-yellow-700/50 bg-yellow-900/20 rounded-lg p-4">
-            <h3 className="text-sm text-yellow-400 mb-2">Key Insight</h3>
+            <h3 className="text-sm text-yellow-400 mb-2">Key Experiment</h3>
             <p className="text-gray-300 text-sm">
-              The information isn&apos;t &quot;created&quot; when you write code&mdash;it&apos;s
-              <em> projected</em>. The 4D tesseract is rigid. The apparent simplicity of linear code is
-              an artifact of the projection, not a property of the underlying structure. Programming is
-              dimensional collapse.
+              Set observation to 2D (full code), then slowly rotate using the XW or YW sliders. Watch
+              the &quot;code&quot; shift&mdash;the same structure produces different syntax depending on
+              viewing angle. The representation is a projection, not the thing itself.
             </p>
           </div>
         </div>

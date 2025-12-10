@@ -12,8 +12,8 @@ interface Simulation {
 const simulations: Simulation[] = [
   {
     slug: 'code-collapse',
-    title: 'Dimensional Collapse → Code',
-    description: "Watch a 4D tesseract collapse into lines of code. Drag the slider to crush dimensions—see how chaotic 3D geometry snaps into flat rows of syntax. Code is just a 2D slice of higher-dimensional thought.",
+    title: 'Observer Window',
+    description: "You're not collapsing the object—you're collapsing the observer. Adjust your observation dimensionality from 4D chaos to 2D code. Watch hyperdimensional structures quantize into syntax as your perceptual window narrows. The meaning comes from the dimension you can't see.",
     paper: 'High-Dimensional Coherence',
     paperSlug: 'high-dimensional-coherence',
     status: 'playable',

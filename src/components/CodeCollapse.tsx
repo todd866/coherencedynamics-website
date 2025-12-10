@@ -1,27 +1,28 @@
 'use client';
 
 /**
- * CodeCollapse - "From Hypercube to Syntax"
+ * HyperDimensionalCode - "Observer Window"
  *
- * CONCEPT:
- * - 4D Object (The Idea) -> Rotating Tesseract
- * - 3D Projection (The World) -> Point Cloud of characters
- * - 2D Collapse (The Code) -> ASCII Grid snapping to rows
+ * CORE INSIGHT:
+ * You're not collapsing the OBJECT - you're collapsing the OBSERVER.
+ * The 4D structure exists. Your observation apparatus has limited dimensionality.
  *
- * INTERACTION:
- * - "Collapse" Slider: Crushes the Z-axis.
- * When Z is 0 (Fully collapsed), the chaotic particles form flat "lines of text".
+ * THE PHYSICS:
+ * - 4.0D Window: Raw chaos. Full hyperdimensional perception.
+ * - 3.0D Window: Depth emerges. Scanlines appear.
+ * - 2.0D Window: QUANTIZATION. Points snap to grid. Code forms.
  *
- * This visualizes that "Code is just a flattened, limited slice of a much more
- * complex geometric reality."
+ * MEANING FROM THE UNSEEN:
+ * The W-coordinate (4th dimension) determines which CHARACTER appears.
+ * The "meaning" of the code comes from the dimension you can't see.
  */
 
-import { useRef, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 
 // === CONFIG ===
-const FONT_SIZE = 14;
-const GRID_SPACING = 14;
-const CHARS = '01xyz{}[]<>/;:=+*#@&|~^';
+const CHARS = '01λφψ{}[]<>∂∫∑∏xyz=+-*/#@&|~^:;';
+const GRID_SIZE = 14;
+const FONT_SIZE = 12;
 
 interface Vec4 {
   x: number;
@@ -30,148 +31,329 @@ interface Vec4 {
   w: number;
 }
 
+type ShapeType = 'tesseract' | '5-cell' | '16-cell' | '24-cell' | 'hypersphere';
+
 interface CodeCollapseProps {
   fullPage?: boolean;
 }
+
+// === SHAPE GENERATORS ===
+
+const generateTesseract = (): Vec4[] => {
+  const verts: Vec4[] = [];
+  const baseVerts: Vec4[] = [];
+
+  for (let i = 0; i < 16; i++) {
+    baseVerts.push({
+      x: (i & 1) ? 1 : -1,
+      y: (i & 2) ? 1 : -1,
+      z: (i & 4) ? 1 : -1,
+      w: (i & 8) ? 1 : -1,
+    });
+  }
+
+  // Edges with interpolation
+  for (let i = 0; i < 16; i++) {
+    for (let j = i + 1; j < 16; j++) {
+      const v1 = baseVerts[i];
+      const v2 = baseVerts[j];
+      let diff = 0;
+      if (v1.x !== v2.x) diff++;
+      if (v1.y !== v2.y) diff++;
+      if (v1.z !== v2.z) diff++;
+      if (v1.w !== v2.w) diff++;
+
+      if (diff === 1) {
+        const segments = 5;
+        for (let k = 0; k <= segments; k++) {
+          const t = k / segments;
+          verts.push({
+            x: v1.x + (v2.x - v1.x) * t,
+            y: v1.y + (v2.y - v1.y) * t,
+            z: v1.z + (v2.z - v1.z) * t,
+            w: v1.w + (v2.w - v1.w) * t,
+          });
+        }
+      }
+    }
+  }
+
+  // Add volume particles for density
+  for (let i = 0; i < 80; i++) {
+    verts.push({
+      x: (Math.random() - 0.5) * 2,
+      y: (Math.random() - 0.5) * 2,
+      z: (Math.random() - 0.5) * 2,
+      w: (Math.random() - 0.5) * 2,
+    });
+  }
+
+  return verts;
+};
+
+const generate5Cell = (): Vec4[] => {
+  const verts: Vec4[] = [];
+  const sqrt5 = Math.sqrt(5);
+
+  const baseVerts: Vec4[] = [
+    { x: 1, y: 1, z: 1, w: -1/sqrt5 },
+    { x: 1, y: -1, z: -1, w: -1/sqrt5 },
+    { x: -1, y: 1, z: -1, w: -1/sqrt5 },
+    { x: -1, y: -1, z: 1, w: -1/sqrt5 },
+    { x: 0, y: 0, z: 0, w: sqrt5 - 1/sqrt5 },
+  ];
+
+  baseVerts.forEach(v => {
+    const len = Math.sqrt(v.x*v.x + v.y*v.y + v.z*v.z + v.w*v.w);
+    v.x = (v.x / len) * 1.5;
+    v.y = (v.y / len) * 1.5;
+    v.z = (v.z / len) * 1.5;
+    v.w = (v.w / len) * 1.5;
+  });
+
+  for (let i = 0; i < 5; i++) {
+    for (let j = i + 1; j < 5; j++) {
+      const v1 = baseVerts[i];
+      const v2 = baseVerts[j];
+      const segments = 6;
+      for (let k = 0; k <= segments; k++) {
+        const t = k / segments;
+        verts.push({
+          x: v1.x + (v2.x - v1.x) * t,
+          y: v1.y + (v2.y - v1.y) * t,
+          z: v1.z + (v2.z - v1.z) * t,
+          w: v1.w + (v2.w - v1.w) * t,
+        });
+      }
+    }
+  }
+
+  // Volume particles
+  for (let i = 0; i < 60; i++) {
+    const r = Math.random();
+    const idx = Math.floor(Math.random() * 5);
+    const v = baseVerts[idx];
+    verts.push({
+      x: v.x * r + (Math.random() - 0.5) * 0.5,
+      y: v.y * r + (Math.random() - 0.5) * 0.5,
+      z: v.z * r + (Math.random() - 0.5) * 0.5,
+      w: v.w * r + (Math.random() - 0.5) * 0.5,
+    });
+  }
+
+  return verts;
+};
+
+const generate16Cell = (): Vec4[] => {
+  const verts: Vec4[] = [];
+  const scale = 1.5;
+
+  const baseVerts: Vec4[] = [
+    { x: scale, y: 0, z: 0, w: 0 },
+    { x: -scale, y: 0, z: 0, w: 0 },
+    { x: 0, y: scale, z: 0, w: 0 },
+    { x: 0, y: -scale, z: 0, w: 0 },
+    { x: 0, y: 0, z: scale, w: 0 },
+    { x: 0, y: 0, z: -scale, w: 0 },
+    { x: 0, y: 0, z: 0, w: scale },
+    { x: 0, y: 0, z: 0, w: -scale },
+  ];
+
+  for (let i = 0; i < 8; i++) {
+    for (let j = i + 1; j < 8; j++) {
+      if (Math.floor(i/2) === Math.floor(j/2)) continue;
+      const v1 = baseVerts[i];
+      const v2 = baseVerts[j];
+      const segments = 5;
+      for (let k = 0; k <= segments; k++) {
+        const t = k / segments;
+        verts.push({
+          x: v1.x + (v2.x - v1.x) * t,
+          y: v1.y + (v2.y - v1.y) * t,
+          z: v1.z + (v2.z - v1.z) * t,
+          w: v1.w + (v2.w - v1.w) * t,
+        });
+      }
+    }
+  }
+
+  // Diamond-distributed volume
+  for (let i = 0; i < 80; i++) {
+    const x = Math.random() - 0.5;
+    const y = Math.random() - 0.5;
+    const z = Math.random() - 0.5;
+    const w = Math.random() - 0.5;
+    const d = (Math.abs(x) + Math.abs(y) + Math.abs(z) + Math.abs(w)) / scale;
+    verts.push({ x: x/d, y: y/d, z: z/d, w: w/d });
+  }
+
+  return verts;
+};
+
+const generate24Cell = (): Vec4[] => {
+  const verts: Vec4[] = [];
+  const scale = 1.2;
+  const baseVerts: Vec4[] = [];
+
+  const coords = [scale, -scale];
+  for (const c of coords) {
+    baseVerts.push({ x: c, y: 0, z: 0, w: 0 });
+    baseVerts.push({ x: 0, y: c, z: 0, w: 0 });
+    baseVerts.push({ x: 0, y: 0, z: c, w: 0 });
+    baseVerts.push({ x: 0, y: 0, z: 0, w: c });
+  }
+
+  const s = scale / Math.sqrt(2);
+  for (let i = 0; i < 16; i++) {
+    baseVerts.push({
+      x: (i & 1) ? s : -s,
+      y: (i & 2) ? s : -s,
+      z: (i & 4) ? s : -s,
+      w: (i & 8) ? s : -s,
+    });
+  }
+
+  const targetDist = Math.sqrt(2) * scale;
+  for (let i = 0; i < baseVerts.length; i++) {
+    for (let j = i + 1; j < baseVerts.length; j++) {
+      const v1 = baseVerts[i];
+      const v2 = baseVerts[j];
+      const dx = v2.x - v1.x;
+      const dy = v2.y - v1.y;
+      const dz = v2.z - v1.z;
+      const dw = v2.w - v1.w;
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz + dw*dw);
+
+      if (Math.abs(dist - targetDist) < 0.01) {
+        const segments = 3;
+        for (let k = 0; k <= segments; k++) {
+          const t = k / segments;
+          verts.push({
+            x: v1.x + dx * t,
+            y: v1.y + dy * t,
+            z: v1.z + dz * t,
+            w: v1.w + dw * t,
+          });
+        }
+      }
+    }
+  }
+  return verts;
+};
+
+const generateHypersphere = (): Vec4[] => {
+  const verts: Vec4[] = [];
+  const n = 350;
+  const scale = 1.5;
+
+  for (let i = 0; i < n; i++) {
+    // Gaussian normalization for uniform sphere distribution
+    const x = (Math.random() - 0.5) * 2;
+    const y = (Math.random() - 0.5) * 2;
+    const z = (Math.random() - 0.5) * 2;
+    const w = (Math.random() - 0.5) * 2;
+    const m = Math.sqrt(x*x + y*y + z*z + w*w);
+    verts.push({
+      x: (x / m) * scale,
+      y: (y / m) * scale,
+      z: (z / m) * scale,
+      w: (w / m) * scale,
+    });
+  }
+  return verts;
+};
 
 export default function CodeCollapse({ fullPage = false }: CodeCollapseProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
 
+  const [shape, setShape] = useState<ShapeType>('tesseract');
+
+  // Animation state
   const stateRef = useRef({
-    angleXW: 0,
-    angleYW: 0,
-    angleZW: 0,
-    collapse: 0.0, // 0 = Full 3D, 1 = Flat 2D (Code mode)
+    // 6 rotation velocities
+    velXY: 0.0,
+    velXZ: 0.0,
+    velXW: 0.008,
+    velYZ: 0.0,
+    velYW: 0.005,
+    velZW: 0.003,
+
+    // Current angles
+    angXY: 0, angXZ: 0, angXW: 0,
+    angYZ: 0, angYW: 0, angZW: 0,
+
+    // OBSERVATION DIMENSIONALITY: 4.0 (chaos) → 2.0 (code)
+    observerDim: 4.0,
+
     isDragging: false,
     lastMouseX: 0,
     lastMouseY: 0,
-    isDraggingSlider: false,
+    activeControl: null as string | null,
   });
 
   const SCALE = 2;
   const BASE_W = fullPage ? 900 : 700;
-  const BASE_H = fullPage ? 650 : 500;
+  const BASE_H = fullPage ? 700 : 550;
   const W = BASE_W * SCALE;
   const H = BASE_H * SCALE;
 
-  // Layout
-  const VIEW_HEIGHT = H * 0.85;
-  const CONTROL_HEIGHT = H * 0.15;
+  const VIEW_HEIGHT = H * 0.72;
+  const CONTROL_HEIGHT = H * 0.28;
 
-  // Generate tesseract vertices with interpolated edge points
   const particles = useMemo(() => {
-    const verts: Vec4[] = [];
-    const baseVerts: Vec4[] = [];
-
-    // Generate 16 corners
-    for (let i = 0; i < 16; i++) {
-      baseVerts.push({
-        x: (i & 1) ? 1 : -1,
-        y: (i & 2) ? 1 : -1,
-        z: (i & 4) ? 1 : -1,
-        w: (i & 8) ? 1 : -1,
-      });
+    switch (shape) {
+      case 'tesseract': return generateTesseract();
+      case '5-cell': return generate5Cell();
+      case '16-cell': return generate16Cell();
+      case '24-cell': return generate24Cell();
+      case 'hypersphere': return generateHypersphere();
+      default: return generateTesseract();
     }
+  }, [shape]);
 
-    // Interpolate points along edges to create "strings" of code
-    for (let i = 0; i < 16; i++) {
-      for (let j = i + 1; j < 16; j++) {
-        const v1 = baseVerts[i];
-        const v2 = baseVerts[j];
-
-        // Check if edge exists (differs by 1 dimension)
-        let diff = 0;
-        if (v1.x !== v2.x) diff++;
-        if (v1.y !== v2.y) diff++;
-        if (v1.z !== v2.z) diff++;
-        if (v1.w !== v2.w) diff++;
-
-        if (diff === 1) {
-          // Add interpolated points (The "Characters" on the line)
-          const segments = 8;
-          for (let k = 0; k <= segments; k++) {
-            const t = k / segments;
-            verts.push({
-              x: v1.x + (v2.x - v1.x) * t,
-              y: v1.y + (v2.y - v1.y) * t,
-              z: v1.z + (v2.z - v1.z) * t,
-              w: v1.w + (v2.w - v1.w) * t,
-            });
-          }
-        }
-      }
-    }
-    return verts;
-  }, []);
-
-  // 4D rotation
-  const rotate4D = useCallback((v: Vec4, angXW: number, angYW: number, angZW: number): Vec4 => {
+  // Full 4D rotation
+  const rotate4D = useCallback((v: Vec4, s: typeof stateRef.current): Vec4 => {
     let { x, y, z, w } = v;
 
-    // Rotate XW
-    let s = Math.sin(angXW), c = Math.cos(angXW);
-    const nx = x * c - w * s;
-    let nw = x * s + w * c;
+    // XY
+    let sin = Math.sin(s.angXY), cos = Math.cos(s.angXY);
+    let nx = x * cos - y * sin;
+    let ny = x * sin + y * cos;
+    x = nx; y = ny;
+
+    // XZ
+    sin = Math.sin(s.angXZ); cos = Math.cos(s.angXZ);
+    nx = x * cos - z * sin;
+    const nz1 = x * sin + z * cos;
+    x = nx; z = nz1;
+
+    // YZ
+    sin = Math.sin(s.angYZ); cos = Math.cos(s.angYZ);
+    ny = y * cos - z * sin;
+    const nz2 = y * sin + z * cos;
+    y = ny; z = nz2;
+
+    // XW (4D)
+    sin = Math.sin(s.angXW); cos = Math.cos(s.angXW);
+    nx = x * cos - w * sin;
+    let nw = x * sin + w * cos;
     x = nx; w = nw;
 
-    // Rotate YW
-    s = Math.sin(angYW); c = Math.cos(angYW);
-    const ny = y * c - w * s;
-    nw = y * s + w * c;
+    // YW (4D)
+    sin = Math.sin(s.angYW); cos = Math.cos(s.angYW);
+    ny = y * cos - w * sin;
+    nw = y * sin + w * cos;
     y = ny; w = nw;
 
-    // Rotate ZW
-    s = Math.sin(angZW); c = Math.cos(angZW);
-    const nz = z * c - w * s;
-    nw = z * s + w * c;
-    z = nz; w = nw;
+    // ZW (4D)
+    sin = Math.sin(s.angZW); cos = Math.cos(s.angZW);
+    const nz3 = z * cos - w * sin;
+    nw = z * sin + w * cos;
+    z = nz3; w = nw;
 
     return { x, y, z, w };
   }, []);
-
-  // Project 4D -> 2D with collapse
-  const project = useCallback((v: Vec4, collapse: number) => {
-    // 1. 4D -> 3D Projection (Perspective from W)
-    const distance = 3;
-    const invW = 1 / (distance - v.w);
-
-    let px = v.x * invW;
-    let py = v.y * invW;
-    let pz = v.z * invW;
-
-    // 2. DIMENSIONAL COLLAPSE (The Key Mechanic)
-    // As collapse -> 1, Z approaches 0.
-    // Also "quantize" Y to simulate lines of code forming
-    if (collapse > 0.1) {
-      pz = pz * (1 - collapse); // Flatten depth
-
-      // Snap Y to "Text Lines" as we collapse
-      const lineSnapStrength = collapse * collapse; // Exponential snap
-      const rowHeight = 0.12;
-      const snappedY = Math.round(py / rowHeight) * rowHeight;
-      py = py * (1 - lineSnapStrength) + snappedY * lineSnapStrength;
-
-      // Also snap X to character grid when highly collapsed
-      if (collapse > 0.7) {
-        const charWidth = 0.08;
-        const charSnapStrength = (collapse - 0.7) / 0.3;
-        const snappedX = Math.round(px / charWidth) * charWidth;
-        px = px * (1 - charSnapStrength) + snappedX * charSnapStrength;
-      }
-    }
-
-    // 3. 3D -> 2D Screen
-    const fov = 600;
-    const scale = fov / (fov - pz * 200);
-
-    return {
-      x: px * scale * 200 + W / 2,
-      y: py * scale * 200 + VIEW_HEIGHT / 2,
-      scale: scale,
-      depth: pz,
-    };
-  }, [W, VIEW_HEIGHT]);
 
   useEffect(() => {
     const loop = () => {
@@ -181,142 +363,308 @@ export default function CodeCollapse({ fullPage = false }: CodeCollapseProps) {
         return;
       }
       const state = stateRef.current;
-      const { angleXW, angleYW, angleZW, collapse } = state;
 
-      // Auto-rotate (slower when collapsed)
-      const rotationSpeed = 1 - collapse * 0.8;
-      if (!state.isDragging) {
-        state.angleXW += 0.005 * rotationSpeed;
-        state.angleYW += 0.003 * rotationSpeed;
-        state.angleZW += 0.002 * rotationSpeed;
+      // Update angles from velocities
+      if (state.activeControl !== 'viz') {
+        state.angXY += state.velXY;
+        state.angXZ += state.velXZ;
+        state.angXW += state.velXW;
+        state.angYZ += state.velYZ;
+        state.angYW += state.velYW;
+        state.angZW += state.velZW;
       }
 
-      // Clear (Matrix Green / Dark Mode)
-      ctx.fillStyle = '#030303';
+      // Clear
+      ctx.fillStyle = '#050505';
       ctx.fillRect(0, 0, W, H);
 
-      // Title
-      ctx.fillStyle = '#22c55e';
-      ctx.font = `bold ${18 * SCALE}px system-ui`;
+      // === COLLAPSE FACTOR ===
+      // 4.0 → 2.0 maps to 0.0 → 1.0
+      const collapseFactor = Math.max(0, Math.min(1, (4.0 - state.observerDim) / 2.0));
+
+      // NON-LINEAR SNAP: Starts weak, snaps HARD at the end
+      const snapStrength = Math.pow(collapseFactor, 3);
+
+      // === HEADER ===
+      const dimLabel = state.observerDim > 3.5 ? '4D HYPERCHAOS' :
+                       state.observerDim > 3.0 ? '3.5D PROJECTION' :
+                       state.observerDim > 2.5 ? '3D SHADOW' :
+                       state.observerDim > 2.1 ? '2.5D SCANLINES' : '2D CODE';
+
+      ctx.fillStyle = collapseFactor > 0.8 ? '#22c55e' : collapseFactor > 0.4 ? '#eab308' : '#3b82f6';
+      ctx.font = `bold ${15 * SCALE}px system-ui`;
       ctx.textAlign = 'left';
-      ctx.fillText('Dimensional Collapse → Code', 20 * SCALE, 30 * SCALE);
-      ctx.fillStyle = '#555';
-      ctx.font = `${12 * SCALE}px system-ui`;
-      ctx.fillText('Drag the visualization • Use slider to collapse dimensions', 20 * SCALE, 50 * SCALE);
+      ctx.fillText('OBSERVER WINDOW', 20 * SCALE, 24 * SCALE);
+
+      ctx.fillStyle = '#666';
+      ctx.font = `${11 * SCALE}px monospace`;
+      ctx.textAlign = 'right';
+      ctx.fillText(`${state.observerDim.toFixed(2)}D → ${dimLabel}`, W - 20 * SCALE, 24 * SCALE);
 
       // Divider
-      ctx.strokeStyle = '#333';
+      ctx.strokeStyle = '#222';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, VIEW_HEIGHT);
       ctx.lineTo(W, VIEW_HEIGHT);
       ctx.stroke();
 
-      // Render Particles as CHARACTERS
+      // === SCANLINES (intermediate collapse) ===
+      if (collapseFactor > 0.2 && collapseFactor < 0.9) {
+        ctx.fillStyle = `rgba(34, 197, 94, ${collapseFactor * 0.03})`;
+        for (let i = 40 * SCALE; i < VIEW_HEIGHT; i += 4 * SCALE) {
+          ctx.fillRect(0, i, W, 1 * SCALE);
+        }
+      }
+
+      // === RENDER PARTICLES ===
       ctx.font = `${FONT_SIZE * SCALE}px "Courier New", monospace`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      // Sort by depth for proper layering
-      const projectedParticles = particles.map((p, i) => {
-        const rotP = rotate4D(p, angleXW, angleYW, angleZW);
-        const proj = project(rotP, collapse);
-        return { ...proj, index: i, original: p };
-      });
+      const projected = particles.map((p, i) => {
+        const rotP = rotate4D(p, state);
 
-      projectedParticles.sort((a, b) => a.depth - b.depth);
+        // 4D → 3D perspective projection
+        const distW = 3;
+        const scaleW = 1 / (distW - rotP.w);
+        const px = rotP.x * scaleW;
+        const py = rotP.y * scaleW;
+        const pz = rotP.z * scaleW;
 
-      projectedParticles.forEach(({ x, y, depth, index }) => {
-        // Pick a character based on "hash" of index + time
-        const charIndex = (index + Math.floor(Date.now() / 150)) % CHARS.length;
-        const char = CHARS[charIndex];
+        // Z-influence diminishes as we collapse
+        const zInfluence = pz * (1 - snapStrength);
 
-        // Opacity based on depth (or constant if collapsed)
-        const depthAlpha = Math.max(0.15, 1 - Math.abs(depth) * 0.8);
-        const finalAlpha = depthAlpha * (1 - collapse) + 0.95 * collapse;
+        // 3D → 2D screen
+        const fov = 600;
+        const screenScale = fov / (fov - zInfluence * 200);
 
-        // Color Shift: Cyan/Blue (Space) -> Green (Code)
-        const r = Math.floor(50 * (1 - collapse));
-        const g = Math.floor(200 + 55 * collapse);
-        const b = Math.floor(255 * (1 - collapse * 0.7));
+        let sx = px * screenScale * 180 + W / 2;
+        let sy = py * screenScale * 180 + VIEW_HEIGHT / 2;
 
-        ctx.fillStyle = `rgba(${r},${g},${b}, ${finalAlpha})`;
-
-        // If fully collapsed, force monospace grid alignment
-        let dx = x;
-        let dy = y;
-
-        if (collapse > 0.8) {
-          dx = Math.round(x / (GRID_SPACING * SCALE)) * (GRID_SPACING * SCALE);
-          dy = Math.round(y / (GRID_SPACING * SCALE * 1.2)) * (GRID_SPACING * SCALE * 1.2);
+        // === QUANTIZATION (The Code Forming) ===
+        if (snapStrength > 0.01) {
+          const gx = Math.round(sx / (GRID_SIZE * SCALE)) * (GRID_SIZE * SCALE);
+          const gy = Math.round(sy / (GRID_SIZE * SCALE * 1.3)) * (GRID_SIZE * SCALE * 1.3);
+          sx = sx * (1 - snapStrength) + gx * snapStrength;
+          sy = sy * (1 - snapStrength) + gy * snapStrength;
         }
 
-        ctx.fillText(char, dx, dy);
+        return {
+          x: sx,
+          y: sy,
+          z: pz,
+          w: rotP.w,
+          index: i,
+          scale: screenScale,
+        };
       });
 
-      // Mode indicator
-      const modeText = collapse < 0.3 ? '4D HYPERCUBE' :
-                       collapse < 0.7 ? '3D PROJECTION' :
-                       'LINEAR CODE';
-      ctx.fillStyle = collapse < 0.5 ? '#3b82f6' : '#22c55e';
-      ctx.font = `bold ${14 * SCALE}px system-ui`;
-      ctx.textAlign = 'right';
-      ctx.fillText(modeText, W - 20 * SCALE, 30 * SCALE);
+      // Sort by depth
+      projected.sort((a, b) => a.z - b.z);
 
-      // --- SLIDER CONTROL ---
-      const sliderY = VIEW_HEIGHT + CONTROL_HEIGHT / 2;
-      const sliderX = 100 * SCALE;
-      const sliderWidth = W - 200 * SCALE;
-      const sliderHeight = 10 * SCALE;
-      const handleRadius = 14 * SCALE;
+      projected.forEach(({ x, y, z, w, index, scale }) => {
+        if (y < 35 * SCALE || y > VIEW_HEIGHT - 10) return;
 
-      // Labels
-      ctx.fillStyle = '#3b82f6';
-      ctx.font = `bold ${12 * SCALE}px system-ui`;
+        // === CHARACTER FROM W-DIMENSION ===
+        // The "meaning" comes from the 4th dimension you can't see
+        const wNorm = (w + 1.5) / 3; // Normalize to 0-1
+        const charIdx = Math.floor(wNorm * CHARS.length + index) % CHARS.length;
+        const char = CHARS[charIdx];
+
+        // Alpha based on depth
+        const depthAlpha = Math.max(0.2, 1 - Math.abs(z) * 0.5);
+        const finalAlpha = depthAlpha * (1 - snapStrength * 0.3) + snapStrength * 0.85;
+
+        // Color transition
+        if (snapStrength > 0.85) {
+          // Full code mode: green
+          ctx.fillStyle = `rgba(34, 197, 94, ${finalAlpha})`;
+        } else if (snapStrength > 0.3) {
+          // Transitioning: yellow-green
+          const g = 150 + 105 * snapStrength;
+          const r = 100 * (1 - snapStrength);
+          ctx.fillStyle = `rgba(${r}, ${g}, 50, ${finalAlpha})`;
+        } else {
+          // Chaos mode: blue/purple based on W
+          const hue = 200 + w * 40;
+          ctx.fillStyle = `hsla(${hue}, 70%, 60%, ${finalAlpha})`;
+        }
+
+        if (snapStrength > 0.7) {
+          // Text mode
+          ctx.fillText(char, x, y);
+        } else if (snapStrength > 0.3) {
+          // Hybrid: small text
+          ctx.font = `${(FONT_SIZE - 2) * SCALE}px "Courier New", monospace`;
+          ctx.fillText(char, x, y);
+          ctx.font = `${FONT_SIZE * SCALE}px "Courier New", monospace`;
+        } else {
+          // Particle mode
+          ctx.beginPath();
+          ctx.arc(x, y, 2 * scale * SCALE, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // === CONTROL PANEL ===
+      const panelY = VIEW_HEIGHT + 12 * SCALE;
+      const padding = 20 * SCALE;
+
+      // Shape buttons
+      ctx.fillStyle = '#555';
+      ctx.font = `${9 * SCALE}px system-ui`;
       ctx.textAlign = 'left';
-      ctx.fillText('SPATIAL (3D/4D)', sliderX, sliderY - 25 * SCALE);
+      ctx.fillText('TOPOLOGY', padding, panelY);
 
-      ctx.fillStyle = '#22c55e';
+      const shapes: ShapeType[] = ['tesseract', '5-cell', '16-cell', '24-cell', 'hypersphere'];
+      const shapeLabels = ['Tesseract', '5-Cell', '16-Cell', '24-Cell', 'Glome'];
+      const btnWidth = 68 * SCALE;
+
+      shapes.forEach((s, i) => {
+        const bx = padding + i * btnWidth;
+        const by = panelY + 10 * SCALE;
+        const isActive = shape === s;
+
+        ctx.fillStyle = isActive ? '#22c55e' : '#1a1a1a';
+        ctx.beginPath();
+        ctx.roundRect(bx, by, btnWidth - 6 * SCALE, 20 * SCALE, 3 * SCALE);
+        ctx.fill();
+
+        if (!isActive) {
+          ctx.strokeStyle = '#333';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        ctx.fillStyle = isActive ? '#000' : '#777';
+        ctx.font = `${8 * SCALE}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.fillText(shapeLabels[i], bx + (btnWidth - 6 * SCALE) / 2, by + 12 * SCALE);
+      });
+
+      // === ROTATION VELOCITIES ===
+      const rotY = panelY + 42 * SCALE;
+      ctx.fillStyle = '#555';
+      ctx.font = `${9 * SCALE}px system-ui`;
+      ctx.textAlign = 'left';
+      ctx.fillText('ROTATION INJECTION', padding, rotY);
+
+      const rotations = [
+        { key: 'XY', color: '#ef4444', vel: state.velXY },
+        { key: 'XZ', color: '#f97316', vel: state.velXZ },
+        { key: 'XW', color: '#eab308', vel: state.velXW },
+        { key: 'YZ', color: '#22c55e', vel: state.velYZ },
+        { key: 'YW', color: '#06b6d4', vel: state.velYW },
+        { key: 'ZW', color: '#8b5cf6', vel: state.velZW },
+      ];
+
+      const rotSliderW = (W - padding * 2 - 30 * SCALE) / 6;
+      rotations.forEach((rot, i) => {
+        const rx = padding + i * rotSliderW;
+        const ry = rotY + 12 * SCALE;
+        const sw = rotSliderW - 12 * SCALE;
+
+        // Label
+        ctx.fillStyle = rot.color;
+        ctx.font = `bold ${9 * SCALE}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.fillText(rot.key, rx + sw / 2, ry);
+
+        // Track
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.roundRect(rx, ry + 6 * SCALE, sw, 5 * SCALE, 2 * SCALE);
+        ctx.fill();
+
+        // Fill from center (velocity can be negative)
+        const norm = (rot.vel + 0.03) / 0.06; // -0.03 to 0.03 → 0 to 1
+        const center = rx + sw / 2;
+        const fillStart = norm < 0.5 ? rx + sw * norm : center;
+        const fillEnd = norm < 0.5 ? center : rx + sw * norm;
+
+        ctx.fillStyle = rot.color;
+        ctx.globalAlpha = 0.7;
+        ctx.beginPath();
+        ctx.roundRect(fillStart, ry + 6 * SCALE, fillEnd - fillStart, 5 * SCALE, 2 * SCALE);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Handle
+        const hx = rx + sw * norm;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(hx, ry + 8.5 * SCALE, 5 * SCALE, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = rot.color;
+        ctx.lineWidth = 1.5 * SCALE;
+        ctx.stroke();
+      });
+
+      // === OBSERVER DIMENSIONALITY (THE CORE SLIDER) ===
+      const dimY = rotY + 42 * SCALE;
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${10 * SCALE}px system-ui`;
+      ctx.textAlign = 'left';
+      ctx.fillText('OBSERVATION DIMENSIONALITY', padding, dimY);
+
+      // Status
+      const statusColor = collapseFactor > 0.9 ? '#22c55e' : collapseFactor > 0.5 ? '#eab308' : '#3b82f6';
+      const statusText = collapseFactor > 0.9 ? '>> CODIFIED <<' : '>> ANALOG <<';
+      ctx.fillStyle = statusColor;
       ctx.textAlign = 'right';
-      ctx.fillText('LINEAR (2D CODE)', sliderX + sliderWidth, sliderY - 25 * SCALE);
+      ctx.font = `bold ${9 * SCALE}px monospace`;
+      ctx.fillText(statusText, W - padding, dimY);
 
-      // Track background
-      ctx.fillStyle = '#222';
+      const dimSliderX = padding;
+      const dimSliderW = W - padding * 2;
+      const dimSliderY = dimY + 12 * SCALE;
+      const dimSliderH = 12 * SCALE;
+
+      // Track
+      ctx.fillStyle = '#1a1a1a';
       ctx.beginPath();
-      ctx.roundRect(sliderX, sliderY - sliderHeight / 2, sliderWidth, sliderHeight, sliderHeight / 2);
+      ctx.roundRect(dimSliderX, dimSliderY, dimSliderW, dimSliderH, 6 * SCALE);
       ctx.fill();
 
       // Gradient fill
-      const gradient = ctx.createLinearGradient(sliderX, 0, sliderX + sliderWidth, 0);
-      gradient.addColorStop(0, '#3b82f6');
-      gradient.addColorStop(1, '#22c55e');
+      const gradient = ctx.createLinearGradient(dimSliderX, 0, dimSliderX + dimSliderW, 0);
+      gradient.addColorStop(0, '#22c55e');
+      gradient.addColorStop(0.5, '#eab308');
+      gradient.addColorStop(1, '#3b82f6');
 
-      const fillWidth = collapse * sliderWidth;
+      // Fill amount (4.0 = right, 2.0 = left)
+      const dimNorm = (state.observerDim - 2.0) / 2.0; // 0 at 2D, 1 at 4D
+      const dimFillW = dimNorm * dimSliderW;
+
       ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.roundRect(sliderX, sliderY - sliderHeight / 2, fillWidth, sliderHeight, sliderHeight / 2);
+      ctx.roundRect(dimSliderX, dimSliderY, dimFillW, dimSliderH, 6 * SCALE);
       ctx.fill();
 
       // Handle
-      const handleX = sliderX + fillWidth;
+      const dimHandleX = dimSliderX + dimFillW;
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(handleX, sliderY, handleRadius, 0, Math.PI * 2);
+      ctx.arc(dimHandleX, dimSliderY + dimSliderH / 2, 10 * SCALE, 0, Math.PI * 2);
       ctx.fill();
-
-      // Handle glow
-      const handleColor = collapse < 0.5 ? '#3b82f6' : '#22c55e';
-      ctx.strokeStyle = handleColor;
+      ctx.strokeStyle = statusColor;
       ctx.lineWidth = 3 * SCALE;
-      ctx.beginPath();
-      ctx.arc(handleX, sliderY, handleRadius, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Percentage
-      ctx.fillStyle = '#888';
-      ctx.font = `${11 * SCALE}px system-ui`;
+      // Labels
+      ctx.fillStyle = '#22c55e';
+      ctx.font = `${8 * SCALE}px system-ui`;
+      ctx.textAlign = 'left';
+      ctx.fillText('2D CODE', dimSliderX, dimSliderY + dimSliderH + 12 * SCALE);
+
+      ctx.fillStyle = '#eab308';
       ctx.textAlign = 'center';
-      ctx.fillText(`${Math.round(collapse * 100)}% collapsed`, W / 2, sliderY + 30 * SCALE);
+      ctx.fillText('3D SHADOW', dimSliderX + dimSliderW / 2, dimSliderY + dimSliderH + 12 * SCALE);
+
+      ctx.fillStyle = '#3b82f6';
+      ctx.textAlign = 'right';
+      ctx.fillText('4D CHAOS', dimSliderX + dimSliderW, dimSliderY + dimSliderH + 12 * SCALE);
 
       animationRef.current = requestAnimationFrame(loop);
     };
@@ -325,9 +673,9 @@ export default function CodeCollapse({ fullPage = false }: CodeCollapseProps) {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [particles, project, rotate4D, W, H, VIEW_HEIGHT, CONTROL_HEIGHT]);
+  }, [particles, rotate4D, W, H, VIEW_HEIGHT, CONTROL_HEIGHT, shape]);
 
-  // Interaction handlers
+  // === INTERACTION ===
   const getCanvasCoords = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
@@ -350,22 +698,68 @@ export default function CodeCollapse({ fullPage = false }: CodeCollapseProps) {
       e.preventDefault();
       const { x, y } = getCanvasCoords(e);
       const state = stateRef.current;
+      const panelY = VIEW_HEIGHT + 12 * SCALE;
+      const padding = 20 * SCALE;
 
-      // Check if clicking on slider
-      const sliderY = VIEW_HEIGHT + CONTROL_HEIGHT / 2;
-      const sliderX = 100 * SCALE;
-      const sliderWidth = W - 200 * SCALE;
+      // Shape buttons
+      const btnY = panelY + 10 * SCALE;
+      const btnWidth = 68 * SCALE;
+      if (y >= btnY && y <= btnY + 20 * SCALE) {
+        const shapes: ShapeType[] = ['tesseract', '5-cell', '16-cell', '24-cell', 'hypersphere'];
+        for (let i = 0; i < shapes.length; i++) {
+          const bx = padding + i * btnWidth;
+          if (x >= bx && x <= bx + btnWidth - 6 * SCALE) {
+            setShape(shapes[i]);
+            return;
+          }
+        }
+      }
 
-      if (Math.abs(y - sliderY) < 30 * SCALE && x >= sliderX - 20 * SCALE && x <= sliderX + sliderWidth + 20 * SCALE) {
-        state.isDraggingSlider = true;
-        state.collapse = Math.max(0, Math.min(1, (x - sliderX) / sliderWidth));
-      } else if (y < VIEW_HEIGHT) {
+      // Rotation sliders
+      const rotY = panelY + 42 * SCALE + 12 * SCALE;
+      const rotSliderW = (W - padding * 2 - 30 * SCALE) / 6;
+      if (y >= rotY && y <= rotY + 20 * SCALE) {
+        const keys = ['XY', 'XZ', 'XW', 'YZ', 'YW', 'ZW'] as const;
+        for (let i = 0; i < keys.length; i++) {
+          const rx = padding + i * rotSliderW;
+          const sw = rotSliderW - 12 * SCALE;
+          if (x >= rx && x <= rx + sw) {
+            state.isDragging = true;
+            state.activeControl = `rot${keys[i]}`;
+            const norm = Math.max(0, Math.min(1, (x - rx) / sw));
+            const vel = (norm - 0.5) * 0.06; // -0.03 to 0.03
+            const key = keys[i];
+            if (key === 'XY') state.velXY = vel;
+            else if (key === 'XZ') state.velXZ = vel;
+            else if (key === 'XW') state.velXW = vel;
+            else if (key === 'YZ') state.velYZ = vel;
+            else if (key === 'YW') state.velYW = vel;
+            else if (key === 'ZW') state.velZW = vel;
+            return;
+          }
+        }
+      }
+
+      // Dimensionality slider
+      const dimY = panelY + 42 * SCALE + 42 * SCALE + 12 * SCALE;
+      const dimSliderW = W - padding * 2;
+      if (y >= dimY - 15 * SCALE && y <= dimY + 25 * SCALE && x >= padding - 15 * SCALE && x <= padding + dimSliderW + 15 * SCALE) {
         state.isDragging = true;
+        state.activeControl = 'dim';
+        const norm = Math.max(0, Math.min(1, (x - padding) / dimSliderW));
+        state.observerDim = 2.0 + norm * 2.0; // 2.0 to 4.0
+        return;
+      }
+
+      // Visualization drag
+      if (y < VIEW_HEIGHT) {
+        state.isDragging = true;
+        state.activeControl = 'viz';
         state.lastMouseX = x;
         state.lastMouseY = y;
       }
     },
-    [getCanvasCoords, W, VIEW_HEIGHT, CONTROL_HEIGHT]
+    [getCanvasCoords, W, VIEW_HEIGHT]
   );
 
   const handleMove = useCallback(
@@ -374,27 +768,44 @@ export default function CodeCollapse({ fullPage = false }: CodeCollapseProps) {
       const { x, y } = getCanvasCoords(e);
       const state = stateRef.current;
 
-      if (state.isDraggingSlider) {
-        const sliderX = 100 * SCALE;
-        const sliderWidth = W - 200 * SCALE;
-        state.collapse = Math.max(0, Math.min(1, (x - sliderX) / sliderWidth));
-      } else if (state.isDragging) {
+      if (!state.isDragging) return;
+
+      const padding = 20 * SCALE;
+
+      if (state.activeControl?.startsWith('rot')) {
+        const key = state.activeControl.slice(3);
+        const keys = ['XY', 'XZ', 'XW', 'YZ', 'YW', 'ZW'];
+        const idx = keys.indexOf(key);
+        const rotSliderW = (W - padding * 2 - 30 * SCALE) / 6;
+        const rx = padding + idx * rotSliderW;
+        const sw = rotSliderW - 12 * SCALE;
+        const norm = Math.max(0, Math.min(1, (x - rx) / sw));
+        const vel = (norm - 0.5) * 0.06;
+        if (key === 'XY') state.velXY = vel;
+        else if (key === 'XZ') state.velXZ = vel;
+        else if (key === 'XW') state.velXW = vel;
+        else if (key === 'YZ') state.velYZ = vel;
+        else if (key === 'YW') state.velYW = vel;
+        else if (key === 'ZW') state.velZW = vel;
+      } else if (state.activeControl === 'dim') {
+        const dimSliderW = W - padding * 2;
+        const norm = Math.max(0, Math.min(1, (x - padding) / dimSliderW));
+        state.observerDim = 2.0 + norm * 2.0;
+      } else if (state.activeControl === 'viz') {
         const dx = x - state.lastMouseX;
         const dy = y - state.lastMouseY;
-
-        state.angleXW += dx * 0.003;
-        state.angleYW += dy * 0.003;
-
+        state.angXW += dx * 0.005;
+        state.angYW += dy * 0.005;
         state.lastMouseX = x;
         state.lastMouseY = y;
       }
     },
-    [getCanvasCoords, W]
+    [getCanvasCoords, W, VIEW_HEIGHT]
   );
 
   const handleEnd = useCallback(() => {
     stateRef.current.isDragging = false;
-    stateRef.current.isDraggingSlider = false;
+    stateRef.current.activeControl = null;
   }, []);
 
   return (
