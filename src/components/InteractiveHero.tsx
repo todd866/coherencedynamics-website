@@ -453,7 +453,12 @@ export default function InteractiveHero() {
       ref={canvasRef}
       width={W}
       height={H}
-      style={{ width: W / SCALE, height: H / SCALE, touchAction: 'none' }}
+      style={{
+        width: '100%',
+        maxWidth: W / SCALE,
+        aspectRatio: `${W} / ${H}`,
+        touchAction: 'none'
+      }}
       className="rounded-xl cursor-crosshair"
       onMouseDown={handleStart}
       onMouseMove={handleMove}
