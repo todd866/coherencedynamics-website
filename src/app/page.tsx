@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import InteractiveHero from '@/components/InteractiveHero';
 
 export default function Home() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      {/* Hero with image */}
+      {/* Hero with interactive visualization */}
       <section className="mb-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-8 items-center mb-8">
+          {/* Left: Text content */}
           <div>
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 text-white">
               Coherence Dynamics
@@ -14,10 +16,10 @@ export default function Home() {
             <p className="text-2xl text-gray-300 mb-4 font-light">
               High-dimensional systems are coherent systems.
             </p>
-            <p className="text-2xl text-gray-500 mb-8 font-light">
+            <p className="text-2xl text-gray-500 mb-6 font-light">
               Bits are incoherent.
             </p>
-            <p className="text-lg text-gray-400 mb-8">
+            <p className="text-lg text-gray-400 mb-6">
               Research exploring the physics of biological organization—why living systems
               can do things digital computers cannot, and what that means for computation,
               measurement, and the limits of knowledge.
@@ -37,15 +39,10 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="relative">
-            <Image
-              src="/images/high-dimensional-coherence.png"
-              alt="Bits break reality apart. Dimensions hold it together."
-              width={600}
-              height={400}
-              className="rounded-xl"
-              priority
-            />
+
+          {/* Right: Interactive visualization */}
+          <div className="flex justify-end">
+            <InteractiveHero />
           </div>
         </div>
       </section>
