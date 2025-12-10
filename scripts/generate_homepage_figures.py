@@ -12,9 +12,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-# Force consistent font - use system default for clean look
+# Use Inter for clean, modern web look
 plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans', 'sans-serif']
+plt.rcParams['font.sans-serif'] = ['Inter', 'Helvetica Neue', 'Arial', 'sans-serif']
 plt.rcParams['font.weight'] = 'normal'
 plt.rcParams['text.color'] = '#f1f5f9'
 plt.rcParams['axes.labelcolor'] = '#f1f5f9'
@@ -58,24 +58,26 @@ def create_hero_image():
     subtitle_size = 32
 
     # Left panel: Bits (scattered random points - chaos, no structure)
-    ax1 = fig.add_axes([0.03, 0.12, 0.44, 0.72], facecolor=BLACK)
+    # Reduced height to avoid overlapping with text above
+    ax1 = fig.add_axes([0.03, 0.12, 0.44, 0.62], facecolor=BLACK)
 
     np.random.seed(42)
     n_points = 200
-    x = np.random.randn(n_points) * 1.2
-    y = np.random.randn(n_points) * 1.2
+    # Tighter spread to keep points contained
+    x = np.random.randn(n_points) * 0.9
+    y = np.random.randn(n_points) * 0.9
 
     # Random colors - no coherence
     colors = [plt.cm.Set1(i % 9) for i in range(n_points)]
     sizes = np.random.uniform(30, 100, n_points)
 
     ax1.scatter(x, y, c=colors, s=sizes, alpha=0.7, edgecolors='none')
-    ax1.set_xlim(-3, 3)
-    ax1.set_ylim(-3, 3)
+    ax1.set_xlim(-2.5, 2.5)
+    ax1.set_ylim(-2.5, 2.5)
     ax1.axis('off')
 
     # Right panel: Dynamics (Lorenz attractor - structured, coherent)
-    ax2 = fig.add_axes([0.53, 0.12, 0.44, 0.72], facecolor=BLACK)
+    ax2 = fig.add_axes([0.53, 0.12, 0.44, 0.62], facecolor=BLACK)
 
     lx, ly, lz = generate_lorenz_attractor(10000)
 
@@ -126,7 +128,8 @@ def create_measurement_image():
     subtitle_size = 32
 
     # Left panel: Torus with many trajectories (high-dimensional state)
-    ax1 = fig.add_axes([0.03, 0.12, 0.42, 0.72], facecolor=BLACK, projection='3d')
+    # Reduced height to avoid overlapping with text above
+    ax1 = fig.add_axes([0.03, 0.12, 0.42, 0.62], facecolor=BLACK, projection='3d')
 
     R, r = 2.2, 0.8
 
@@ -163,7 +166,7 @@ def create_measurement_image():
     ax1.set_box_aspect([1, 1, 0.5])
 
     # Right panel: Projected time series
-    ax2 = fig.add_axes([0.55, 0.12, 0.42, 0.72], facecolor=BLACK)
+    ax2 = fig.add_axes([0.55, 0.12, 0.42, 0.62], facecolor=BLACK)
 
     # Generate projections
     np.random.seed(42)
