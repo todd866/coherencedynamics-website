@@ -126,12 +126,11 @@ export default function CurvatureCostPage() {
           {/* Info panels in row */}
           <div className="grid md:grid-cols-3 gap-4">
             <div className="border border-gray-800 rounded-lg p-4">
-              <h3 className="text-sm text-gray-500 mb-3">3D → 2D Projection</h3>
+              <h3 className="text-sm text-gray-500 mb-3">Two Modes</h3>
               <p className="text-gray-300 text-sm">
-                Particles undergo <strong className="text-white">3D Brownian motion</strong> but are
-                constrained to a <strong className="text-white">2D surface</strong>.
-                <span className="block mt-2 text-blue-400">
-                  Drag to rotate. Use sliders to control confinement &amp; curvature.
+                <strong className="text-white">Explore:</strong> Drag to rotate, use sliders to control flow, curvature, and confinement.
+                <span className="block mt-2">
+                  <strong className="text-amber-400">Lab:</strong> Surface roughens naturally. Hold click to inject work and stabilize.
                 </span>
               </p>
             </div>
@@ -146,11 +145,11 @@ export default function CurvatureCostPage() {
             </div>
 
             <div className="border border-yellow-700/50 bg-yellow-900/20 rounded-lg p-4">
-              <h3 className="text-sm text-yellow-400 mb-2">Two Costs</h3>
+              <h3 className="text-sm text-yellow-400 mb-2">Key Insight</h3>
               <p className="text-gray-300 text-sm">
-                <strong className="text-white">One-time:</strong> Force × distance to reach surface.
-                <strong className="text-white"> Ongoing:</strong> H × v dissipation while moving.
-                Curvature reduces the first but increases the second.
+                <strong className="text-white">Structure costs energy.</strong>{' '}
+                In Lab mode, you feel the continuous &ldquo;rent&rdquo; required to maintain order.
+                Release, and entropy wins.
               </p>
             </div>
           </div>
