@@ -106,13 +106,13 @@ export default async function PaperPage({
 
       {/* Paper image */}
       {paper.image && (
-        <div className="mb-8">
+        <div className="mb-8 bg-white rounded-xl p-4 shadow-lg">
           <Image
             src={`/images/${paper.image}`}
             alt={paper.title}
             width={800}
             height={450}
-            className="rounded-xl w-full"
+            className="rounded-lg w-full"
           />
         </div>
       )}

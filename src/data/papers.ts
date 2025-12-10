@@ -26,7 +26,6 @@ export const papers: Paper[] = [
     status: 'published',
     doi: '10.1016/j.biosystems.2025.105608',
     simulation: 'protein-observer',
-    image: 'falsifiability.jpeg',
     description: `**Popper's falsifiability criterion breaks down for high-dimensional biological systems** — not because biology is messy, but because of a fundamental physical limit on what yes/no tests can tell us.
 
 Here's the problem: biological systems exist in absurdly high-dimensional spaces. A single cell needs thousands of variables to describe. When you try to test a yes/no hypothesis about such systems, you're projecting all that complexity onto a single bit. For a modest 100-neuron circuit, a binary test preserves about $10^{-100}$ of the information. That's not approximately zero — it's functionally indistinguishable from zero.
@@ -50,7 +49,6 @@ This isn't a call to abandon scientific rigor. Falsifiability works brilliantly 
     status: 'published',
     doi: '10.1016/j.biosystems.2025.105632',
     simulation: 'maxwells-ledger',
-    image: 'timing-inaccessibility.jpeg',
     description: `**The brain is 100,000× more energy-efficient than silicon because it defers thermodynamic costs** — computing reversibly until the moment it must commit to a discrete output.
 
 Here's what makes this possible: below the Landauer limit ($\\sim 3 \\times 10^{-21}$ J), you can't irreversibly record *when* things happen. You can detect that something occurred, but not its temporal order. This creates massive "path degeneracy" — exponentially many micro-trajectories ($10^{50}$ to $10^{100}$ in neural systems) that all look the same from the outside.
@@ -75,7 +73,6 @@ This isn't a trick or an approximation. It's a fundamentally different computati
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4978594',
-    image: 'high-dimensional-coherence.jpeg',
     description: `**Intelligence emerges whenever a system maintains high-dimensional internal dynamics that collapse to coherent outputs** — and this architectural principle, not clever algorithms, explains the million-fold efficiency gap between brains and computers.
 
 The human cortex operates 100–1000× beyond what external observers can track. It doesn't compute by enumerating possibilities like a digital computer. Instead, it evolves through a high-dimensional landscape where incompatible solutions coexist peacefully until behaviour demands a choice. You can simultaneously consider "fight" and "flee" and "negotiate" as superposed possibilities — until the moment you must act.
@@ -98,7 +95,6 @@ The same principle applies at every scale: bacteria tracking chemical gradients,
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5018691',
-    image: 'coherence-time.jpeg',
     description: `**The speed of thought is limited by how quickly brain regions can synchronise their oscillations** — not by how fast neurons fire. This creates a fundamental trade-off: larger, more flexible networks process information more slowly.
 
 Synchronisation time grows exponentially with the number of coordinating modules. Visual binding takes 30–50ms because that's how long it takes visual areas to [lock their oscillations](https://www.nature.com/articles/s41467-025-64471-2). Cross-sensory integration (seeing a face and hearing a voice as unified) takes 100–150ms because it requires more regions to coordinate.
@@ -120,7 +116,6 @@ Consciousness may depend more on these synchronised fields than on individual sp
     journal: 'Biological Cybernetics',
     year: 2025,
     status: 'submitted',
-    image: 'substrate-dimensionality.jpeg',
     description: `**AI may hit a hard capability ceiling because digital hardware has the wrong dimensionality** — one global clock versus $10^{14}$–$10^{18}$ continuous degrees of freedom in a biological brain.
 
 Modern AI achieves enormous algorithmic complexity, but it runs on substrates with essentially one degree of freedom: the global clock that synchronises all operations. Biological brains exploit vastly higher substrate dimensionality through asynchronous, continuous dynamics — every synapse, every dendritic branch, every ion channel is a semi-independent variable.
@@ -143,7 +138,6 @@ The implication is uncomfortable: we may already be approaching the ceiling of w
     year: 2025,
     status: 'submitted',
     github: 'todd866/brainwavedimensionality',
-    image: 'cortical-oscillations.jpeg',
     description: `**Slower brain waves are higher-dimensional, not lower** — inverting a major assumption in oscillatory neuroscience and reframing what sleep, meditation, and stress actually do to cognition.
 
 [Earl Miller's lab at MIT](https://ekmillerlab.mit.edu/) has argued that gamma oscillations carry working memory content while beta provides top-down control. Their framework treats dimensionality as something that *increases* with faster oscillations. This paper argues the opposite.
@@ -170,7 +164,6 @@ The practical implications are significant. Interventions that enhance slow-wave
     status: 'submitted',
     github: 'todd866/coherence-gate',
     pdf: 'https://raw.githubusercontent.com/todd866/coherence-gate/main/coherence_gate_scaling.pdf',
-    image: 'coherence-gate-scaling.jpeg',
     description: `**Oscillatory neural networks hit a hard scaling wall on digital hardware** — $O(N^2)$ operations per timestep — but physical coupling does the same computation at $O(K)$, offering 100–1000× better energy efficiency.
 
 [Oscillating neural networks](https://www.nature.com/articles/s41467-025-64471-2) can extract powerful relational patterns from data by letting oscillators synchronise into meaningful clusters. But simulating all-to-all coupling on a digital computer requires checking every pair of oscillators at every timestep. For 400 oscillators, that's 160,000 operations per tick. Physical coupling — electrical circuits, optical resonators, memristive crossbars — does this automatically through the physics of the substrate.
@@ -194,6 +187,7 @@ The paper proposes the "coherence gate" as a hardware primitive for neuromorphic
     status: 'submitted',
     github: 'todd866/lsd-dimensionality',
     pdf: 'https://raw.githubusercontent.com/todd866/lsd-dimensionality/main/lsd_dimensionality.pdf',
+    image: 'lsd-dimensionality.png',
     description: `**Psychedelics work by temporarily expanding the brain's computational dimensionality** — and this gives us something concrete to measure, optimise, and eventually target without requiring the full psychedelic experience.
 
 LSD and psilocybin don't flood the brain with chaos. They activate 5-HT2A receptors on layer V pyramidal neurons, amplifying dendritic gain and unlocking dormant neural patterns that are normally suppressed. The result is a measurable increase in effective dimensionality: 8.6% for LSD (medium effect), 19.2% for psilocybin acutely.
@@ -241,6 +235,7 @@ Cancer, in this view, is cellular bifurcation into an alternative stable state. 
     status: 'submitted',
     github: 'todd866/dimensional-work',
     pdf: 'https://raw.githubusercontent.com/todd866/dimensional-work/main/manuscript_prx.pdf',
+    image: 'dimensional-landauer.png',
     description: `**Erasing a bit costs energy — but so does projecting high-dimensional dynamics onto lower-dimensional representations.** This "geometric work" is a new fundamental cost in information processing, and it explains why biological systems favour coherent, oscillatory dynamics.
 
 Landauer's principle says erasing one bit costs at least $kT \\ln 2$ of energy. But information doesn't exist in a vacuum — it lives somewhere physically, embedded in a dynamical system. When you extract a useful signal from noisy, high-dimensional data, you're not just erasing bits; you're projecting curved dynamics onto simpler manifolds. That projection has its own thermodynamic cost.
@@ -288,6 +283,7 @@ This isn't an argument against visualisation — it's an argument for honesty ab
     status: 'submitted',
     github: 'todd866/clinical-validity-bounds',
     pdf: 'https://raw.githubusercontent.com/todd866/clinical-validity-bounds/main/manuscript.pdf',
+    image: 'clinical-validity-bounds.png',
     description: `**Clinical AI fails on complex patients because the validation math breaks down** — and we can now quantify exactly where. The critical threshold is around 3 comorbidities (r* ≈ 0.3), where classifier performance hits its minimum.
 
 Clinical AI systems are validated on datasets that systematically underrepresent complex patients. When a patient's effective dimensionality exceeds what the AI was trained on, predictions become unreliable — not because the AI is "wrong," but because the validation framework itself breaks down. You can't evaluate a system on territory it's never seen.
