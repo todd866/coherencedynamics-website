@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vector Run: Ascension</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+      color: #00fff9;
+      text-shadow: 0 0 20px #00fff9;
+      letter-spacing: 8px;
+    }
+
+    .subtitle {
+      font-size: 11px;
+      color: #444;
+      margin-bottom: 15px;
+      letter-spacing: 2px;
+    }
+
+    #game-container {
+      position: relative;
+    }
+
+    canvas {
+      border: 2px solid #1a1a2e;
+      background: #0a0a0a;
+      cursor: none;
+      display: block;
+    }
+
+    canvas:focus {
+      outline: none;
+      border-color: #00fff9;
+      box-shadow: 0 0 30px rgba(0, 255, 249, 0.3);
+    }
+
+    .hud {
+      display: flex;
+      gap: 30px;
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    .hud-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hud-label {
+      font-size: 9px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hud-value {
+      font-size: 16px;
+      color: #00fff9;
+      text-shadow: 0 0 10px rgba(0, 255, 249, 0.5);
+    }
+
+    .hud-value.warning {
+      color: #ff6b35;
+      text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+    }
+
+    .instructions {
+      margin-top: 15px;
+      font-size: 10px;
+      color: #333;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .instructions kbd {
+      background: #1a1a2e;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #666;
+      margin: 0 2px;
+    }
+
+    #start-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #start-overlay h2 {
+      color: #00fff9;
+      font-size: 18px;
+      margin-bottom: 20px;
+      letter-spacing: 4px;
+    }
+
+    #start-overlay p {
+      color: #666;
+      font-size: 12px;
+      margin-bottom: 30px;
+    }
+
+    #start-overlay .start-btn {
+      padding: 12px 40px;
+      background: transparent;
+      border: 2px solid #00fff9;
+      color: #00fff9;
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    #start-overlay .start-btn:hover {
+      background: #00fff9;
+      color: #0a0a0a;
+      box-shadow: 0 0 30px rgba(0, 255, 249, 0.5);
+    }
+
+    .dimension-name {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <h1>VECTOR RUN</h1>
+  <p class="subtitle">DIMENSIONAL RHYTHM</p>
+
+  <div id="game-container">
+    <canvas id="game" width="800" height="500" tabindex="0"></canvas>
+    <div id="start-overlay">
+      <h2>ASCENSION AWAITS</h2>
+      <p>Match colors. Sync to the beat. Ascend through dimensions.</p>
+      <button class="start-btn">BEGIN</button>
+    </div>
+  </div>
+
+  <div class="hud">
+    <div class="hud-item">
+      <span class="hud-label">Dimension</span>
+      <span class="hud-value" id="dimension">0D</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Score</span>
+      <span class="hud-value" id="score">0</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Streak</span>
+      <span class="hud-value" id="streak">0</span>
+    </div>
+    <div class="hud-item">
+      <span class="hud-label">Saturation</span>
+      <span class="hud-value" id="saturation">100%</span>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <kbd>Q</kbd> <kbd>E</kbd> Cycle color
+    <span style="color:#333">|</span>
+    <kbd>Arrow Keys</kbd> Move
+    <span style="color:#333">|</span>
+    <kbd>A</kbd> <kbd>D</kbd> Rotate (3D)
+    <span style="color:#333">|</span>
+    <kbd>W</kbd> <kbd>S</kbd> Scale (4D)
+  </div>
+
+  <script type="module" src="/vector-run/main.js"></script>
+</body>
+</html>

@@ -11,6 +11,14 @@ interface Simulation {
 
 const simulations: Simulation[] = [
   {
+    slug: 'vector-run',
+    title: 'Vector Run: Ascension',
+    description: "A dimensional rhythm game. Start as a 0D pulse, ascend through dimensions by matching chromatic resonance. Navigate 1D lines, 2D planes, 3D tunnels, and 4D hyperspaces. Desktop only—requires keyboard.",
+    paper: 'High-Dimensional Coherence',
+    paperSlug: 'high-dimensional-coherence',
+    status: 'playable',
+  },
+  {
     slug: 'code-collapse',
     title: 'Observer Window',
     description: "You're not collapsing the object—you're collapsing the observer. Adjust your observation dimensionality from 4D chaos to 2D code. Watch hyperdimensional structures quantize into syntax as your perceptual window narrows. The meaning comes from the dimension you can't see.",
@@ -80,7 +88,7 @@ const simulations: Simulation[] = [
     description: 'Try to measure a folding protein. Watch as each observation disturbs the conformational state. See why high-dimensional systems resist binary hypothesis testing.',
     paper: 'The Limits of Falsifiability',
     paperSlug: 'falsifiability',
-    status: 'beta',
+    status: 'playable',
   },
 ];
 
