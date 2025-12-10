@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Coherence Dynamics Website
 
-## Getting Started
+Website for the coherence dynamics research program, featuring papers, simulations, and interactive content.
 
-First, run the development server:
+**Live site:** [coherencedynamics.com](https://coherencedynamics.com)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── page.tsx           # Homepage
+│   ├── papers/            # Papers listing and detail pages
+│   │   ├── page.tsx       # /papers - papers index
+│   │   └── [slug]/page.tsx # /papers/[slug] - individual paper
+│   ├── simulations/       # Interactive simulations
+│   ├── scenarios/         # What-if scenarios
+│   ├── fiction/           # Creative writing
+│   └── about/             # About page
+├── components/            # Reusable React components
+│   ├── Markdown.tsx       # Markdown renderer with LaTeX
+│   ├── PaperNavigation.tsx # Prev/next navigation with keyboard shortcuts
+│   └── ...
+├── data/
+│   └── papers.ts          # Paper metadata and content
+└── lib/                   # Utility functions
+
+public/
+└── images/
+    └── papers/            # Paper figures (PNG, 150 DPI)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev    # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Adding a New Paper
 
-## Learn More
+1. **Add metadata** to `src/data/papers.ts`:
 
-To learn more about Next.js, take a look at the following resources:
+```typescript
+{
+  slug: 'paper-slug',           // URL-friendly identifier
+  title: 'Full Paper Title',
+  journal: 'Journal Name',
+  year: 2025,
+  status: 'published' | 'submitted' | 'in_prep',
+  doi: '10.xxx/xxx',            // optional
+  ssrn: 'https://...',          // optional preprint link
+  github: 'user/repo',          // optional code repo
+  image: 'paper-slug.png',      // figure in /public/images/papers/
+  description: `**BLUF summary** — expanded explanation...`,
+  whyItMatters: 'Optional section...',
+  keyFindings: ['Finding 1', 'Finding 2'],
+  workflow: 'AI workflow disclosure...',
+}
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Generate figure** for `public/images/papers/{slug}.png`:
+   - Resolution: 150 DPI
+   - Aspect ratio: ~16:9 or 3:1 for multi-panel figures
+   - White background
+   - No text overlapping data points
+   - Use matplotlib with `bbox_inches='tight', facecolor='white'`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. Papers are automatically listed on `/papers` and get their own page at `/papers/{slug}`
 
-## Deploy on Vercel
+## Paper Figure Guidelines
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Figures should:
+- Have clear panel labels (A, B, C...)
+- Use colorblind-friendly palettes when possible
+- Place annotations outside data regions
+- Include axis labels with units
+- Render mathematical notation cleanly
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Example generation script pattern:
+```python
+import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+# ... create panels ...
+plt.tight_layout()
+plt.savefig('public/images/papers/paper-slug.png',
+            dpi=150, bbox_inches='tight', facecolor='white')
+```
+
+## Features
+
+- **Paper navigation:** Arrow key navigation between papers (←/→)
+- **Markdown support:** Full markdown with LaTeX math via `$...$` and `$$...$$`
+- **Status badges:** Published (green), Under Review (yellow), In Preparation (gray)
+- **External links:** DOI, SSRN preprints, GitHub repos, PDFs
+
+## Deployment
+
+Deployed automatically to Vercel on push to `main`.
+
+## Tech Stack
+
+- **Framework:** Next.js 15 (App Router)
+- **Styling:** Tailwind CSS
+- **Markdown:** react-markdown with remark-math, rehype-katex
+- **Hosting:** Vercel
