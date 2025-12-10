@@ -121,8 +121,9 @@ def create_measurement_image():
 
     fig = plt.figure(figsize=(16, 9), facecolor=BLACK)
 
-    title_size = 56
-    subtitle_size = 28
+    # Match hero image sizing for consistency
+    title_size = 64
+    subtitle_size = 32
 
     # Left panel: Torus with many trajectories (high-dimensional state)
     ax1 = fig.add_axes([0.03, 0.12, 0.42, 0.72], facecolor=BLACK, projection='3d')
