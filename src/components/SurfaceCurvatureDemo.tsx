@@ -3,9 +3,13 @@
 /**
  * SurfaceCurvatureDemo
  *
- * A zero-dependency 3D particle simulation on a parametric surface.
- * Demonstrates that maintaining a 2D constraint in 3D space costs energy
- * proportional to the Mean Curvature squared (H^2).
+ * 3D particle simulation demonstrating the thermodynamic cost of
+ * confining particles to a curved 2D surface.
+ *
+ * Controls:
+ * - Confinement slider: how strongly particles are attracted to surface
+ * - Click & drag on canvas: bend the surface (increase amplitude)
+ * - Arrow buttons: rotate the view
  */
 
 import { useRef, useEffect, useState, useCallback } from 'react';
@@ -20,29 +24,32 @@ interface Point3D {
 interface Particle3D {
   x: number;
   y: number;
+  z: number;
   vx: number;
   vy: number;
+  vz: number;
   heat: number;
 }
 
 // === CONSTANTS ===
-const N_PARTICLES = 600;
-const GRID_RES = 24; // Wireframe density
-const DAMPING = 0.92;
-const TEMPERATURE = 0.5; // Brownian kick
-const FOV = 400; // Field of view for projection
+const N_PARTICLES = 400;
+const DAMPING = 0.94;
+const TEMPERATURE = 0.3;
+const FOV = 500;
 
 export default function SurfaceCurvatureDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const graphRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
 
-  // Interaction State
-  const [curvature, setCurvature] = useState(0);
-  const targetCurvatureRef = useRef(0);
+  // Controls
+  const [confinement, setConfinement] = useState(0.5);
+  const [amplitude, setAmplitude] = useState(0);
+  const [rotation, setRotation] = useState({ x: 0.6, y: 0.4 });
+
+  // Interaction
+  const targetAmplitudeRef = useRef(0);
   const isDraggingRef = useRef(false);
-  const rotationRef = useRef({ x: 0.8, y: 0.6 }); // Initial camera angle
-  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const historyRef = useRef<number[]>(new Array(100).fill(0));
 
   // Physics State
@@ -53,10 +60,12 @@ export default function SurfaceCurvatureDemo() {
     const p: Particle3D[] = [];
     for (let i = 0; i < N_PARTICLES; i++) {
       p.push({
-        x: (Math.random() - 0.5) * 400,
-        y: (Math.random() - 0.5) * 400,
+        x: (Math.random() - 0.5) * 200,
+        y: (Math.random() - 0.5) * 200,
+        z: (Math.random() - 0.5) * 100,
         vx: (Math.random() - 0.5) * 2,
         vy: (Math.random() - 0.5) * 2,
+        vz: (Math.random() - 0.5) * 2,
         heat: 0,
       });
     }
@@ -66,27 +75,27 @@ export default function SurfaceCurvatureDemo() {
   // === 3D MATH HELPERS ===
   const project = useCallback(
     (p: Point3D, width: number, height: number, rotX: number, rotY: number) => {
-      // 1. Rotate Y (Azimuth)
+      // Rotate Y (Azimuth)
       const cx = Math.cos(rotY);
       const sx = Math.sin(rotY);
       const x = p.x * cx - p.z * sx;
       let z = p.x * sx + p.z * cx;
       let y = p.y;
 
-      // 2. Rotate X (Elevation)
+      // Rotate X (Elevation)
       const cy = Math.cos(rotX);
       const sy = Math.sin(rotX);
       const y_new = y * cy - z * sy;
       z = y * sy + z * cy;
       y = y_new;
 
-      // 3. Project to 2D
-      const cameraZ = 600;
+      // Project to 2D (more zoomed in)
+      const cameraZ = 400;
       const scale = FOV / (FOV + z + cameraZ);
 
       return {
-        x: width / 2 + x * scale,
-        y: height / 2 + y * scale,
+        x: width / 2 + x * scale * 1.5,
+        y: height / 2 + y * scale * 1.5,
         scale: scale,
         z: z,
       };
@@ -95,15 +104,13 @@ export default function SurfaceCurvatureDemo() {
   );
 
   const getSurfaceZ = useCallback((x: number, y: number, amp: number) => {
-    // Surface: z = A * sin(kx) * cos(ky) - "Egg Crate" landscape
-    const k = 0.025;
-    return amp * 80 * Math.sin(x * k) * Math.cos(y * k);
+    const k = 0.03;
+    return amp * 60 * Math.sin(x * k) * Math.cos(y * k);
   }, []);
 
   const getMeanCurvature = useCallback(
     (x: number, y: number, amp: number) => {
-      // Approximate Mean Curvature H for coloring
-      const k = 0.025;
+      const k = 0.03;
       const z = getSurfaceZ(x, y, amp);
       return Math.abs(z * k * k);
     },
@@ -126,83 +133,103 @@ export default function SurfaceCurvatureDemo() {
       const W = canvas.width;
       const H = canvas.height;
 
-      // 1. Smooth Curvature Interpolation
-      const approach = (current: number, target: number, speed: number) =>
-        current + (target - current) * speed;
+      // Smooth amplitude interpolation
+      const targetAmp = isDraggingRef.current ? targetAmplitudeRef.current : 0;
+      const newAmp = amplitude + (targetAmp - amplitude) * 0.08;
+      setAmplitude(newAmp);
 
-      const target = isDraggingRef.current ? targetCurvatureRef.current : 0;
-      const newCurv = approach(curvature, target, 0.05);
-      setCurvature(newCurv);
-
-      // 2. Physics Update
+      // Physics Update
       let totalDissipation = 0;
+      const baseStiffness = confinement * 0.15;
 
       particlesRef.current.forEach((p) => {
-        // Brownian motion
+        // Brownian motion in 3D
         p.vx += (Math.random() - 0.5) * TEMPERATURE;
         p.vy += (Math.random() - 0.5) * TEMPERATURE;
+        p.vz += (Math.random() - 0.5) * TEMPERATURE;
+
+        // Local curvature at particle position
+        const H_val = getMeanCurvature(p.x, p.y, newAmp);
+
+        // KEY INSIGHT: Curvature makes confinement EASIER (less force needed)
+        // The curved geometry naturally guides particles toward the surface
+        // Like a ball rolling into a valley - curvature provides a restoring force
+        const curvatureAssist = 1 + H_val * 30; // Curvature amplifies effective stiffness
+        const effectiveStiffness = baseStiffness * curvatureAssist;
+
+        // Surface confinement force (easier at curved regions)
+        const surfaceZ = getSurfaceZ(p.x, p.y, newAmp);
+        const distFromSurface = p.z - surfaceZ;
+        const forceZ = -effectiveStiffness * distFromSurface;
+        p.vz += forceZ;
 
         // Damping
         p.vx *= DAMPING;
         p.vy *= DAMPING;
+        p.vz *= DAMPING;
 
         // Update Position
         p.x += p.vx;
         p.y += p.vy;
+        p.z += p.vz;
 
-        // Boundary Wrap
-        const limit = 200;
+        // Boundary wrap (x, y only)
+        const limit = 120;
         if (p.x > limit) p.x = -limit;
         if (p.x < -limit) p.x = limit;
         if (p.y > limit) p.y = -limit;
         if (p.y < -limit) p.y = limit;
 
-        // Calculate Heat (Thermodynamic Cost)
-        // Cost ~ Mean Curvature squared (H^2) + centrifugal term
-        const H_val = getMeanCurvature(p.x, p.y, newCurv);
-        const kinetic = p.vx * p.vx + p.vy * p.vy;
-        p.heat = Math.min(1, H_val * 400 + H_val * kinetic * 100);
+        // Calculate Heat (two distinct sources)
+        // 1. Confinement work: force * distance (one-time cost to get ON the surface)
+        const confinementWork = Math.abs(forceZ * distFromSurface) * 0.5;
+
+        // 2. Curvature cost: ONGOING cost that scales with velocity (centrifugal dissipation)
+        // Moving fast along a curved path = more heat
+        const tangentSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+        const curvatureWork = H_val * tangentSpeed * confinement * 50;
+
+        p.heat = Math.min(1, confinementWork + curvatureWork);
         totalDissipation += p.heat;
       });
 
-      // 3. Rendering
+      // Rendering
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(0, 0, W, H);
 
-      const rotX = rotationRef.current.x;
-      const rotY = rotationRef.current.y;
+      const rotX = rotation.x;
+      const rotY = rotation.y;
 
-      // A. Draw Wireframe Surface
-      ctx.lineWidth = 1;
+      // Draw Wireframe Surface
+      const gridRes = 20;
+      const range = 120;
+      const step = (range * 2) / gridRes;
       const grid: { x: number; y: number; scale: number; z: number }[][] = [];
-      const range = 200;
-      const step = (range * 2) / GRID_RES;
 
-      for (let i = 0; i <= GRID_RES; i++) {
+      for (let i = 0; i <= gridRes; i++) {
         const x = -range + i * step;
         const row: { x: number; y: number; scale: number; z: number }[] = [];
-        for (let j = 0; j <= GRID_RES; j++) {
+        for (let j = 0; j <= gridRes; j++) {
           const y = -range + j * step;
-          const z = getSurfaceZ(x, y, newCurv);
+          const z = getSurfaceZ(x, y, newAmp);
           row.push(project({ x, y, z }, W, H, rotX, rotY));
         }
         grid.push(row);
       }
 
-      ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 + newCurv * 0.1})`;
+      ctx.strokeStyle = `rgba(100, 150, 255, ${0.15 + newAmp * 0.15})`;
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      // Horizontal lines
-      for (let i = 0; i <= GRID_RES; i++) {
-        for (let j = 0; j < GRID_RES; j++) {
+      for (let i = 0; i <= gridRes; i++) {
+        for (let j = 0; j < gridRes; j++) {
           const p1 = grid[i][j];
           const p2 = grid[i][j + 1];
           ctx.moveTo(p1.x, p1.y);
           ctx.lineTo(p2.x, p2.y);
         }
       }
-      // Vertical lines
-      for (let i = 0; i < GRID_RES; i++) {
-        for (let j = 0; j <= GRID_RES; j++) {
+      for (let i = 0; i < gridRes; i++) {
+        for (let j = 0; j <= gridRes; j++) {
           const p1 = grid[i][j];
           const p2 = grid[i + 1][j];
           ctx.moveTo(p1.x, p1.y);
@@ -211,14 +238,11 @@ export default function SurfaceCurvatureDemo() {
       }
       ctx.stroke();
 
-      // B. Draw Particles (sorted by depth)
-      const screenParticles = particlesRef.current.map((p) => {
-        const z = getSurfaceZ(p.x, p.y, newCurv);
-        return {
-          ...p,
-          ...project({ x: p.x, y: p.y, z }, W, H, rotX, rotY),
-        };
-      });
+      // Draw Particles (sorted by depth)
+      const screenParticles = particlesRef.current.map((p) => ({
+        ...p,
+        ...project({ x: p.x, y: p.y, z: p.z }, W, H, rotX, rotY),
+      }));
 
       screenParticles.sort((a, b) => b.z - a.z);
 
@@ -226,15 +250,16 @@ export default function SurfaceCurvatureDemo() {
         const r = Math.floor(50 + p.heat * 205);
         const g = Math.floor(150 - p.heat * 100);
         const b = Math.floor(255 - p.heat * 205);
-        const alpha = Math.max(0.2, p.scale);
+        const alpha = Math.max(0.3, Math.min(1, p.scale + 0.2));
 
-        ctx.fillStyle = `rgba(${r},${g},${b}, ${alpha})`;
+        ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 2 * p.scale + p.heat * 2, 0, Math.PI * 2);
+        const size = Math.max(2, 3 * p.scale + p.heat * 2);
+        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      // 4. Render Dissipation Graph
+      // Render Dissipation Graph
       historyRef.current.shift();
       historyRef.current.push(totalDissipation / N_PARTICLES);
 
@@ -251,12 +276,12 @@ export default function SurfaceCurvatureDemo() {
         gCtx.stroke();
 
         gCtx.beginPath();
-        gCtx.moveTo(0, 60 - historyRef.current[0] * 50);
+        gCtx.moveTo(0, 60 - historyRef.current[0] * 60);
         for (let i = 1; i < 100; i++) {
-          gCtx.lineTo(i * 2, 60 - historyRef.current[i] * 50);
+          gCtx.lineTo(i * 2, 60 - historyRef.current[i] * 60);
         }
         const severity = historyRef.current[99];
-        gCtx.strokeStyle = severity > 0.5 ? '#ef4444' : '#22c55e';
+        gCtx.strokeStyle = severity > 0.6 ? '#ef4444' : severity > 0.3 ? '#f59e0b' : '#22c55e';
         gCtx.lineWidth = 2;
         gCtx.stroke();
       }
@@ -270,37 +295,34 @@ export default function SurfaceCurvatureDemo() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [curvature, project, getSurfaceZ, getMeanCurvature]);
+  }, [amplitude, confinement, rotation, project, getSurfaceZ, getMeanCurvature]);
 
   // === HANDLERS ===
-  const handleStart = useCallback((clientX: number, clientY: number) => {
-    dragStartRef.current = { x: clientX, y: clientY };
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
     isDraggingRef.current = true;
-
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-
-    const xRel = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    targetCurvatureRef.current = xRel;
+    const xRel = (e.clientX - rect.left) / rect.width;
+    targetAmplitudeRef.current = Math.max(0.1, xRel);
   }, []);
 
-  const handleMove = useCallback((clientX: number, clientY: number) => {
-    if (!isDraggingRef.current || !dragStartRef.current) return;
-
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return;
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-
-    const xRel = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    targetCurvatureRef.current = xRel;
-
-    // Tilt camera with Y movement
-    const yRel = (clientY - rect.top) / rect.height;
-    rotationRef.current.x = 0.5 + yRel * 1.0;
+    const xRel = (e.clientX - rect.left) / rect.width;
+    targetAmplitudeRef.current = Math.max(0.1, Math.min(1, xRel));
   }, []);
 
-  const handleEnd = useCallback(() => {
+  const handlePointerUp = useCallback(() => {
     isDraggingRef.current = false;
-    dragStartRef.current = null;
+  }, []);
+
+  const rotateView = useCallback((dx: number, dy: number) => {
+    setRotation(r => ({
+      x: Math.max(0.2, Math.min(1.4, r.x + dy)),
+      y: r.y + dx,
+    }));
   }, []);
 
   return (
@@ -312,12 +334,12 @@ export default function SurfaceCurvatureDemo() {
             3D Surface
           </h3>
           <h2 className="text-slate-100 font-bold text-lg">
-            2D Manifold in 3D Space
+            2D Manifold Confinement
           </h2>
         </div>
         <div className="text-right">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs text-slate-500">DIMENSIONAL WORK</span>
+            <span className="text-xs text-slate-500">DISSIPATION</span>
             <canvas
               ref={graphRef}
               width={200}
@@ -330,14 +352,11 @@ export default function SurfaceCurvatureDemo() {
 
       {/* Main Viewport */}
       <div
-        className="relative group rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50 cursor-crosshair select-none"
-        onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
-        onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
-        onMouseUp={handleEnd}
-        onMouseLeave={handleEnd}
-        onTouchStart={(e) => handleStart(e.touches[0].clientX, e.touches[0].clientY)}
-        onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)}
-        onTouchEnd={handleEnd}
+        className="relative rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50 cursor-crosshair select-none"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
       >
         <canvas
           ref={canvasRef}
@@ -346,11 +365,34 @@ export default function SurfaceCurvatureDemo() {
           className="w-full h-auto block"
         />
 
-        {/* Interaction Prompt */}
-        <div className="absolute bottom-4 left-0 w-full text-center pointer-events-none transition-opacity duration-500 opacity-50 group-hover:opacity-0">
-          <span className="bg-slate-800/80 text-slate-200 px-3 py-1 rounded-full text-xs border border-slate-600">
-            DRAG TO BEND SURFACE (X) + TILT VIEW (Y)
-          </span>
+        {/* Rotation Controls */}
+        <div className="absolute bottom-4 right-4 flex flex-col gap-1">
+          <button
+            onClick={() => rotateView(0, -0.15)}
+            className="w-8 h-8 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 rounded text-slate-300 text-xs"
+          >
+            ↑
+          </button>
+          <div className="flex gap-1">
+            <button
+              onClick={() => rotateView(-0.15, 0)}
+              className="w-8 h-8 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 rounded text-slate-300 text-xs"
+            >
+              ←
+            </button>
+            <button
+              onClick={() => rotateView(0.15, 0)}
+              className="w-8 h-8 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 rounded text-slate-300 text-xs"
+            >
+              →
+            </button>
+          </div>
+          <button
+            onClick={() => rotateView(0, 0.15)}
+            className="w-8 h-8 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 rounded text-slate-300 text-xs"
+          >
+            ↓
+          </button>
         </div>
 
         {/* Stats Overlay */}
@@ -358,30 +400,72 @@ export default function SurfaceCurvatureDemo() {
           <div className="flex items-center gap-2">
             <div
               className={`w-2 h-2 rounded-full ${
-                curvature > 0.4 ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'
+                amplitude > 0.4 && confinement > 0.3
+                  ? 'bg-red-500 animate-pulse'
+                  : confinement > 0.3
+                  ? 'bg-amber-500'
+                  : 'bg-emerald-500'
               }`}
             />
             <span
               className={
-                curvature > 0.4 ? 'text-red-400' : 'text-emerald-400'
+                amplitude > 0.4 && confinement > 0.3
+                  ? 'text-red-400'
+                  : confinement > 0.3
+                  ? 'text-amber-400'
+                  : 'text-emerald-400'
               }
             >
-              {curvature > 0.4 ? 'HIGH MEAN CURVATURE' : 'FLAT GEOMETRY'}
+              {amplitude > 0.4 && confinement > 0.3
+                ? 'HIGH GEOMETRIC COST'
+                : confinement > 0.3
+                ? 'CONFINED TO SURFACE'
+                : 'FREE DIFFUSION'}
             </span>
           </div>
           <div className="text-slate-500 text-xs">
-            Amplitude: {curvature.toFixed(3)}
+            Curvature: {amplitude.toFixed(2)} | Confinement: {confinement.toFixed(2)}
           </div>
         </div>
+
+        {/* Prompt */}
+        <div className="absolute bottom-4 left-4 pointer-events-none">
+          <span className="bg-slate-800/80 text-slate-400 px-2 py-1 rounded text-xs border border-slate-700">
+            Click &amp; drag to bend surface
+          </span>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="mt-4 p-4 border border-slate-700 rounded-lg bg-slate-900/50">
+        <div className="flex items-center gap-4">
+          <label className="text-slate-400 text-sm whitespace-nowrap">
+            Confinement Strength:
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={confinement}
+            onChange={(e) => setConfinement(parseFloat(e.target.value))}
+            className="flex-1 accent-blue-500"
+          />
+          <span className="text-slate-300 text-sm w-12 text-right font-mono">
+            {confinement.toFixed(2)}
+          </span>
+        </div>
+        <p className="text-slate-500 text-xs mt-2">
+          Low = particles float freely in 3D. High = particles confined to 2D surface.
+        </p>
       </div>
 
       {/* Caption */}
       <p className="mt-4 text-slate-400 text-center max-w-2xl mx-auto leading-relaxed">
-        <strong>3D Brownian motion confined to a 2D surface.</strong>{' '}
-        Drag horizontally to increase surface amplitude (egg-crate geometry).
-        Particles heat up (<span className="text-red-400">red</span>) at peaks and
-        troughs where mean curvature H is high. The thermodynamic cost scales as
-        H&sup2;&mdash;the same geometric work principle, one dimension higher.
+        <strong>The curvature tradeoff:</strong>{' '}
+        Bending makes confinement <em>easier</em> (curved geometry guides particles onto the surface),
+        but increases <em>ongoing</em> costs (centrifugal dissipation as particles move along curved paths).
+        Particles turn <span className="text-red-400">red</span> when moving fast through high-curvature regions.
       </p>
     </div>
   );

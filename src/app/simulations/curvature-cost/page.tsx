@@ -128,28 +128,27 @@ export default function CurvatureCostPage() {
             <div className="border border-gray-800 rounded-lg p-4">
               <h3 className="text-sm text-gray-500 mb-3">3D → 2D Projection</h3>
               <p className="text-gray-300 text-sm">
-                Now particles undergo <strong className="text-white">3D Brownian motion</strong> but are
-                constrained to a <strong className="text-white">2D surface</strong>. The same principle
-                applies: curved surfaces cost more energy to maintain than flat ones.
+                Particles undergo <strong className="text-white">3D Brownian motion</strong> but are
+                attracted to a <strong className="text-white">2D surface</strong>. Use the slider to
+                control how strongly particles are confined to the surface.
               </p>
             </div>
 
             <div className="border border-gray-800 rounded-lg p-4">
-              <h3 className="text-sm text-gray-500 mb-3">Egg-Crate Geometry</h3>
+              <h3 className="text-sm text-gray-500 mb-3">The Curvature Tradeoff</h3>
               <p className="text-gray-300 text-sm">
-                The surface follows z = A sin(kx) cos(ky)&mdash;alternating peaks and troughs.
-                Particles at <strong className="text-white">peaks and valleys</strong> experience
-                high mean curvature and heat up. Particles at <strong className="text-white">saddle points</strong>
-                (inflection lines) stay cool.
+                Curved geometry makes confinement <strong className="text-white">easier</strong>&mdash;particles
+                naturally fall into valleys. But moving along curved paths costs <strong className="text-white">more</strong>
+                &mdash;centrifugal dissipation heats particles that travel fast through bends.
               </p>
             </div>
 
             <div className="border border-yellow-700/50 bg-yellow-900/20 rounded-lg p-4">
-              <h3 className="text-sm text-yellow-400 mb-2">Mean Curvature H</h3>
+              <h3 className="text-sm text-yellow-400 mb-2">Two Costs</h3>
               <p className="text-gray-300 text-sm">
-                The thermodynamic cost scales as <strong className="text-white">H&sup2;</strong>&mdash;the
-                square of mean curvature. Fast-moving particles on curved regions pay extra
-                (centrifugal force). This is the same geometric work, one dimension higher.
+                <strong className="text-white">One-time:</strong> Force × distance to reach surface.
+                <strong className="text-white"> Ongoing:</strong> H × v dissipation while moving.
+                Curvature reduces the first but increases the second.
               </p>
             </div>
           </div>
