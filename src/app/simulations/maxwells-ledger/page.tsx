@@ -825,6 +825,7 @@ function ClassicalDemon() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [molecules, setMolecules] = useState<Array<{ x: number; y: number; vx: number; vy: number; fast: boolean }>>([]);
   const [memory, setMemory] = useState(0); // bits recorded
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [sorted, setSorted] = useState({ left: 0, right: 0 });
   const animationRef = useRef<number>();
 
@@ -848,6 +849,7 @@ function ClassicalDemon() {
   useEffect(() => {
     let last = performance.now();
     const loop = (ts: number) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const dt = (ts - last) / 1000;
       last = ts;
 
@@ -995,6 +997,7 @@ function SubLandauerDemon() {
   useEffect(() => {
     let last = performance.now();
     const loop = (ts: number) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const dt = (ts - last) / 1000;
       last = ts;
 
