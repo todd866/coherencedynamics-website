@@ -5,15 +5,19 @@
  *
  * A TRUE 4D Tesseract (hypercube) projected to 3D.
  * - 16 vertices in (x, y, z, w) space
- * - Sine waves control rotations through 4D planes (XW, YW, ZW)
- * - 3D "shadow" shows the collapse artifact
+ * - Direct drag on tesseract to rotate through 4D planes
+ * - Slider controls for rotation speeds
  *
  * INTERACTION:
- * - Drag sine waves to inject 4D rotation (noise)
- * - Watch the 3D shadow morph as 4D structure is collapsed
+ * - Drag on the tesseract to rotate through 4D
+ * - Use sliders to set continuous rotation speeds
  */
 
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useMemo } from 'react';
+
+interface ObserverDemoProps {
+  fullPage?: boolean;
+}
 
 const COLORS = {
   BG: '#000000',
@@ -33,7 +37,7 @@ interface Vec4 {
   w: number;
 }
 
-export default function ObserverDemo() {
+export default function ObserverDemo({ fullPage = false }: ObserverDemoProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
 
@@ -43,51 +47,62 @@ export default function ObserverDemo() {
     xwAngle: 0,
     ywAngle: 0,
     zwAngle: 0,
-    // Rotation speeds (controlled by dragging)
+    // Rotation speeds (controlled by sliders)
     xwSpeed: 0.3,
     ywSpeed: 0.0,
     zwSpeed: 0.0,
     // 3D camera rotation
     cameraAngle: 0,
-    // Drag state
-    isDragging: false,
-    dragAxis: null as string | null,
+    // Drag state for tesseract
+    isDraggingTesseract: false,
+    lastMouseX: 0,
+    lastMouseY: 0,
+    // Drag state for sliders
+    isDraggingSlider: null as string | null,
   });
 
+  // Full page mode uses larger dimensions
   const SCALE = 2;
-  const W = 700 * SCALE;
-  const H = 500 * SCALE;
+  const BASE_W = fullPage ? 900 : 700;
+  const BASE_H = fullPage ? 700 : 500;
+  const W = BASE_W * SCALE;
+  const H = BASE_H * SCALE;
 
-  // Layout: top 60% for 3D, bottom 40% for waves
-  const VIEW_HEIGHT = H * 0.6;
-  const WAVE_HEIGHT = H * 0.4;
-  const WAVE_ROW = WAVE_HEIGHT / 3;
+  // Layout: top 75% for 3D, bottom 25% for controls
+  const VIEW_HEIGHT = H * 0.75;
+  const CONTROL_HEIGHT = H * 0.25;
 
   // Generate tesseract vertices: all combinations of ±1 in 4D
-  const tesseractVertices: Vec4[] = [];
-  for (let i = 0; i < 16; i++) {
-    tesseractVertices.push({
-      x: (i & 1) ? 1 : -1,
-      y: (i & 2) ? 1 : -1,
-      z: (i & 4) ? 1 : -1,
-      w: (i & 8) ? 1 : -1,
-    });
-  }
+  const tesseractVertices: Vec4[] = useMemo(() => {
+    const verts: Vec4[] = [];
+    for (let i = 0; i < 16; i++) {
+      verts.push({
+        x: (i & 1) ? 1 : -1,
+        y: (i & 2) ? 1 : -1,
+        z: (i & 4) ? 1 : -1,
+        w: (i & 8) ? 1 : -1,
+      });
+    }
+    return verts;
+  }, []);
 
   // Find edges: vertices that differ by exactly 1 coordinate
-  const edges: [number, number][] = [];
-  for (let i = 0; i < 16; i++) {
-    for (let j = i + 1; j < 16; j++) {
-      const v1 = tesseractVertices[i];
-      const v2 = tesseractVertices[j];
-      let diff = 0;
-      if (v1.x !== v2.x) diff++;
-      if (v1.y !== v2.y) diff++;
-      if (v1.z !== v2.z) diff++;
-      if (v1.w !== v2.w) diff++;
-      if (diff === 1) edges.push([i, j]);
+  const edges: [number, number][] = useMemo(() => {
+    const e: [number, number][] = [];
+    for (let i = 0; i < 16; i++) {
+      for (let j = i + 1; j < 16; j++) {
+        const v1 = tesseractVertices[i];
+        const v2 = tesseractVertices[j];
+        let diff = 0;
+        if (v1.x !== v2.x) diff++;
+        if (v1.y !== v2.y) diff++;
+        if (v1.z !== v2.z) diff++;
+        if (v1.w !== v2.w) diff++;
+        if (diff === 1) e.push([i, j]);
+      }
     }
-  }
+    return e;
+  }, [tesseractVertices]);
 
   // 4D rotation in a plane
   const rotate4D = useCallback((v: Vec4, angle: number, plane: string): Vec4 => {
@@ -152,7 +167,9 @@ export default function ObserverDemo() {
       state.xwAngle += state.xwSpeed * 0.02;
       state.ywAngle += state.ywSpeed * 0.02;
       state.zwAngle += state.zwSpeed * 0.02;
-      state.cameraAngle += 0.003; // Slow auto-rotate
+      if (!state.isDraggingTesseract) {
+        state.cameraAngle += 0.003; // Slow auto-rotate when not dragging
+      }
 
       // Clear
       ctx.fillStyle = COLORS.BG;
@@ -173,12 +190,12 @@ export default function ObserverDemo() {
       ctx.fillText('4D Tesseract Shadow', 20 * SCALE, 30 * SCALE);
       ctx.fillStyle = '#666';
       ctx.font = `${12 * SCALE}px system-ui`;
-      ctx.fillText('Drag the waves to inject 4D rotation noise', 20 * SCALE, 50 * SCALE);
+      ctx.fillText('Drag the tesseract to rotate through 4D', 20 * SCALE, 50 * SCALE);
 
       // --- RENDER 3D VIEW ---
       const centerX = W / 2;
       const centerY = VIEW_HEIGHT / 2;
-      const renderScale = 80 * SCALE;
+      const renderScale = (fullPage ? 120 : 80) * SCALE;
 
       // Transform all vertices
       const projected: { x: number; y: number; scale: number; depth: number }[] = [];
@@ -203,7 +220,6 @@ export default function ObserverDemo() {
       }
 
       // Draw edges
-      ctx.strokeStyle = COLORS.EDGE;
       ctx.lineWidth = 1.5 * SCALE;
       for (const [i, j] of edges) {
         const p1 = projected[i];
@@ -237,56 +253,65 @@ export default function ObserverDemo() {
         ctx.fill();
       }
 
-      // --- RENDER WAVE CONTROLS ---
-      const axes = [
+      // --- RENDER SLIDER CONTROLS ---
+      const sliderY = VIEW_HEIGHT + CONTROL_HEIGHT / 2;
+      const sliderWidth = (W - 100 * SCALE) / 3;
+      const sliderHeight = 8 * SCALE;
+      const handleRadius = 12 * SCALE;
+
+      const sliders = [
         { key: 'xw', label: 'XW Rotation', color: COLORS.XW, speed: state.xwSpeed },
         { key: 'yw', label: 'YW Rotation', color: COLORS.YW, speed: state.ywSpeed },
         { key: 'zw', label: 'ZW Rotation', color: COLORS.ZW, speed: state.zwSpeed },
       ];
 
-      axes.forEach((axis, index) => {
-        const yBase = VIEW_HEIGHT + index * WAVE_ROW;
-        const yCenter = yBase + WAVE_ROW / 2;
-
-        // Center line
-        ctx.strokeStyle = '#222';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(0, yCenter);
-        ctx.lineTo(W, yCenter);
-        ctx.stroke();
-
-        // Draw sine wave
-        ctx.beginPath();
-        ctx.strokeStyle = axis.color;
-        ctx.lineWidth = 2 * SCALE;
-
-        for (let x = 0; x < W; x += 2) {
-          const t = state.time + x * 0.003;
-          const val = Math.sin(t) * axis.speed * 30 * SCALE;
-          const y = yCenter - val;
-          if (x === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        ctx.stroke();
+      sliders.forEach((slider, index) => {
+        const sliderX = 30 * SCALE + index * (sliderWidth + 20 * SCALE);
 
         // Label
-        ctx.fillStyle = axis.color;
+        ctx.fillStyle = slider.color;
         ctx.font = `bold ${14 * SCALE}px system-ui`;
         ctx.textAlign = 'left';
-        ctx.fillText(axis.label, 15 * SCALE, yBase + 20 * SCALE);
+        ctx.fillText(slider.label, sliderX, sliderY - 30 * SCALE);
 
-        // Speed indicator
-        ctx.fillStyle = '#666';
+        // Speed value
+        ctx.fillStyle = '#888';
         ctx.font = `${12 * SCALE}px system-ui`;
-        ctx.fillText(`Speed: ${axis.speed.toFixed(1)}`, 15 * SCALE, yBase + 38 * SCALE);
+        ctx.fillText(`${slider.speed.toFixed(1)}`, sliderX + sliderWidth - 20 * SCALE, sliderY - 30 * SCALE);
+
+        // Track background
+        ctx.fillStyle = '#333';
+        ctx.beginPath();
+        ctx.roundRect(sliderX, sliderY - sliderHeight / 2, sliderWidth, sliderHeight, sliderHeight / 2);
+        ctx.fill();
+
+        // Track fill
+        const fillWidth = (slider.speed / 2) * sliderWidth;
+        ctx.fillStyle = slider.color;
+        ctx.beginPath();
+        ctx.roundRect(sliderX, sliderY - sliderHeight / 2, fillWidth, sliderHeight, sliderHeight / 2);
+        ctx.fill();
+
+        // Handle
+        const handleX = sliderX + fillWidth;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(handleX, sliderY, handleRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Handle border
+        ctx.strokeStyle = slider.color;
+        ctx.lineWidth = 3 * SCALE;
+        ctx.beginPath();
+        ctx.arc(handleX, sliderY, handleRadius, 0, Math.PI * 2);
+        ctx.stroke();
       });
 
       // Instructions
       ctx.fillStyle = '#555';
       ctx.font = `${11 * SCALE}px system-ui`;
-      ctx.textAlign = 'right';
-      ctx.fillText('Drag waves up/down to change 4D rotation speed', W - 15 * SCALE, H - 15 * SCALE);
+      ctx.textAlign = 'center';
+      ctx.fillText('Drag sliders to control 4D rotation speeds', W / 2, VIEW_HEIGHT + CONTROL_HEIGHT - 15 * SCALE);
 
       animationRef.current = requestAnimationFrame(loop);
     };
@@ -295,7 +320,7 @@ export default function ObserverDemo() {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [rotate4D, project4Dto3D, project3Dto2D, tesseractVertices, edges]);
+  }, [rotate4D, project4Dto3D, project3Dto2D, tesseractVertices, edges, W, H, VIEW_HEIGHT, CONTROL_HEIGHT, fullPage]);
 
   // --- INTERACTION ---
   const getCanvasCoords = useCallback(
@@ -315,49 +340,87 @@ export default function ObserverDemo() {
     []
   );
 
+  const getSliderAtPoint = useCallback((x: number, y: number): string | null => {
+    const sliderY = VIEW_HEIGHT + CONTROL_HEIGHT / 2;
+    const sliderWidth = (W - 100 * SCALE) / 3;
+    const hitRadius = 30 * SCALE;
+
+    // Check if near slider area
+    if (Math.abs(y - sliderY) > hitRadius) return null;
+
+    const sliders = ['xw', 'yw', 'zw'];
+    for (let i = 0; i < 3; i++) {
+      const sliderX = 30 * SCALE + i * (sliderWidth + 20 * SCALE);
+      if (x >= sliderX - hitRadius && x <= sliderX + sliderWidth + hitRadius) {
+        return sliders[i];
+      }
+    }
+    return null;
+  }, [W, VIEW_HEIGHT, CONTROL_HEIGHT]);
+
   const handleStart = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
       e.preventDefault();
-      const { y } = getCanvasCoords(e);
+      const { x, y } = getCanvasCoords(e);
 
-      // Check if in wave area
-      if (y > VIEW_HEIGHT) {
-        const waveIndex = Math.floor((y - VIEW_HEIGHT) / WAVE_ROW);
-        const axes = ['xw', 'yw', 'zw'];
-        if (waveIndex >= 0 && waveIndex < 3) {
-          stateRef.current.isDragging = true;
-          stateRef.current.dragAxis = axes[waveIndex];
-        }
+      // Check if clicking on slider
+      const slider = getSliderAtPoint(x, y);
+      if (slider) {
+        stateRef.current.isDraggingSlider = slider;
+        // Update slider value immediately
+        const sliderWidth = (W - 100 * SCALE) / 3;
+        const index = ['xw', 'yw', 'zw'].indexOf(slider);
+        const sliderX = 30 * SCALE + index * (sliderWidth + 20 * SCALE);
+        const value = Math.max(0, Math.min(2, (x - sliderX) / sliderWidth * 2));
+
+        if (slider === 'xw') stateRef.current.xwSpeed = value;
+        else if (slider === 'yw') stateRef.current.ywSpeed = value;
+        else if (slider === 'zw') stateRef.current.zwSpeed = value;
+      } else if (y < VIEW_HEIGHT) {
+        // Clicking on tesseract area
+        stateRef.current.isDraggingTesseract = true;
+        stateRef.current.lastMouseX = x;
+        stateRef.current.lastMouseY = y;
       }
     },
-    [getCanvasCoords]
+    [getCanvasCoords, getSliderAtPoint, W, VIEW_HEIGHT]
   );
 
   const handleMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
       e.preventDefault();
-      if (!stateRef.current.isDragging || !stateRef.current.dragAxis) return;
+      const { x, y } = getCanvasCoords(e);
+      const state = stateRef.current;
 
-      const { y } = getCanvasCoords(e);
-      const axis = stateRef.current.dragAxis;
-      const waveIndex = ['xw', 'yw', 'zw'].indexOf(axis);
-      const yBase = VIEW_HEIGHT + waveIndex * WAVE_ROW;
-      const yCenter = yBase + WAVE_ROW / 2;
+      if (state.isDraggingSlider) {
+        // Update slider value
+        const sliderWidth = (W - 100 * SCALE) / 3;
+        const index = ['xw', 'yw', 'zw'].indexOf(state.isDraggingSlider);
+        const sliderX = 30 * SCALE + index * (sliderWidth + 20 * SCALE);
+        const value = Math.max(0, Math.min(2, (x - sliderX) / sliderWidth * 2));
 
-      // Distance from center = speed
-      const speed = Math.abs(yCenter - y) / (15 * SCALE);
-      const clampedSpeed = Math.min(2, Math.max(0, speed));
+        if (state.isDraggingSlider === 'xw') state.xwSpeed = value;
+        else if (state.isDraggingSlider === 'yw') state.ywSpeed = value;
+        else if (state.isDraggingSlider === 'zw') state.zwSpeed = value;
+      } else if (state.isDraggingTesseract) {
+        // Rotate tesseract based on drag
+        const dx = x - state.lastMouseX;
+        const dy = y - state.lastMouseY;
 
-      if (axis === 'xw') stateRef.current.xwSpeed = clampedSpeed;
-      else if (axis === 'yw') stateRef.current.ywSpeed = clampedSpeed;
-      else if (axis === 'zw') stateRef.current.zwSpeed = clampedSpeed;
+        // Horizontal drag = XW rotation, Vertical drag = YW rotation
+        state.xwAngle += dx * 0.003;
+        state.ywAngle += dy * 0.003;
+
+        state.lastMouseX = x;
+        state.lastMouseY = y;
+      }
     },
-    [getCanvasCoords]
+    [getCanvasCoords, W]
   );
 
   const handleEnd = useCallback(() => {
-    stateRef.current.isDragging = false;
-    stateRef.current.dragAxis = null;
+    stateRef.current.isDraggingTesseract = false;
+    stateRef.current.isDraggingSlider = null;
   }, []);
 
   return (
@@ -367,11 +430,11 @@ export default function ObserverDemo() {
       height={H}
       style={{
         width: '100%',
-        maxWidth: W / SCALE,
+        maxWidth: BASE_W,
         aspectRatio: `${W} / ${H}`,
         touchAction: 'none',
       }}
-      className="rounded-xl cursor-crosshair bg-black shadow-2xl"
+      className="rounded-xl cursor-grab active:cursor-grabbing bg-black shadow-2xl"
       onMouseDown={handleStart}
       onMouseMove={handleMove}
       onMouseUp={handleEnd}

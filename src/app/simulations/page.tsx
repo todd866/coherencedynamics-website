@@ -11,6 +11,22 @@ interface Simulation {
 
 const simulations: Simulation[] = [
   {
+    slug: 'dimensional-collapse',
+    title: '4D Tesseract Shadow',
+    description: "Watch a 4-dimensional hypercube projected to your screen. Drag to rotate through 4D space and see how the 3D 'shadow' morphs—demonstrating how dimensional collapse creates apparent complexity from simple structure.",
+    paper: 'High-Dimensional Coherence',
+    paperSlug: 'high-dimensional-coherence',
+    status: 'playable',
+  },
+  {
+    slug: 'bits-vs-dynamics',
+    title: 'Bits vs Dynamics',
+    description: "Compare two kinds of systems: billiard balls (bits) that lose energy at every collision, versus a Lorenz attractor (dynamics) that never settles but stays bounded. See the fundamental trade-off between addressability and coherence.",
+    paper: 'Dimensional Landauer Bound',
+    paperSlug: 'dimensional-landauer',
+    status: 'playable',
+  },
+  {
     slug: 'maxwells-ledger',
     title: "Maxwell's Ledger",
     description: "Watch two systems process the same signal: a digital computer paying energy for every bit, versus a biological system that defers costs until commitment. See why 10^50 paths can collapse to the same output.",
