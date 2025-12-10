@@ -2,14 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import DimensionalCostDemo from '@/components/DimensionalCostDemo';
-
-// Dynamic import for Three.js component (no SSR)
-const SurfaceCurvatureDemo = dynamic(
-  () => import('@/components/SurfaceCurvatureDemo'),
-  { ssr: false, loading: () => <div className="h-[500px] bg-slate-900 rounded-xl flex items-center justify-center text-slate-500">Loading 3D...</div> }
-);
+import SurfaceCurvatureDemo from '@/components/SurfaceCurvatureDemo';
 
 type ViewMode = '1d' | '3d';
 
@@ -141,21 +135,21 @@ export default function CurvatureCostPage() {
             </div>
 
             <div className="border border-gray-800 rounded-lg p-4">
-              <h3 className="text-sm text-gray-500 mb-3">Surface Types</h3>
-              <ul className="text-gray-400 text-sm space-y-1">
-                <li><strong className="text-white">Flat:</strong> Zero curvature, minimal cost</li>
-                <li><strong className="text-white">Sphere:</strong> Positive Gaussian curvature</li>
-                <li><strong className="text-white">Saddle:</strong> Negative Gaussian curvature</li>
-                <li><strong className="text-white">Wave:</strong> Varying curvature across surface</li>
-              </ul>
+              <h3 className="text-sm text-gray-500 mb-3">Egg-Crate Geometry</h3>
+              <p className="text-gray-300 text-sm">
+                The surface follows z = A sin(kx) cos(ky)&mdash;alternating peaks and troughs.
+                Particles at <strong className="text-white">peaks and valleys</strong> experience
+                high mean curvature and heat up. Particles at <strong className="text-white">saddle points</strong>
+                (inflection lines) stay cool.
+              </p>
             </div>
 
             <div className="border border-yellow-700/50 bg-yellow-900/20 rounded-lg p-4">
-              <h3 className="text-sm text-yellow-400 mb-2">Gaussian vs Mean Curvature</h3>
+              <h3 className="text-sm text-yellow-400 mb-2">Mean Curvature H</h3>
               <p className="text-gray-300 text-sm">
-                The thermodynamic cost depends on <strong className="text-white">mean curvature</strong> (sum of principal curvatures),
-                not Gaussian curvature. A saddle has zero Gaussian curvature but non-zero mean curvature
-                at most points&mdash;and still costs energy to maintain.
+                The thermodynamic cost scales as <strong className="text-white">H&sup2;</strong>&mdash;the
+                square of mean curvature. Fast-moving particles on curved regions pay extra
+                (centrifugal force). This is the same geometric work, one dimension higher.
               </p>
             </div>
           </div>

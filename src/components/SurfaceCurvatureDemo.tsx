@@ -1,285 +1,243 @@
 'use client';
 
 /**
- * SurfaceCurvatureDemo - "The Cost of Surface Curvature"
+ * SurfaceCurvatureDemo
  *
- * 3D visualization: particles confined to a 2D surface embedded in 3D space.
- * User controls surface shape (flat, sphere, saddle) and sees thermodynamic cost.
- *
- * Uses Three.js for 3D rendering.
+ * A zero-dependency 3D particle simulation on a parametric surface.
+ * Demonstrates that maintaining a 2D constraint in 3D space costs energy
+ * proportional to the Mean Curvature squared (H^2).
  */
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // === TYPES ===
+interface Point3D {
+  x: number;
+  y: number;
+  z: number;
+}
+
 interface Particle3D {
-  position: THREE.Vector3;
-  velocity: THREE.Vector3;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
   heat: number;
-  mesh: THREE.Mesh;
 }
 
 // === CONSTANTS ===
-const N_PARTICLES = 200;
-const TEMPERATURE = 0.02;
-const STIFFNESS = 2.0;
-const DAMPING = 0.85;
-const GRID_SIZE = 40;
-
-type SurfaceType = 'flat' | 'sphere' | 'saddle' | 'wave';
+const N_PARTICLES = 600;
+const GRID_RES = 24; // Wireframe density
+const DAMPING = 0.92;
+const TEMPERATURE = 0.5; // Brownian kick
+const FOV = 400; // Field of view for projection
 
 export default function SurfaceCurvatureDemo() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const graphRef = useRef<HTMLCanvasElement>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-  const controlsRef = useRef<OrbitControls | null>(null);
-  const particlesRef = useRef<Particle3D[]>([]);
-  const surfaceMeshRef = useRef<THREE.Mesh | null>(null);
   const animationRef = useRef<number>();
+
+  // Interaction State
+  const [curvature, setCurvature] = useState(0);
+  const targetCurvatureRef = useRef(0);
+  const isDraggingRef = useRef(false);
+  const rotationRef = useRef({ x: 0.8, y: 0.6 }); // Initial camera angle
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
   const historyRef = useRef<number[]>(new Array(100).fill(0));
 
-  const [surfaceType, setSurfaceType] = useState<SurfaceType>('flat');
-  const [curvatureStrength, setCurvatureStrength] = useState(0.5);
-  const [avgDissipation, setAvgDissipation] = useState(0);
+  // Physics State
+  const particlesRef = useRef<Particle3D[]>([]);
 
-  // Surface height function
-  const getSurfaceHeight = useCallback((x: number, z: number, type: SurfaceType, strength: number): number => {
-    const r2 = x * x + z * z;
-    switch (type) {
-      case 'flat':
-        return 0;
-      case 'sphere':
-        // Paraboloid approximation of sphere cap (positive curvature)
-        return -strength * r2 * 0.5;
-      case 'saddle':
-        // Hyperbolic paraboloid (negative Gaussian curvature)
-        return strength * (x * x - z * z) * 0.3;
-      case 'wave':
-        // Sinusoidal surface
-        return strength * Math.sin(x * 2) * Math.sin(z * 2) * 0.3;
-      default:
-        return 0;
-    }
-  }, []);
-
-  // Mean curvature (approximation)
-  const getMeanCurvature = useCallback((x: number, z: number, type: SurfaceType, strength: number): number => {
-    const eps = 0.05;
-    const h = getSurfaceHeight(x, z, type, strength);
-    const hxp = getSurfaceHeight(x + eps, z, type, strength);
-    const hxm = getSurfaceHeight(x - eps, z, type, strength);
-    const hzp = getSurfaceHeight(x, z + eps, type, strength);
-    const hzm = getSurfaceHeight(x, z - eps, type, strength);
-
-    const hxx = (hxp - 2 * h + hxm) / (eps * eps);
-    const hzz = (hzp - 2 * h + hzm) / (eps * eps);
-
-    // Simplified mean curvature for small gradients
-    return Math.abs(hxx + hzz) * 0.5;
-  }, [getSurfaceHeight]);
-
-  // Initialize Three.js scene
+  // === INITIALIZATION ===
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    const container = containerRef.current;
-    const width = container.clientWidth;
-    const height = 400;
-
-    // Scene
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0f172a);
-    sceneRef.current = scene;
-
-    // Camera
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
-    camera.position.set(3, 2.5, 3);
-    cameraRef.current = camera;
-
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
-
-    // Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.05;
-    controls.maxPolarAngle = Math.PI / 2;
-    controlsRef.current = controls;
-
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(5, 5, 5);
-    scene.add(directionalLight);
-
-    // Grid helper
-    const gridHelper = new THREE.GridHelper(4, 20, 0x334155, 0x1e293b);
-    gridHelper.position.y = -0.01;
-    scene.add(gridHelper);
-
-    // Create surface mesh
-    const surfaceGeometry = new THREE.PlaneGeometry(4, 4, GRID_SIZE, GRID_SIZE);
-    const surfaceMaterial = new THREE.MeshStandardMaterial({
-      color: 0x3b82f6,
-      transparent: true,
-      opacity: 0.3,
-      side: THREE.DoubleSide,
-      wireframe: false,
-    });
-    const surfaceMesh = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
-    surfaceMesh.rotation.x = -Math.PI / 2;
-    scene.add(surfaceMesh);
-    surfaceMeshRef.current = surfaceMesh;
-
-    // Wireframe overlay
-    const wireframeMaterial = new THREE.MeshBasicMaterial({
-      color: 0x60a5fa,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.2,
-    });
-    const wireframeMesh = new THREE.Mesh(surfaceGeometry, wireframeMaterial);
-    wireframeMesh.rotation.x = -Math.PI / 2;
-    scene.add(wireframeMesh);
-
-    // Create particles
-    const particleGeometry = new THREE.SphereGeometry(0.03, 8, 8);
-    const particles: Particle3D[] = [];
-
+    const p: Particle3D[] = [];
     for (let i = 0; i < N_PARTICLES; i++) {
-      const x = (Math.random() - 0.5) * 3;
-      const z = (Math.random() - 0.5) * 3;
-      const y = 0;
-
-      const material = new THREE.MeshStandardMaterial({ color: 0x3296ff });
-      const mesh = new THREE.Mesh(particleGeometry, material);
-      mesh.position.set(x, y, z);
-      scene.add(mesh);
-
-      particles.push({
-        position: new THREE.Vector3(x, y, z),
-        velocity: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.1,
-          0,
-          (Math.random() - 0.5) * 0.1
-        ),
+      p.push({
+        x: (Math.random() - 0.5) * 400,
+        y: (Math.random() - 0.5) * 400,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
         heat: 0,
-        mesh,
       });
     }
-    particlesRef.current = particles;
-
-    // Handle resize
-    const handleResize = () => {
-      if (!container || !camera || !renderer) return;
-      const newWidth = container.clientWidth;
-      camera.aspect = newWidth / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(newWidth, height);
-    };
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-      renderer.dispose();
-      container.removeChild(renderer.domElement);
-    };
+    particlesRef.current = p;
   }, []);
 
-  // Animation loop
+  // === 3D MATH HELPERS ===
+  const project = useCallback(
+    (p: Point3D, width: number, height: number, rotX: number, rotY: number) => {
+      // 1. Rotate Y (Azimuth)
+      const cx = Math.cos(rotY);
+      const sx = Math.sin(rotY);
+      const x = p.x * cx - p.z * sx;
+      let z = p.x * sx + p.z * cx;
+      let y = p.y;
+
+      // 2. Rotate X (Elevation)
+      const cy = Math.cos(rotX);
+      const sy = Math.sin(rotX);
+      const y_new = y * cy - z * sy;
+      z = y * sy + z * cy;
+      y = y_new;
+
+      // 3. Project to 2D
+      const cameraZ = 600;
+      const scale = FOV / (FOV + z + cameraZ);
+
+      return {
+        x: width / 2 + x * scale,
+        y: height / 2 + y * scale,
+        scale: scale,
+        z: z,
+      };
+    },
+    []
+  );
+
+  const getSurfaceZ = useCallback((x: number, y: number, amp: number) => {
+    // Surface: z = A * sin(kx) * cos(ky) - "Egg Crate" landscape
+    const k = 0.025;
+    return amp * 80 * Math.sin(x * k) * Math.cos(y * k);
+  }, []);
+
+  const getMeanCurvature = useCallback(
+    (x: number, y: number, amp: number) => {
+      // Approximate Mean Curvature H for coloring
+      const k = 0.025;
+      const z = getSurfaceZ(x, y, amp);
+      return Math.abs(z * k * k);
+    },
+    [getSurfaceZ]
+  );
+
+  // === ANIMATION LOOP ===
   useEffect(() => {
-    const animate = () => {
-      if (!sceneRef.current || !rendererRef.current || !cameraRef.current) {
-        animationRef.current = requestAnimationFrame(animate);
+    const loop = () => {
+      const canvas = canvasRef.current;
+      const graphCanvas = graphRef.current;
+      const ctx = canvas?.getContext('2d');
+      const gCtx = graphCanvas?.getContext('2d');
+
+      if (!canvas || !ctx) {
+        animationRef.current = requestAnimationFrame(loop);
         return;
       }
 
-      const scene = sceneRef.current;
-      const renderer = rendererRef.current;
-      const camera = cameraRef.current;
-      const controls = controlsRef.current;
-      const particles = particlesRef.current;
-      const surfaceMesh = surfaceMeshRef.current;
+      const W = canvas.width;
+      const H = canvas.height;
 
-      // Update surface geometry
-      if (surfaceMesh) {
-        const geometry = surfaceMesh.geometry as THREE.PlaneGeometry;
-        const positions = geometry.attributes.position;
+      // 1. Smooth Curvature Interpolation
+      const approach = (current: number, target: number, speed: number) =>
+        current + (target - current) * speed;
 
-        for (let i = 0; i < positions.count; i++) {
-          const x = positions.getX(i);
-          const y = positions.getY(i);
-          const z = getSurfaceHeight(x, y, surfaceType, curvatureStrength);
-          positions.setZ(i, z);
-        }
-        positions.needsUpdate = true;
-        geometry.computeVertexNormals();
-      }
+      const target = isDraggingRef.current ? targetCurvatureRef.current : 0;
+      const newCurv = approach(curvature, target, 0.05);
+      setCurvature(newCurv);
 
-      // Physics update
+      // 2. Physics Update
       let totalDissipation = 0;
 
-      particles.forEach((p) => {
-        // Brownian noise
-        p.velocity.x += (Math.random() - 0.5) * TEMPERATURE;
-        p.velocity.z += (Math.random() - 0.5) * TEMPERATURE;
+      particlesRef.current.forEach((p) => {
+        // Brownian motion
+        p.vx += (Math.random() - 0.5) * TEMPERATURE;
+        p.vy += (Math.random() - 0.5) * TEMPERATURE;
 
-        // Update position
-        p.position.add(p.velocity.clone().multiplyScalar(0.1));
+        // Damping
+        p.vx *= DAMPING;
+        p.vy *= DAMPING;
 
-        // Boundary wrap
-        if (p.position.x > 2) p.position.x = -2;
-        if (p.position.x < -2) p.position.x = 2;
-        if (p.position.z > 2) p.position.z = -2;
-        if (p.position.z < -2) p.position.z = 2;
+        // Update Position
+        p.x += p.vx;
+        p.y += p.vy;
 
-        // Surface constraint
-        const targetY = getSurfaceHeight(p.position.x, p.position.z, surfaceType, curvatureStrength);
-        const distY = p.position.y - targetY;
-        const forceY = -STIFFNESS * distY;
+        // Boundary Wrap
+        const limit = 200;
+        if (p.x > limit) p.x = -limit;
+        if (p.x < -limit) p.x = limit;
+        if (p.y > limit) p.y = -limit;
+        if (p.y < -limit) p.y = limit;
 
-        p.velocity.y += forceY * 0.1;
-        p.velocity.multiplyScalar(DAMPING);
-        p.position.y += p.velocity.y * 0.1;
-
-        // Calculate work (proportional to force magnitude)
-        const localCurvature = getMeanCurvature(p.position.x, p.position.z, surfaceType, curvatureStrength);
-        const work = Math.abs(forceY) * 2 + localCurvature * 0.5;
-        p.heat = Math.min(1, work);
+        // Calculate Heat (Thermodynamic Cost)
+        // Cost ~ Mean Curvature squared (H^2) + centrifugal term
+        const H_val = getMeanCurvature(p.x, p.y, newCurv);
+        const kinetic = p.vx * p.vx + p.vy * p.vy;
+        p.heat = Math.min(1, H_val * 400 + H_val * kinetic * 100);
         totalDissipation += p.heat;
+      });
 
-        // Update mesh
-        p.mesh.position.copy(p.position);
+      // 3. Rendering
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, W, H);
 
-        // Color based on heat (blue -> red)
+      const rotX = rotationRef.current.x;
+      const rotY = rotationRef.current.y;
+
+      // A. Draw Wireframe Surface
+      ctx.lineWidth = 1;
+      const grid: { x: number; y: number; scale: number; z: number }[][] = [];
+      const range = 200;
+      const step = (range * 2) / GRID_RES;
+
+      for (let i = 0; i <= GRID_RES; i++) {
+        const x = -range + i * step;
+        const row: { x: number; y: number; scale: number; z: number }[] = [];
+        for (let j = 0; j <= GRID_RES; j++) {
+          const y = -range + j * step;
+          const z = getSurfaceZ(x, y, newCurv);
+          row.push(project({ x, y, z }, W, H, rotX, rotY));
+        }
+        grid.push(row);
+      }
+
+      ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 + newCurv * 0.1})`;
+      ctx.beginPath();
+      // Horizontal lines
+      for (let i = 0; i <= GRID_RES; i++) {
+        for (let j = 0; j < GRID_RES; j++) {
+          const p1 = grid[i][j];
+          const p2 = grid[i][j + 1];
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
+      }
+      // Vertical lines
+      for (let i = 0; i < GRID_RES; i++) {
+        for (let j = 0; j <= GRID_RES; j++) {
+          const p1 = grid[i][j];
+          const p2 = grid[i + 1][j];
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+        }
+      }
+      ctx.stroke();
+
+      // B. Draw Particles (sorted by depth)
+      const screenParticles = particlesRef.current.map((p) => {
+        const z = getSurfaceZ(p.x, p.y, newCurv);
+        return {
+          ...p,
+          ...project({ x: p.x, y: p.y, z }, W, H, rotX, rotY),
+        };
+      });
+
+      screenParticles.sort((a, b) => b.z - a.z);
+
+      screenParticles.forEach((p) => {
         const r = Math.floor(50 + p.heat * 205);
         const g = Math.floor(150 - p.heat * 100);
         const b = Math.floor(255 - p.heat * 205);
-        (p.mesh.material as THREE.MeshStandardMaterial).color.setRGB(r / 255, g / 255, b / 255);
+        const alpha = Math.max(0.2, p.scale);
+
+        ctx.fillStyle = `rgba(${r},${g},${b}, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2 * p.scale + p.heat * 2, 0, Math.PI * 2);
+        ctx.fill();
       });
 
-      const avgDiss = totalDissipation / N_PARTICLES;
-      setAvgDissipation(avgDiss);
-
-      // Update history for graph
+      // 4. Render Dissipation Graph
       historyRef.current.shift();
-      historyRef.current.push(avgDiss);
+      historyRef.current.push(totalDissipation / N_PARTICLES);
 
-      // Render dissipation graph
-      const graphCanvas = graphRef.current;
-      const gCtx = graphCanvas?.getContext('2d');
       if (gCtx && graphCanvas) {
         gCtx.clearRect(0, 0, 200, 60);
         gCtx.fillStyle = '#0f172a';
@@ -293,37 +251,69 @@ export default function SurfaceCurvatureDemo() {
         gCtx.stroke();
 
         gCtx.beginPath();
-        gCtx.moveTo(0, 60 - historyRef.current[0] * 40);
+        gCtx.moveTo(0, 60 - historyRef.current[0] * 50);
         for (let i = 1; i < 100; i++) {
-          gCtx.lineTo(i * 2, 60 - historyRef.current[i] * 40);
+          gCtx.lineTo(i * 2, 60 - historyRef.current[i] * 50);
         }
         const severity = historyRef.current[99];
-        gCtx.strokeStyle = severity > 0.8 ? '#ef4444' : severity > 0.4 ? '#f59e0b' : '#22c55e';
+        gCtx.strokeStyle = severity > 0.5 ? '#ef4444' : '#22c55e';
         gCtx.lineWidth = 2;
         gCtx.stroke();
       }
 
-      controls?.update();
-      renderer.render(scene, camera);
-      animationRef.current = requestAnimationFrame(animate);
+      animationRef.current = requestAnimationFrame(loop);
     };
 
-    animationRef.current = requestAnimationFrame(animate);
-
+    animationRef.current = requestAnimationFrame(loop);
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [surfaceType, curvatureStrength, getSurfaceHeight, getMeanCurvature]);
+  }, [curvature, project, getSurfaceZ, getMeanCurvature]);
+
+  // === HANDLERS ===
+  const handleStart = useCallback((clientX: number, clientY: number) => {
+    dragStartRef.current = { x: clientX, y: clientY };
+    isDraggingRef.current = true;
+
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const xRel = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    targetCurvatureRef.current = xRel;
+  }, []);
+
+  const handleMove = useCallback((clientX: number, clientY: number) => {
+    if (!isDraggingRef.current || !dragStartRef.current) return;
+
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const xRel = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    targetCurvatureRef.current = xRel;
+
+    // Tilt camera with Y movement
+    const yRel = (clientY - rect.top) / rect.height;
+    rotationRef.current.x = 0.5 + yRel * 1.0;
+  }, []);
+
+  const handleEnd = useCallback(() => {
+    isDraggingRef.current = false;
+    dragStartRef.current = null;
+  }, []);
 
   return (
     <div className="w-full max-w-4xl mx-auto font-mono text-sm">
       {/* HUD Header */}
       <div className="flex justify-between items-end mb-2 px-1">
         <div>
-          <h3 className="text-slate-400 text-xs tracking-widest uppercase">3D Surface</h3>
-          <h2 className="text-slate-100 font-bold text-lg">2D Manifold Projection Cost</h2>
+          <h3 className="text-slate-400 text-xs tracking-widest uppercase">
+            3D Surface
+          </h3>
+          <h2 className="text-slate-100 font-bold text-lg">
+            2D Manifold in 3D Space
+          </h2>
         </div>
         <div className="text-right">
           <div className="flex items-center gap-2 mb-1">
@@ -338,70 +328,60 @@ export default function SurfaceCurvatureDemo() {
         </div>
       </div>
 
-      {/* 3D Viewport */}
+      {/* Main Viewport */}
       <div
-        ref={containerRef}
-        className="relative rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50"
-        style={{ height: '400px' }}
-      />
+        className="relative group rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50 cursor-crosshair select-none"
+        onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
+        onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchStart={(e) => handleStart(e.touches[0].clientX, e.touches[0].clientY)}
+        onTouchMove={(e) => handleMove(e.touches[0].clientX, e.touches[0].clientY)}
+        onTouchEnd={handleEnd}
+      >
+        <canvas
+          ref={canvasRef}
+          width={800}
+          height={500}
+          className="w-full h-auto block"
+        />
 
-      {/* Controls */}
-      <div className="mt-4 grid grid-cols-2 gap-4">
-        <div>
-          <label className="text-slate-400 text-xs mb-2 block">Surface Type</label>
-          <div className="flex gap-2">
-            {(['flat', 'sphere', 'saddle', 'wave'] as SurfaceType[]).map((type) => (
-              <button
-                key={type}
-                onClick={() => setSurfaceType(type)}
-                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
-                  surfaceType === type
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                }`}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="text-slate-400 text-xs mb-2 block">
-            Curvature Strength: {curvatureStrength.toFixed(2)}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={curvatureStrength}
-            onChange={(e) => setCurvatureStrength(parseFloat(e.target.value))}
-            className="w-full accent-blue-500"
-          />
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="mt-4 flex gap-4 text-xs">
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${avgDissipation > 0.8 ? 'bg-red-500 animate-pulse' : avgDissipation > 0.4 ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-          <span className={avgDissipation > 0.8 ? 'text-red-400' : avgDissipation > 0.4 ? 'text-amber-400' : 'text-emerald-400'}>
-            {avgDissipation > 0.8 ? 'HIGH DISSIPATION' : avgDissipation > 0.4 ? 'MODERATE' : 'OPTIMAL'}
+        {/* Interaction Prompt */}
+        <div className="absolute bottom-4 left-0 w-full text-center pointer-events-none transition-opacity duration-500 opacity-50 group-hover:opacity-0">
+          <span className="bg-slate-800/80 text-slate-200 px-3 py-1 rounded-full text-xs border border-slate-600">
+            DRAG TO BEND SURFACE (X) + TILT VIEW (Y)
           </span>
         </div>
-        <span className="text-slate-500">
-          Mean curvature cost: {avgDissipation.toFixed(3)}
-        </span>
+
+        {/* Stats Overlay */}
+        <div className="absolute top-4 left-4 pointer-events-none space-y-1">
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-2 h-2 rounded-full ${
+                curvature > 0.4 ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'
+              }`}
+            />
+            <span
+              className={
+                curvature > 0.4 ? 'text-red-400' : 'text-emerald-400'
+              }
+            >
+              {curvature > 0.4 ? 'HIGH MEAN CURVATURE' : 'FLAT GEOMETRY'}
+            </span>
+          </div>
+          <div className="text-slate-500 text-xs">
+            Amplitude: {curvature.toFixed(3)}
+          </div>
+        </div>
       </div>
 
       {/* Caption */}
       <p className="mt-4 text-slate-400 text-center max-w-2xl mx-auto leading-relaxed">
         <strong>3D Brownian motion confined to a 2D surface.</strong>{' '}
-        Select surface type (flat, sphere, saddle, wave) and adjust curvature strength.
-        Particles heat up (turn <span className="text-red-400">red</span>) where local mean curvature is high,
-        visualizing the thermodynamic cost of maintaining a curved low-dimensional representation.
-        Drag to rotate the view.
+        Drag horizontally to increase surface amplitude (egg-crate geometry).
+        Particles heat up (<span className="text-red-400">red</span>) at peaks and
+        troughs where mean curvature H is high. The thermodynamic cost scales as
+        H&sup2;&mdash;the same geometric work principle, one dimension higher.
       </p>
     </div>
   );
