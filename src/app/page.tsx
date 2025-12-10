@@ -39,7 +39,7 @@ export default function Home() {
           </div>
           <div className="relative">
             <Image
-              src="/images/high-dimensional-coherence.jpeg"
+              src="/images/high-dimensional-coherence.png"
               alt="Bits break reality apart. Dimensions hold it together."
               width={600}
               height={400}
@@ -74,7 +74,7 @@ export default function Home() {
           </div>
           <div className="space-y-6">
             <Image
-              src="/images/measurement-changes-system.jpeg"
+              src="/images/measurement-changes-system.png"
               alt="Measurement projects high-dimensional biological state into low-dimensional observation"
               width={500}
               height={300}

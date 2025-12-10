@@ -98,6 +98,7 @@ The same principle applies at every scale: bacteria tracking chemical gradients,
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5018691',
+    image: 'coherence-time.png',
     description: `**The speed of thought is limited by how quickly brain regions can synchronise their oscillations** — not by how fast neurons fire. This creates a fundamental trade-off: larger, more flexible networks process information more slowly.
 
 Synchronisation time grows exponentially with the number of coordinating modules. Visual binding takes 30–50ms because that's how long it takes visual areas to [lock their oscillations](https://www.nature.com/articles/s41467-025-64471-2). Cross-sensory integration (seeing a face and hearing a voice as unified) takes 100–150ms because it requires more regions to coordinate.
@@ -119,6 +120,7 @@ Consciousness may depend more on these synchronised fields than on individual sp
     journal: 'Biological Cybernetics',
     year: 2025,
     status: 'submitted',
+    image: 'substrate-dimensionality.png',
     description: `**AI may hit a hard capability ceiling because digital hardware has the wrong dimensionality** — one global clock versus $10^{14}$–$10^{18}$ continuous degrees of freedom in a biological brain.
 
 Modern AI achieves enormous algorithmic complexity, but it runs on substrates with essentially one degree of freedom: the global clock that synchronises all operations. Biological brains exploit vastly higher substrate dimensionality through asynchronous, continuous dynamics — every synapse, every dendritic branch, every ion channel is a semi-independent variable.
@@ -266,6 +268,7 @@ Why does this matter? Because coherence naturally reduces dimensionality. As osc
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5573915',
     github: 'todd866/limits-of-falsifiability',
     pdf: 'https://raw.githubusercontent.com/todd866/limits-of-falsifiability/main/paper2_shadow_geometry.pdf',
+    image: 'biological-shadows.png',
     description: `**75% of what you see in t-SNE and UMAP plots is wrong** — points that look like neighbours weren't actually close in the original high-dimensional data. This isn't a bug in the algorithms; it's a geometric inevitability.
 
 When you project high-dimensional biological data (like gene expression from thousands of genes) into 2D visualisations, you're not just simplifying — you're hallucinating structure. The paper provides the mathematical toolkit for measuring exactly how much your projections lie.
@@ -352,6 +355,7 @@ Information capacity follows: $C \\approx k \\cdot \\log(1 + \\text{SNR})$. More
       'Information capacity: $C \\approx k \\cdot \\log(1 + \\text{SNR})$',
     ],
     github: 'todd866/code-formation',
+    image: 'code-formation.png',
   },
   {
     slug: 'embryo-oscillators',
@@ -374,6 +378,7 @@ The speed-accuracy tradeoff ($\\varepsilon \\sim T_{\\text{osc}}/T_{\\text{dev}}
     ],
     github: 'todd866/embryodimensionality',
     pdf: 'https://raw.githubusercontent.com/todd866/embryodimensionality/main/embryo_oscillators.pdf',
+    image: 'embryo-oscillators.png',
   },
   {
     slug: 'abiogenesis-chemistry',
@@ -388,6 +393,7 @@ The origin of life question is usually framed as "how did replication start?" �
 Before a molecule can copy itself, the chemical environment must maintain coherent dynamics — cycles that persist despite thermal fluctuations. This is a dimensional constraint: random chemistry explores high-dimensional state space chaotically, but autocatalytic cycles collapse onto low-dimensional attractors. Replication is a refinement of this basic coherence, not its source.
 
 The implication: stop looking for the first replicator. Look for the first coherent cycle.`,
+    image: 'abiogenesis-chemistry.png',
   },
   {
     slug: 'immune-cooperation',
