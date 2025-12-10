@@ -43,8 +43,9 @@ export default function SurfaceCurvatureDemo() {
   const animationRef = useRef<number>();
 
   // Controls
-  const [confinement, setConfinement] = useState(0.5);
-  const [curvature, setCurvature] = useState(0);
+  const [confinement, setConfinement] = useState(0.7);
+  const [curvature, setCurvature] = useState(0.3);
+  const [flowSpeed, setFlowSpeed] = useState(0.5);
   const [rotation, setRotation] = useState({ x: 0.6, y: 0.4 });
 
   // Interaction - camera drag
@@ -140,11 +141,20 @@ export default function SurfaceCurvatureDemo() {
       let totalDissipation = 0;
       const baseStiffness = confinement * 0.15;
 
+      // Drift velocity - particles flow diagonally across the surface
+      const driftX = flowSpeed * 1.5;
+      const driftY = flowSpeed * 0.8;
+
       particlesRef.current.forEach((p) => {
-        // Brownian motion in 3D
-        p.vx += (Math.random() - 0.5) * TEMPERATURE;
-        p.vy += (Math.random() - 0.5) * TEMPERATURE;
-        p.vz += (Math.random() - 0.5) * TEMPERATURE;
+        // Brownian motion in 3D (reduced when flowing fast)
+        const noiseScale = TEMPERATURE * (1 - flowSpeed * 0.5);
+        p.vx += (Math.random() - 0.5) * noiseScale;
+        p.vy += (Math.random() - 0.5) * noiseScale;
+        p.vz += (Math.random() - 0.5) * noiseScale;
+
+        // Add drift velocity (flow across surface)
+        p.vx += (driftX - p.vx) * 0.05;
+        p.vy += (driftY - p.vy) * 0.05;
 
         // Local curvature at particle position
         const H_val = getMeanCurvature(p.x, p.y, newAmp);
@@ -152,7 +162,7 @@ export default function SurfaceCurvatureDemo() {
         // KEY INSIGHT: Curvature makes confinement EASIER (less force needed)
         // The curved geometry naturally guides particles toward the surface
         // Like a ball rolling into a valley - curvature provides a restoring force
-        const curvatureAssist = 1 + H_val * 30; // Curvature amplifies effective stiffness
+        const curvatureAssist = 1 + H_val * 30;
         const effectiveStiffness = baseStiffness * curvatureAssist;
 
         // Surface confinement force (easier at curved regions)
@@ -180,12 +190,12 @@ export default function SurfaceCurvatureDemo() {
 
         // Calculate Heat (two distinct sources)
         // 1. Confinement work: force * distance (one-time cost to get ON the surface)
-        const confinementWork = Math.abs(forceZ * distFromSurface) * 0.5;
+        const confinementWork = Math.abs(forceZ * distFromSurface) * 0.3;
 
         // 2. Curvature cost: ONGOING cost that scales with velocity (centrifugal dissipation)
         // Moving fast along a curved path = more heat
         const tangentSpeed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        const curvatureWork = H_val * tangentSpeed * confinement * 50;
+        const curvatureWork = H_val * tangentSpeed * confinement * 40;
 
         p.heat = Math.min(1, confinementWork + curvatureWork);
         totalDissipation += p.heat;
@@ -293,7 +303,7 @@ export default function SurfaceCurvatureDemo() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [curvature, confinement, rotation, project, getSurfaceZ, getMeanCurvature]);
+  }, [curvature, confinement, flowSpeed, rotation, project, getSurfaceZ, getMeanCurvature]);
 
   // === HANDLERS ===
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -366,31 +376,31 @@ export default function SurfaceCurvatureDemo() {
           <div className="flex items-center gap-2">
             <div
               className={`w-2 h-2 rounded-full ${
-                curvature > 0.4 && confinement > 0.3
+                curvature > 0.4 && flowSpeed > 0.4
                   ? 'bg-red-500 animate-pulse'
-                  : confinement > 0.3
+                  : flowSpeed > 0.3
                   ? 'bg-amber-500'
                   : 'bg-emerald-500'
               }`}
             />
             <span
               className={
-                curvature > 0.4 && confinement > 0.3
+                curvature > 0.4 && flowSpeed > 0.4
                   ? 'text-red-400'
-                  : confinement > 0.3
+                  : flowSpeed > 0.3
                   ? 'text-amber-400'
                   : 'text-emerald-400'
               }
             >
-              {curvature > 0.4 && confinement > 0.3
-                ? 'HIGH GEOMETRIC COST'
-                : confinement > 0.3
-                ? 'CONFINED TO SURFACE'
-                : 'FREE DIFFUSION'}
+              {curvature > 0.4 && flowSpeed > 0.4
+                ? 'HIGH DISSIPATION (v × H)'
+                : flowSpeed > 0.3
+                ? 'FLOW ACTIVE'
+                : 'LOW FLOW'}
             </span>
           </div>
           <div className="text-slate-500 text-xs">
-            Curvature: {curvature.toFixed(2)} | Confinement: {confinement.toFixed(2)}
+            Flow: {flowSpeed.toFixed(2)} | Curvature: {curvature.toFixed(2)}
           </div>
         </div>
 
@@ -403,22 +413,22 @@ export default function SurfaceCurvatureDemo() {
       </div>
 
       {/* Controls */}
-      <div className="mt-4 p-4 border border-slate-700 rounded-lg bg-slate-900/50 space-y-4">
+      <div className="mt-4 p-4 border border-slate-700 rounded-lg bg-slate-900/50 space-y-3">
         <div className="flex items-center gap-4">
           <label className="text-slate-400 text-sm w-28">
-            Confinement:
+            Flow Speed:
           </label>
           <input
             type="range"
             min="0"
             max="1"
             step="0.01"
-            value={confinement}
-            onChange={(e) => setConfinement(parseFloat(e.target.value))}
-            className="flex-1 accent-blue-500"
+            value={flowSpeed}
+            onChange={(e) => setFlowSpeed(parseFloat(e.target.value))}
+            className="flex-1 accent-emerald-500"
           />
           <span className="text-slate-300 text-sm w-12 text-right font-mono">
-            {confinement.toFixed(2)}
+            {flowSpeed.toFixed(2)}
           </span>
         </div>
         <div className="flex items-center gap-4">
@@ -438,18 +448,36 @@ export default function SurfaceCurvatureDemo() {
             {curvature.toFixed(2)}
           </span>
         </div>
-        <p className="text-slate-500 text-xs">
-          <strong className="text-slate-400">Confinement:</strong> How strongly particles are bound to the surface.{' '}
-          <strong className="text-slate-400">Curvature:</strong> How bent the surface geometry is.
+        <div className="flex items-center gap-4">
+          <label className="text-slate-400 text-sm w-28">
+            Confinement:
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={confinement}
+            onChange={(e) => setConfinement(parseFloat(e.target.value))}
+            className="flex-1 accent-blue-500"
+          />
+          <span className="text-slate-300 text-sm w-12 text-right font-mono">
+            {confinement.toFixed(2)}
+          </span>
+        </div>
+        <p className="text-slate-500 text-xs mt-2">
+          <strong className="text-slate-400">Flow:</strong> Transport velocity across manifold.{' '}
+          <strong className="text-slate-400">Curvature:</strong> Surface bending.{' '}
+          <strong className="text-slate-400">Confinement:</strong> Binding strength.
         </p>
       </div>
 
       {/* Caption */}
       <p className="mt-4 text-slate-400 text-center max-w-2xl mx-auto leading-relaxed">
-        <strong>The curvature tradeoff:</strong>{' '}
-        Bending makes confinement <em>easier</em> (curved geometry guides particles onto the surface),
-        but increases <em>ongoing</em> costs (centrifugal dissipation as particles move along curved paths).
-        Particles turn <span className="text-red-400">red</span> when moving fast through high-curvature regions.
+        <strong>The curvature cost:</strong>{' '}
+        Particles flowing across a curved surface dissipate heat proportional to <em>velocity × curvature</em>.
+        Watch particles turn <span className="text-red-400">red</span> as they navigate the peaks and valleys.
+        Flat surfaces allow fast, cool transport; curved surfaces exact a thermodynamic toll.
       </p>
     </div>
   );
