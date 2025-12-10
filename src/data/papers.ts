@@ -437,3 +437,13 @@ export const getSubmittedPapers = (): Paper[] => {
 export const getInPrepPapers = (): Paper[] => {
   return papers.filter(p => p.status === 'in_prep');
 };
+
+export const getAdjacentPapers = (slug: string): { prev: Paper | null; next: Paper | null } => {
+  const index = papers.findIndex(p => p.slug === slug);
+  if (index === -1) return { prev: null, next: null };
+
+  return {
+    prev: index > 0 ? papers[index - 1] : null,
+    next: index < papers.length - 1 ? papers[index + 1] : null,
+  };
+};

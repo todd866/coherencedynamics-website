@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { papers, getPaperBySlug } from '@/data/papers';
+import { papers, getPaperBySlug, getAdjacentPapers } from '@/data/papers';
 import Markdown from '@/components/Markdown';
+import PaperNavigation from '@/components/PaperNavigation';
 
 export function generateStaticParams() {
   return papers.map((paper) => ({ slug: paper.slug }));
@@ -19,6 +20,8 @@ export default async function PaperPage({
   if (!paper) {
     notFound();
   }
+
+  const { prev, next } = getAdjacentPapers(slug);
 
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -167,6 +170,17 @@ export default async function PaperPage({
           </p>
         </section>
       )}
+
+      {/* Prev/Next Navigation */}
+      <PaperNavigation
+        prev={prev ? { slug: prev.slug, title: prev.title } : null}
+        next={next ? { slug: next.slug, title: next.title } : null}
+      />
+
+      {/* Keyboard hint */}
+      <p className="text-center text-xs text-gray-600 mt-4">
+        Use <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400">←</kbd> <kbd className="px-1.5 py-0.5 bg-gray-800 rounded text-gray-400">→</kbd> to navigate
+      </p>
     </main>
   );
 }
