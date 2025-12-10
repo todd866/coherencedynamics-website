@@ -3,12 +3,13 @@
 /**
  * ObserverDemo - "The Map is Not The Territory"
  *
- * LEFT: 4D Hyper-Object (Clifford Torus). Coherent, continuous math.
- * RIGHT: 2D Sensor Projections. Reduced, noisy observations.
+ * A visible 3D Torus (Donut) rotates.
+ * - LEFT (Dynamics): The full object - high-dimensional, coherent.
+ * - RIGHT (Observer): 1D projections (shadow width/height).
  *
  * INTERACTION:
- * - Move Mouse: Rotates the object in 4D space (turns inside out).
- * - Click & Hold: "Perturbs" the system (adds noise/distortion).
+ * - Hover: Rotates the Torus. Charts show smooth sine waves.
+ * - Click & Hold: Deforms the mesh. Charts show noise/chaos.
  */
 
 import { useRef, useEffect, useCallback } from 'react';
@@ -16,10 +17,9 @@ import { useRef, useEffect, useCallback } from 'react';
 const COLORS = {
   BG: '#000000',
   DYNAMICS: '#22c55e', // Bright Green
-  SENSOR_A: '#06b6d4', // Cyan (Top wave)
-  SENSOR_B: '#f97316', // Orange (Bottom wave)
+  SENSOR_A: '#06b6d4', // Cyan
+  SENSOR_B: '#f97316', // Orange
   GRID: '#333333',
-  TEXT_MAIN: '#ffffff',
   TEXT_SUB: '#94a3b8',
 };
 
@@ -27,77 +27,71 @@ export default function ObserverDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
 
-  // Mutable state for high-performance animation
   const stateRef = useRef({
     time: 0,
-    rotXY: 0, // Rotation in 3D plane
-    rotZW: 0, // Rotation in 4th dimension
-    targetRotXY: 0,
-    targetRotZW: 0,
-    distortion: 0, // 0.0 to 1.0 (Perturbation amount)
+    rotationY: 0,
+    rotationX: 0,
+    targetRotY: 0,
+    targetRotX: 0,
+    distortion: 0,
     isDistorting: false,
-    // Sensor history (Signal buffers)
     historyA: new Array(300).fill(0.5),
     historyB: new Array(300).fill(0.5),
   });
 
-  // Dimensions
-  const SCALE = 2; // Retina scaling
+  const SCALE = 2;
   const W = 640 * SCALE;
   const H = 360 * SCALE;
 
-  // Layout Constants
-  const SPLIT_X = W * 0.5; // Vertical divider
+  // Layout
+  const SPLIT_X = W * 0.5;
   const CHART_X = SPLIT_X + 60 * SCALE;
   const CHART_W = W - CHART_X - 40 * SCALE;
   const CHART_H = 80 * SCALE;
 
-  // === 4D MATH ===
-  // 1. Clifford Torus Parametric Eq (4D)
-  const getCliffordPoint = useCallback((u: number, v: number, distortion: number) => {
-    // Add "noise" to radius if distorted
-    const noise = distortion > 0.01 ? Math.sin(u * 20 + v * 10) * distortion * 0.2 : 0;
-    const r = 100 * SCALE * (1 + noise);
+  // === GEOMETRY: STANDARD TORUS (DONUT) ===
+  const getTorusPoint = useCallback(
+    (u: number, v: number, distortion: number) => {
+      // R = Major Radius (Distance from center to tube center)
+      // r = Minor Radius (Tube radius)
+      const R = 70 * SCALE;
+      let r = 30 * SCALE;
 
-    // x, y, z, w coordinates on unit 3-sphere
-    return {
-      x: r * Math.cos(u),
-      y: r * Math.sin(u),
-      z: r * Math.cos(v),
-      w: r * Math.sin(v),
-    };
-  }, []);
+      // DISTORTION:
+      // If holding click, we vibrate the tube radius
+      if (distortion > 0.01) {
+        // High frequency noise
+        const noise = Math.sin(u * 20 + v * 10 + Math.random()) * distortion * 10 * SCALE;
+        r += noise;
+      }
 
-  // 2. 4D Rotation (Double Rotation)
-  const rotate4D = useCallback(
-    (p: { x: number; y: number; z: number; w: number }, tXY: number, tZW: number) => {
-      // XY Plane
-      const x1 = p.x * Math.cos(tXY) - p.y * Math.sin(tXY);
-      const y1 = p.x * Math.sin(tXY) + p.y * Math.cos(tXY);
-      // ZW Plane (The "Inside Out" rotation)
-      const z1 = p.z * Math.cos(tZW) - p.w * Math.sin(tZW);
-      const w1 = p.z * Math.sin(tZW) + p.w * Math.cos(tZW);
-      return { x: x1, y: y1, z: z1, w: w1 };
+      // Standard Torus Formula
+      // x = (R + r cos v) cos u
+      // y = (R + r cos v) sin u
+      // z = r sin v
+      const x = (R + r * Math.cos(v)) * Math.cos(u);
+      const y = (R + r * Math.cos(v)) * Math.sin(u);
+      const z = r * Math.sin(v);
+
+      return { x, y, z };
     },
-    []
+    [SCALE]
   );
 
-  // 3. Project 4D -> 3D -> 2D
-  const projectToScreen = useCallback((p4: { x: number; y: number; z: number; w: number }) => {
-    // Stereographic 4D -> 3D
-    const camDist4D = 300 * SCALE;
-    const s4 = camDist4D / (camDist4D - p4.w);
-    const p3 = { x: p4.x * s4, y: p4.y * s4, z: p4.z * s4 };
+  const rotate = useCallback((x: number, y: number, z: number, rx: number, ry: number) => {
+    // Rotate Y
+    const x1 = x * Math.cos(ry) - z * Math.sin(ry);
+    const z1 = x * Math.sin(ry) + z * Math.cos(ry);
+    // Rotate X
+    const y2 = y * Math.cos(rx) - z1 * Math.sin(rx);
+    const z2 = y * Math.sin(rx) + z1 * Math.cos(rx);
+    return { x: x1, y: y2, z: z2 };
+  }, []);
 
-    // Perspective 3D -> 2D
-    const camDist3D = 500;
-    const s3 = camDist3D / (camDist3D + p3.z + 400); // 400 = z-offset
-
-    return {
-      x: p3.x * s3,
-      y: p3.y * s3,
-      scale: s3,
-    };
+  const project = useCallback((x: number, y: number, z: number) => {
+    const fov = 500;
+    const scale = fov / (fov + z + 400);
+    return { x: x * scale, y: y * scale, scale };
   }, []);
 
   useEffect(() => {
@@ -109,24 +103,22 @@ export default function ObserverDemo() {
       }
       const state = stateRef.current;
 
-      // --- PHYSICS UPDATE ---
-      state.time += 0.015;
-      // Smooth rotation interpolation
-      state.rotXY += (state.targetRotXY - state.rotXY) * 0.05;
-      state.rotZW += (state.targetRotZW - state.rotZW) * 0.05;
+      // Update Physics
+      state.time += 0.01;
+      state.rotationY += (state.targetRotY - state.rotationY) * 0.05 + 0.005;
+      state.rotationX += (state.targetRotX - state.rotationX) * 0.05;
 
-      // Distortion Spring
-      const targetDist = state.isDistorting ? 0.8 : 0.0;
-      state.distortion += (targetDist - state.distortion) * 0.1;
+      const targetDist = state.isDistorting ? 1.0 : 0.0;
+      state.distortion += (targetDist - state.distortion) * 0.2;
 
-      // --- DRAW BACKGROUND ---
+      // Clear BG
       ctx.fillStyle = COLORS.BG;
       ctx.fillRect(0, 0, W, H);
 
       // --- LABELS ---
       ctx.textAlign = 'center';
 
-      // Left Header
+      // Left
       ctx.fillStyle = COLORS.DYNAMICS;
       ctx.font = `bold ${32 * SCALE}px system-ui`;
       ctx.fillText('DYNAMICS', SPLIT_X / 2, 50 * SCALE);
@@ -134,15 +126,15 @@ export default function ObserverDemo() {
       ctx.font = `${14 * SCALE}px system-ui`;
       ctx.fillText('High-dimensional · Coherent', SPLIT_X / 2, 80 * SCALE);
 
-      // Right Header
-      ctx.fillStyle = '#f59e0b'; // Amber for title
+      // Right
+      ctx.fillStyle = '#f59e0b';
       ctx.font = `bold ${32 * SCALE}px system-ui`;
       ctx.fillText('OBSERVATIONS', SPLIT_X + (W - SPLIT_X) / 2, 50 * SCALE);
       ctx.fillStyle = COLORS.TEXT_SUB;
       ctx.font = `${14 * SCALE}px system-ui`;
       ctx.fillText('Low-dimensional · Projected', SPLIT_X + (W - SPLIT_X) / 2, 80 * SCALE);
 
-      // Footer Quote
+      // Footer
       ctx.fillStyle = '#666';
       ctx.font = `italic ${14 * SCALE}px system-ui`;
       ctx.fillText(
@@ -151,7 +143,7 @@ export default function ObserverDemo() {
         H - 20 * SCALE
       );
 
-      // "MEASURE" Arrow
+      // Arrow
       ctx.save();
       ctx.translate(SPLIT_X, H / 2);
       ctx.fillStyle = '#444';
@@ -177,95 +169,85 @@ export default function ObserverDemo() {
       let minY = Infinity,
         maxY = -Infinity;
 
-      ctx.lineWidth = 1.5 * SCALE;
-      ctx.lineJoin = 'round';
+      ctx.lineWidth = 1 * SCALE;
+      ctx.strokeStyle = `rgba(34, 197, 94, ${0.4 + state.distortion * 0.4})`; // Green
 
-      // Draw wireframe rings
-      const rings = 30;
-      const segs = 40;
+      // DRAW RINGS (The Wireframe)
+      const uSteps = 40; // Number of rings (Major steps)
+      const vSteps = 20; // Resolution of each ring (Minor steps)
 
-      for (let i = 0; i < rings; i++) {
-        const u = (i / rings) * Math.PI * 2 + state.time * 0.2;
+      for (let i = 0; i < uSteps; i++) {
+        const u = (i / uSteps) * Math.PI * 2;
 
         ctx.beginPath();
-        for (let j = 0; j <= segs; j++) {
-          const v = (j / segs) * Math.PI * 2;
+        for (let j = 0; j <= vSteps; j++) {
+          const v = (j / vSteps) * Math.PI * 2;
 
-          // 4D -> 3D -> 2D
-          const p4 = getCliffordPoint(u, v, state.distortion);
-          const p4rot = rotate4D(p4, state.rotXY, state.rotZW);
-          const p2 = projectToScreen(p4rot);
+          // 1. Get Point
+          const p = getTorusPoint(u, v, state.distortion);
 
-          const sx = centerX + p2.x;
-          const sy = centerY + p2.y;
+          // 2. Rotate
+          const r = rotate(p.x, p.y, p.z, state.rotationX, state.rotationY);
 
+          // 3. Project
+          const proj = project(r.x, r.y, r.z);
+          const sx = centerX + proj.x;
+          const sy = centerY + proj.y;
+
+          // Draw Line
           if (j === 0) ctx.moveTo(sx, sy);
           else ctx.lineTo(sx, sy);
 
-          // Track Bounds (Simulate Sensors)
-          if (p2.x < minX) minX = p2.x;
-          if (p2.x > maxX) maxX = p2.x;
-          if (p2.y < minY) minY = p2.y;
-          if (p2.y > maxY) maxY = p2.y;
+          // Track Bounds for Sensors
+          if (proj.x < minX) minX = proj.x;
+          if (proj.x > maxX) maxX = proj.x;
+          if (proj.y < minY) minY = proj.y;
+          if (proj.y > maxY) maxY = proj.y;
         }
-
-        // Dynamic Green Color (Alpha based on depth/w)
-        ctx.strokeStyle = `rgba(34, 197, 94, 0.4)`;
         ctx.stroke();
       }
 
-      // --- UPDATE SENSORS (RIGHT) ---
-      // We simulate a sensor reading the projected width/height
-      // Add a tiny bit of random sensor noise for realism
-      const sensorNoise = (Math.random() - 0.5) * 5 * SCALE;
+      // --- SENSORS (RIGHT) ---
+      const widthVal = maxX - minX;
+      const heightVal = maxY - minY;
 
-      const widthVal = maxX - minX + sensorNoise;
-      const heightVal = maxY - minY + sensorNoise;
+      const range = 220 * SCALE;
+      const sigA = Math.min(1, Math.max(0, widthVal / range));
+      const sigB = Math.min(1, Math.max(0, heightVal / range));
 
-      // Normalize to 0..1 range (approximate)
-      const range = 250 * SCALE;
-      const signalA = Math.min(1, Math.max(0, widthVal / range));
-      const signalB = Math.min(1, Math.max(0, heightVal / range));
-
-      state.historyA.push(signalA);
+      state.historyA.push(sigA);
       state.historyA.shift();
-      state.historyB.push(signalB);
+      state.historyB.push(sigB);
       state.historyB.shift();
 
       // --- RENDER CHARTS ---
-      const drawChart = (data: number[], yOffset: number, color: string) => {
-        // Frame
+      const drawChart = (data: number[], yOff: number, color: string) => {
+        // Box
         ctx.strokeStyle = COLORS.GRID;
         ctx.lineWidth = 1 * SCALE;
-        ctx.strokeRect(CHART_X, yOffset, CHART_W, CHART_H);
-
-        // Center Line (Zero)
+        ctx.strokeRect(CHART_X, yOff, CHART_W, CHART_H);
+        // Center line
         ctx.beginPath();
-        ctx.moveTo(CHART_X, yOffset + CHART_H / 2);
-        ctx.lineTo(CHART_X + CHART_W, yOffset + CHART_H / 2);
+        ctx.strokeStyle = '#222';
+        ctx.moveTo(CHART_X, yOff + CHART_H / 2);
+        ctx.lineTo(CHART_X + CHART_W, yOff + CHART_H / 2);
         ctx.stroke();
 
-        // Waveform
+        // Wave
         ctx.beginPath();
         ctx.lineWidth = 2 * SCALE;
         ctx.strokeStyle = color;
-
         for (let k = 0; k < data.length; k++) {
           const x = CHART_X + (k / data.length) * CHART_W;
-          // Invert Y so up is positive, scale to fit box
-          const val = data[k] - 0.6; // shift baseline
-          const y = yOffset + CHART_H / 2 - val * CHART_H;
-
+          const val = data[k] - 0.5;
+          const y = yOff + CHART_H / 2 - val * CHART_H * 0.8;
           if (k === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
         ctx.stroke();
       };
 
-      // Draw Top Chart (Cyan)
       drawChart(state.historyA, H / 2 - CHART_H - 20 * SCALE, COLORS.SENSOR_A);
-
-      // Draw Bottom Chart (Orange)
       drawChart(state.historyB, H / 2 + 20 * SCALE, COLORS.SENSOR_B);
 
       animationRef.current = requestAnimationFrame(loop);
@@ -275,10 +257,10 @@ export default function ObserverDemo() {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [getCliffordPoint, rotate4D, projectToScreen]);
+  }, [getTorusPoint, rotate, project, SCALE]);
 
   // --- INTERACTION ---
-  const handleMouseMove = useCallback(
+  const handleMove = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -286,12 +268,11 @@ export default function ObserverDemo() {
       const cx = 'touches' in e ? e.touches[0].clientX : e.clientX;
       const cy = 'touches' in e ? e.touches[0].clientY : e.clientY;
 
-      // Normalize -1 to 1
       const nx = ((cx - rect.left) / rect.width - 0.5) * 2;
       const ny = ((cy - rect.top) / rect.height - 0.5) * 2;
 
-      stateRef.current.targetRotXY = nx * Math.PI;
-      stateRef.current.targetRotZW = ny * Math.PI;
+      stateRef.current.targetRotY = nx * Math.PI;
+      stateRef.current.targetRotX = ny * Math.PI * 0.5;
     },
     []
   );
@@ -299,7 +280,6 @@ export default function ObserverDemo() {
   const handleStart = useCallback(() => {
     stateRef.current.isDistorting = true;
   }, []);
-
   const handleEnd = useCallback(() => {
     stateRef.current.isDistorting = false;
   }, []);
@@ -311,17 +291,17 @@ export default function ObserverDemo() {
       height={H}
       style={{
         width: '100%',
-        maxWidth: 640,
+        maxWidth: W / SCALE,
         aspectRatio: `${W} / ${H}`,
         touchAction: 'none',
       }}
-      className="rounded-xl cursor-move bg-black shadow-2xl"
-      onMouseMove={handleMouseMove}
+      className="rounded-xl cursor-crosshair bg-black shadow-2xl"
+      onMouseMove={handleMove}
       onMouseDown={handleStart}
       onMouseUp={handleEnd}
       onMouseLeave={handleEnd}
       onTouchStart={handleStart}
-      onTouchMove={handleMouseMove}
+      onTouchMove={handleMove}
       onTouchEnd={handleEnd}
     />
   );
