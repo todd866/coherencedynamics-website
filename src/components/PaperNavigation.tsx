@@ -46,73 +46,101 @@ export default function PaperNavigation({ prev, next }: PaperNavigationProps) {
   }, [prev, next, router]);
 
   return (
-    <nav className="border-t border-gray-800 pt-8 mt-8">
-      <div className="flex justify-between items-stretch gap-4">
-        {prev ? (
-          <Link
-            href={`/papers/${prev.slug}`}
-            className="group flex-1 flex items-center gap-3 p-4 rounded-lg border border-gray-700 hover:border-gray-500 hover:bg-gray-900/50 transition-all"
-          >
-            <span
-              className={`text-3xl text-gray-500 group-hover:text-white group-hover:-translate-x-2 transition-all duration-300 ${
-                showPulse ? 'animate-bounce-left' : ''
-              }`}
+    <>
+      {/* Fixed side navigation tabs */}
+      {prev && (
+        <Link
+          href={`/papers/${prev.slug}`}
+          className={`fixed left-0 top-1/2 -translate-y-1/2 z-50 group hidden md:flex items-center justify-center w-8 h-16 bg-gray-800 border-y border-r border-gray-700 hover:bg-gray-700 hover:w-10 transition-all rounded-r-md ${
+            showPulse ? 'animate-pulse-subtle' : ''
+          }`}
+          title={prev.title}
+        >
+          <span className="text-lg text-gray-400 group-hover:text-white transition-colors">
+            ←
+          </span>
+        </Link>
+      )}
+
+      {next && (
+        <Link
+          href={`/papers/${next.slug}`}
+          className={`fixed right-0 top-1/2 -translate-y-1/2 z-50 group hidden md:flex items-center justify-center w-8 h-16 bg-gray-800 border-y border-l border-gray-700 hover:bg-gray-700 hover:w-10 transition-all rounded-l-md ${
+            showPulse ? 'animate-pulse-subtle' : ''
+          }`}
+          title={next.title}
+        >
+          <span className="text-lg text-gray-400 group-hover:text-white transition-colors">
+            →
+          </span>
+        </Link>
+      )}
+
+      {/* Mobile: fixed bottom bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-900/95 border-t border-gray-800 backdrop-blur-sm">
+        <div className="flex justify-between items-center px-4 py-3">
+          {prev ? (
+            <Link
+              href={`/papers/${prev.slug}`}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
             >
-              ←
-            </span>
-            <div className="text-left min-w-0">
-              <div className="text-xs text-gray-500 mb-1">Previous</div>
-              <div className="text-sm text-gray-300 group-hover:text-white line-clamp-2 transition-colors">{prev.title}</div>
-            </div>
-          </Link>
-        ) : (
-          <div className="flex-1" />
-        )}
+              <span>←</span>
+              <span className="text-sm truncate max-w-[120px]">Prev</span>
+            </Link>
+          ) : (
+            <div />
+          )}
 
-        {next ? (
-          <Link
-            href={`/papers/${next.slug}`}
-            className="group flex-1 flex items-center justify-end gap-3 p-4 rounded-lg border border-gray-700 hover:border-gray-500 hover:bg-gray-900/50 transition-all text-right"
-          >
-            <div className="min-w-0">
-              <div className="text-xs text-gray-500 mb-1">Next</div>
-              <div className="text-sm text-gray-300 group-hover:text-white line-clamp-2 transition-colors">{next.title}</div>
-            </div>
-            <span
-              className={`text-3xl text-gray-500 group-hover:text-white group-hover:translate-x-2 transition-all duration-300 ${
-                showPulse ? 'animate-bounce-right' : ''
-              }`}
+          <span className="text-xs text-gray-600">← →</span>
+
+          {next ? (
+            <Link
+              href={`/papers/${next.slug}`}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
             >
-              →
-            </span>
-          </Link>
-        ) : (
-          <div className="flex-1" />
-        )}
-      </div>
+              <span className="text-sm truncate max-w-[120px]">Next</span>
+              <span>→</span>
+            </Link>
+          ) : (
+            <div />
+          )}
+        </div>
+      </nav>
 
-      {/* Keyboard hint */}
-      <p className="text-center text-xs text-gray-600 mt-4">
-        Press <kbd className="px-1.5 py-0.5 bg-gray-800 border border-gray-700 rounded text-gray-400 font-mono">←</kbd> or <kbd className="px-1.5 py-0.5 bg-gray-800 border border-gray-700 rounded text-gray-400 font-mono">→</kbd> to navigate between papers
-      </p>
+      {/* Desktop: bottom "What's next" section */}
+      {(prev || next) && (
+        <nav className="hidden md:block border-t border-gray-800 pt-8 mt-12">
+          <h3 className="text-sm text-gray-500 mb-4">Continue reading</h3>
+          <div className="flex justify-between gap-8">
+            {prev ? (
+              <Link
+                href={`/papers/${prev.slug}`}
+                className="group flex-1 p-4 rounded-lg border border-gray-800 hover:border-gray-700 hover:bg-gray-900/50 transition-all"
+              >
+                <div className="text-xs text-gray-500 mb-1">← Previous</div>
+                <div className="text-sm text-gray-300 group-hover:text-white transition-colors line-clamp-2">{prev.title}</div>
+              </Link>
+            ) : (
+              <div className="flex-1" />
+            )}
 
-      {/* CSS for bounce animations */}
-      <style jsx>{`
-        @keyframes bounce-left {
-          0%, 100% { transform: translateX(0); }
-          50% { transform: translateX(-6px); }
-        }
-        @keyframes bounce-right {
-          0%, 100% { transform: translateX(0); }
-          50% { transform: translateX(6px); }
-        }
-        .animate-bounce-left {
-          animation: bounce-left 0.6s ease-in-out infinite;
-        }
-        .animate-bounce-right {
-          animation: bounce-right 0.6s ease-in-out infinite;
-        }
-      `}</style>
-    </nav>
+            {next ? (
+              <Link
+                href={`/papers/${next.slug}`}
+                className="group flex-1 p-4 rounded-lg border border-gray-800 hover:border-gray-700 hover:bg-gray-900/50 transition-all text-right"
+              >
+                <div className="text-xs text-gray-500 mb-1">Next →</div>
+                <div className="text-sm text-gray-300 group-hover:text-white transition-colors line-clamp-2">{next.title}</div>
+              </Link>
+            ) : (
+              <div className="flex-1" />
+            )}
+          </div>
+        </nav>
+      )}
+
+      {/* Spacer for mobile bottom bar */}
+      <div className="md:hidden h-16" />
+    </>
   );
 }
