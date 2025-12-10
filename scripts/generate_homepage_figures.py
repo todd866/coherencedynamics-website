@@ -14,7 +14,7 @@ plt.rcParams['axes.labelweight'] = 'regular'
 plt.rcParams['axes.titleweight'] = 'semibold'
 
 # Dark theme colors
-DARK_BG = '#0f172a'
+DARK_BG = '#000000'
 PANEL_BG = '#ffffff'
 TEXT_LIGHT = '#f1f5f9'
 TEXT_MUTED = '#94a3b8'
@@ -101,8 +101,8 @@ def create_hero_image():
     tagline = "High-dimensional systems are coherent systems. Bits are incoherent."
 
     # Create rounded rectangle for tagline
-    bbox_props = dict(boxstyle="round,pad=0.5", facecolor='#1e293b',
-                      edgecolor='#334155', linewidth=2)
+    bbox_props = dict(boxstyle="round,pad=0.5", facecolor='#111111',
+                      edgecolor='#333333', linewidth=2)
     fig.text(0.5, 0.05, tagline, fontsize=tagline_size, fontweight='regular',
              color=TEXT_LIGHT, ha='center', va='center', bbox=bbox_props)
 
@@ -203,7 +203,7 @@ def create_measurement_image():
     fig.patches.append(arrow)
 
     # Bottom annotation - larger, in a subtle box
-    bbox_props = dict(boxstyle="round,pad=0.4", facecolor='#1e293b',
+    bbox_props = dict(boxstyle="round,pad=0.4", facecolor='#111111',
                       edgecolor='none', alpha=0.8)
     fig.text(0.76, 0.08, 'Structure lost in projection', fontsize=annotation_size,
              color=TEXT_MUTED, ha='center', style='italic', bbox=bbox_props)
