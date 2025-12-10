@@ -6,7 +6,7 @@ interface Simulation {
   description: string;
   paper?: string;
   paperSlug?: string;
-  status: 'playable' | 'coming_soon' | 'in_development';
+  status: 'beta' | 'playable' | 'coming_soon' | 'in_development';
 }
 
 const simulations: Simulation[] = [
@@ -56,12 +56,13 @@ const simulations: Simulation[] = [
     description: 'Try to measure a folding protein. Watch as each observation disturbs the conformational state. See why high-dimensional systems resist binary hypothesis testing.',
     paper: 'The Limits of Falsifiability',
     paperSlug: 'falsifiability',
-    status: 'playable',
+    status: 'beta',
   },
 ];
 
 const statusLabels = {
-  playable: { label: 'Play Now', className: 'bg-green-900 text-green-300' },
+  beta: { label: 'Beta', className: 'bg-blue-900 text-blue-300' },
+  playable: { label: 'Alpha', className: 'bg-amber-900 text-amber-300' },
   in_development: { label: 'In Development', className: 'bg-yellow-900 text-yellow-300' },
   coming_soon: { label: 'Coming Soon', className: 'bg-gray-800 text-gray-400' },
 };
@@ -86,7 +87,7 @@ export default function SimulationsPage() {
       <div className="grid gap-6">
         {simulations.map((sim) => {
           const status = statusLabels[sim.status];
-          const isPlayable = sim.status === 'playable';
+          const isPlayable = sim.status === 'playable' || sim.status === 'beta';
 
           const content = (
             <div className="flex items-start justify-between gap-4">
