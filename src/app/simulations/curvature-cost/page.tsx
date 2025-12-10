@@ -131,7 +131,7 @@ export default function CurvatureCostPage() {
                 Particles undergo <strong className="text-white">3D Brownian motion</strong> but are
                 constrained to a <strong className="text-white">2D surface</strong>.
                 <span className="block mt-2 text-blue-400">
-                  Interaction: Drag left/right to bend the surface geometry.
+                  Drag to rotate. Use sliders to control confinement &amp; curvature.
                 </span>
               </p>
             </div>

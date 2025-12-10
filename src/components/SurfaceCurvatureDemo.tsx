@@ -44,12 +44,12 @@ export default function SurfaceCurvatureDemo() {
 
   // Controls
   const [confinement, setConfinement] = useState(0.5);
-  const [amplitude, setAmplitude] = useState(0);
+  const [curvature, setCurvature] = useState(0);
   const [rotation, setRotation] = useState({ x: 0.6, y: 0.4 });
 
-  // Interaction
-  const targetAmplitudeRef = useRef(0);
+  // Interaction - camera drag
   const isDraggingRef = useRef(false);
+  const lastMouseRef = useRef({ x: 0, y: 0 });
   const historyRef = useRef<number[]>(new Array(100).fill(0));
 
   // Physics State
@@ -133,10 +133,8 @@ export default function SurfaceCurvatureDemo() {
       const W = canvas.width;
       const H = canvas.height;
 
-      // Smooth amplitude interpolation
-      const targetAmp = isDraggingRef.current ? targetAmplitudeRef.current : 0;
-      const newAmp = amplitude + (targetAmp - amplitude) * 0.08;
-      setAmplitude(newAmp);
+      // Use curvature directly from slider
+      const newAmp = curvature;
 
       // Physics Update
       let totalDissipation = 0;
@@ -295,34 +293,32 @@ export default function SurfaceCurvatureDemo() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [amplitude, confinement, rotation, project, getSurfaceZ, getMeanCurvature]);
+  }, [curvature, confinement, rotation, project, getSurfaceZ, getMeanCurvature]);
 
   // === HANDLERS ===
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     isDraggingRef.current = true;
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const xRel = (e.clientX - rect.left) / rect.width;
-    targetAmplitudeRef.current = Math.max(0.1, xRel);
+    lastMouseRef.current = { x: e.clientX, y: e.clientY };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDraggingRef.current) return;
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const xRel = (e.clientX - rect.left) / rect.width;
-    targetAmplitudeRef.current = Math.max(0.1, Math.min(1, xRel));
-  }, []);
 
-  const handlePointerUp = useCallback(() => {
-    isDraggingRef.current = false;
-  }, []);
+    const dx = e.clientX - lastMouseRef.current.x;
+    const dy = e.clientY - lastMouseRef.current.y;
+    lastMouseRef.current = { x: e.clientX, y: e.clientY };
 
-  const rotateView = useCallback((dx: number, dy: number) => {
+    // Rotate camera (increased sensitivity)
     setRotation(r => ({
-      x: Math.max(0.2, Math.min(1.4, r.x + dy)),
-      y: r.y + dx,
+      x: Math.max(-0.5, Math.min(1.5, r.x + dy * 0.008)),
+      y: r.y + dx * 0.008,
     }));
+  }, []);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    isDraggingRef.current = false;
+    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
   }, []);
 
   return (
@@ -352,7 +348,7 @@ export default function SurfaceCurvatureDemo() {
 
       {/* Main Viewport */}
       <div
-        className="relative rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50 cursor-crosshair select-none"
+        className="relative rounded-xl overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50 cursor-grab active:cursor-grabbing select-none"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -365,42 +361,12 @@ export default function SurfaceCurvatureDemo() {
           className="w-full h-auto block"
         />
 
-        {/* Rotation Controls */}
-        <div className="absolute bottom-4 right-4 flex flex-col gap-1">
-          <button
-            onClick={() => rotateView(0, -0.15)}
-            className="w-8 h-8 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 rounded text-slate-300 text-xs"
-          >
-            ↑
-          </button>
-          <div className="flex gap-1">
-            <button
-              onClick={() => rotateView(-0.15, 0)}
-              className="w-8 h-8 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 rounded text-slate-300 text-xs"
-            >
-              ←
-            </button>
-            <button
-              onClick={() => rotateView(0.15, 0)}
-              className="w-8 h-8 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 rounded text-slate-300 text-xs"
-            >
-              →
-            </button>
-          </div>
-          <button
-            onClick={() => rotateView(0, 0.15)}
-            className="w-8 h-8 bg-slate-800/80 hover:bg-slate-700 border border-slate-600 rounded text-slate-300 text-xs"
-          >
-            ↓
-          </button>
-        </div>
-
         {/* Stats Overlay */}
         <div className="absolute top-4 left-4 pointer-events-none space-y-1">
           <div className="flex items-center gap-2">
             <div
               className={`w-2 h-2 rounded-full ${
-                amplitude > 0.4 && confinement > 0.3
+                curvature > 0.4 && confinement > 0.3
                   ? 'bg-red-500 animate-pulse'
                   : confinement > 0.3
                   ? 'bg-amber-500'
@@ -409,14 +375,14 @@ export default function SurfaceCurvatureDemo() {
             />
             <span
               className={
-                amplitude > 0.4 && confinement > 0.3
+                curvature > 0.4 && confinement > 0.3
                   ? 'text-red-400'
                   : confinement > 0.3
                   ? 'text-amber-400'
                   : 'text-emerald-400'
               }
             >
-              {amplitude > 0.4 && confinement > 0.3
+              {curvature > 0.4 && confinement > 0.3
                 ? 'HIGH GEOMETRIC COST'
                 : confinement > 0.3
                 ? 'CONFINED TO SURFACE'
@@ -424,23 +390,23 @@ export default function SurfaceCurvatureDemo() {
             </span>
           </div>
           <div className="text-slate-500 text-xs">
-            Curvature: {amplitude.toFixed(2)} | Confinement: {confinement.toFixed(2)}
+            Curvature: {curvature.toFixed(2)} | Confinement: {confinement.toFixed(2)}
           </div>
         </div>
 
         {/* Prompt */}
         <div className="absolute bottom-4 left-4 pointer-events-none">
           <span className="bg-slate-800/80 text-slate-400 px-2 py-1 rounded text-xs border border-slate-700">
-            Click &amp; drag to bend surface
+            Drag to rotate view
           </span>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="mt-4 p-4 border border-slate-700 rounded-lg bg-slate-900/50">
+      <div className="mt-4 p-4 border border-slate-700 rounded-lg bg-slate-900/50 space-y-4">
         <div className="flex items-center gap-4">
-          <label className="text-slate-400 text-sm whitespace-nowrap">
-            Confinement Strength:
+          <label className="text-slate-400 text-sm w-28">
+            Confinement:
           </label>
           <input
             type="range"
@@ -455,8 +421,26 @@ export default function SurfaceCurvatureDemo() {
             {confinement.toFixed(2)}
           </span>
         </div>
-        <p className="text-slate-500 text-xs mt-2">
-          Low = particles float freely in 3D. High = particles confined to 2D surface.
+        <div className="flex items-center gap-4">
+          <label className="text-slate-400 text-sm w-28">
+            Curvature:
+          </label>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={curvature}
+            onChange={(e) => setCurvature(parseFloat(e.target.value))}
+            className="flex-1 accent-orange-500"
+          />
+          <span className="text-slate-300 text-sm w-12 text-right font-mono">
+            {curvature.toFixed(2)}
+          </span>
+        </div>
+        <p className="text-slate-500 text-xs">
+          <strong className="text-slate-400">Confinement:</strong> How strongly particles are bound to the surface.{' '}
+          <strong className="text-slate-400">Curvature:</strong> How bent the surface geometry is.
         </p>
       </div>
 
