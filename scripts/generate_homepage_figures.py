@@ -12,10 +12,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-# Force consistent font
+# Force consistent font - use system default for clean look
 plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['font.sans-serif'] = ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif']
-plt.rcParams['font.weight'] = 'light'
+plt.rcParams['font.sans-serif'] = ['Arial', 'DejaVu Sans', 'sans-serif']
+plt.rcParams['font.weight'] = 'normal'
 plt.rcParams['text.color'] = '#f1f5f9'
 plt.rcParams['axes.labelcolor'] = '#f1f5f9'
 
@@ -53,9 +53,9 @@ def create_hero_image():
 
     fig = plt.figure(figsize=(16, 9), facecolor=BLACK)
 
-    # Consistent sizing
-    title_size = 48
-    subtitle_size = 18
+    # Consistent sizing - larger for impact
+    title_size = 64
+    subtitle_size = 24
 
     # Left panel: Bits (scattered random points - chaos, no structure)
     ax1 = fig.add_axes([0.03, 0.12, 0.44, 0.72], facecolor=BLACK)
@@ -105,7 +105,7 @@ def create_hero_image():
     # Bottom tagline
     fig.text(0.5, 0.04,
              'High-dimensional systems are coherent systems. Bits are not.',
-             fontsize=20, color=WHITE, ha='center', va='center', alpha=0.9)
+             fontsize=26, color=WHITE, ha='center', va='center', alpha=0.9)
 
     plt.savefig('../public/images/high-dimensional-coherence.png',
                 dpi=150, facecolor=BLACK, bbox_inches='tight', pad_inches=0.2)
@@ -121,8 +121,8 @@ def create_measurement_image():
 
     fig = plt.figure(figsize=(16, 9), facecolor=BLACK)
 
-    title_size = 36
-    subtitle_size = 16
+    title_size = 56
+    subtitle_size = 22
 
     # Left panel: Torus with many trajectories (high-dimensional state)
     ax1 = fig.add_axes([0.03, 0.12, 0.42, 0.72], facecolor=BLACK, projection='3d')
@@ -211,7 +211,7 @@ def create_measurement_image():
     # Bottom text
     fig.text(0.5, 0.04,
              'Structure is lost in projection. The map is not the territory.',
-             fontsize=20, color=WHITE, ha='center', va='center', alpha=0.9)
+             fontsize=26, color=WHITE, ha='center', va='center', alpha=0.9)
 
     plt.savefig('../public/images/measurement-changes-system.png',
                 dpi=150, facecolor=BLACK, bbox_inches='tight', pad_inches=0.2)
