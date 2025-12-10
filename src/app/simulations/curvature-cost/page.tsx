@@ -129,8 +129,10 @@ export default function CurvatureCostPage() {
               <h3 className="text-sm text-gray-500 mb-3">3D → 2D Projection</h3>
               <p className="text-gray-300 text-sm">
                 Particles undergo <strong className="text-white">3D Brownian motion</strong> but are
-                attracted to a <strong className="text-white">2D surface</strong>. Use the slider to
-                control how strongly particles are confined to the surface.
+                constrained to a <strong className="text-white">2D surface</strong>.
+                <span className="block mt-2 text-blue-400">
+                  Interaction: Drag left/right to bend the surface geometry.
+                </span>
               </p>
             </div>
 
