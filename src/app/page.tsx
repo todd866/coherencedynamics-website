@@ -148,18 +148,18 @@ export default function Home() {
             </p>
           </Link>
 
-          <Link href="/papers/dimensional-landauer" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
+          <Link href="/papers/lsd-dimensionality" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-medium px-2 py-1 bg-yellow-900 text-yellow-300 rounded">
                 Under Review
               </span>
-              <span className="text-sm text-gray-500">Physical Review X</span>
+              <span className="text-sm text-gray-500">Nature Communications</span>
             </div>
             <h3 className="text-lg font-semibold mb-2 text-white">
-              Dimensional Landauer Bound
+              Psychedelics as Dimensionality Modulators
             </h3>
             <p className="text-gray-400">
-              Extending Landauer&apos;s thermodynamic limit on computation to high-dimensional systems.
+              A cortical reservoir theory of serotonergic plasticity—why psychedelics expand neural dimensionality.
             </p>
           </Link>
         </div>
