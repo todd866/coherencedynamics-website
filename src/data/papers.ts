@@ -238,9 +238,9 @@ Cancer, in this view, is cellular bifurcation into an alternative stable state. 
   {
     slug: 'dimensional-landauer',
     title: 'The Dimensional Landauer Bound: Geometric Work in Information Processing',
-    journal: 'Physical Review X (submitted)',
+    journal: 'Physical Review E (target)',
     year: 2025,
-    status: 'submitted',
+    status: 'in_prep',
     github: 'todd866/dimensional-work',
     pdf: 'https://raw.githubusercontent.com/todd866/dimensional-work/main/manuscript_prx.pdf',
     image: 'dimensional-landauer.png',
