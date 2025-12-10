@@ -187,30 +187,6 @@ The paper proposes the "coherence gate" as a hardware primitive for neuromorphic
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
-    slug: 'lsd-dimensionality',
-    title: 'Psychedelics as Dimensionality Modulators: A Cortical Reservoir Theory of Serotonergic Plasticity',
-    journal: 'Nature Communications (submitted)',
-    year: 2025,
-    status: 'submitted',
-    github: 'todd866/lsd-dimensionality',
-    pdf: 'https://raw.githubusercontent.com/todd866/lsd-dimensionality/main/lsd_dimensionality.pdf',
-    image: 'lsd-dimensionality.png',
-    description: `**Psychedelics work by temporarily expanding the brain's computational dimensionality** — and this gives us something concrete to measure, optimise, and eventually target without requiring the full psychedelic experience.
-
-LSD and psilocybin don't flood the brain with chaos. They activate 5-HT2A receptors on layer V pyramidal neurons, amplifying dendritic gain and unlocking dormant neural patterns that are normally suppressed. The result is a measurable increase in effective dimensionality: 8.6% for LSD (medium effect), 19.2% for psilocybin acutely.
-
-The expansion is transient — after the drug wears off, dimensionality returns to baseline — but the brain has reorganised onto new attractors. This explains the therapeutic mystery: why do brief acute experiences produce lasting changes in depression and addiction? Because the temporary dimensional expansion allows the system to find new stable states it couldn't reach from its previous configuration.
-
-The three-phase model (overshoot → refractory collapse → recanalization) predicts both therapeutic windows and risk factors. Geometric visuals (LSD) versus organic visuals (psilocybin) can be quantified via spectral centroid, providing objective markers for subjective experience. This opens the door to precision dosing, risk stratification, and potentially new treatments that target dimensionality directly.`,
-    keyFindings: [
-      'LSD: 8.6% increase in effective dimensionality (medium effect)',
-      'Psilocybin: 19.2% increase acutely, returns to baseline after 1-2 weeks',
-      'Three-phase model: overshoot → refractory collapse → recanalization',
-      'Geometric (LSD) vs organic (psilocybin) visuals quantified via spectral centroid',
-    ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
-  },
-  {
     slug: 'nonergodic-development',
     title: 'Nonergodic Development: How High-Dimensional Systems with Low-Dimensional Anchors Generate Phenotypes',
     journal: 'BioSystems (submitted)',
