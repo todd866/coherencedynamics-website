@@ -30,11 +30,12 @@ interface Vec4 {
   w: number;
 }
 
-type ShapeType = 'tesseract' | '16-cell' | '24-cell';
+type ShapeType = 'tesseract' | '16-cell' | '24-cell' | '4d-wrench';
 
 interface Shape {
   vertices: Vec4[];
   edges: { from: number; to: number }[];
+  faces?: number[][]; // For solid rendering - indices forming triangles/quads
   name: string;
 }
 
@@ -108,7 +109,29 @@ function generateTesseract(): Shape {
     }
   }
 
-  return { vertices, edges, name: 'Tesseract' };
+  // Faces: tesseract has 24 square faces (8 cubic cells, 6 faces each, but shared)
+  // Each face is defined by 4 vertices where 2 coords are fixed
+  const faces: number[][] = [];
+  for (let i = 0; i < 16; i++) {
+    for (let j = i + 1; j < 16; j++) {
+      for (let k = j + 1; k < 16; k++) {
+        for (let l = k + 1; l < 16; l++) {
+          // Check if these 4 vertices form a face (differ in exactly 2 coords)
+          const v = [vertices[i], vertices[j], vertices[k], vertices[l]];
+          const sameX = v.every(p => p.x === v[0].x);
+          const sameY = v.every(p => p.y === v[0].y);
+          const sameZ = v.every(p => p.z === v[0].z);
+          const sameW = v.every(p => p.w === v[0].w);
+          const fixedCount = (sameX ? 1 : 0) + (sameY ? 1 : 0) + (sameZ ? 1 : 0) + (sameW ? 1 : 0);
+          if (fixedCount === 2) {
+            faces.push([i, j, k, l]);
+          }
+        }
+      }
+    }
+  }
+
+  return { vertices, edges, faces, name: 'Tesseract' };
 }
 
 function generate16Cell(): Shape {
@@ -178,6 +201,145 @@ function generate24Cell(): Shape {
   return { vertices, edges, name: '24-Cell' };
 }
 
+/**
+ * 4D Wrench - A wrench extruded into 4D with asymmetric moments of inertia
+ *
+ * Structure:
+ * - Handle: long thin rectangular prism (extends in x)
+ * - Head: hexagonal opening (in y-z plane) at one end
+ * - W dimension: thin for handle, thicker for head
+ *
+ * This creates I_x < I_y < I_z < I_w (all different) for Dzhanibekov effect
+ */
+function generate4DWrench(): Shape {
+  const vertices: Vec4[] = [];
+  const edges: { from: number; to: number }[] = [];
+
+  // Handle dimensions: long in x, thin in y/z, very thin in w
+  const handleLength = 1.8;
+  const handleWidth = 0.25;
+  const handleDepth = 0.15;
+  const handleW = 0.1;
+
+  // Head dimensions: shorter in x, thicker in w
+  const headLength = 0.5;
+  // headWidth and headDepth defined by hexRadius
+  const headW = 0.35;
+
+  // Hex opening parameters
+  const hexRadius = 0.35;
+  const hexInnerRadius = 0.2;
+
+  // === HANDLE (box vertices) ===
+  // 16 vertices for the 4D box handle
+  const handleStartIdx = vertices.length;
+  for (let i = 0; i < 16; i++) {
+    const sx = (i & 1) ? 1 : -1;
+    const sy = (i & 2) ? 1 : -1;
+    const sz = (i & 4) ? 1 : -1;
+    const sw = (i & 8) ? 1 : -1;
+    vertices.push({
+      x: -0.3 + sx * handleLength / 2,  // Offset handle to left
+      y: sy * handleWidth / 2,
+      z: sz * handleDepth / 2,
+      w: sw * handleW / 2,
+    });
+  }
+
+  // Handle edges (connect vertices differing by 1 bit)
+  for (let i = 0; i < 16; i++) {
+    for (let j = i + 1; j < 16; j++) {
+      const diff = i ^ j;
+      if (diff === 1 || diff === 2 || diff === 4 || diff === 8) {
+        edges.push({ from: handleStartIdx + i, to: handleStartIdx + j });
+      }
+    }
+  }
+
+  // === HEAD (hexagonal prism extruded in w) ===
+  // Outer hex ring + inner hex ring, at two w positions
+  const headStartIdx = vertices.length;
+  const headX = handleLength / 2 + headLength / 2 - 0.3;  // Position at end of handle
+
+  // Generate hex vertices at two w levels
+  for (let wLevel = 0; wLevel < 2; wLevel++) {
+    const wPos = (wLevel === 0) ? -headW / 2 : headW / 2;
+
+    // Outer hexagon
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2;
+      vertices.push({
+        x: headX,
+        y: Math.cos(angle) * hexRadius,
+        z: Math.sin(angle) * hexRadius,
+        w: wPos,
+      });
+    }
+
+    // Inner hexagon (the opening)
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2 + Math.PI / 6; // Offset by 30 degrees
+      vertices.push({
+        x: headX,
+        y: Math.cos(angle) * hexInnerRadius,
+        z: Math.sin(angle) * hexInnerRadius,
+        w: wPos,
+      });
+    }
+  }
+
+  // Head edges
+  // Connect outer hex at each w level
+  for (let wLevel = 0; wLevel < 2; wLevel++) {
+    const baseIdx = headStartIdx + wLevel * 12;
+    // Outer ring
+    for (let i = 0; i < 6; i++) {
+      edges.push({ from: baseIdx + i, to: baseIdx + ((i + 1) % 6) });
+    }
+    // Inner ring
+    for (let i = 0; i < 6; i++) {
+      edges.push({ from: baseIdx + 6 + i, to: baseIdx + 6 + ((i + 1) % 6) });
+    }
+    // Connect outer to inner (spokes)
+    for (let i = 0; i < 6; i++) {
+      edges.push({ from: baseIdx + i, to: baseIdx + 6 + i });
+      edges.push({ from: baseIdx + i, to: baseIdx + 6 + ((i + 5) % 6) });
+    }
+  }
+
+  // Connect the two w levels
+  for (let i = 0; i < 12; i++) {
+    edges.push({ from: headStartIdx + i, to: headStartIdx + 12 + i });
+  }
+
+  // === Connect handle to head ===
+  // Find handle vertices at the +x end and connect to head
+  const handleEndVertices = [1, 3, 5, 7, 9, 11, 13, 15].map(i => handleStartIdx + i);
+
+  // Connect to nearest head vertices
+  for (const hv of handleEndVertices) {
+    // Find closest head vertex
+    let minDist = Infinity;
+    let closest = headStartIdx;
+    for (let i = headStartIdx; i < vertices.length; i++) {
+      const dx = vertices[hv].x - vertices[i].x;
+      const dy = vertices[hv].y - vertices[i].y;
+      const dz = vertices[hv].z - vertices[i].z;
+      const dw = vertices[hv].w - vertices[i].w;
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz + dw*dw);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = i;
+      }
+    }
+    if (minDist < 1.0) {
+      edges.push({ from: hv, to: closest });
+    }
+  }
+
+  return { vertices, edges, name: '4D Wrench' };
+}
+
 // =============================================================================
 // COMPONENT
 // =============================================================================
@@ -187,11 +349,14 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
   const animationRef = useRef<number>();
   const [shapeType, setShapeType] = useState<ShapeType>('tesseract');
 
+  const [renderMode, setRenderMode] = useState<'wireframe' | 'solid'>('wireframe');
+
   const shape = useMemo(() => {
     switch (shapeType) {
       case 'tesseract': return generateTesseract();
       case '16-cell': return generate16Cell();
       case '24-cell': return generate24Cell();
+      case '4d-wrench': return generate4DWrench();
       default: return generateTesseract();
     }
   }, [shapeType]);
@@ -375,28 +540,68 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       }
 
       // -----------------------------------------------------------------------
-      // Draw edges (fade out with collapse)
+      // Draw faces (solid mode) or edges (wireframe mode)
       // -----------------------------------------------------------------------
 
       if (collapseFactor < 0.8) {
-        ctx.lineCap = 'round';
-        for (const edge of shape.edges) {
-          const p1 = projected[edge.from];
-          const p2 = projected[edge.to];
+        if (renderMode === 'solid' && shape.faces) {
+          // Sort faces by average Z for painter's algorithm
+          const sortedFaces = [...shape.faces].map(face => {
+            const avgZ = face.reduce((sum, idx) => sum + projected[idx].z, 0) / face.length;
+            const avgW = face.reduce((sum, idx) => sum + projected[idx].w, 0) / face.length;
+            return { face, avgZ, avgW };
+          }).sort((a, b) => a.avgZ - b.avgZ);
 
-          const avgW = (p1.w + p2.w) / 2;
-          const alpha = (0.3 + (avgW + 1) * 0.35) * (1 - collapseFactor);
+          for (const { face, avgW } of sortedFaces) {
+            const base = getBaseFromW(avgW);
+            const color = BASE_COLORS[base];
+            const alpha = (0.15 + (avgW + 1.5) * 0.15) * (1 - collapseFactor);
 
-          // Color based on average W
-          const avgBase = getBaseFromW(avgW);
-          const color = BASE_COLORS[avgBase];
+            // Need to sort face vertices for proper rendering
+            // Find centroid and sort by angle
+            const centroidX = face.reduce((s, i) => s + projected[i].x, 0) / face.length;
+            const centroidY = face.reduce((s, i) => s + projected[i].y, 0) / face.length;
+            const sorted = [...face].sort((a, b) => {
+              const angleA = Math.atan2(projected[a].y - centroidY, projected[a].x - centroidX);
+              const angleB = Math.atan2(projected[b].y - centroidY, projected[b].x - centroidX);
+              return angleA - angleB;
+            });
 
-          ctx.strokeStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
-          ctx.lineWidth = 2 * SCALE;
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.stroke();
+            ctx.fillStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+            ctx.beginPath();
+            ctx.moveTo(projected[sorted[0]].x, projected[sorted[0]].y);
+            for (let i = 1; i < sorted.length; i++) {
+              ctx.lineTo(projected[sorted[i]].x, projected[sorted[i]].y);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            // Draw edges on faces
+            ctx.strokeStyle = color + Math.floor(alpha * 0.8 * 255).toString(16).padStart(2, '0');
+            ctx.lineWidth = 1 * SCALE;
+            ctx.stroke();
+          }
+        } else {
+          // Wireframe mode
+          ctx.lineCap = 'round';
+          for (const edge of shape.edges) {
+            const p1 = projected[edge.from];
+            const p2 = projected[edge.to];
+
+            const avgW = (p1.w + p2.w) / 2;
+            const alpha = (0.3 + (avgW + 1) * 0.35) * (1 - collapseFactor);
+
+            // Color based on average W
+            const avgBase = getBaseFromW(avgW);
+            const color = BASE_COLORS[avgBase];
+
+            ctx.strokeStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+            ctx.lineWidth = 2 * SCALE;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
         }
       }
 
@@ -521,9 +726,9 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
         ctx.textAlign = 'left';
         ctx.fillText('SHAPE', padding, panelY);
 
-        const shapes: ShapeType[] = ['tesseract', '16-cell', '24-cell'];
-        const shapeLabels = ['Tesseract', '16-Cell', '24-Cell'];
-        const btnWidth = 90 * SCALE;
+        const shapes: ShapeType[] = ['tesseract', '16-cell', '24-cell', '4d-wrench'];
+        const shapeLabels = ['Tesseract', '16-Cell', '24-Cell', '4D Wrench'];
+        const btnWidth = 75 * SCALE;
 
         shapes.forEach((s, i) => {
           const bx = padding + i * btnWidth;
@@ -545,6 +750,39 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
           ctx.font = `${9 * SCALE}px system-ui`;
           ctx.textAlign = 'center';
           ctx.fillText(shapeLabels[i], bx + (btnWidth - 8 * SCALE) / 2, by + 14 * SCALE);
+        });
+
+        // Render mode toggle (right side)
+        const renderModeX = W - padding - 140 * SCALE;
+        ctx.fillStyle = '#555';
+        ctx.font = `${9 * SCALE}px system-ui`;
+        ctx.textAlign = 'left';
+        ctx.fillText('RENDER', renderModeX, panelY);
+
+        const modes: ('wireframe' | 'solid')[] = ['wireframe', 'solid'];
+        const modeLabels = ['Wire', 'Solid'];
+        const modeBtnWidth = 65 * SCALE;
+
+        modes.forEach((m, i) => {
+          const bx = renderModeX + i * modeBtnWidth;
+          const by = panelY + 8 * SCALE;
+          const isActive = renderMode === m;
+
+          ctx.fillStyle = isActive ? '#3b82f6' : '#1a1a1a';
+          ctx.beginPath();
+          ctx.roundRect(bx, by, modeBtnWidth - 8 * SCALE, 22 * SCALE, 4 * SCALE);
+          ctx.fill();
+
+          if (!isActive) {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = isActive ? '#fff' : '#777';
+          ctx.font = `${9 * SCALE}px system-ui`;
+          ctx.textAlign = 'center';
+          ctx.fillText(modeLabels[i], bx + (modeBtnWidth - 8 * SCALE) / 2, by + 14 * SCALE);
         });
       }
 
@@ -616,7 +854,7 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [rotate4D, getBaseFromW, shape, shapeType, W, H, VIEW_HEIGHT, RENDER_SCALE, fullPage]);
+  }, [rotate4D, getBaseFromW, shape, shapeType, renderMode, W, H, VIEW_HEIGHT, RENDER_SCALE, fullPage]);
 
   // ---------------------------------------------------------------------------
   // Input Handling
@@ -646,13 +884,26 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     // Shape buttons (fullPage only)
     if (fullPage) {
       const btnY = panelY + 8 * SCALE;
-      const btnWidth = 90 * SCALE;
+      const btnWidth = 75 * SCALE;
       if (y >= btnY && y <= btnY + 22 * SCALE) {
-        const shapes: ShapeType[] = ['tesseract', '16-cell', '24-cell'];
+        // Check shape buttons
+        const shapes: ShapeType[] = ['tesseract', '16-cell', '24-cell', '4d-wrench'];
         for (let i = 0; i < shapes.length; i++) {
           const bx = padding + i * btnWidth;
           if (x >= bx && x <= bx + btnWidth - 8 * SCALE) {
             setShapeType(shapes[i]);
+            return;
+          }
+        }
+
+        // Check render mode buttons
+        const renderModeX = W - padding - 140 * SCALE;
+        const modeBtnWidth = 65 * SCALE;
+        const modes: ('wireframe' | 'solid')[] = ['wireframe', 'solid'];
+        for (let i = 0; i < modes.length; i++) {
+          const bx = renderModeX + i * modeBtnWidth;
+          if (x >= bx && x <= bx + modeBtnWidth - 8 * SCALE) {
+            setRenderMode(modes[i]);
             return;
           }
         }
