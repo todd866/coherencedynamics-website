@@ -150,16 +150,16 @@ export default function Home() {
 
           <Link href="/papers/lsd-dimensionality" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-medium px-2 py-1 bg-yellow-900 text-yellow-300 rounded">
-                Under Review
+              <span className="text-xs font-medium px-2 py-1 bg-blue-900 text-blue-300 rounded">
+                In Prep
               </span>
-              <span className="text-sm text-gray-500">Nature Communications</span>
+              <span className="text-sm text-gray-500">Translational Psychiatry</span>
             </div>
             <h3 className="text-lg font-semibold mb-2 text-white">
               Psychedelics as Dimensionality Modulators
             </h3>
             <p className="text-gray-400">
-              A cortical reservoir theory of serotonergic plasticity—why psychedelics expand neural dimensionality.
+              MEG reveals mechanism-specific dissociation: psychedelics desynchronize, ketamine does not.
             </p>
           </Link>
         </div>
