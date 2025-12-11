@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import InteractionEngine from '../../../../../interactives/interaction-engine/InteractionEngine';
+import InteractionEngine from '@/components/InteractionEngine';
 
 export default function InteractionEnginePage() {
   return (

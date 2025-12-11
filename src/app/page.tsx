@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import BitsVsDynamics from '../../../interactives/interactive-hero/BitsVsDynamics';
-import TesseractSimple from '../../../interactives/tesseract/TesseractSimple';
-import CodeForming from '../../../interactives/code-collapse/CodeForming';
+import BitsVsDynamics from '@/components/BitsVsDynamics';
+import TesseractSimple from '@/components/TesseractSimple';
+import CodeForming from '@/components/CodeForming';
 
 export default function Home() {
   return (

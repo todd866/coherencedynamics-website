@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import TesseractSimple from '../../../../../interactives/tesseract/TesseractSimple';
+import TesseractSimple from '@/components/TesseractSimple';
 
 export default function DimensionalCollapsePage() {
   return (

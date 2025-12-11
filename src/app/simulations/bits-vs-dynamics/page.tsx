@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import BitsVsDynamics from '../../../../../interactives/interactive-hero/BitsVsDynamics';
+import BitsVsDynamics from '@/components/BitsVsDynamics';
 
 export default function BitsVsDynamicsPage() {
   return (

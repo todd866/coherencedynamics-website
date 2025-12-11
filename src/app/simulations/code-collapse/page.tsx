@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import CodeForming from '../../../../../interactives/code-collapse/CodeForming';
+import CodeForming from '@/components/CodeForming';
 
 export default function CodeCollapsePage() {
   return (
