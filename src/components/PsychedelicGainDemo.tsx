@@ -1,19 +1,21 @@
 'use client';
 
 /**
- * PsychedelicGainDemo - "The Desynchronization Engine"
+ * PsychedelicGainDemo - Publication Grade
  *
  * PHYSICS:
- * - A grid of Kuramoto oscillators with local coupling.
- * - "5-HT2A Gain" increases intrinsic frequency variance and reduces coupling strength.
- * - LATENT SIGNAL UNMASKING: A hidden pattern is suppressed by alpha synchrony.
- *   When coupling breaks, the latent signal is revealed.
+ * - Kuramoto oscillators with local coupling
+ * - 5-HT2A gain modulates coupling strength and noise
+ * - Latent signal unmasking: hidden patterns emerge when alpha breaks
  *
- * VISUAL:
- * - Heatmap of phase (0 to 2PI).
- * - Low Gain = Large coherent waves (Alpha).
- * - High Gain = Salt-and-pepper noise (High Entropy/Dimensionality).
- * - With latent signal: Hidden mandala emerges as gain increases.
+ * OPTIMIZATIONS:
+ * 1. REF-BASED LOOP: Decoupled from React renders for 144Hz smoothness
+ * 2. ImageData pixel buffer: 1 draw call vs 3600 fillRect
+ * 3. Smooth latent lerp: No snapping on toggle
+ *
+ * METRICS:
+ * - Coherence (R): Kuramoto order parameter
+ * - BRV: Brain Rate Variability (variance of R) - matches paper Section 5
  *
  * Based on: "Psychedelics as Dimensionality Modulators" (Todd, 2025)
  */
@@ -21,11 +23,11 @@
 import { useRef, useEffect, useState } from 'react';
 
 // === CONSTANTS ===
-const GRID_SIZE = 60;  // Increased for finer pattern detail
+const GRID_SIZE = 60;
 const N_OSCILLATORS = GRID_SIZE * GRID_SIZE;
-const BASE_COUPLING = 3.0;  // Stronger baseline coupling
+const BASE_COUPLING = 3.0;
 const DT = 0.04;
-const HISTORY_LENGTH = 80;
+const HISTORY_LENGTH = 100; // Longer window for BRV calculation
 
 export default function PsychedelicGainDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,62 +37,67 @@ export default function PsychedelicGainDemo() {
   const frequenciesRef = useRef<Float32Array>(new Float32Array(N_OSCILLATORS));
   const latentPatternRef = useRef<Float32Array>(new Float32Array(N_OSCILLATORS));
 
+  // Physics Refs (Decoupled from React State)
+  const gainRef = useRef(0.15);
+  const latentTargetRef = useRef(0); // 0 or 1
+  const latentCurrentRef = useRef(0); // Lerped value
+
   // Metrics History
-  const historyRef = useRef<{coherence: number[], dim: number[]}>({
+  const historyRef = useRef<{coherence: number[], brv: number[]}>({
     coherence: new Array(HISTORY_LENGTH).fill(0.5),
-    dim: new Array(HISTORY_LENGTH).fill(3)
+    brv: new Array(HISTORY_LENGTH).fill(0)
   });
 
-  // Interaction State
-  const [gain, setGain] = useState(0.15); // Start slightly above zero for visible waves
-  const [latentSignal, setLatentSignal] = useState(false); // Latent signal toggle
+  // UI State (Only for rendering DOM elements)
+  const [uiGain, setUiGain] = useState(0.15);
+  const [uiLatent, setUiLatent] = useState(false);
   const isDraggingRef = useRef(false);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // === INITIALIZATION ===
   useEffect(() => {
-    // Random initial phases and intrinsic frequencies (alpha-band centered)
+    // Initialize Oscillators
     for (let i = 0; i < N_OSCILLATORS; i++) {
       phasesRef.current[i] = Math.random() * Math.PI * 2;
-      // Natural frequency around 10Hz (alpha) with small variance
       frequenciesRef.current[i] = 1.0 + (Math.random() - 0.5) * 0.3;
     }
 
-    // Generate latent pattern (mandala: concentric rings + angular symmetry)
+    // Initialize Pattern (Mandala)
     const cx = GRID_SIZE / 2;
-    const cy = GRID_SIZE / 2;
     for (let i = 0; i < GRID_SIZE; i++) {
       for (let j = 0; j < GRID_SIZE; j++) {
         const idx = i * GRID_SIZE + j;
         const x = j - cx;
-        const y = i - cy;
-        const r = Math.sqrt(x * x + y * y) / (GRID_SIZE / 2);
-        // Mandala: radial rings + 6-fold angular symmetry
-        const val = Math.sin(r * 15) * 0.5 + Math.cos(Math.atan2(y, x) * 6) * 0.5;
-        latentPatternRef.current[idx] = val;
+        const y = i - cx;
+        const r = Math.sqrt(x * x + y * y) / cx;
+        latentPatternRef.current[idx] = Math.sin(r * 15) * 0.5 + Math.cos(Math.atan2(y, x) * 6) * 0.5;
       }
     }
-
-    setIsInitialized(true);
   }, []);
 
-  // === PHYSICS LOOP ===
+  // === PHYSICS LOOP (Decoupled from React) ===
   useEffect(() => {
-    if (!isInitialized) return;
-
     let frameId: number;
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
+    // Pre-allocate buffers (avoid GC)
+    const imgData = ctx.createImageData(GRID_SIZE, GRID_SIZE);
+    const data = imgData.data;
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = GRID_SIZE;
+    tempCanvas.height = GRID_SIZE;
+    const tempCtx = tempCanvas.getContext('2d');
+
     const loop = () => {
-      // 1. UPDATE PHYSICS
-      // Effective Coupling decreases as Gain increases (Desynchronization)
+      // 1. UPDATE PHYSICS PARAMETERS
+      // Smooth lerp for latent signal (no snapping)
+      latentCurrentRef.current += (latentTargetRef.current - latentCurrentRef.current) * 0.05;
+
+      const gain = gainRef.current; // Read from Ref (no re-render)
       const K = BASE_COUPLING * (1 - gain * 0.9);
-      // Intrinsic variance/noise increases with Gain (Excitability)
       const noiseStr = gain * 0.6;
-      // Latent signal strength (only active when toggled)
-      const signalStrength = latentSignal ? 2.0 : 0;
+      const signalStrength = latentCurrentRef.current * 2.5;
 
       const newPhases = new Float32Array(N_OSCILLATORS);
       let orderParamX = 0;
@@ -100,30 +107,25 @@ export default function PsychedelicGainDemo() {
         for (let j = 0; j < GRID_SIZE; j++) {
           const idx = i * GRID_SIZE + j;
 
-          // Calculate local coupling (Nearest neighbors with wrap)
+          // Local coupling (4-neighbor)
           let couplingSum = 0;
           const neighbors = [
-            ((i - 1 + GRID_SIZE) % GRID_SIZE) * GRID_SIZE + j, // Up
-            ((i + 1) % GRID_SIZE) * GRID_SIZE + j,             // Down
-            i * GRID_SIZE + ((j - 1 + GRID_SIZE) % GRID_SIZE), // Left
-            i * GRID_SIZE + ((j + 1) % GRID_SIZE)              // Right
+            ((i - 1 + GRID_SIZE) % GRID_SIZE) * GRID_SIZE + j,
+            ((i + 1) % GRID_SIZE) * GRID_SIZE + j,
+            i * GRID_SIZE + ((j - 1 + GRID_SIZE) % GRID_SIZE),
+            i * GRID_SIZE + ((j + 1) % GRID_SIZE)
           ];
-
           for (const nIdx of neighbors) {
             couplingSum += Math.sin(phasesRef.current[nIdx] - phasesRef.current[idx]);
           }
 
-          // LATENT SIGNAL: Pattern is amplified by gain
-          // At low gain, coupling dominates and signal is suppressed
-          // At high gain, coupling breaks and the latent pattern emerges
+          // Latent drive: amplified by gain, suppressed by coupling
           const latentDrive = latentPatternRef.current[idx] * signalStrength * gain;
-
-          // Kuramoto Update with noise and latent drive
           const noise = (Math.random() - 0.5) * noiseStr;
           const dTheta = (frequenciesRef.current[idx] + noise + latentDrive + (K / 4) * couplingSum) * DT;
           newPhases[idx] = (phasesRef.current[idx] + dTheta + Math.PI * 2) % (Math.PI * 2);
 
-          // Accumulate global order parameter (Kuramoto R)
+          // Accumulate order parameter
           orderParamX += Math.cos(newPhases[idx]);
           orderParamY += Math.sin(newPhases[idx]);
         }
@@ -131,43 +133,31 @@ export default function PsychedelicGainDemo() {
       phasesRef.current = newPhases;
 
       // 2. COMPUTE METRICS
-      // Coherence (R): 0 to 1
       const R = Math.sqrt(orderParamX ** 2 + orderParamY ** 2) / N_OSCILLATORS;
 
-      // Dimensionality Proxy: inverse of synchronization
-      // In real MEG, D_eff correlates inversely with oscillatory coherence
-      const Deff = (1 - R) * 8 + 2; // Map to roughly 2-10 scale
+      // Update coherence history
+      const history = historyRef.current;
+      history.coherence.push(R);
+      if (history.coherence.length > HISTORY_LENGTH) history.coherence.shift();
 
-      // Update History (rolling window)
-      historyRef.current.coherence.push(R);
-      historyRef.current.dim.push(Deff);
-      if (historyRef.current.coherence.length > HISTORY_LENGTH) {
-        historyRef.current.coherence.shift();
-        historyRef.current.dim.shift();
-      }
+      // Compute BRV (Standard Deviation of R over window)
+      // This matches the paper's definition of "Metastability"
+      let sum = 0;
+      history.coherence.forEach(r => sum += r);
+      const mean = sum / history.coherence.length;
+      let sqDiff = 0;
+      history.coherence.forEach(r => sqDiff += (r - mean) ** 2);
+      const brv = Math.sqrt(sqDiff / history.coherence.length) * 10; // Scaled for display
 
-      // 3. RENDER (Optimized with ImageData - single draw call)
-      const width = canvas.width;
-      const height = canvas.height;
-      const metricsHeight = 130;
-      const gridDrawHeight = height - metricsHeight;
+      history.brv.push(brv);
+      if (history.brv.length > HISTORY_LENGTH) history.brv.shift();
 
-      // Clear background
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(0, 0, width, height);
-
-      // Create pixel buffer for grid (GRID_SIZE x GRID_SIZE)
-      const imgData = ctx.createImageData(GRID_SIZE, GRID_SIZE);
-      const data = imgData.data;
-
+      // 3. RENDER PIXELS (ImageData buffer)
       for (let i = 0; i < N_OSCILLATORS; i++) {
         const p = phasesRef.current[i];
-
-        // Sinebow color mapping (smooth phase wrap)
         const r = Math.sin(p) * 127 + 128;
         const g = Math.sin(p + 2.094) * 127 + 128;
         const b = Math.sin(p + 4.189) * 127 + 128;
-
         const ptr = i * 4;
         data[ptr] = r;
         data[ptr + 1] = g;
@@ -175,23 +165,23 @@ export default function PsychedelicGainDemo() {
         data[ptr + 3] = 255;
       }
 
-      // Scale up pixels with nearest-neighbor for crisp heatmap look
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = GRID_SIZE;
-      tempCanvas.height = GRID_SIZE;
-      tempCanvas.getContext('2d')?.putImageData(imgData, 0, 0);
+      // Blit to canvas
+      tempCtx?.putImageData(imgData, 0, 0);
+      const width = canvas.width;
+      const height = canvas.height;
+      const gridDrawHeight = height - 130;
 
-      ctx.save();
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, width, height);
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(tempCanvas, 0, 0, width, gridDrawHeight);
-      ctx.restore();
 
       // 4. DRAW METRICS PANEL
       const panelY = height - 130;
       ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
       ctx.fillRect(0, panelY, width, 130);
 
-      // Divider line
+      // Divider
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -199,20 +189,11 @@ export default function PsychedelicGainDemo() {
       ctx.lineTo(width, panelY);
       ctx.stroke();
 
-      // Draw graphs
       const graphW = width / 2 - 40;
       const graphH = 50;
       const graphY = panelY + 55;
 
-      const drawGraph = (
-        vals: number[],
-        color: string,
-        xOffset: number,
-        label: string,
-        minVal: number,
-        maxVal: number,
-        unit: string
-      ) => {
+      const drawGraph = (vals: number[], color: string, xOffset: number, label: string, maxVal: number) => {
         // Label
         ctx.fillStyle = '#94a3b8';
         ctx.font = '11px ui-monospace, monospace';
@@ -222,7 +203,7 @@ export default function PsychedelicGainDemo() {
         const currentVal = vals[vals.length - 1];
         ctx.fillStyle = color;
         ctx.font = 'bold 18px ui-monospace, monospace';
-        ctx.fillText(currentVal.toFixed(2) + unit, xOffset, panelY + 42);
+        ctx.fillText(currentVal.toFixed(3), xOffset, panelY + 42);
 
         // Graph background
         ctx.fillStyle = '#1e293b';
@@ -234,8 +215,7 @@ export default function PsychedelicGainDemo() {
         ctx.beginPath();
         vals.forEach((v, i) => {
           const x = xOffset + (i / (HISTORY_LENGTH - 1)) * graphW;
-          const normalized = (v - minVal) / (maxVal - minVal);
-          const y = graphY + graphH - normalized * graphH;
+          const y = graphY + graphH - (v / maxVal) * graphH;
           if (i === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         });
@@ -243,48 +223,56 @@ export default function PsychedelicGainDemo() {
 
         // Current value dot
         const lastX = xOffset + graphW;
-        const lastNorm = (currentVal - minVal) / (maxVal - minVal);
-        const lastY = graphY + graphH - lastNorm * graphH;
+        const lastY = graphY + graphH - (currentVal / maxVal) * graphH;
         ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(lastX, lastY, 4, 0, Math.PI * 2);
         ctx.fill();
       };
 
-      drawGraph(historyRef.current.coherence, '#ef4444', 20, 'OSCILLATORY COHERENCE', 0, 1, '');
-      drawGraph(historyRef.current.dim, '#22c55e', width / 2 + 20, 'EFFECTIVE DIMENSIONALITY', 0, 10, '');
+      drawGraph(history.coherence, '#ef4444', 20, 'COHERENCE (Order R)', 1.0);
+      drawGraph(history.brv, '#38bdf8', width / 2 + 20, 'BRV (Metastability)', 1.5);
 
-      // 5. GAIN INDICATOR
-      const gainBarY = height - 12;
+      // 5. GAIN BAR
+      const barY = height - 12;
       ctx.fillStyle = '#1e293b';
-      ctx.fillRect(0, gainBarY, width, 12);
+      ctx.fillRect(0, barY, width, 12);
 
-      // Gradient bar
-      const gradient = ctx.createLinearGradient(0, 0, width, 0);
-      gradient.addColorStop(0, '#3b82f6');    // Blue (baseline)
-      gradient.addColorStop(0.5, '#8b5cf6');  // Purple
-      gradient.addColorStop(1, '#ec4899');    // Pink (psychedelic)
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, gainBarY, width * gain, 12);
+      const grad = ctx.createLinearGradient(0, 0, width, 0);
+      grad.addColorStop(0, '#3b82f6');
+      grad.addColorStop(0.5, '#8b5cf6');
+      grad.addColorStop(1, '#ec4899');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, barY, width * gain, 12);
 
-      // Gain label
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 9px ui-monospace, monospace';
-      ctx.fillText(`5-HT2A GAIN: ${(gain * 100).toFixed(0)}%`, 8, gainBarY + 9);
+      ctx.fillText(`5-HT2A GAIN: ${(gain * 100).toFixed(0)}%`, 8, barY + 9);
 
       frameId = requestAnimationFrame(loop);
     };
 
     frameId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frameId);
-  }, [gain, latentSignal, isInitialized]);
+  }, []); // Empty dependency = loop never restarts!
 
   // === HANDLERS ===
   const handleInput = (clientX: number) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    setGain(x);
+
+    // Update Ref for physics (instant)
+    gainRef.current = x;
+
+    // Update State for UI (React cycle)
+    setUiGain(x);
+  };
+
+  const toggleLatent = () => {
+    const newVal = !uiLatent;
+    setUiLatent(newVal);
+    latentTargetRef.current = newVal ? 1 : 0;
   };
 
   return (
@@ -292,33 +280,20 @@ export default function PsychedelicGainDemo() {
       {/* HEADER */}
       <div className="flex justify-between items-end mb-3 px-1">
         <div>
-          <h3 className="text-slate-500 text-xs tracking-widest uppercase">Kuramoto Oscillator Field</h3>
-          <h2 className="text-slate-100 font-bold text-lg">Cortical Desynchronization</h2>
+          <h3 className="text-slate-500 text-xs tracking-widest uppercase">Cortical Reservoir</h3>
+          <h2 className="text-slate-100 font-bold text-lg">5-HT2A Gain Modulation</h2>
         </div>
         <div className="flex items-center gap-3">
-          {/* Latent Signal Toggle */}
           <button
-            onClick={() => setLatentSignal(!latentSignal)}
+            onClick={toggleLatent}
             className={`text-xs px-3 py-1.5 rounded font-medium transition-all ${
-              latentSignal
+              uiLatent
                 ? 'bg-amber-900/80 text-amber-200 border border-amber-600 shadow-lg shadow-amber-900/50'
                 : 'bg-slate-800 text-slate-400 border border-slate-600 hover:border-slate-500'
             }`}
           >
-            {latentSignal ? 'LATENT SIGNAL ON' : 'INJECT LATENT SIGNAL'}
+            {uiLatent ? 'LATENT SIGNAL ON' : 'INJECT LATENT SIGNAL'}
           </button>
-          {/* State indicator */}
-          <span
-            className={`text-xs px-2 py-1 rounded font-medium transition-colors ${
-              gain > 0.6
-                ? 'bg-purple-900/80 text-purple-200 border border-purple-700'
-                : gain > 0.3
-                ? 'bg-indigo-900/60 text-indigo-200 border border-indigo-700'
-                : 'bg-slate-800 text-slate-400 border border-slate-700'
-            }`}
-          >
-            {gain > 0.6 ? 'PSYCHEDELIC STATE' : gain > 0.3 ? 'TRANSITIONAL' : 'BASELINE (ALPHA)'}
-          </span>
         </div>
       </div>
 
@@ -348,68 +323,55 @@ export default function PsychedelicGainDemo() {
           className="w-full h-auto block"
         />
 
-        {/* OVERLAY HINT */}
+        {/* HINT OVERLAY */}
         <div className="absolute top-4 left-0 w-full text-center pointer-events-none opacity-70 group-hover:opacity-0 transition-opacity duration-300">
           <span className="bg-slate-900/90 text-slate-300 px-4 py-2 rounded-full border border-slate-600 text-xs">
-            ← DRAG LEFT/RIGHT TO MODULATE 5-HT2A GAIN →
+            ← DRAG TO MODULATE GAIN →
           </span>
         </div>
 
-        {/* PATTERN REVEALED overlay */}
-        {latentSignal && gain > 0.65 && (
-          <div className="absolute top-4 right-4 pointer-events-none animate-pulse">
+        {/* STATE OVERLAY */}
+        <div className="absolute top-4 right-4 pointer-events-none">
+          <span className={`text-xs px-2 py-1 rounded font-bold border ${
+            uiGain > 0.6
+              ? 'bg-purple-900/80 border-purple-500 text-purple-200'
+              : 'bg-slate-800/80 border-slate-600 text-slate-400'
+          }`}>
+            {uiGain > 0.6 ? 'CRITICAL STATE' : 'BASELINE ALPHA'}
+          </span>
+        </div>
+
+        {/* PATTERN REVEALED */}
+        {uiLatent && uiGain > 0.65 && (
+          <div className="absolute bottom-36 right-4 pointer-events-none animate-pulse">
             <span className="bg-amber-900/90 text-amber-200 px-3 py-1.5 rounded border border-amber-600 text-xs font-bold">
               PATTERN REVEALED
-            </span>
-          </div>
-        )}
-
-        {/* Suppressed pattern indicator */}
-        {latentSignal && gain < 0.35 && (
-          <div className="absolute top-4 right-4 pointer-events-none">
-            <span className="bg-slate-800/90 text-slate-500 px-3 py-1.5 rounded border border-slate-700 text-xs">
-              PATTERN SUPPRESSED BY ALPHA
             </span>
           </div>
         )}
       </div>
 
       {/* CAPTION */}
-      <div className="mt-4 grid grid-cols-3 gap-4 text-xs text-slate-400">
-        <div className="space-y-2">
-          <p>
-            <strong className="text-blue-400">Low Gain (Left):</strong> Strong coupling creates large,
-            synchronized alpha waves. The cortex is locked in a low-dimensional attractor.
-          </p>
-          <p className="text-slate-500">
-            This is the &quot;default mode&quot; — efficient but constrained.
-          </p>
-        </div>
-        <div className="space-y-2">
-          <p>
-            <strong className="text-purple-400">High Gain (Right):</strong> 5-HT2A activation breaks the
-            oscillatory constraints. Local populations desynchronize.
-          </p>
-          <p className="text-slate-500">
-            MEG coherence drops as the system explores off-manifold configurations.
-          </p>
-        </div>
-        <div className="space-y-2">
-          <p>
-            <strong className="text-amber-400">Latent Signal:</strong> A hidden pattern exists in the cortex
-            but is suppressed by alpha synchrony. When gain breaks coupling, the signal emerges.
-          </p>
-          <p className="text-slate-500">
-            Models how psychedelics reveal &quot;locked away&quot; mental states.
-          </p>
-        </div>
+      <div className="mt-4 grid grid-cols-3 gap-4 text-xs text-slate-400 border-t border-slate-800 pt-4">
+        <p>
+          <strong className="text-blue-400">Alpha Block:</strong> Low gain creates strong, coherent waves
+          (High R, Low BRV). The cortex is locked.
+        </p>
+        <p>
+          <strong className="text-purple-400">Criticality:</strong> High gain breaks coherence.
+          The system explores phase space (Low R, High BRV).
+        </p>
+        <p>
+          <strong className="text-amber-400">Unmasking:</strong> Latent patterns suppressed by alpha
+          coherence emerge near the critical point.
+        </p>
       </div>
 
       {/* PAPER LINK */}
       <div className="mt-6 pt-4 border-t border-slate-800 text-xs text-slate-500">
         <p>
-          Based on MEG analysis of 136 sessions showing mechanism-specific dissociation:
-          psilocybin desynchronizes (−15%, p=0.003), ketamine does not.
+          MEG analysis (136 sessions): psilocybin desynchronizes (−15%, p=0.003), ketamine does not.
+          BRV = variance of order parameter R.
           <br />
           <span className="text-slate-400">Todd (2025) &quot;Psychedelics as Dimensionality Modulators&quot;</span>
         </p>

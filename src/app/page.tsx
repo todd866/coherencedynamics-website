@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import InteractiveHero from '@/components/InteractiveHero';
+import TesseractHero from '@/components/TesseractHero';
 import ObserverDemo from '@/components/ObserverDemo';
 
 export default function Home() {
@@ -42,7 +42,7 @@ export default function Home() {
 
           {/* Right: Interactive visualization */}
           <div className="flex justify-end">
-            <InteractiveHero />
+            <TesseractHero className="max-w-lg rounded-xl" />
           </div>
         </div>
       </section>
