@@ -350,6 +350,14 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
   const [shapeType, setShapeType] = useState<ShapeType>('tesseract');
 
   const [renderMode, setRenderMode] = useState<'wireframe' | 'solid'>('wireframe');
+  const [basinDepth, setBasinDepth] = useState(0.5); // 0 = free cycling, 1 = deep attractors
+
+  // Track current symbolic state with hysteresis
+  const symbolState = useRef({
+    currentBase: 'A' as Base,
+    baseStrength: 0, // How long we've been in this base
+    baseCounts: { A: 0, C: 0, G: 0, T: 0 } as Record<Base, number>,
+  });
 
   const shape = useMemo(() => {
     switch (shapeType) {
@@ -360,6 +368,30 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       default: return generateTesseract();
     }
   }, [shapeType]);
+
+  // Compute shape asymmetry from moments of inertia
+  // Returns 0 for perfectly symmetric, 1 for highly asymmetric
+  const shapeAsymmetry = useMemo(() => {
+    const verts = shape.vertices;
+    // Compute second moments (proxy for inertia tensor eigenvalues)
+    let Ix = 0, Iy = 0, Iz = 0, Iw = 0;
+    for (const v of verts) {
+      // Each moment sums squared distances from that axis
+      Ix += v.y * v.y + v.z * v.z + v.w * v.w;
+      Iy += v.x * v.x + v.z * v.z + v.w * v.w;
+      Iz += v.x * v.x + v.y * v.y + v.w * v.w;
+      Iw += v.x * v.x + v.y * v.y + v.z * v.z;
+    }
+    const moments = [Ix, Iy, Iz, Iw].sort((a, b) => a - b);
+    const total = moments.reduce((s, m) => s + m, 0);
+    if (total === 0) return 0;
+    // Asymmetry: coefficient of variation of moments
+    const mean = total / 4;
+    const variance = moments.reduce((s, m) => s + (m - mean) ** 2, 0) / 4;
+    const cv = Math.sqrt(variance) / mean;
+    // Normalize to 0-1 range (cv typically 0-1 for these shapes)
+    return Math.min(1, cv * 2);
+  }, [shape]);
 
   const SCALE = 2;
   const BASE_W = fullPage ? 1000 : 700;
@@ -651,30 +683,90 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       });
 
       // -----------------------------------------------------------------------
-      // At extreme collapse, show single dominant letter
+      // Compute dominant base with attractor dynamics
       // -----------------------------------------------------------------------
 
-      if (collapseFactor > 0.9) {
-        // Average W to get dominant base
-        const avgW = shape.vertices.reduce((sum, v) => {
-          let p = { ...v };
-          p = rotate4D(p, state.angleXW, 'xw');
-          return sum + p.w;
-        }, 0) / shape.vertices.length;
+      // Count bases in current projection
+      const baseCounts = { A: 0, C: 0, G: 0, T: 0 };
+      const baseWeights = { A: 0, C: 0, G: 0, T: 0 };
+      projected.forEach(p => {
+        baseCounts[p.base]++;
+        // Weight by how "deep" in that quadrant (distance from boundary)
+        const wNorm = (p.w + 1.5) / 3;
+        const distFromBoundary = Math.min(wNorm % 0.25, 0.25 - (wNorm % 0.25)) * 4;
+        baseWeights[p.base] += 1 - distFromBoundary;
+      });
 
-        const dominantBase = getBaseFromW(avgW + 0.5);  // Slight bias
+      // Effective basin depth = user control * shape asymmetry
+      const effectiveBasinDepth = basinDepth * (0.3 + shapeAsymmetry * 0.7);
+
+      // Find the instantaneous dominant base
+      let maxWeight = 0;
+      let instantBase: Base = 'A';
+      for (const b of BASES) {
+        if (baseWeights[b] > maxWeight) {
+          maxWeight = baseWeights[b];
+          instantBase = b;
+        }
+      }
+
+      // Apply hysteresis based on basin depth
+      const sym = symbolState.current;
+      if (instantBase === sym.currentBase) {
+        // Reinforce current state
+        sym.baseStrength = Math.min(100, sym.baseStrength + 1 + effectiveBasinDepth * 3);
+      } else {
+        // Decay toward new state - slower with deeper basins
+        const decayRate = 1 + (1 - effectiveBasinDepth) * 2;
+        sym.baseStrength -= decayRate;
+        if (sym.baseStrength <= 0) {
+          sym.currentBase = instantBase;
+          sym.baseStrength = 10;
+        }
+      }
+
+      // Apply symbolic attractor force back to rotation (bidirectional coupling)
+      if (collapseFactor > 0.3 && effectiveBasinDepth > 0.2) {
+        const attractorStrength = effectiveBasinDepth * collapseFactor * 0.002;
+        // Each base corresponds to a preferred W orientation
+        const targetW: Record<Base, number> = { A: -1, C: -0.33, G: 0.33, T: 1 };
+        const target = targetW[sym.currentBase];
+
+        // Nudge rotation toward attractor
+        const currentAvgW = projected.reduce((s, p) => s + p.w, 0) / projected.length;
+        const wError = target - currentAvgW;
+        state.omegaXW += wError * attractorStrength;
+        state.omegaYW += wError * attractorStrength * 0.5;
+      }
+
+      // -----------------------------------------------------------------------
+      // At high collapse, show dominant letter
+      // -----------------------------------------------------------------------
+
+      if (collapseFactor > 0.7) {
+        const dominantBase = sym.currentBase;
         const color = BASE_COLORS[dominantBase];
+        const stability = sym.baseStrength / 100;
 
         ctx.save();
-        ctx.font = `bold ${180 * SCALE}px monospace`;
+        const fontSize = 80 + collapseFactor * 100 + stability * 50;
+        ctx.font = `bold ${fontSize * SCALE}px monospace`;
         ctx.fillStyle = color;
-        ctx.globalAlpha = (collapseFactor - 0.9) * 10;  // Fade in
+        ctx.globalAlpha = Math.min(1, (collapseFactor - 0.7) * 3 * (0.5 + stability * 0.5));
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.shadowColor = color;
-        ctx.shadowBlur = 40 * SCALE;
+        ctx.shadowBlur = (20 + stability * 30) * SCALE;
         ctx.fillText(dominantBase, centerX, centerY);
         ctx.restore();
+
+        // Show stability indicator
+        ctx.fillStyle = '#444';
+        ctx.font = `${10 * SCALE}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.globalAlpha = (collapseFactor - 0.7) * 3;
+        ctx.fillText(`stability: ${(stability * 100).toFixed(0)}%`, centerX, centerY + 80 * SCALE);
+        ctx.globalAlpha = 1;
       }
 
       // -----------------------------------------------------------------------
@@ -847,6 +939,71 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       ctx.fillStyle = '#3b82f6';
       ctx.fillText('4D HYPERCUBE', dimSliderX + dimSliderW, dimSliderY + dimSliderH + 14 * SCALE);
 
+      // -----------------------------------------------------------------------
+      // Basin Depth Slider (fullPage only)
+      // -----------------------------------------------------------------------
+
+      if (fullPage) {
+        const basinY = dimSliderY + dimSliderH + 36 * SCALE;
+        ctx.fillStyle = '#fff';
+        ctx.font = `bold ${10 * SCALE}px system-ui`;
+        ctx.textAlign = 'left';
+        ctx.fillText('ATTRACTOR BASIN DEPTH', padding, basinY);
+
+        // Show effective depth (includes shape asymmetry)
+        const effectiveDepth = basinDepth * (0.3 + shapeAsymmetry * 0.7);
+        ctx.fillStyle = effectiveDepth > 0.5 ? '#f472b6' : '#94a3b8';
+        ctx.textAlign = 'right';
+        ctx.font = `bold ${9 * SCALE}px monospace`;
+        const depthLabel = effectiveDepth < 0.3 ? 'CYCLING' :
+                          effectiveDepth < 0.6 ? 'METASTABLE' : 'LOCKED';
+        ctx.fillText(`${depthLabel} (${(effectiveDepth * 100).toFixed(0)}%)`, W - padding, basinY);
+
+        const basinSliderY = basinY + 14 * SCALE;
+
+        // Track
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.roundRect(dimSliderX, basinSliderY, dimSliderW, dimSliderH, 6 * SCALE);
+        ctx.fill();
+
+        // Fill
+        const basinGradient = ctx.createLinearGradient(dimSliderX, 0, dimSliderX + dimSliderW, 0);
+        basinGradient.addColorStop(0, '#64748b');
+        basinGradient.addColorStop(0.5, '#a855f7');
+        basinGradient.addColorStop(1, '#f472b6');
+        ctx.fillStyle = basinGradient;
+        ctx.beginPath();
+        ctx.roundRect(dimSliderX, basinSliderY, basinDepth * dimSliderW, dimSliderH, 6 * SCALE);
+        ctx.fill();
+
+        // Handle
+        const basinHandleX = dimSliderX + basinDepth * dimSliderW;
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(basinHandleX, basinSliderY + dimSliderH / 2, 10 * SCALE, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = effectiveDepth > 0.5 ? '#f472b6' : '#a855f7';
+        ctx.lineWidth = 3 * SCALE;
+        ctx.stroke();
+
+        // Labels
+        ctx.font = `${8 * SCALE}px system-ui`;
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('FREE CYCLING', dimSliderX, basinSliderY + dimSliderH + 14 * SCALE);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#f472b6';
+        ctx.fillText('DEEP ATTRACTORS', dimSliderX + dimSliderW, basinSliderY + dimSliderH + 14 * SCALE);
+
+        // Shape asymmetry indicator
+        ctx.fillStyle = '#555';
+        ctx.font = `${8 * SCALE}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText(`shape asymmetry: ${(shapeAsymmetry * 100).toFixed(0)}%`, dimSliderX + dimSliderW / 2, basinSliderY + dimSliderH + 14 * SCALE);
+      }
+
       animationRef.current = requestAnimationFrame(loop);
     };
 
@@ -854,7 +1011,7 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [rotate4D, getBaseFromW, shape, shapeType, renderMode, W, H, VIEW_HEIGHT, RENDER_SCALE, fullPage]);
+  }, [rotate4D, getBaseFromW, shape, shapeType, renderMode, basinDepth, shapeAsymmetry, W, H, VIEW_HEIGHT, RENDER_SCALE, fullPage]);
 
   // ---------------------------------------------------------------------------
   // Input Handling
@@ -913,12 +1070,25 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     // Dimensionality slider
     const dimY = fullPage ? panelY + 42 * SCALE + 14 * SCALE : panelY + 14 * SCALE;
     const dimSliderW = W - padding * 2;
+    const dimSliderH = 12 * SCALE;
     if (y >= dimY - 15 * SCALE && y <= dimY + 30 * SCALE) {
       state.isDragging = true;
       state.activeControl = 'dim';
       const norm = Math.max(0, Math.min(1, (x - padding) / dimSliderW));
       state.observerDim = 2.0 + norm * 2.0;
       return;
+    }
+
+    // Basin depth slider (fullPage only)
+    if (fullPage) {
+      const basinSliderY = dimY + dimSliderH + 36 * SCALE + 14 * SCALE;
+      if (y >= basinSliderY - 15 * SCALE && y <= basinSliderY + 30 * SCALE) {
+        state.isDragging = true;
+        state.activeControl = 'basin';
+        const norm = Math.max(0, Math.min(1, (x - padding) / dimSliderW));
+        setBasinDepth(norm);
+        return;
+      }
     }
 
     // Viz drag
@@ -943,6 +1113,10 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       const dimSliderW = W - padding * 2;
       const norm = Math.max(0, Math.min(1, (x - padding) / dimSliderW));
       state.observerDim = 2.0 + norm * 2.0;
+    } else if (state.activeControl === 'basin') {
+      const dimSliderW = W - padding * 2;
+      const norm = Math.max(0, Math.min(1, (x - padding) / dimSliderW));
+      setBasinDepth(norm);
     } else if (state.activeControl === 'viz') {
       const dx = x - state.lastMouseX;
       const dy = y - state.lastMouseY;
