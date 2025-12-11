@@ -2,30 +2,66 @@
 
 /**
  * =============================================================================
- * CodeForming - Bidirectional Code-Dynamics Coupling
+ * CodeForming - Hypercube with Dimensional Collapse to ACGT
  * =============================================================================
  *
- * CORE INSIGHT:
- * Code doesn't just passively represent dynamics - it CONSTRAINS them.
- * Each symbol (A, C, G, T) corresponds to a rotation attractor.
- * As dimensionality collapses, the code stabilizes AND pulls the dynamics
- * toward the associated rotation.
- *
- * THE PHYSICS:
- * - Rotation phase determines which base gets assigned
- * - Once assigned (with hysteresis), the base pulls dynamics toward its attractor
- * - At full collapse: single letter completely controls rotation
+ * Same physics as TesseractSimple, but with a dimensionality slider.
+ * As you collapse from 4D → 2D, the vertices encode to ACGT symbols.
+ * At full collapse: single letter that feeds back into the rotation.
  *
  * THE ENCODING:
- * - A = phase 0 (rightward)
- * - C = phase π/2 (upward)
- * - G = phase π (leftward)
- * - T = phase 3π/2 (downward)
+ * - Each vertex's W coordinate determines its base (A, C, G, T)
+ * - At low-D, vertices snap to grid and become letters
+ * - The assigned base creates an attractor that pulls the rotation
  *
  * =============================================================================
  */
 
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+interface Vec4 {
+  x: number;
+  y: number;
+  z: number;
+  w: number;
+}
+
+type ShapeType = 'tesseract' | '16-cell' | '24-cell';
+
+interface Shape {
+  vertices: Vec4[];
+  edges: { from: number; to: number }[];
+  name: string;
+}
+
+interface PhysicsState {
+  angleXY: number;
+  angleXZ: number;
+  angleYZ: number;
+  angleXW: number;
+  angleYW: number;
+  angleZW: number;
+  omegaXY: number;
+  omegaXZ: number;
+  omegaYZ: number;
+  omegaXW: number;
+  omegaYW: number;
+  omegaZW: number;
+  observerDim: number;
+  isDragging: boolean;
+  lastMouseX: number;
+  lastMouseY: number;
+  lastMoveTime: number;
+  activeControl: string | null;
+}
+
+interface CodeFormingProps {
+  fullPage?: boolean;
+}
 
 // =============================================================================
 // CONSTANTS
@@ -34,48 +70,112 @@ import { useRef, useEffect, useCallback } from 'react';
 const BASES = ['A', 'C', 'G', 'T'] as const;
 type Base = typeof BASES[number];
 
-// Each base corresponds to a rotation phase attractor
-const BASE_PHASES: Record<Base, number> = {
-  'A': 0,
-  'C': Math.PI / 2,
-  'G': Math.PI,
-  'T': (3 * Math.PI) / 2,
-};
-
 const BASE_COLORS: Record<Base, string> = {
-  'A': '#22c55e',  // Green - Adenine
-  'C': '#3b82f6',  // Blue - Cytosine
-  'G': '#f59e0b',  // Amber - Guanine
-  'T': '#ef4444',  // Red - Thymine
+  'A': '#22c55e',  // Green
+  'C': '#3b82f6',  // Blue
+  'G': '#f59e0b',  // Amber
+  'T': '#ef4444',  // Red
 };
 
-// Physics
-const DAMPING = 0.002;
-const CODE_FEEDBACK_STRENGTH = 0.08;  // How strongly code pulls dynamics
-const HYSTERESIS = 0.3;  // Noise threshold before switching bases
+const DAMPING = 0.003;
+const DRAG_SENSITIVITY = 0.006;
 
-interface CodeFormingProps {
-  fullPage?: boolean;
+// =============================================================================
+// SHAPE GENERATORS
+// =============================================================================
+
+function generateTesseract(): Shape {
+  const vertices: Vec4[] = [];
+  for (let i = 0; i < 16; i++) {
+    vertices.push({
+      x: (i & 1) ? 1 : -1,
+      y: (i & 2) ? 1 : -1,
+      z: (i & 4) ? 1 : -1,
+      w: (i & 8) ? 1 : -1,
+    });
+  }
+
+  const edges: { from: number; to: number }[] = [];
+  for (let i = 0; i < 16; i++) {
+    for (let j = i + 1; j < 16; j++) {
+      const v1 = vertices[i];
+      const v2 = vertices[j];
+      const diff = (v1.x !== v2.x ? 1 : 0) + (v1.y !== v2.y ? 1 : 0) +
+                   (v1.z !== v2.z ? 1 : 0) + (v1.w !== v2.w ? 1 : 0);
+      if (diff === 1) {
+        edges.push({ from: i, to: j });
+      }
+    }
+  }
+
+  return { vertices, edges, name: 'Tesseract' };
 }
 
-interface PhysicsState {
-  // Main rotation angle (the "phase" that encodes to bases)
-  angle: number;
-  omega: number;  // Angular velocity
+function generate16Cell(): Shape {
+  const scale = 1.5;
+  const vertices: Vec4[] = [
+    { x: scale, y: 0, z: 0, w: 0 },
+    { x: -scale, y: 0, z: 0, w: 0 },
+    { x: 0, y: scale, z: 0, w: 0 },
+    { x: 0, y: -scale, z: 0, w: 0 },
+    { x: 0, y: 0, z: scale, w: 0 },
+    { x: 0, y: 0, z: -scale, w: 0 },
+    { x: 0, y: 0, z: 0, w: scale },
+    { x: 0, y: 0, z: 0, w: -scale },
+  ];
 
-  // Current assigned base (with hysteresis)
-  currentBase: Base;
-  baseStability: number;  // 0-1, how stable the current assignment is
+  const edges: { from: number; to: number }[] = [];
+  for (let i = 0; i < 8; i++) {
+    for (let j = i + 1; j < 8; j++) {
+      if (Math.floor(i / 2) !== Math.floor(j / 2)) {
+        edges.push({ from: i, to: j });
+      }
+    }
+  }
 
-  // Observer dimensionality: 4.0 (free dynamics) → 2.0 (code-locked)
-  observerDim: number;
+  return { vertices, edges, name: '16-Cell' };
+}
 
-  // Interaction
-  isDragging: boolean;
-  lastMouseX: number;
-  lastMouseY: number;
-  lastMoveTime: number;
-  activeControl: string | null;
+function generate24Cell(): Shape {
+  const vertices: Vec4[] = [];
+  const scale = 1.2;
+
+  const axes = [
+    { x: 1, y: 0, z: 0, w: 0 }, { x: -1, y: 0, z: 0, w: 0 },
+    { x: 0, y: 1, z: 0, w: 0 }, { x: 0, y: -1, z: 0, w: 0 },
+    { x: 0, y: 0, z: 1, w: 0 }, { x: 0, y: 0, z: -1, w: 0 },
+    { x: 0, y: 0, z: 0, w: 1 }, { x: 0, y: 0, z: 0, w: -1 },
+  ];
+  axes.forEach(v => vertices.push({
+    x: v.x * scale, y: v.y * scale, z: v.z * scale, w: v.w * scale
+  }));
+
+  const s = scale * 0.707;
+  for (let i = 0; i < 16; i++) {
+    vertices.push({
+      x: ((i & 1) ? s : -s),
+      y: ((i & 2) ? s : -s),
+      z: ((i & 4) ? s : -s),
+      w: ((i & 8) ? s : -s),
+    });
+  }
+
+  const edges: { from: number; to: number }[] = [];
+  const targetDist = Math.sqrt(2) * scale;
+  for (let i = 0; i < vertices.length; i++) {
+    for (let j = i + 1; j < vertices.length; j++) {
+      const dx = vertices[i].x - vertices[j].x;
+      const dy = vertices[i].y - vertices[j].y;
+      const dz = vertices[i].z - vertices[j].z;
+      const dw = vertices[i].w - vertices[j].w;
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz + dw*dw);
+      if (Math.abs(dist - targetDist) < 0.01) {
+        edges.push({ from: i, to: j });
+      }
+    }
+  }
+
+  return { vertices, edges, name: '24-Cell' };
 }
 
 // =============================================================================
@@ -85,73 +185,97 @@ interface PhysicsState {
 export default function CodeForming({ fullPage = false }: CodeFormingProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
+  const [shapeType, setShapeType] = useState<ShapeType>('tesseract');
+
+  const shape = useMemo(() => {
+    switch (shapeType) {
+      case 'tesseract': return generateTesseract();
+      case '16-cell': return generate16Cell();
+      case '24-cell': return generate24Cell();
+      default: return generateTesseract();
+    }
+  }, [shapeType]);
 
   const SCALE = 2;
-  const BASE_W = fullPage ? 900 : 700;
-  const BASE_H = fullPage ? 700 : 500;
+  const BASE_W = fullPage ? 1000 : 700;
+  const BASE_H = fullPage ? 750 : 500;
   const W = BASE_W * SCALE;
   const H = BASE_H * SCALE;
-  const VIEW_HEIGHT = fullPage ? H * 0.75 : H * 0.85;
+  const VIEW_HEIGHT = fullPage ? H * 0.78 : H * 0.85;
+  const RENDER_SCALE = fullPage ? 280 * SCALE : 320 * SCALE;
 
   const physics = useRef<PhysicsState>({
-    angle: Math.random() * Math.PI * 2,
-    omega: 0.02,
-    currentBase: 'A',
-    baseStability: 0,
+    angleXY: 0, angleXZ: 0, angleYZ: 0,
+    angleXW: 0, angleYW: 0, angleZW: 0,
+    omegaXY: 0, omegaXZ: 0, omegaYZ: 0,
+    omegaXW: 0.008, omegaYW: 0.005, omegaZW: 0.003,
     observerDim: 4.0,
     isDragging: false,
-    lastMouseX: 0,
-    lastMouseY: 0,
-    lastMoveTime: 0,
+    lastMouseX: 0, lastMouseY: 0, lastMoveTime: 0,
     activeControl: null,
   });
 
-  // Particle positions for the shape visualization
-  const particles = useRef<{ x: number; y: number; basePhase: number }[]>([]);
-
-  // Initialize particles
+  // Reset on shape change
   useEffect(() => {
-    const pts: { x: number; y: number; basePhase: number }[] = [];
-    // Create a rotating structure
-    for (let i = 0; i < 60; i++) {
-      const r = 0.3 + Math.random() * 0.7;
-      const theta = (i / 60) * Math.PI * 2;
-      pts.push({
-        x: Math.cos(theta) * r,
-        y: Math.sin(theta) * r,
-        basePhase: theta,  // Each particle has an inherent phase offset
-      });
+    const state = physics.current;
+    state.angleXY = 0; state.angleXZ = 0; state.angleYZ = 0;
+    state.angleXW = 0; state.angleYW = 0; state.angleZW = 0;
+    state.omegaXW = 0.008; state.omegaYW = 0.005; state.omegaZW = 0.003;
+  }, [shape]);
+
+  // ---------------------------------------------------------------------------
+  // 4D Rotation
+  // ---------------------------------------------------------------------------
+
+  const rotate4D = useCallback((v: Vec4, angle: number, plane: string): Vec4 => {
+    const s = Math.sin(angle);
+    const c = Math.cos(angle);
+    const result = { ...v };
+
+    switch (plane) {
+      case 'xy':
+        result.x = v.x * c - v.y * s;
+        result.y = v.x * s + v.y * c;
+        break;
+      case 'xz':
+        result.x = v.x * c - v.z * s;
+        result.z = v.x * s + v.z * c;
+        break;
+      case 'xw':
+        result.x = v.x * c - v.w * s;
+        result.w = v.x * s + v.w * c;
+        break;
+      case 'yz':
+        result.y = v.y * c - v.z * s;
+        result.z = v.y * s + v.z * c;
+        break;
+      case 'yw':
+        result.y = v.y * c - v.w * s;
+        result.w = v.y * s + v.w * c;
+        break;
+      case 'zw':
+        result.z = v.z * c - v.w * s;
+        result.w = v.z * s + v.w * c;
+        break;
     }
-    // Add some inner particles
-    for (let i = 0; i < 20; i++) {
-      const r = Math.random() * 0.3;
-      const theta = Math.random() * Math.PI * 2;
-      pts.push({
-        x: Math.cos(theta) * r,
-        y: Math.sin(theta) * r,
-        basePhase: theta,
-      });
-    }
-    particles.current = pts;
+    return result;
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Determine base from angle
+  // Get base from W coordinate
   // ---------------------------------------------------------------------------
-  const getBaseFromAngle = useCallback((angle: number): Base => {
-    // Normalize angle to [0, 2π)
-    const norm = ((angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
 
-    // Each base covers a quadrant
-    if (norm < Math.PI / 2) return 'A';
-    if (norm < Math.PI) return 'C';
-    if (norm < 3 * Math.PI / 2) return 'G';
-    return 'T';
+  const getBaseFromW = useCallback((w: number): Base => {
+    // W ranges from -1.5 to 1.5 roughly, map to 4 bases
+    const norm = (w + 1.5) / 3;  // 0 to 1
+    const idx = Math.floor(norm * 4);
+    return BASES[Math.max(0, Math.min(3, idx))];
   }, []);
 
   // ---------------------------------------------------------------------------
   // Animation Loop
   // ---------------------------------------------------------------------------
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -167,50 +291,26 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
 
       // Collapse factor: 4.0→2.0 maps to 0→1
       const collapseFactor = Math.max(0, Math.min(1, (4.0 - state.observerDim) / 2.0));
+      const snapStrength = Math.pow(collapseFactor, 2);
 
       // -----------------------------------------------------------------------
       // PHYSICS UPDATE
       // -----------------------------------------------------------------------
 
       if (!state.isDragging || state.activeControl === 'dim') {
-        // Determine what base the current angle maps to
-        const naturalBase = getBaseFromAngle(state.angle);
-
-        // Update base assignment with hysteresis
-        if (naturalBase !== state.currentBase) {
-          state.baseStability -= 0.02;
-          if (state.baseStability < -HYSTERESIS) {
-            state.currentBase = naturalBase;
-            state.baseStability = 0;
-          }
-        } else {
-          state.baseStability = Math.min(1, state.baseStability + 0.05);
-        }
-
-        // CODE FEEDBACK: The assigned base pulls the dynamics toward its attractor
-        // Strength increases with collapse
-        const targetPhase = BASE_PHASES[state.currentBase];
-        let phaseDiff = targetPhase - (state.angle % (Math.PI * 2));
-
-        // Normalize to [-π, π]
-        while (phaseDiff > Math.PI) phaseDiff -= Math.PI * 2;
-        while (phaseDiff < -Math.PI) phaseDiff += Math.PI * 2;
-
-        // Apply feedback force (stronger at higher collapse)
-        const feedbackStrength = CODE_FEEDBACK_STRENGTH * collapseFactor * collapseFactor;
-        state.omega += phaseDiff * feedbackStrength;
-
         // Damping
-        state.omega *= (1 - DAMPING);
+        state.omegaXZ *= (1 - DAMPING);
+        state.omegaYZ *= (1 - DAMPING);
+        state.omegaXW *= (1 - DAMPING);
+        state.omegaYW *= (1 - DAMPING);
+        state.omegaZW *= (1 - DAMPING);
 
-        // At extreme collapse, lock to the attractor
-        if (collapseFactor > 0.95) {
-          state.omega *= 0.8;  // Strong damping
-          state.angle += (targetPhase - state.angle) * 0.1;  // Snap toward attractor
-        }
-
-        // Integrate
-        state.angle += state.omega;
+        // Integrate angles
+        state.angleXZ += state.omegaXZ;
+        state.angleYZ += state.omegaYZ;
+        state.angleXW += state.omegaXW;
+        state.angleYW += state.omegaYW;
+        state.angleZW += state.omegaZW;
       }
 
       // -----------------------------------------------------------------------
@@ -222,157 +322,165 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
 
       const centerX = W / 2;
       const centerY = VIEW_HEIGHT / 2;
-      const radius = Math.min(W, VIEW_HEIGHT) * 0.35;
-
-      // Current base color
-      const baseColor = BASE_COLORS[state.currentBase];
 
       // -----------------------------------------------------------------------
-      // Draw rotating structure
+      // Transform vertices
       // -----------------------------------------------------------------------
 
-      if (collapseFactor < 0.9) {
-        // Draw particles
-        particles.current.forEach((p) => {
-          // Rotate particle by current angle
-          const rotatedX = p.x * Math.cos(state.angle) - p.y * Math.sin(state.angle);
-          const rotatedY = p.x * Math.sin(state.angle) + p.y * Math.cos(state.angle);
+      const projected: { x: number; y: number; z: number; w: number; base: Base }[] = [];
 
-          const screenX = centerX + rotatedX * radius;
-          const screenY = centerY + rotatedY * radius;
+      for (const v of shape.vertices) {
+        let p = { ...v };
 
-          // Particle's phase determines its color (which base it would encode)
-          const particleAngle = (state.angle + p.basePhase) % (Math.PI * 2);
-          const particleBase = getBaseFromAngle(particleAngle);
-          const particleColor = BASE_COLORS[particleBase];
+        // 4D rotations
+        p = rotate4D(p, state.angleXW, 'xw');
+        p = rotate4D(p, state.angleYW, 'yw');
+        p = rotate4D(p, state.angleZW, 'zw');
+        p = rotate4D(p, state.angleXZ, 'xz');
+        p = rotate4D(p, state.angleYZ, 'yz');
 
-          // Size and alpha based on collapse
-          const size = (3 + (1 - collapseFactor) * 3) * SCALE;
-          const alpha = 0.4 + (1 - collapseFactor) * 0.6;
+        // Determine base from W (before projection loses it)
+        const base = getBaseFromW(p.w);
 
-          // At higher collapse, particles drift toward center
-          const driftFactor = collapseFactor * collapseFactor;
-          const driftX = screenX * (1 - driftFactor) + centerX * driftFactor;
-          const driftY = screenY * (1 - driftFactor) + centerY * driftFactor;
+        // 4D → 3D stereographic projection
+        const distance = 2.5;
+        const scale4D = 1 / (distance - p.w * 0.5);
+        const x3 = p.x * scale4D;
+        const y3 = p.y * scale4D;
+        const z3 = p.z * scale4D;
 
-          ctx.fillStyle = particleColor + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+        // 3D → 2D perspective
+        const fov = 3;
+        const scale3D = fov / (fov + z3 + 1.5);
+
+        let sx = x3 * scale3D * RENDER_SCALE + centerX;
+        let sy = y3 * scale3D * RENDER_SCALE + centerY;
+
+        // At higher collapse, snap to grid
+        if (snapStrength > 0.1) {
+          const gridSize = 40 * SCALE;
+          const gx = Math.round(sx / gridSize) * gridSize;
+          const gy = Math.round(sy / gridSize) * gridSize;
+
+          // At extreme collapse, pull toward center
+          const extremeSnap = Math.max(0, (snapStrength - 0.8) / 0.2);
+          const targetX = gx * (1 - extremeSnap) + centerX * extremeSnap;
+          const targetY = gy * (1 - extremeSnap) + centerY * extremeSnap;
+
+          sx = sx * (1 - snapStrength) + targetX * snapStrength;
+          sy = sy * (1 - snapStrength) + targetY * snapStrength;
+        }
+
+        projected.push({ x: sx, y: sy, z: z3, w: p.w, base });
+      }
+
+      // -----------------------------------------------------------------------
+      // Draw edges (fade out with collapse)
+      // -----------------------------------------------------------------------
+
+      if (collapseFactor < 0.8) {
+        ctx.lineCap = 'round';
+        for (const edge of shape.edges) {
+          const p1 = projected[edge.from];
+          const p2 = projected[edge.to];
+
+          const avgW = (p1.w + p2.w) / 2;
+          const alpha = (0.3 + (avgW + 1) * 0.35) * (1 - collapseFactor);
+
+          // Color based on average W
+          const avgBase = getBaseFromW(avgW);
+          const color = BASE_COLORS[avgBase];
+
+          ctx.strokeStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+          ctx.lineWidth = 2 * SCALE;
           ctx.beginPath();
-          ctx.arc(driftX, driftY, size, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+      }
 
-          // At medium collapse, show the base letter on each particle
-          if (collapseFactor > 0.3 && collapseFactor < 0.9) {
-            ctx.font = `${(10 + collapseFactor * 8) * SCALE}px monospace`;
-            ctx.fillStyle = particleColor;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(particleBase, driftX, driftY);
+      // -----------------------------------------------------------------------
+      // Draw vertices / letters
+      // -----------------------------------------------------------------------
+
+      // Sort by depth
+      const sorted = [...projected].sort((a, b) => a.z - b.z);
+
+      sorted.forEach((p) => {
+        const color = BASE_COLORS[p.base];
+        const alpha = 0.4 + (p.w + 1) * 0.3;
+
+        if (collapseFactor > 0.5) {
+          // Draw as letters
+          const fontSize = 16 + collapseFactor * 24;
+          ctx.font = `bold ${fontSize * SCALE}px monospace`;
+          ctx.fillStyle = color;
+          ctx.globalAlpha = Math.min(1, alpha + collapseFactor * 0.5);
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          // Glow
+          if (collapseFactor > 0.7) {
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 10 * SCALE * collapseFactor;
           }
-        });
 
-        // Draw rotation indicator
-        const indicatorX = centerX + Math.cos(state.angle) * radius * 0.5;
-        const indicatorY = centerY + Math.sin(state.angle) * radius * 0.5;
+          ctx.fillText(p.base, p.x, p.y);
+          ctx.shadowBlur = 0;
+          ctx.globalAlpha = 1;
+        } else {
+          // Draw as points
+          const size = (4 + (p.w + 1) * 2) * SCALE;
 
-        ctx.strokeStyle = baseColor + '88';
-        ctx.lineWidth = 2 * SCALE;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(indicatorX, indicatorY);
-        ctx.stroke();
-
-        // Arrow head
-        const arrowSize = 15 * SCALE;
-        const arrowAngle = state.angle;
-        ctx.fillStyle = baseColor;
-        ctx.beginPath();
-        ctx.moveTo(indicatorX, indicatorY);
-        ctx.lineTo(
-          indicatorX - Math.cos(arrowAngle - 0.3) * arrowSize,
-          indicatorY - Math.sin(arrowAngle - 0.3) * arrowSize
-        );
-        ctx.lineTo(
-          indicatorX - Math.cos(arrowAngle + 0.3) * arrowSize,
-          indicatorY - Math.sin(arrowAngle + 0.3) * arrowSize
-        );
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      // -----------------------------------------------------------------------
-      // Draw the dominant base (grows with collapse)
-      // -----------------------------------------------------------------------
-
-      const baseSize = 40 + collapseFactor * 160;
-      const baseAlpha = 0.3 + collapseFactor * 0.7;
-
-      ctx.save();
-      ctx.font = `bold ${baseSize * SCALE}px monospace`;
-      ctx.fillStyle = baseColor;
-      ctx.globalAlpha = baseAlpha;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      // Glow effect
-      if (collapseFactor > 0.5) {
-        ctx.shadowColor = baseColor;
-        ctx.shadowBlur = 30 * SCALE * collapseFactor;
-      }
-
-      ctx.fillText(state.currentBase, centerX, centerY);
-      ctx.restore();
-
-      // -----------------------------------------------------------------------
-      // Phase indicator ring
-      // -----------------------------------------------------------------------
-
-      const ringRadius = radius * 1.1;
-      const ringWidth = 8 * SCALE;
-
-      // Draw base regions
-      BASES.forEach((base, i) => {
-        const startAngle = (i * Math.PI / 2) - Math.PI / 4;
-        const endAngle = startAngle + Math.PI / 2;
-
-        ctx.strokeStyle = BASE_COLORS[base] + (base === state.currentBase ? 'cc' : '44');
-        ctx.lineWidth = base === state.currentBase ? ringWidth * 1.5 : ringWidth;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, ringRadius, startAngle, endAngle);
-        ctx.stroke();
-
-        // Label
-        const labelAngle = startAngle + Math.PI / 4;
-        const labelR = ringRadius + 25 * SCALE;
-        ctx.font = `bold ${14 * SCALE}px monospace`;
-        ctx.fillStyle = BASE_COLORS[base] + (base === state.currentBase ? 'ff' : '66');
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(base, centerX + Math.cos(labelAngle) * labelR, centerY + Math.sin(labelAngle) * labelR);
+          ctx.save();
+          ctx.shadowColor = color;
+          ctx.shadowBlur = 8 * SCALE;
+          ctx.fillStyle = color;
+          ctx.globalAlpha = alpha;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
       });
 
-      // Current angle marker
-      const markerAngle = state.angle - Math.PI / 4;  // Offset to align with regions
-      const markerR = ringRadius;
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(
-        centerX + Math.cos(markerAngle) * markerR,
-        centerY + Math.sin(markerAngle) * markerR,
-        6 * SCALE,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
+      // -----------------------------------------------------------------------
+      // At extreme collapse, show single dominant letter
+      // -----------------------------------------------------------------------
+
+      if (collapseFactor > 0.9) {
+        // Average W to get dominant base
+        const avgW = shape.vertices.reduce((sum, v) => {
+          let p = { ...v };
+          p = rotate4D(p, state.angleXW, 'xw');
+          return sum + p.w;
+        }, 0) / shape.vertices.length;
+
+        const dominantBase = getBaseFromW(avgW + 0.5);  // Slight bias
+        const color = BASE_COLORS[dominantBase];
+
+        ctx.save();
+        ctx.font = `bold ${180 * SCALE}px monospace`;
+        ctx.fillStyle = color;
+        ctx.globalAlpha = (collapseFactor - 0.9) * 10;  // Fade in
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 40 * SCALE;
+        ctx.fillText(dominantBase, centerX, centerY);
+        ctx.restore();
+      }
 
       // -----------------------------------------------------------------------
       // Header
       // -----------------------------------------------------------------------
 
-      const modeLabel = collapseFactor < 0.3 ? 'FREE DYNAMICS' :
-                        collapseFactor < 0.7 ? 'ENCODING' :
-                        collapseFactor < 0.95 ? 'CODE FEEDBACK' : 'LOCKED';
+      const modeLabel = collapseFactor < 0.3 ? '4D HYPERCUBE' :
+                        collapseFactor < 0.6 ? 'PROJECTING' :
+                        collapseFactor < 0.9 ? 'ENCODING' : 'CODIFIED';
 
-      ctx.fillStyle = baseColor;
+      ctx.fillStyle = collapseFactor > 0.6 ? '#22c55e' : '#3b82f6';
       ctx.font = `bold ${14 * SCALE}px system-ui`;
       ctx.textAlign = 'left';
       ctx.fillText('CODE FORMING', 20 * SCALE, 24 * SCALE);
@@ -382,15 +490,11 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       ctx.textAlign = 'right';
       ctx.fillText(`${state.observerDim.toFixed(2)}D → ${modeLabel}`, W - 20 * SCALE, 24 * SCALE);
 
-      // Stability indicator
+      // Shape name
       ctx.fillStyle = '#444';
-      ctx.font = `${10 * SCALE}px monospace`;
+      ctx.font = `${10 * SCALE}px system-ui`;
       ctx.textAlign = 'left';
-      ctx.fillText(`STABILITY: ${(state.baseStability * 100).toFixed(0)}%`, 20 * SCALE, 44 * SCALE);
-
-      // Feedback strength
-      const feedbackPct = (collapseFactor * collapseFactor * 100).toFixed(0);
-      ctx.fillText(`FEEDBACK: ${feedbackPct}%`, 20 * SCALE, 60 * SCALE);
+      ctx.fillText(shape.name.toUpperCase(), 20 * SCALE, 44 * SCALE);
 
       // -----------------------------------------------------------------------
       // Divider
@@ -407,85 +511,103 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       // Control Panel
       // -----------------------------------------------------------------------
 
-      const panelY = VIEW_HEIGHT + 20 * SCALE;
+      const panelY = VIEW_HEIGHT + 16 * SCALE;
       const padding = 20 * SCALE;
 
+      // Shape buttons (only fullPage)
+      if (fullPage) {
+        ctx.fillStyle = '#555';
+        ctx.font = `${9 * SCALE}px system-ui`;
+        ctx.textAlign = 'left';
+        ctx.fillText('SHAPE', padding, panelY);
+
+        const shapes: ShapeType[] = ['tesseract', '16-cell', '24-cell'];
+        const shapeLabels = ['Tesseract', '16-Cell', '24-Cell'];
+        const btnWidth = 90 * SCALE;
+
+        shapes.forEach((s, i) => {
+          const bx = padding + i * btnWidth;
+          const by = panelY + 8 * SCALE;
+          const isActive = shapeType === s;
+
+          ctx.fillStyle = isActive ? '#22c55e' : '#1a1a1a';
+          ctx.beginPath();
+          ctx.roundRect(bx, by, btnWidth - 8 * SCALE, 22 * SCALE, 4 * SCALE);
+          ctx.fill();
+
+          if (!isActive) {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = isActive ? '#000' : '#777';
+          ctx.font = `${9 * SCALE}px system-ui`;
+          ctx.textAlign = 'center';
+          ctx.fillText(shapeLabels[i], bx + (btnWidth - 8 * SCALE) / 2, by + 14 * SCALE);
+        });
+      }
+
       // Dimensionality slider
+      const dimY = fullPage ? panelY + 42 * SCALE : panelY;
       ctx.fillStyle = '#fff';
       ctx.font = `bold ${10 * SCALE}px system-ui`;
       ctx.textAlign = 'left';
-      ctx.fillText('OBSERVATION DIMENSIONALITY', padding, panelY);
+      ctx.fillText('OBSERVATION DIMENSIONALITY', padding, dimY);
 
-      const statusText = collapseFactor > 0.9 ? '>> LOCKED <<' :
-                         collapseFactor > 0.5 ? '>> ENCODING <<' : '>> FREE <<';
-      ctx.fillStyle = baseColor;
+      const statusText = collapseFactor > 0.9 ? '>> CODIFIED <<' :
+                         collapseFactor > 0.5 ? '>> ENCODING <<' : '>> HYPERCUBE <<';
+      ctx.fillStyle = collapseFactor > 0.6 ? '#22c55e' : '#3b82f6';
       ctx.textAlign = 'right';
       ctx.font = `bold ${9 * SCALE}px monospace`;
-      ctx.fillText(statusText, W - padding, panelY);
+      ctx.fillText(statusText, W - padding, dimY);
 
       const dimSliderX = padding;
       const dimSliderW = W - padding * 2;
-      const dimSliderY = panelY + 16 * SCALE;
-      const dimSliderH = 14 * SCALE;
+      const dimSliderY = dimY + 14 * SCALE;
+      const dimSliderH = 12 * SCALE;
 
       // Track
       ctx.fillStyle = '#1a1a1a';
       ctx.beginPath();
-      ctx.roundRect(dimSliderX, dimSliderY, dimSliderW, dimSliderH, 7 * SCALE);
+      ctx.roundRect(dimSliderX, dimSliderY, dimSliderW, dimSliderH, 6 * SCALE);
       ctx.fill();
 
-      // Gradient fill
+      // Gradient
       const gradient = ctx.createLinearGradient(dimSliderX, 0, dimSliderX + dimSliderW, 0);
-      gradient.addColorStop(0, BASE_COLORS[state.currentBase]);
-      gradient.addColorStop(0.5, '#666');
+      gradient.addColorStop(0, '#22c55e');
+      gradient.addColorStop(0.5, '#eab308');
       gradient.addColorStop(1, '#3b82f6');
 
       const dimNorm = (state.observerDim - 2.0) / 2.0;
-      const dimFillW = dimNorm * dimSliderW;
-
       ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.roundRect(dimSliderX, dimSliderY, dimFillW, dimSliderH, 7 * SCALE);
+      ctx.roundRect(dimSliderX, dimSliderY, dimNorm * dimSliderW, dimSliderH, 6 * SCALE);
       ctx.fill();
 
       // Handle
-      const dimHandleX = dimSliderX + dimFillW;
+      const dimHandleX = dimSliderX + dimNorm * dimSliderW;
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(dimHandleX, dimSliderY + dimSliderH / 2, 12 * SCALE, 0, Math.PI * 2);
+      ctx.arc(dimHandleX, dimSliderY + dimSliderH / 2, 10 * SCALE, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = baseColor;
+      ctx.strokeStyle = collapseFactor > 0.6 ? '#22c55e' : '#3b82f6';
       ctx.lineWidth = 3 * SCALE;
       ctx.stroke();
 
       // Labels
-      ctx.font = `${9 * SCALE}px system-ui`;
+      ctx.font = `${8 * SCALE}px system-ui`;
       ctx.textAlign = 'left';
-      ctx.fillStyle = BASE_COLORS[state.currentBase];
-      ctx.fillText('2D LOCKED', dimSliderX, dimSliderY + dimSliderH + 16 * SCALE);
+      ctx.fillStyle = '#22c55e';
+      ctx.fillText('2D CODE', dimSliderX, dimSliderY + dimSliderH + 14 * SCALE);
 
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#666';
-      ctx.fillText('3D ENCODING', dimSliderX + dimSliderW / 2, dimSliderY + dimSliderH + 16 * SCALE);
+      ctx.fillStyle = '#eab308';
+      ctx.fillText('3D SHADOW', dimSliderX + dimSliderW / 2, dimSliderY + dimSliderH + 14 * SCALE);
 
       ctx.textAlign = 'right';
       ctx.fillStyle = '#3b82f6';
-      ctx.fillText('4D FREE', dimSliderX + dimSliderW, dimSliderY + dimSliderH + 16 * SCALE);
-
-      // -----------------------------------------------------------------------
-      // Instructions
-      // -----------------------------------------------------------------------
-
-      if (fullPage) {
-        ctx.fillStyle = '#444';
-        ctx.font = `${10 * SCALE}px system-ui`;
-        ctx.textAlign = 'center';
-        ctx.fillText(
-          'Drag to spin • Slider to collapse dimensionality • Watch code form and feedback into dynamics',
-          centerX,
-          VIEW_HEIGHT + 80 * SCALE
-        );
-      }
+      ctx.fillText('4D HYPERCUBE', dimSliderX + dimSliderW, dimSliderY + dimSliderH + 14 * SCALE);
 
       animationRef.current = requestAnimationFrame(loop);
     };
@@ -494,7 +616,7 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [getBaseFromAngle, W, H, VIEW_HEIGHT, fullPage]);
+  }, [rotate4D, getBaseFromW, shape, shapeType, W, H, VIEW_HEIGHT, RENDER_SCALE, fullPage]);
 
   // ---------------------------------------------------------------------------
   // Input Handling
@@ -518,13 +640,29 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     e.preventDefault();
     const { x, y } = getCanvasCoords(e);
     const state = physics.current;
-    const panelY = VIEW_HEIGHT + 20 * SCALE;
+    const panelY = VIEW_HEIGHT + 16 * SCALE;
     const padding = 20 * SCALE;
 
+    // Shape buttons (fullPage only)
+    if (fullPage) {
+      const btnY = panelY + 8 * SCALE;
+      const btnWidth = 90 * SCALE;
+      if (y >= btnY && y <= btnY + 22 * SCALE) {
+        const shapes: ShapeType[] = ['tesseract', '16-cell', '24-cell'];
+        for (let i = 0; i < shapes.length; i++) {
+          const bx = padding + i * btnWidth;
+          if (x >= bx && x <= bx + btnWidth - 8 * SCALE) {
+            setShapeType(shapes[i]);
+            return;
+          }
+        }
+      }
+    }
+
     // Dimensionality slider
-    const dimSliderY = panelY + 16 * SCALE;
+    const dimY = fullPage ? panelY + 42 * SCALE + 14 * SCALE : panelY + 14 * SCALE;
     const dimSliderW = W - padding * 2;
-    if (y >= dimSliderY - 15 * SCALE && y <= dimSliderY + 30 * SCALE) {
+    if (y >= dimY - 15 * SCALE && y <= dimY + 30 * SCALE) {
       state.isDragging = true;
       state.activeControl = 'dim';
       const norm = Math.max(0, Math.min(1, (x - padding) / dimSliderW));
@@ -532,7 +670,7 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       return;
     }
 
-    // Visualization drag
+    // Viz drag
     if (y < VIEW_HEIGHT) {
       state.isDragging = true;
       state.activeControl = 'viz';
@@ -540,7 +678,7 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       state.lastMouseY = y;
       state.lastMoveTime = Date.now();
     }
-  }, [getCanvasCoords, W, VIEW_HEIGHT]);
+  }, [getCanvasCoords, W, VIEW_HEIGHT, fullPage]);
 
   const handleMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const state = physics.current;
@@ -556,9 +694,12 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       state.observerDim = 2.0 + norm * 2.0;
     } else if (state.activeControl === 'viz') {
       const dx = x - state.lastMouseX;
+      const dy = y - state.lastMouseY;
 
-      // Horizontal drag controls rotation
-      state.omega += dx * 0.0001;
+      state.angleXZ += dx * DRAG_SENSITIVITY;
+      state.angleYZ += dy * DRAG_SENSITIVITY;
+      state.omegaXZ = dx * DRAG_SENSITIVITY * 0.5;
+      state.omegaYZ = dy * DRAG_SENSITIVITY * 0.5;
 
       state.lastMouseX = x;
       state.lastMouseY = y;
@@ -567,9 +708,8 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
   }, [getCanvasCoords, W]);
 
   const handleEnd = useCallback(() => {
-    const state = physics.current;
-    state.isDragging = false;
-    state.activeControl = null;
+    physics.current.isDragging = false;
+    physics.current.activeControl = null;
   }, []);
 
   // ---------------------------------------------------------------------------
