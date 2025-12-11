@@ -271,7 +271,7 @@ export default function CodeCollapse({ fullPage = false }: CodeCollapseProps) {
 
   // Animation state
   const stateRef = useRef({
-    // 6 rotation velocities
+    // 6 rotation velocities (used by sliders)
     velXY: 0.0,
     velXZ: 0.0,
     velXW: 0.008,
@@ -283,18 +283,23 @@ export default function CodeCollapse({ fullPage = false }: CodeCollapseProps) {
     angXY: 0, angXZ: 0, angXW: 0,
     angYZ: 0, angYW: 0, angZW: 0,
 
+    // DRAG MOMENTUM (for viz drag interaction)
+    dragVelXW: 0,
+    dragVelYW: 0,
+
     // OBSERVATION DIMENSIONALITY: 4.0 (chaos) → 2.0 (code)
     observerDim: 4.0,
 
     isDragging: false,
     lastMouseX: 0,
     lastMouseY: 0,
+    lastMoveTime: 0,
     activeControl: null as string | null,
   });
 
   const SCALE = 2;
-  const BASE_W = fullPage ? 900 : 700;
-  const BASE_H = fullPage ? 700 : 550;
+  const BASE_W = fullPage ? 1100 : 700;
+  const BASE_H = fullPage ? 850 : 550;
   const W = BASE_W * SCALE;
   const H = BASE_H * SCALE;
 

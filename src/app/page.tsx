@@ -5,46 +5,41 @@ import ObserverDemo from '@/components/ObserverDemo';
 export default function Home() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      {/* Hero with interactive visualization */}
-      <section className="mb-20">
-        <div className="grid md:grid-cols-2 gap-8 items-center mb-8">
-          {/* Left: Text content */}
-          <div>
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 text-white">
-              Coherence Dynamics
-            </h1>
-            <p className="text-2xl text-gray-300 mb-4 font-light">
-              High-dimensional systems are coherent systems.
-            </p>
-            <p className="text-2xl text-gray-500 mb-6 font-light">
-              Bits are incoherent.
-            </p>
-            <p className="text-lg text-gray-400 mb-6">
-              Research exploring the physics of biological organization—why living systems
-              can do things digital computers cannot, and what that means for computation,
-              measurement, and the limits of knowledge.
-            </p>
-            <div className="flex gap-4">
-              <Link
-                href="/papers"
-                className="inline-flex items-center px-6 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition-colors"
-              >
-                Read the Research
-              </Link>
-              <Link
-                href="/simulations"
-                className="inline-flex items-center px-6 py-3 border border-gray-700 rounded-lg font-medium hover:bg-gray-900 transition-colors"
-              >
-                Try the Simulations
-              </Link>
-            </div>
-          </div>
-
-          {/* Right: Interactive visualization */}
-          <div className="flex justify-end">
-            <TesseractHero className="max-w-lg rounded-xl" />
-          </div>
+      {/* Hero text */}
+      <section className="mb-12 text-center">
+        <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 text-white">
+          Coherence Dynamics
+        </h1>
+        <p className="text-2xl text-gray-300 mb-4 font-light">
+          High-dimensional systems are coherent systems.
+        </p>
+        <p className="text-2xl text-gray-500 mb-6 font-light">
+          Bits are incoherent.
+        </p>
+        <p className="text-lg text-gray-400 mb-8 max-w-3xl mx-auto">
+          Research exploring the physics of biological organization—why living systems
+          can do things digital computers cannot, and what that means for computation,
+          measurement, and the limits of knowledge.
+        </p>
+        <div className="flex gap-4 justify-center">
+          <Link
+            href="/papers"
+            className="inline-flex items-center px-6 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Read the Research
+          </Link>
+          <Link
+            href="/simulations"
+            className="inline-flex items-center px-6 py-3 border border-gray-700 rounded-lg font-medium hover:bg-gray-900 transition-colors"
+          >
+            Try the Simulations
+          </Link>
         </div>
+      </section>
+
+      {/* Interactive visualization */}
+      <section className="mb-20 flex justify-center">
+        <TesseractHero className="rounded-xl w-full max-w-4xl" />
       </section>
 
       {/* Why Coherence Dynamics */}
