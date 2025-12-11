@@ -11,14 +11,6 @@ interface Simulation {
 
 const simulations: Simulation[] = [
   {
-    slug: 'vector-run',
-    title: 'Vector Run: Ascension',
-    description: "A dimensional rhythm game. Start as a 0D pulse, ascend through dimensions by matching chromatic resonance. Navigate 1D lines, 2D planes, 3D tunnels, and 4D hyperspaces. Desktop only—requires keyboard.",
-    paper: 'High-Dimensional Coherence',
-    paperSlug: 'high-dimensional-coherence',
-    status: 'playable',
-  },
-  {
     slug: 'code-collapse',
     title: 'Observer Window',
     description: "You're not collapsing the object—you're collapsing the observer. Adjust your observation dimensionality from 4D chaos to 2D code. Watch hyperdimensional structures quantize into syntax as your perceptual window narrows. The meaning comes from the dimension you can't see.",
@@ -30,6 +22,14 @@ const simulations: Simulation[] = [
     slug: 'dimensional-collapse',
     title: '4D Tesseract Shadow',
     description: "Watch a 4-dimensional hypercube projected to your screen. Drag to rotate through 4D space and see how the 3D 'shadow' morphs—demonstrating how dimensional collapse creates apparent complexity from simple structure.",
+    paper: 'High-Dimensional Coherence',
+    paperSlug: 'high-dimensional-coherence',
+    status: 'playable',
+  },
+  {
+    slug: 'vector-run',
+    title: 'Vector Run: Ascension',
+    description: "A dimensional rhythm game. Start as a 0D pulse, ascend through dimensions by matching chromatic resonance. Navigate 1D lines, 2D planes, 3D tunnels, and 4D hyperspaces. Desktop only—requires keyboard.",
     paper: 'High-Dimensional Coherence',
     paperSlug: 'high-dimensional-coherence',
     status: 'playable',
