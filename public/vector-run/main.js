@@ -4,11 +4,11 @@
  * Bootstraps the game engine and wires up DOM + audio.
  */
 import { createGame, cycleColor } from './game.js';
-import { AudioEngine } from './lib/audio.js';
+import { AudioEngine } from './audio.js';
 import { createDimension } from './dimensions.js';
-import { createEmptyInput } from './lib/types.js';
-import { telemetry } from './lib/telemetry.js';
-import { TouchControls } from './lib/touch.js';
+import { createEmptyInput } from './types.js';
+import { telemetry } from './telemetry.js';
+import { TouchControls } from './touch.js';
 // =============================================================================
 // FULLSCREEN SUPPORT
 // =============================================================================
