@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { papers, getPaperBySlug, getAdjacentPapers } from '@/data/papers';
 import Markdown from '@/components/Markdown';
 import PaperNavigation from '@/components/PaperNavigation';
+import PsychedelicGainMini from '@/components/PsychedelicGainMini';
 
 export function generateStaticParams() {
   // Exclude papers with custom pages
@@ -122,6 +123,25 @@ export default async function PaperPage({
             className="rounded-lg w-full"
           />
         </div>
+      )}
+
+      {/* Inline simulation for lsd-dimensionality */}
+      {paper.simulation === 'lsd-landscape' && (
+        <section className="mb-8 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+          <h3 className="text-lg font-semibold mb-3 text-white">Interactive: Cortical Desynchronization</h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Drag left/right to modulate 5-HT2A gain. Toggle the latent signal to see how hidden patterns
+            emerge when oscillatory constraints break down.
+          </p>
+          <div className="max-w-sm mx-auto">
+            <PsychedelicGainMini />
+          </div>
+          <p className="text-xs text-gray-500 mt-3 text-center">
+            <Link href="/simulations/lsd-landscape" className="text-orange-400 hover:text-orange-300">
+              Open full simulation &rarr;
+            </Link>
+          </p>
+        </section>
       )}
 
       {/* Rest of description */}

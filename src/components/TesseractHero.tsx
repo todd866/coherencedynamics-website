@@ -409,6 +409,10 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
     stateRef.current.lastMouseY = y;
     stateRef.current.dragVelX = 0;
     stateRef.current.dragVelY = 0;
+    // "Catch" the tesseract - heavily dampen velocities when grabbing
+    stateRef.current.xwVel *= 0.3;
+    stateRef.current.ywVel *= 0.3;
+    stateRef.current.zwVel *= 0.5;
   }, [getCanvasCoords]);
 
   const handleMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {

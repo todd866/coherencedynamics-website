@@ -146,30 +146,45 @@ export default function PsychedelicGainDemo() {
         historyRef.current.dim.shift();
       }
 
-      // 3. RENDER
+      // 3. RENDER (Optimized with ImageData - single draw call)
       const width = canvas.width;
       const height = canvas.height;
-      const cellW = width / GRID_SIZE;
-      const cellH = (height - 140) / GRID_SIZE; // Leave space for graphs
+      const metricsHeight = 130;
+      const gridDrawHeight = height - metricsHeight;
 
+      // Clear background
       ctx.fillStyle = '#0f172a';
       ctx.fillRect(0, 0, width, height);
 
-      // Draw oscillator grid
-      for (let i = 0; i < GRID_SIZE; i++) {
-        for (let j = 0; j < GRID_SIZE; j++) {
-          const idx = i * GRID_SIZE + j;
-          const p = phasesRef.current[idx];
+      // Create pixel buffer for grid (GRID_SIZE x GRID_SIZE)
+      const imgData = ctx.createImageData(GRID_SIZE, GRID_SIZE);
+      const data = imgData.data;
 
-          // Sinebow color mapping (smooth phase wrap)
-          const r = Math.sin(p) * 127 + 128;
-          const g = Math.sin(p + 2.094) * 127 + 128; // 2π/3 offset
-          const b = Math.sin(p + 4.189) * 127 + 128; // 4π/3 offset
+      for (let i = 0; i < N_OSCILLATORS; i++) {
+        const p = phasesRef.current[i];
 
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
-          ctx.fillRect(j * cellW, i * cellH, cellW + 0.5, cellH + 0.5);
-        }
+        // Sinebow color mapping (smooth phase wrap)
+        const r = Math.sin(p) * 127 + 128;
+        const g = Math.sin(p + 2.094) * 127 + 128;
+        const b = Math.sin(p + 4.189) * 127 + 128;
+
+        const ptr = i * 4;
+        data[ptr] = r;
+        data[ptr + 1] = g;
+        data[ptr + 2] = b;
+        data[ptr + 3] = 255;
       }
+
+      // Scale up pixels with nearest-neighbor for crisp heatmap look
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = GRID_SIZE;
+      tempCanvas.height = GRID_SIZE;
+      tempCanvas.getContext('2d')?.putImageData(imgData, 0, 0);
+
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(tempCanvas, 0, 0, width, gridDrawHeight);
+      ctx.restore();
 
       // 4. DRAW METRICS PANEL
       const panelY = height - 130;
