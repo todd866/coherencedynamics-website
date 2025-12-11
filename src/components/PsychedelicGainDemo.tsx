@@ -6,11 +6,14 @@
  * PHYSICS:
  * - A grid of Kuramoto oscillators with local coupling.
  * - "5-HT2A Gain" increases intrinsic frequency variance and reduces coupling strength.
+ * - LATENT SIGNAL UNMASKING: A hidden pattern is suppressed by alpha synchrony.
+ *   When coupling breaks, the latent signal is revealed.
  *
  * VISUAL:
  * - Heatmap of phase (0 to 2PI).
  * - Low Gain = Large coherent waves (Alpha).
  * - High Gain = Salt-and-pepper noise (High Entropy/Dimensionality).
+ * - With latent signal: Hidden mandala emerges as gain increases.
  *
  * Based on: "Psychedelics as Dimensionality Modulators" (Todd, 2025)
  */
@@ -18,9 +21,9 @@
 import { useRef, useEffect, useState } from 'react';
 
 // === CONSTANTS ===
-const GRID_SIZE = 40;
+const GRID_SIZE = 60;  // Increased for finer pattern detail
 const N_OSCILLATORS = GRID_SIZE * GRID_SIZE;
-const BASE_COUPLING = 2.5;
+const BASE_COUPLING = 3.0;  // Stronger baseline coupling
 const DT = 0.04;
 const HISTORY_LENGTH = 80;
 
@@ -30,6 +33,7 @@ export default function PsychedelicGainDemo() {
   // Simulation State
   const phasesRef = useRef<Float32Array>(new Float32Array(N_OSCILLATORS));
   const frequenciesRef = useRef<Float32Array>(new Float32Array(N_OSCILLATORS));
+  const latentPatternRef = useRef<Float32Array>(new Float32Array(N_OSCILLATORS));
 
   // Metrics History
   const historyRef = useRef<{coherence: number[], dim: number[]}>({
@@ -39,6 +43,7 @@ export default function PsychedelicGainDemo() {
 
   // Interaction State
   const [gain, setGain] = useState(0.15); // Start slightly above zero for visible waves
+  const [latentSignal, setLatentSignal] = useState(false); // Latent signal toggle
   const isDraggingRef = useRef(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -50,6 +55,22 @@ export default function PsychedelicGainDemo() {
       // Natural frequency around 10Hz (alpha) with small variance
       frequenciesRef.current[i] = 1.0 + (Math.random() - 0.5) * 0.3;
     }
+
+    // Generate latent pattern (mandala: concentric rings + angular symmetry)
+    const cx = GRID_SIZE / 2;
+    const cy = GRID_SIZE / 2;
+    for (let i = 0; i < GRID_SIZE; i++) {
+      for (let j = 0; j < GRID_SIZE; j++) {
+        const idx = i * GRID_SIZE + j;
+        const x = j - cx;
+        const y = i - cy;
+        const r = Math.sqrt(x * x + y * y) / (GRID_SIZE / 2);
+        // Mandala: radial rings + 6-fold angular symmetry
+        const val = Math.sin(r * 15) * 0.5 + Math.cos(Math.atan2(y, x) * 6) * 0.5;
+        latentPatternRef.current[idx] = val;
+      }
+    }
+
     setIsInitialized(true);
   }, []);
 
@@ -65,9 +86,11 @@ export default function PsychedelicGainDemo() {
     const loop = () => {
       // 1. UPDATE PHYSICS
       // Effective Coupling decreases as Gain increases (Desynchronization)
-      const K = BASE_COUPLING * (1 - gain * 0.85);
+      const K = BASE_COUPLING * (1 - gain * 0.9);
       // Intrinsic variance/noise increases with Gain (Excitability)
       const noiseStr = gain * 0.6;
+      // Latent signal strength (only active when toggled)
+      const signalStrength = latentSignal ? 2.0 : 0;
 
       const newPhases = new Float32Array(N_OSCILLATORS);
       let orderParamX = 0;
@@ -90,9 +113,14 @@ export default function PsychedelicGainDemo() {
             couplingSum += Math.sin(phasesRef.current[nIdx] - phasesRef.current[idx]);
           }
 
-          // Kuramoto Update with noise
+          // LATENT SIGNAL: Pattern is amplified by gain
+          // At low gain, coupling dominates and signal is suppressed
+          // At high gain, coupling breaks and the latent pattern emerges
+          const latentDrive = latentPatternRef.current[idx] * signalStrength * gain;
+
+          // Kuramoto Update with noise and latent drive
           const noise = (Math.random() - 0.5) * noiseStr;
-          const dTheta = (frequenciesRef.current[idx] + noise + (K / 4) * couplingSum) * DT;
+          const dTheta = (frequenciesRef.current[idx] + noise + latentDrive + (K / 4) * couplingSum) * DT;
           newPhases[idx] = (phasesRef.current[idx] + dTheta + Math.PI * 2) % (Math.PI * 2);
 
           // Accumulate global order parameter (Kuramoto R)
@@ -234,7 +262,7 @@ export default function PsychedelicGainDemo() {
 
     frameId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frameId);
-  }, [gain, isInitialized]);
+  }, [gain, latentSignal, isInitialized]);
 
   // === HANDLERS ===
   const handleInput = (clientX: number) => {
@@ -252,7 +280,19 @@ export default function PsychedelicGainDemo() {
           <h3 className="text-slate-500 text-xs tracking-widest uppercase">Kuramoto Oscillator Field</h3>
           <h2 className="text-slate-100 font-bold text-lg">Cortical Desynchronization</h2>
         </div>
-        <div className="text-right">
+        <div className="flex items-center gap-3">
+          {/* Latent Signal Toggle */}
+          <button
+            onClick={() => setLatentSignal(!latentSignal)}
+            className={`text-xs px-3 py-1.5 rounded font-medium transition-all ${
+              latentSignal
+                ? 'bg-amber-900/80 text-amber-200 border border-amber-600 shadow-lg shadow-amber-900/50'
+                : 'bg-slate-800 text-slate-400 border border-slate-600 hover:border-slate-500'
+            }`}
+          >
+            {latentSignal ? 'LATENT SIGNAL ON' : 'INJECT LATENT SIGNAL'}
+          </button>
+          {/* State indicator */}
           <span
             className={`text-xs px-2 py-1 rounded font-medium transition-colors ${
               gain > 0.6
@@ -299,10 +339,28 @@ export default function PsychedelicGainDemo() {
             ← DRAG LEFT/RIGHT TO MODULATE 5-HT2A GAIN →
           </span>
         </div>
+
+        {/* PATTERN REVEALED overlay */}
+        {latentSignal && gain > 0.65 && (
+          <div className="absolute top-4 right-4 pointer-events-none animate-pulse">
+            <span className="bg-amber-900/90 text-amber-200 px-3 py-1.5 rounded border border-amber-600 text-xs font-bold">
+              PATTERN REVEALED
+            </span>
+          </div>
+        )}
+
+        {/* Suppressed pattern indicator */}
+        {latentSignal && gain < 0.35 && (
+          <div className="absolute top-4 right-4 pointer-events-none">
+            <span className="bg-slate-800/90 text-slate-500 px-3 py-1.5 rounded border border-slate-700 text-xs">
+              PATTERN SUPPRESSED BY ALPHA
+            </span>
+          </div>
+        )}
       </div>
 
       {/* CAPTION */}
-      <div className="mt-4 grid grid-cols-2 gap-6 text-xs text-slate-400">
+      <div className="mt-4 grid grid-cols-3 gap-4 text-xs text-slate-400">
         <div className="space-y-2">
           <p>
             <strong className="text-blue-400">Low Gain (Left):</strong> Strong coupling creates large,
@@ -315,10 +373,19 @@ export default function PsychedelicGainDemo() {
         <div className="space-y-2">
           <p>
             <strong className="text-purple-400">High Gain (Right):</strong> 5-HT2A activation breaks the
-            oscillatory constraints. Local populations desynchronize, expanding effective dimensionality.
+            oscillatory constraints. Local populations desynchronize.
           </p>
           <p className="text-slate-500">
             MEG coherence drops as the system explores off-manifold configurations.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <p>
+            <strong className="text-amber-400">Latent Signal:</strong> A hidden pattern exists in the cortex
+            but is suppressed by alpha synchrony. When gain breaks coupling, the signal emerges.
+          </p>
+          <p className="text-slate-500">
+            Models how psychedelics reveal &quot;locked away&quot; mental states.
           </p>
         </div>
       </div>
