@@ -1,23 +1,46 @@
 'use client';
 
 /**
- * TesseractHero - "Impulse" Interaction Model
+ * =============================================================================
+ * TesseractSimple - 3D/4D Rigid Body Physics with Dzhanibekov Effect
+ * =============================================================================
  *
- * CONCEPT:
- * - Drag: Standard 3D Orbit (X/Y rotation). Natural object manipulation.
- * - Click/Tap: Injects "4D Momentum". Like flicking a spinner.
- *   Each tap accelerates the "Inside-Out" rotation.
+ * PHYSICS MODEL:
+ * --------------
+ * Rigid body rotation with proper inertia tensors. Asymmetric objects exhibit
+ * the Dzhanibekov (intermediate axis) effect - spontaneous flipping when
+ * rotating near an unstable axis.
  *
- * PHYSICS:
- * - 4D rotation decays (friction) unless "kept alive" by taps.
- * - 3D rotation tracks mouse movement 1:1.
- * - Color shifts from cool (slow) to hot (fast) based on 4D velocity.
+ * 3D SHAPES: Rotate in 3 planes (XY, XZ, YZ) with 3x3 inertia tensor
+ * 4D SHAPES: Rotate in 6 planes with 4D stereographic projection
+ *
+ * EULER'S EQUATIONS (simplified for visualization):
+ * -------------------------------------------------
+ * For a rigid body with principal moments I1 < I2 < I3:
+ * - Rotation around I1 (smallest): STABLE
+ * - Rotation around I2 (intermediate): UNSTABLE (Dzhanibekov!)
+ * - Rotation around I3 (largest): STABLE
+ *
+ * The instability arises because small perturbations grow exponentially
+ * when rotating near the intermediate axis.
+ *
+ * =============================================================================
  */
 
-import { useRef, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 
-interface TesseractHeroProps {
+// =============================================================================
+// TYPES
+// =============================================================================
+
+interface TesseractSimpleProps {
   className?: string;
+}
+
+interface Vec3 {
+  x: number;
+  y: number;
+  z: number;
 }
 
 interface Vec4 {
@@ -27,125 +50,442 @@ interface Vec4 {
   w: number;
 }
 
-type EdgeType = 'x' | 'y' | 'z' | 'w';
+type ShapeType = 'tesseract' | '16-cell' | '24-cell' | 'wrench' | 'book';
 
-export default function TesseractSimple({ className = '' }: TesseractHeroProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+interface Shape {
+  vertices: Vec4[];
+  edges: { from: number; to: number }[];
+  is4D: boolean;
+  // Principal moments of inertia (normalized, I1 < I2 < I3)
+  inertia: { I1: number; I2: number; I3: number };
+  name: string;
+}
 
-  const stateRef = useRef({
-    time: 0,
-    // Angles - 4D rotations
-    xwAngle: 0,   // 4D XW plane (background drift)
-    ywAngle4D: 0, // 4D YW plane - TAP triggers this (dramatic inside-out)
+interface PhysicsState {
+  // Angles (radians) - 6 rotation planes for full generality
+  angleXY: number;
+  angleXZ: number;
+  angleYZ: number;
+  angleXW: number;
+  angleYW: number;
+  angleZW: number;
 
-    // Angles - 3D rotations (drag control)
-    ywAngle: 0,   // Horizontal drag (XZ plane rotation)
-    zwAngle: 0,   // Vertical drag (YZ plane rotation)
+  // Angular velocities (radians/frame)
+  omegaXY: number;
+  omegaXZ: number;
+  omegaYZ: number;
+  omegaXW: number;
+  omegaYW: number;
+  omegaZW: number;
 
-    // Velocities - ALL momentum-based
-    xwVel: 0.002,  // Background 4D drift (very gentle)
-    ywVel4D: 0,    // TAP adds YW velocity - vertical + inside-out effect
-    ywVel: 0,      // 3D horizontal velocity (from drag)
-    zwVel: 0,      // 3D vertical velocity (from drag)
+  // Angular momentum (conserved in absence of torque)
+  // For Dzhanibekov, we track L and derive ω from L and I
+  Lx: number;
+  Ly: number;
+  Lz: number;
 
-    // Interaction
-    isDragging: false,
-    isHolding: false, // True when holding still (not moving)
-    holdStartTime: 0,
-    dragStartX: 0,
-    dragStartY: 0,
-    lastX: 0,
-    lastY: 0,
-    lastMoveTime: 0,
-    dragDistance: 0,
+  // Interaction state
+  isDragging: boolean;
+  isHolding: boolean;
+  holdStartTime: number;
+  lastMouseX: number;
+  lastMouseY: number;
+  lastMoveTime: number;
+  dragStartX: number;
+  dragStartY: number;
+  dragDistance: number;
+  lastTapTime: number;
+  tapX: number;
+  tapY: number;
+}
 
-    // Tap effect
-    lastTapTime: 0,
-    tapX: 0,
-    tapY: 0,
-  });
+// =============================================================================
+// PHYSICS CONSTANTS
+// =============================================================================
 
-  const W = 1200;
-  const H = 800;
+const DAMPING = 0.003;  // Lower damping - let it spin longer
+const VELOCITY_EPSILON = 0.00005;
+const DRAG_SENSITIVITY = 0.006;
+const FLICK_BOOST = 2.0;
+const TAP_IMPULSE = 0.06;
+const TAP_MAX_DURATION = 200;
+const TAP_MAX_DISTANCE = 10;
+const HOLD_THRESHOLD = 100;
 
-  // Tesseract vertices
-  const tesseractVertices: Vec4[] = useMemo(() => {
-    const verts: Vec4[] = [];
-    for (let i = 0; i < 16; i++) {
-      verts.push({
-        x: (i & 1) ? 1 : -1,
-        y: (i & 2) ? 1 : -1,
-        z: (i & 4) ? 1 : -1,
-        w: (i & 8) ? 1 : -1,
-      });
-    }
-    return verts;
-  }, []);
+// Dzhanibekov coupling strength - how strongly the instability manifests
+const EULER_COUPLING = 0.15;
 
-  // Edges
-  const edges: { from: number; to: number; type: EdgeType }[] = useMemo(() => {
-    const e: { from: number; to: number; type: EdgeType }[] = [];
-    for (let i = 0; i < 16; i++) {
-      for (let j = i + 1; j < 16; j++) {
-        const v1 = tesseractVertices[i];
-        const v2 = tesseractVertices[j];
-        const dx = v1.x !== v2.x ? 1 : 0;
-        const dy = v1.y !== v2.y ? 1 : 0;
-        const dz = v1.z !== v2.z ? 1 : 0;
-        const dw = v1.w !== v2.w ? 1 : 0;
-        if (dx + dy + dz + dw === 1) {
-          let type: EdgeType = 'x';
-          if (dy) type = 'y';
-          if (dz) type = 'z';
-          if (dw) type = 'w';
-          e.push({ from: i, to: j, type });
-        }
+// =============================================================================
+// CANVAS DIMENSIONS
+// =============================================================================
+
+const CANVAS_WIDTH = 1200;
+const CANVAS_HEIGHT = 800;
+const RENDER_SCALE = 350;
+
+// =============================================================================
+// SHAPE GENERATORS
+// =============================================================================
+
+function generateTesseract(): Shape {
+  const vertices: Vec4[] = [];
+  for (let i = 0; i < 16; i++) {
+    vertices.push({
+      x: (i & 1) ? 1 : -1,
+      y: (i & 2) ? 1 : -1,
+      z: (i & 4) ? 1 : -1,
+      w: (i & 8) ? 1 : -1,
+    });
+  }
+
+  const edges: { from: number; to: number }[] = [];
+  for (let i = 0; i < 16; i++) {
+    for (let j = i + 1; j < 16; j++) {
+      const v1 = vertices[i];
+      const v2 = vertices[j];
+      const diff = (v1.x !== v2.x ? 1 : 0) + (v1.y !== v2.y ? 1 : 0) +
+                   (v1.z !== v2.z ? 1 : 0) + (v1.w !== v2.w ? 1 : 0);
+      if (diff === 1) {
+        edges.push({ from: i, to: j });
       }
     }
-    return e;
-  }, [tesseractVertices]);
+  }
 
-  // 4D rotation (single plane)
+  return {
+    vertices,
+    edges,
+    is4D: true,
+    inertia: { I1: 1.0, I2: 1.0, I3: 1.0 },  // Symmetric - stable
+    name: 'Tesseract',
+  };
+}
+
+function generate16Cell(): Shape {
+  // 16-cell: 4D cross-polytope (analog of octahedron)
+  const scale = 1.5;
+  const vertices: Vec4[] = [
+    { x: scale, y: 0, z: 0, w: 0 },
+    { x: -scale, y: 0, z: 0, w: 0 },
+    { x: 0, y: scale, z: 0, w: 0 },
+    { x: 0, y: -scale, z: 0, w: 0 },
+    { x: 0, y: 0, z: scale, w: 0 },
+    { x: 0, y: 0, z: -scale, w: 0 },
+    { x: 0, y: 0, z: 0, w: scale },
+    { x: 0, y: 0, z: 0, w: -scale },
+  ];
+
+  // Each vertex connects to all others except its opposite
+  const edges: { from: number; to: number }[] = [];
+  for (let i = 0; i < 8; i++) {
+    for (let j = i + 1; j < 8; j++) {
+      // Skip opposite pairs (0-1, 2-3, 4-5, 6-7)
+      if (Math.floor(i / 2) !== Math.floor(j / 2)) {
+        edges.push({ from: i, to: j });
+      }
+    }
+  }
+
+  return {
+    vertices,
+    edges,
+    is4D: true,
+    inertia: { I1: 0.8, I2: 1.0, I3: 1.2 },  // Slightly asymmetric
+    name: '16-Cell',
+  };
+}
+
+function generate24Cell(): Shape {
+  // 24-cell: unique to 4D, self-dual
+  const vertices: Vec4[] = [];
+  const scale = 1.2;
+
+  // 8 vertices from 16-cell
+  const axes = [
+    { x: 1, y: 0, z: 0, w: 0 }, { x: -1, y: 0, z: 0, w: 0 },
+    { x: 0, y: 1, z: 0, w: 0 }, { x: 0, y: -1, z: 0, w: 0 },
+    { x: 0, y: 0, z: 1, w: 0 }, { x: 0, y: 0, z: -1, w: 0 },
+    { x: 0, y: 0, z: 0, w: 1 }, { x: 0, y: 0, z: 0, w: -1 },
+  ];
+  axes.forEach(v => vertices.push({
+    x: v.x * scale, y: v.y * scale, z: v.z * scale, w: v.w * scale
+  }));
+
+  // 16 vertices from tesseract (scaled down)
+  const s = scale * 0.707;
+  for (let i = 0; i < 16; i++) {
+    vertices.push({
+      x: ((i & 1) ? s : -s),
+      y: ((i & 2) ? s : -s),
+      z: ((i & 4) ? s : -s),
+      w: ((i & 8) ? s : -s),
+    });
+  }
+
+  // Connect vertices at distance sqrt(2) * scale
+  const edges: { from: number; to: number }[] = [];
+  const targetDist = Math.sqrt(2) * scale;
+  for (let i = 0; i < vertices.length; i++) {
+    for (let j = i + 1; j < vertices.length; j++) {
+      const dx = vertices[i].x - vertices[j].x;
+      const dy = vertices[i].y - vertices[j].y;
+      const dz = vertices[i].z - vertices[j].z;
+      const dw = vertices[i].w - vertices[j].w;
+      const dist = Math.sqrt(dx*dx + dy*dy + dz*dz + dw*dw);
+      if (Math.abs(dist - targetDist) < 0.01) {
+        edges.push({ from: i, to: j });
+      }
+    }
+  }
+
+  return {
+    vertices,
+    edges,
+    is4D: true,
+    inertia: { I1: 1.0, I2: 1.0, I3: 1.0 },  // Highly symmetric
+    name: '24-Cell',
+  };
+}
+
+function generateWrench(): Shape {
+  // T-handle / wrench shape - classic Dzhanibekov demo
+  const vertices: Vec4[] = [];
+  const edges: { from: number; to: number }[] = [];
+
+  // Handle (along Y axis)
+  const handleLength = 2.0;
+  const handleRadius = 0.15;
+  const segments = 8;
+
+  // Create handle as a series of rings
+  for (let ring = 0; ring <= 4; ring++) {
+    const y = -handleLength/2 + (ring / 4) * handleLength;
+    for (let i = 0; i < segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      vertices.push({
+        x: Math.cos(angle) * handleRadius,
+        y: y,
+        z: Math.sin(angle) * handleRadius,
+        w: 0,
+      });
+    }
+  }
+
+  // Connect handle rings
+  for (let ring = 0; ring < 4; ring++) {
+    for (let i = 0; i < segments; i++) {
+      const curr = ring * segments + i;
+      const next = ring * segments + ((i + 1) % segments);
+      const above = (ring + 1) * segments + i;
+      edges.push({ from: curr, to: next });
+      edges.push({ from: curr, to: above });
+    }
+  }
+  // Top ring
+  for (let i = 0; i < segments; i++) {
+    edges.push({ from: 4 * segments + i, to: 4 * segments + ((i + 1) % segments) });
+  }
+
+  // Head (perpendicular bar along X axis at top of handle)
+  const headLength = 1.2;
+  const headRadius = 0.2;
+  const headY = handleLength / 2;
+
+  const headStart = vertices.length;
+  for (let ring = 0; ring <= 3; ring++) {
+    const x = -headLength/2 + (ring / 3) * headLength;
+    for (let i = 0; i < segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      vertices.push({
+        x: x,
+        y: headY + Math.cos(angle) * headRadius,
+        z: Math.sin(angle) * headRadius,
+        w: 0,
+      });
+    }
+  }
+
+  // Connect head rings
+  for (let ring = 0; ring < 3; ring++) {
+    for (let i = 0; i < segments; i++) {
+      const curr = headStart + ring * segments + i;
+      const next = headStart + ring * segments + ((i + 1) % segments);
+      const above = headStart + (ring + 1) * segments + i;
+      edges.push({ from: curr, to: next });
+      edges.push({ from: curr, to: above });
+    }
+  }
+  // End cap
+  for (let i = 0; i < segments; i++) {
+    edges.push({
+      from: headStart + 3 * segments + i,
+      to: headStart + 3 * segments + ((i + 1) % segments)
+    });
+  }
+
+  return {
+    vertices,
+    edges,
+    is4D: false,
+    // Classic Dzhanibekov inertia: I1 < I2 < I3
+    // Rotation around I2 (intermediate) is UNSTABLE
+    inertia: { I1: 0.3, I2: 1.0, I3: 1.8 },
+    name: 'Wrench',
+  };
+}
+
+function generateBook(): Shape {
+  // Rectangular prism - textbook tennis racket theorem demo
+  const vertices: Vec4[] = [];
+  const edges: { from: number; to: number }[] = [];
+
+  // Dimensions: thin (x) × medium (y) × long (z)
+  const dx = 0.3;  // Thin
+  const dy = 0.8;  // Medium - INTERMEDIATE AXIS (unstable!)
+  const dz = 1.5;  // Long
+
+  // 8 corners of the box
+  for (let i = 0; i < 8; i++) {
+    vertices.push({
+      x: (i & 1) ? dx : -dx,
+      y: (i & 2) ? dy : -dy,
+      z: (i & 4) ? dz : -dz,
+      w: 0,
+    });
+  }
+
+  // 12 edges of the box
+  for (let i = 0; i < 8; i++) {
+    for (let j = i + 1; j < 8; j++) {
+      const diff = ((vertices[i].x !== vertices[j].x) ? 1 : 0) +
+                   ((vertices[i].y !== vertices[j].y) ? 1 : 0) +
+                   ((vertices[i].z !== vertices[j].z) ? 1 : 0);
+      if (diff === 1) {
+        edges.push({ from: i, to: j });
+      }
+    }
+  }
+
+  return {
+    vertices,
+    edges,
+    is4D: false,
+    // For a rectangular prism: I = m(a² + b²)/12 for each axis
+    // Thin × Medium × Long means:
+    // Around X (thin): I_x = (dy² + dz²) = large (stable)
+    // Around Y (medium): I_y = (dx² + dz²) = intermediate (UNSTABLE!)
+    // Around Z (long): I_z = (dx² + dy²) = small (stable)
+    inertia: { I1: 0.4, I2: 1.0, I3: 2.2 },
+    name: 'Book',
+  };
+}
+
+// =============================================================================
+// COMPONENT
+// =============================================================================
+
+export default function TesseractSimple({ className = '' }: TesseractSimpleProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>();
+  const [shapeType, setShapeType] = useState<ShapeType>('tesseract');
+
+  const shape = useMemo(() => {
+    switch (shapeType) {
+      case 'tesseract': return generateTesseract();
+      case '16-cell': return generate16Cell();
+      case '24-cell': return generate24Cell();
+      case 'wrench': return generateWrench();
+      case 'book': return generateBook();
+      default: return generateTesseract();
+    }
+  }, [shapeType]);
+
+  const physics = useRef<PhysicsState>({
+    angleXY: 0, angleXZ: 0, angleYZ: 0,
+    angleXW: 0, angleYW: 0, angleZW: 0,
+    omegaXY: 0, omegaXZ: 0, omegaYZ: 0,
+    omegaXW: 0.003, omegaYW: 0, omegaZW: 0,
+    Lx: 0, Ly: 0.05, Lz: 0.001,  // Initial angular momentum - mostly around Y
+    isDragging: false, isHolding: false, holdStartTime: 0,
+    lastMouseX: 0, lastMouseY: 0, lastMoveTime: 0,
+    dragStartX: 0, dragStartY: 0, dragDistance: 0,
+    lastTapTime: 0, tapX: 0, tapY: 0,
+  });
+
+  // Reset physics when shape changes
+  useEffect(() => {
+    const state = physics.current;
+    state.angleXY = 0; state.angleXZ = 0; state.angleYZ = 0;
+    state.angleXW = 0; state.angleYW = 0; state.angleZW = 0;
+    state.omegaXY = 0; state.omegaXZ = 0; state.omegaYZ = 0;
+    state.omegaXW = shape.is4D ? 0.003 : 0;
+    state.omegaYW = 0; state.omegaZW = 0;
+    // Give asymmetric shapes some initial spin for Dzhanibekov
+    if (!shape.is4D && shape.inertia.I1 !== shape.inertia.I2) {
+      state.Lx = 0.001;
+      state.Ly = 0.08;  // Mostly around intermediate axis
+      state.Lz = 0.002;
+    } else {
+      state.Lx = 0; state.Ly = 0; state.Lz = 0;
+    }
+  }, [shape]);
+
+  // ---------------------------------------------------------------------------
+  // 4D ROTATION
+  // ---------------------------------------------------------------------------
+
   const rotate4D = useCallback((v: Vec4, angle: number, plane: string): Vec4 => {
     const s = Math.sin(angle);
     const c = Math.cos(angle);
     const result = { ...v };
-    if (plane === 'xw') {
-      result.x = v.x * c - v.w * s;
-      result.w = v.x * s + v.w * c;
-    } else if (plane === 'yw') {
-      result.y = v.y * c - v.w * s;
-      result.w = v.y * s + v.w * c;
-    } else if (plane === 'zw') {
-      result.z = v.z * c - v.w * s;
-      result.w = v.z * s + v.w * c;
-    } else if (plane === 'xy') {
-      result.x = v.x * c - v.y * s;
-      result.y = v.x * s + v.y * c;
-    } else if (plane === 'xz') {
-      result.x = v.x * c - v.z * s;
-      result.z = v.x * s + v.z * c;
-    } else if (plane === 'yz') {
-      result.y = v.y * c - v.z * s;
-      result.z = v.y * s + v.z * c;
+
+    switch (plane) {
+      case 'xy':
+        result.x = v.x * c - v.y * s;
+        result.y = v.x * s + v.y * c;
+        break;
+      case 'xz':
+        result.x = v.x * c - v.z * s;
+        result.z = v.x * s + v.z * c;
+        break;
+      case 'xw':
+        result.x = v.x * c - v.w * s;
+        result.w = v.x * s + v.w * c;
+        break;
+      case 'yz':
+        result.y = v.y * c - v.z * s;
+        result.z = v.y * s + v.z * c;
+        break;
+      case 'yw':
+        result.y = v.y * c - v.w * s;
+        result.w = v.y * s + v.w * c;
+        break;
+      case 'zw':
+        result.z = v.z * c - v.w * s;
+        result.w = v.z * s + v.w * c;
+        break;
     }
     return result;
   }, []);
 
-  // 4D → 3D stereographic
-  const project4Dto3D = useCallback((v: Vec4): { x: number; y: number; z: number; w: number } => {
+  // ---------------------------------------------------------------------------
+  // PROJECTION
+  // ---------------------------------------------------------------------------
+
+  const project4Dto3D = useCallback((v: Vec4): Vec3 & { w: number } => {
     const distance = 2.5;
     const scale = 1 / (distance - v.w * 0.5);
     return { x: v.x * scale, y: v.y * scale, z: v.z * scale, w: v.w };
   }, []);
 
-  // 3D → 2D perspective
   const project3Dto2D = useCallback((x: number, y: number, z: number) => {
     const fov = 3;
     const scale = fov / (fov + z + 1.5);
     return { x: x * scale, y: y * scale, scale, z };
   }, []);
+
+  // ---------------------------------------------------------------------------
+  // ANIMATION LOOP
+  // ---------------------------------------------------------------------------
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -157,92 +497,141 @@ export default function TesseractSimple({ className = '' }: TesseractHeroProps) 
         animationRef.current = requestAnimationFrame(loop);
         return;
       }
-      const state = stateRef.current;
-      state.time += 0.016;
 
-      // HOLD TO SETTLE: If holding (not moving), snap to canonical orientation
+      const state = physics.current;
+      const { I1, I2, I3 } = shape.inertia;
+
+      // -----------------------------------------------------------------------
+      // PHYSICS UPDATE
+      // -----------------------------------------------------------------------
+
       if (state.isDragging && state.isHolding) {
-        const holdDuration = Date.now() - state.holdStartTime;
+        // Freeze
+        state.omegaXZ = 0; state.omegaYZ = 0; state.omegaXY = 0;
+        state.omegaXW = 0; state.omegaYW = 0; state.omegaZW = 0;
+        state.Lx = 0; state.Ly = 0; state.Lz = 0;
+      } else if (!state.isDragging) {
+        if (shape.is4D) {
+          // 4D physics - simple damped rotation
+          state.omegaXZ *= (1 - DAMPING);
+          state.omegaYZ *= (1 - DAMPING);
+          state.omegaXW *= (1 - DAMPING);
+          state.omegaYW *= (1 - DAMPING);
 
-        // After 100ms of holding, start settling
-        if (holdDuration > 100) {
-          // Freeze all velocities
-          state.xwVel = 0;
-          state.ywVel4D = 0;
-          state.ywVel = 0;
-          state.zwVel = 0;
+          if (Math.abs(state.omegaXZ) < VELOCITY_EPSILON) state.omegaXZ = 0;
+          if (Math.abs(state.omegaYZ) < VELOCITY_EPSILON) state.omegaYZ = 0;
+          if (Math.abs(state.omegaXW) < VELOCITY_EPSILON) state.omegaXW = 0;
+          if (Math.abs(state.omegaYW) < VELOCITY_EPSILON) state.omegaYW = 0;
 
-          // Snap all angles toward nearest canonical orientation
-          const snapSpeed = 0.08;
+          state.angleXZ += state.omegaXZ;
+          state.angleYZ += state.omegaYZ;
+          state.angleXW += state.omegaXW;
+          state.angleYW += state.omegaYW;
+        } else {
+          // 3D physics with EULER'S EQUATIONS for Dzhanibekov effect
+          // dL/dt = 0 (angular momentum conserved)
+          // But ω = I^(-1) L, and the body rotates, so ω in body frame changes!
 
-          // Snap 4D angles to nearest 90°
-          const targetXW = Math.round(state.xwAngle / (Math.PI / 2)) * (Math.PI / 2);
-          state.xwAngle += (targetXW - state.xwAngle) * snapSpeed;
-          const targetYW = Math.round(state.ywAngle4D / (Math.PI / 2)) * (Math.PI / 2);
-          state.ywAngle4D += (targetYW - state.ywAngle4D) * snapSpeed;
+          // Euler's equations (simplified):
+          // dωx/dt = (I2 - I3) * ωy * ωz / I1
+          // dωy/dt = (I3 - I1) * ωz * ωx / I2
+          // dωz/dt = (I1 - I2) * ωx * ωy / I3
 
-          // Snap 3D angles back to zero (canonical view)
-          state.ywAngle += (0 - state.ywAngle) * snapSpeed;
-          state.zwAngle += (0 - state.zwAngle) * snapSpeed;
+          // Convert L to ω (ω = L / I)
+          let omegaX = state.Lx / I1;
+          let omegaY = state.Ly / I2;
+          let omegaZ = state.Lz / I3;
+
+          // Euler coupling terms
+          const dOmegaX = EULER_COUPLING * (I2 - I3) * omegaY * omegaZ / I1;
+          const dOmegaY = EULER_COUPLING * (I3 - I1) * omegaZ * omegaX / I2;
+          const dOmegaZ = EULER_COUPLING * (I1 - I2) * omegaX * omegaY / I3;
+
+          // Update angular momentum (with damping)
+          state.Lx = (state.Lx + dOmegaX * I1) * (1 - DAMPING * 0.5);
+          state.Ly = (state.Ly + dOmegaY * I2) * (1 - DAMPING * 0.5);
+          state.Lz = (state.Lz + dOmegaZ * I3) * (1 - DAMPING * 0.5);
+
+          // Recalculate ω
+          omegaX = state.Lx / I1;
+          omegaY = state.Ly / I2;
+          omegaZ = state.Lz / I3;
+
+          // Map to rotation planes
+          // X rotation (around X axis) = YZ plane rotation
+          // Y rotation (around Y axis) = XZ plane rotation
+          // Z rotation (around Z axis) = XY plane rotation
+          state.omegaYZ = omegaX;
+          state.omegaXZ = omegaY;
+          state.omegaXY = omegaZ;
+
+          // Clamp tiny values
+          if (Math.abs(state.Lx) < VELOCITY_EPSILON * I1) state.Lx = 0;
+          if (Math.abs(state.Ly) < VELOCITY_EPSILON * I2) state.Ly = 0;
+          if (Math.abs(state.Lz) < VELOCITY_EPSILON * I3) state.Lz = 0;
+
+          // Integrate angles
+          state.angleYZ += state.omegaYZ;
+          state.angleXZ += state.omegaXZ;
+          state.angleXY += state.omegaXY;
         }
-      } else {
-        // PHYSICS: Apply all velocities
-        state.xwAngle += state.xwVel;
-        state.ywAngle4D += state.ywVel4D;  // 4D YW rotation (tap-triggered)
-        state.ywAngle += state.ywVel;
-        state.zwAngle += state.zwVel;
-
-        // Light friction - slow decay
-        const friction = 0.995;  // Slightly more friction for smoother stopping
-        state.xwVel *= friction;
-        state.ywVel4D *= friction;
-        state.ywVel *= friction;
-        state.zwVel *= friction;
-
-        // Stop completely when very slow (prevents infinite tiny spinning)
-        if (Math.abs(state.xwVel) < 0.0001) state.xwVel = 0;
-        if (Math.abs(state.ywVel4D) < 0.0001) state.ywVel4D = 0;
-        if (Math.abs(state.ywVel) < 0.0001) state.ywVel = 0;
-        if (Math.abs(state.zwVel) < 0.0001) state.zwVel = 0;
       }
 
-      // Speed factor for visual effects (0-1, clamped) - based on total 4D velocity
-      const total4DVel = Math.abs(state.xwVel) + Math.abs(state.ywVel4D);
-      const speedFactor = Math.min(1, total4DVel / 0.08);
+      // -----------------------------------------------------------------------
+      // RENDERING
+      // -----------------------------------------------------------------------
 
-      // Clear
       ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      const centerX = W / 2;
-      const centerY = H / 2;
-      const renderScale = 320;
+      const centerX = CANVAS_WIDTH / 2;
+      const centerY = CANVAS_HEIGHT / 2;
+
+      // Speed for visual effects
+      const totalSpeed = shape.is4D
+        ? Math.abs(state.omegaXZ) + Math.abs(state.omegaYZ) + Math.abs(state.omegaXW) + Math.abs(state.omegaYW)
+        : Math.sqrt(state.Lx*state.Lx + state.Ly*state.Ly + state.Lz*state.Lz);
+      const speedFactor = Math.min(1, totalSpeed / 0.12);
 
       // Transform vertices
-      const projected: { x: number; y: number; scale: number; w: number; z: number }[] = [];
-      for (const v of tesseractVertices) {
+      const projected: { x: number; y: number; z: number; w: number }[] = [];
+
+      for (const v of shape.vertices) {
         let p = { ...v };
-        // 4D rotations (momentum-based)
-        p = rotate4D(p, state.xwAngle, 'xw');    // Background 4D drift (subtle)
-        p = rotate4D(p, state.ywAngle4D, 'yw');  // TAP-triggered inside-out (dramatic vertical + size swap)
-        // 3D rotations (drag control)
-        p = rotate4D(p, state.ywAngle, 'xz');    // Horizontal drag
-        p = rotate4D(p, state.zwAngle, 'yz');    // Vertical drag
 
-        const p3 = project4Dto3D(p);
-        const p2 = project3Dto2D(p3.x, p3.y, p3.z);
+        if (shape.is4D) {
+          // 4D rotations
+          p = rotate4D(p, state.angleXW, 'xw');
+          p = rotate4D(p, state.angleYW, 'yw');
+          p = rotate4D(p, state.angleXZ, 'xz');
+          p = rotate4D(p, state.angleYZ, 'yz');
 
-        projected.push({
-          x: centerX + p2.x * renderScale,
-          y: centerY - p2.y * renderScale,
-          scale: p2.scale,
-          w: p3.w,
-          z: p2.z,
-        });
+          const p3 = project4Dto3D(p);
+          const p2 = project3Dto2D(p3.x, p3.y, p3.z);
+          projected.push({
+            x: centerX + p2.x * RENDER_SCALE,
+            y: centerY - p2.y * RENDER_SCALE,
+            z: p2.z,
+            w: p3.w,
+          });
+        } else {
+          // 3D rotations
+          p = rotate4D(p, state.angleXY, 'xy');
+          p = rotate4D(p, state.angleXZ, 'xz');
+          p = rotate4D(p, state.angleYZ, 'yz');
+
+          const p2 = project3Dto2D(p.x, p.y, p.z);
+          projected.push({
+            x: centerX + p2.x * RENDER_SCALE,
+            y: centerY - p2.y * RENDER_SCALE,
+            z: p2.z,
+            w: 0,
+          });
+        }
       }
 
       // Sort edges by depth
-      const sortedEdges = [...edges].sort((a, b) => {
+      const sortedEdges = [...shape.edges].sort((a, b) => {
         const aDepth = (projected[a.from].z + projected[a.to].z) / 2;
         const bDepth = (projected[b.from].z + projected[b.to].z) / 2;
         return bDepth - aDepth;
@@ -253,42 +642,25 @@ export default function TesseractSimple({ className = '' }: TesseractHeroProps) 
       for (const edge of sortedEdges) {
         const p1 = projected[edge.from];
         const p2 = projected[edge.to];
-        const v1 = tesseractVertices[edge.from];
-        const v2 = tesseractVertices[edge.to];
 
-        const avgW = (v1.w + v2.w) / 2;
-        const alpha = 0.3 + (avgW + 1) * 0.35;
+        const avgZ = (p1.z + p2.z) / 2;
+        const avgW = (p1.w + p2.w) / 2;
+        const alpha = shape.is4D
+          ? 0.3 + (avgW + 1) * 0.35
+          : 0.4 + (1 - avgZ) * 0.3;
 
-        const isWEdge = edge.type === 'w';
-        const lineWidth = isWEdge ? 3 : 2;
-        const glowSize = isWEdge ? 15 : 8;
-
-        // Color based on edge type + speed
-        // Cool (idle) -> Hot (fast spinning)
-        let hue: number;
-        if (edge.type === 'w') {
-          // W edges: Orange (idle) -> Pink/Magenta (fast)
-          hue = 30 + speedFactor * 290; // 30 -> 320
-        } else if (edge.type === 'x') {
-          // X: Pink -> Purple
-          hue = 340 + speedFactor * 40;
-        } else if (edge.type === 'y') {
-          // Y: Green -> Cyan
-          hue = 140 - speedFactor * 20;
-        } else {
-          // Z: Blue -> Indigo
-          hue = 220 + speedFactor * 30;
-        }
-
+        const hue = shape.is4D
+          ? 30 + speedFactor * 290 + avgW * 30
+          : 200 + speedFactor * 100;
         const saturation = 70 + speedFactor * 30;
         const lightness = 50 + speedFactor * 20;
 
-        // Glow (stronger when fast)
+        // Glow
         ctx.save();
         ctx.shadowColor = `hsla(${hue}, ${saturation}%, ${lightness}%, ${0.5 + speedFactor * 0.5})`;
-        ctx.shadowBlur = glowSize + speedFactor * 20;
+        ctx.shadowBlur = 10 + speedFactor * 15;
         ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha * 0.5})`;
-        ctx.lineWidth = lineWidth;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
@@ -297,99 +669,93 @@ export default function TesseractSimple({ className = '' }: TesseractHeroProps) 
 
         // Main edge
         ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
-        ctx.lineWidth = lineWidth;
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
       }
 
-      // Draw vertices
-      for (let i = 0; i < projected.length; i++) {
-        const p = projected[i];
-        const v = tesseractVertices[i];
-        const size = 4 + (v.w + 1) * 3;
-
-        // Color: shift hue based on speed
-        const baseHue = v.w > 0 ? 180 : 300; // Cyan vs Magenta
-        const hue = baseHue + speedFactor * 40;
+      // Draw vertices (smaller for 3D shapes)
+      const vertexSize = shape.is4D ? 4 : 2;
+      for (const p of projected) {
+        const size = vertexSize + (shape.is4D ? (p.w + 1) * 2 : (1 - p.z) * 2);
+        const hue = shape.is4D
+          ? (p.w > 0 ? 180 : 300) + speedFactor * 40
+          : 200 + speedFactor * 100;
 
         ctx.save();
         ctx.shadowColor = `hsla(${hue}, 100%, 60%, 0.8)`;
-        ctx.shadowBlur = 12 + speedFactor * 10;
-        ctx.fillStyle = `hsla(${hue}, 80%, 70%, ${0.6 + (v.w + 1) * 0.2})`;
+        ctx.shadowBlur = 8 + speedFactor * 8;
+        ctx.fillStyle = `hsla(${hue}, 80%, 70%, 0.8)`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       }
 
-      // TAP RIPPLE EFFECT
+      // Tap ripple
       const timeSinceTap = Date.now() - state.lastTapTime;
       if (timeSinceTap < 600) {
         const progress = timeSinceTap / 600;
         const radius = progress * 150;
         const rippleAlpha = (1 - progress) * 0.6;
-
         ctx.save();
         ctx.strokeStyle = `rgba(255, 200, 100, ${rippleAlpha})`;
         ctx.lineWidth = 3 * (1 - progress);
         ctx.beginPath();
         ctx.arc(state.tapX, state.tapY, radius, 0, Math.PI * 2);
         ctx.stroke();
-
-        // Inner ring
-        ctx.strokeStyle = `rgba(255, 255, 255, ${rippleAlpha * 0.5})`;
-        ctx.lineWidth = 2 * (1 - progress);
-        ctx.beginPath();
-        ctx.arc(state.tapX, state.tapY, radius * 0.5, 0, Math.PI * 2);
-        ctx.stroke();
         ctx.restore();
       }
-
-      // 4D VELOCITY METER (subtle bar at bottom)
-      const meterWidth = 200;
-      const meterHeight = 4;
-      const meterX = centerX - meterWidth / 2;
-      const meterY = H - 50;
-
-      // Background
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
-
-      // Fill (velocity) - show YW velocity since that's the tap-triggered 4D rotation
-      const fillWidth = Math.min(1, Math.abs(state.ywVel4D) / 0.06) * meterWidth;
-      const meterHue = 30 + speedFactor * 290;
-      ctx.fillStyle = `hsla(${meterHue}, 100%, 60%, 0.8)`;
-      ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
 
       // HUD
       ctx.save();
       ctx.globalAlpha = 0.7;
       ctx.font = 'bold 14px system-ui';
       ctx.fillStyle = '#fff';
-      ctx.fillText('TESSERACT', 24, 30);
+      ctx.fillText(shape.name.toUpperCase(), 24, 30);
+
+      ctx.font = '11px system-ui';
+      ctx.fillStyle = '#888';
+      ctx.fillText(shape.is4D ? '4D Polytope' : '3D Rigid Body', 24, 46);
+
+      if (!shape.is4D && shape.inertia.I1 !== shape.inertia.I2) {
+        ctx.fillStyle = '#ffaa66';
+        ctx.fillText('⚠ Dzhanibekov unstable', 24, 62);
+      }
 
       ctx.font = '12px system-ui';
       ctx.fillStyle = '#88aacc';
-      ctx.fillText('FLICK', 24, 52);
+      ctx.fillText('DRAG', 24, CANVAS_HEIGHT - 50);
       ctx.fillStyle = '#aaa';
-      ctx.fillText(' → Spin 3D', 62, 52);
+      ctx.fillText(' → Spin', 58, CANVAS_HEIGHT - 50);
 
       ctx.fillStyle = '#ffaa66';
-      ctx.fillText('TAP', 24, 70);
+      ctx.fillText('TAP', 24, CANVAS_HEIGHT - 32);
       ctx.fillStyle = '#aaa';
-      ctx.fillText(' → Spin 4D', 50, 70);
+      ctx.fillText(shape.is4D ? ' → 4D Flip' : ' → Kick', 50, CANVAS_HEIGHT - 32);
+      ctx.restore();
 
-      ctx.fillStyle = '#66ff88';
-      ctx.fillText('HOLD', 24, 88);
-      ctx.fillStyle = '#aaa';
-      ctx.fillText(' → Freeze & Settle', 58, 88);
+      // Velocity meter
+      const meterWidth = 200;
+      const meterX = centerX - meterWidth / 2;
+      const meterY = CANVAS_HEIGHT - 60;
 
-      // Speed label
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.fillRect(meterX, meterY, meterWidth, 4);
+
+      const fillWidth = speedFactor * meterWidth;
+      const meterHue = shape.is4D ? 30 + speedFactor * 290 : 200 + speedFactor * 100;
+      ctx.fillStyle = `hsla(${meterHue}, 100%, 60%, 0.8)`;
+      ctx.fillRect(meterX, meterY, fillWidth, 4);
+
+      ctx.save();
+      ctx.globalAlpha = 0.4;
+      ctx.font = '11px system-ui';
       ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.fillText('4D ENERGY', centerX, meterY + 20);
+      ctx.fillStyle = '#fff';
+      ctx.fillText('ANGULAR MOMENTUM', centerX, meterY + 18);
       ctx.restore();
 
       animationRef.current = requestAnimationFrame(loop);
@@ -399,89 +765,86 @@ export default function TesseractSimple({ className = '' }: TesseractHeroProps) 
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [rotate4D, project4Dto3D, project3Dto2D, tesseractVertices, edges]);
+  }, [rotate4D, project4Dto3D, project3Dto2D, shape]);
 
-  // Get canvas coordinates
+  // ---------------------------------------------------------------------------
+  // INPUT HANDLING
+  // ---------------------------------------------------------------------------
+
   const getCanvasCoords = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    const cx = 'touches' in e ? e.touches[0]?.clientX ?? 0 : e.clientX;
-    const cy = 'touches' in e ? e.touches[0]?.clientY ?? 0 : e.clientY;
+    const clientX = 'touches' in e ? e.touches[0]?.clientX ?? 0 : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0]?.clientY ?? 0 : e.clientY;
     return {
-      x: (cx - rect.left) * scaleX,
-      y: (cy - rect.top) * scaleY,
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY,
     };
   }, []);
 
   const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     const { x, y } = getCanvasCoords(e);
-    const state = stateRef.current;
+    const state = physics.current;
 
     state.isDragging = true;
-    state.isHolding = true; // Start as holding (until they move)
+    state.isHolding = true;
     state.holdStartTime = Date.now();
     state.dragStartX = x;
     state.dragStartY = y;
-    state.lastX = x;
-    state.lastY = y;
+    state.lastMouseX = x;
+    state.lastMouseY = y;
     state.lastMoveTime = Date.now();
     state.dragDistance = 0;
-    // Don't freeze velocity - let it keep spinning until they hold
   }, [getCanvasCoords]);
 
   const handleMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    const state = stateRef.current;
+    const state = physics.current;
     if (!state.isDragging) return;
     e.preventDefault();
 
     const { x, y } = getCanvasCoords(e);
     const now = Date.now();
-    const dt = Math.max(1, now - state.lastMoveTime); // ms since last move
-    const dx = x - state.lastX;
-    const dy = y - state.lastY;
+    const dt = Math.max(1, now - state.lastMoveTime);
+    const dx = x - state.lastMouseX;
+    const dy = y - state.lastMouseY;
 
-    // Track total drag distance (to distinguish tap from drag)
     state.dragDistance += Math.abs(dx) + Math.abs(dy);
+    if (state.dragDistance > 5) state.isHolding = false;
 
-    // If moved enough, no longer holding
-    if (state.dragDistance > 5) {
-      state.isHolding = false;
-    }
-
-    // Apply rotation directly while dragging (for responsiveness)
-    // AND track velocity for release
     if (!state.isHolding) {
-      const rotationScale = 0.005;
-      state.ywAngle += dx * rotationScale;
-      state.zwAngle += dy * rotationScale;
-
-      // Track instantaneous velocity (pixels/ms -> radians/frame)
-      // We'll use this on release to impart momentum
-      state.ywVel = (dx * rotationScale) / dt * 16; // Convert to per-frame
-      state.zwVel = (dy * rotationScale) / dt * 16;
+      if (shape.is4D) {
+        state.angleXZ += dx * DRAG_SENSITIVITY;
+        state.angleYZ += dy * DRAG_SENSITIVITY;
+        state.omegaXZ = (dx * DRAG_SENSITIVITY) / dt * 16;
+        state.omegaYZ = (dy * DRAG_SENSITIVITY) / dt * 16;
+      } else {
+        // For 3D, add to angular momentum
+        state.Lx += dy * DRAG_SENSITIVITY * 0.5 * shape.inertia.I1;
+        state.Ly += dx * DRAG_SENSITIVITY * 0.5 * shape.inertia.I2;
+      }
     }
 
-    state.lastX = x;
-    state.lastY = y;
+    state.lastMouseX = x;
+    state.lastMouseY = y;
     state.lastMoveTime = now;
-  }, [getCanvasCoords]);
+  }, [getCanvasCoords, shape]);
 
   const handleEnd = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    const state = stateRef.current;
+    const state = physics.current;
     const holdDuration = Date.now() - state.holdStartTime;
     const timeSinceLastMove = Date.now() - state.lastMoveTime;
 
-    // If this was a quick tap (minimal drag AND short hold), add 4D impulse
-    if (state.dragDistance < 10 && holdDuration < 200) {
-      // Get tap position for ripple
+    const isTap = state.dragDistance < TAP_MAX_DISTANCE && holdDuration < TAP_MAX_DURATION;
+    const isFlick = state.dragDistance > TAP_MAX_DISTANCE && timeSinceLastMove < 50;
+
+    if (isTap) {
       let tapX = state.dragStartX;
       let tapY = state.dragStartY;
 
-      // For touch end, use last known position
       if ('changedTouches' in e && e.changedTouches.length > 0) {
         const canvas = canvasRef.current;
         if (canvas) {
@@ -493,51 +856,85 @@ export default function TesseractSimple({ className = '' }: TesseractHeroProps) 
         }
       }
 
-      // 4D impulse on tap - YW rotation gives dramatic "inside-out" + vertical shift
-      // This is the most visually obvious 4D effect: inner/outer cubes swap + bounce
-      state.ywVel4D += 0.06;  // YW plane = vertical displacement + inside-out (slower for clarity)
-      state.xwVel = 0;        // Kill XW drift
-      state.ywVel = 0;        // Kill 3D horizontal
-      state.zwVel = 0;        // Kill 3D vertical
+      if (shape.is4D) {
+        state.omegaYW += TAP_IMPULSE;
+      } else {
+        // Kick - add perpendicular momentum to induce instability
+        state.Lx += (Math.random() - 0.5) * 0.02;
+        state.Ly += TAP_IMPULSE * shape.inertia.I2;
+        state.Lz += (Math.random() - 0.5) * 0.02;
+      }
+
       state.lastTapTime = Date.now();
       state.tapX = tapX;
       state.tapY = tapY;
-    } else if (state.dragDistance > 10 && timeSinceLastMove < 50) {
-      // This was a flick! Velocity was set in handleMove, just let it fly.
-      // Boost the velocity a bit for a satisfying flick feel
-      state.ywVel *= 1.5;
-      state.zwVel *= 1.5;
-    } else {
-      // Long hold or stopped moving - kill velocity
-      if (timeSinceLastMove > 100) {
-        state.ywVel = 0;
-        state.zwVel = 0;
+    } else if (isFlick) {
+      if (shape.is4D) {
+        state.omegaXZ *= FLICK_BOOST;
+        state.omegaYZ *= FLICK_BOOST;
+      } else {
+        state.Lx *= FLICK_BOOST;
+        state.Ly *= FLICK_BOOST;
+        state.Lz *= FLICK_BOOST;
       }
+    } else if (timeSinceLastMove > HOLD_THRESHOLD) {
+      if (shape.is4D) {
+        state.omegaXZ = 0;
+        state.omegaYZ = 0;
+      }
+      // Don't kill L for 3D - let it keep spinning
     }
 
     state.isDragging = false;
     state.isHolding = false;
-  }, []);
+  }, [shape]);
+
+  // ---------------------------------------------------------------------------
+  // RENDER
+  // ---------------------------------------------------------------------------
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={W}
-      height={H}
-      style={{
-        width: '100%',
-        maxWidth: W,
-        aspectRatio: `${W} / ${H}`,
-        touchAction: 'none',
-      }}
-      className={`cursor-grab active:cursor-grabbing ${className}`}
-      onMouseDown={handleStart}
-      onMouseMove={handleMove}
-      onMouseUp={handleEnd}
-      onMouseLeave={handleEnd}
-      onTouchStart={handleStart}
-      onTouchMove={handleMove}
-      onTouchEnd={handleEnd}
-    />
+    <div className="relative">
+      <canvas
+        ref={canvasRef}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        style={{
+          width: '100%',
+          maxWidth: CANVAS_WIDTH,
+          aspectRatio: `${CANVAS_WIDTH} / ${CANVAS_HEIGHT}`,
+          touchAction: 'none',
+        }}
+        className={`cursor-grab active:cursor-grabbing ${className}`}
+        onMouseDown={handleStart}
+        onMouseMove={handleMove}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchStart={handleStart}
+        onTouchMove={handleMove}
+        onTouchEnd={handleEnd}
+      />
+
+      {/* Shape selector */}
+      <div className="absolute top-4 right-4 flex flex-col gap-1">
+        {(['tesseract', '16-cell', '24-cell', 'wrench', 'book'] as ShapeType[]).map((s) => (
+          <button
+            key={s}
+            onClick={() => setShapeType(s)}
+            className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
+              shapeType === s
+                ? 'bg-white text-black'
+                : 'bg-white/10 text-white/70 hover:bg-white/20'
+            }`}
+          >
+            {s === 'tesseract' ? '4D Tesseract' :
+             s === '16-cell' ? '4D 16-Cell' :
+             s === '24-cell' ? '4D 24-Cell' :
+             s === 'wrench' ? '3D Wrench' :
+             '3D Book'}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
