@@ -369,14 +369,18 @@ export default function CodeForming({ fullPage = false }: CodeCollapseProps) {
       }
       const state = stateRef.current;
 
-      // Update angles from velocities
+      // Update angles from velocities (freeze when holding on viz)
       if (state.activeControl !== 'viz') {
         state.angXY += state.velXY;
         state.angXZ += state.velXZ;
-        state.angXW += state.velXW;
+        state.angXW += state.velXW + state.dragVelXW;
         state.angYZ += state.velYZ;
-        state.angYW += state.velYW;
+        state.angYW += state.velYW + state.dragVelYW;
         state.angZW += state.velZW;
+
+        // Decay drag momentum
+        state.dragVelXW *= 0.96;
+        state.dragVelYW *= 0.96;
       }
 
       // Clear
@@ -444,15 +448,24 @@ export default function CodeForming({ fullPage = false }: CodeCollapseProps) {
         const fov = 600;
         const screenScale = fov / (fov - zInfluence * 200);
 
-        let sx = px * screenScale * 180 + W / 2;
-        let sy = py * screenScale * 180 + VIEW_HEIGHT / 2;
+        let sx = px * screenScale * 220 + W / 2;
+        let sy = py * screenScale * 220 + VIEW_HEIGHT / 2;
 
         // === QUANTIZATION (The Code Forming) ===
         if (snapStrength > 0.01) {
+          // At extreme collapse (snapStrength near 1), everything goes to center
+          const centerX = W / 2;
+          const centerY = VIEW_HEIGHT / 2;
           const gx = Math.round(sx / (GRID_SIZE * SCALE)) * (GRID_SIZE * SCALE);
           const gy = Math.round(sy / (GRID_SIZE * SCALE * 1.3)) * (GRID_SIZE * SCALE * 1.3);
-          sx = sx * (1 - snapStrength) + gx * snapStrength;
-          sy = sy * (1 - snapStrength) + gy * snapStrength;
+
+          // Blend: grid positions at medium snap, center at extreme snap
+          const extremeSnap = Math.max(0, (snapStrength - 0.8) / 0.2); // 0 until 0.8, then 0-1
+          const targetX = gx * (1 - extremeSnap) + centerX * extremeSnap;
+          const targetY = gy * (1 - extremeSnap) + centerY * extremeSnap;
+
+          sx = sx * (1 - snapStrength) + targetX * snapStrength;
+          sy = sy * (1 - snapStrength) + targetY * snapStrength;
         }
 
         return {
@@ -801,6 +814,9 @@ export default function CodeForming({ fullPage = false }: CodeCollapseProps) {
         const dy = y - state.lastMouseY;
         state.angXW += dx * 0.005;
         state.angYW += dy * 0.005;
+        // Store velocity for momentum on release
+        state.dragVelXW = dx * 0.003;
+        state.dragVelYW = dy * 0.003;
         state.lastMouseX = x;
         state.lastMouseY = y;
       }

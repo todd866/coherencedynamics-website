@@ -216,7 +216,7 @@ export default function TesseractSimple({ className = '' }: TesseractHeroProps) 
 
       const centerX = W / 2;
       const centerY = H / 2;
-      const renderScale = 280;
+      const renderScale = 320;
 
       // Transform vertices
       const projected: { x: number; y: number; scale: number; w: number; z: number }[] = [];
