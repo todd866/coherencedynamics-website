@@ -35,17 +35,19 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
 
   const stateRef = useRef({
     time: 0,
-    // Angles
-    xwAngle: 0, // 4D rotation in XW plane
-    zwAngle4D: 0, // 4D rotation in ZW plane (the "inside-out" one)
-    ywAngle: 0, // 3D Y-rotation (XZ plane)
-    zwAngle: 0, // 3D X-rotation (YZ plane)
+    // Angles - 4D rotations
+    xwAngle: 0,   // 4D XW plane (background drift)
+    ywAngle4D: 0, // 4D YW plane - TAP triggers this (dramatic inside-out)
 
-    // ALL rotations are momentum-based now
-    xwVel: 0.002, // 4D XW velocity - very gentle background drift
-    zwVel4D: 0,   // 4D ZW velocity - TAP adds this for inside-out effect
-    ywVel: 0,     // 3D horizontal velocity
-    zwVel: 0,     // 3D vertical velocity
+    // Angles - 3D rotations (drag control)
+    ywAngle: 0,   // Horizontal drag (XZ plane rotation)
+    zwAngle: 0,   // Vertical drag (YZ plane rotation)
+
+    // Velocities - ALL momentum-based
+    xwVel: 0.002,  // Background 4D drift (very gentle)
+    ywVel4D: 0,    // TAP adds YW velocity - vertical + inside-out effect
+    ywVel: 0,      // 3D horizontal velocity (from drag)
+    zwVel: 0,      // 3D vertical velocity (from drag)
 
     // Interaction
     isDragging: false,
@@ -166,7 +168,7 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
         if (holdDuration > 100) {
           // Freeze all velocities
           state.xwVel = 0;
-          state.zwVel4D = 0;
+          state.ywVel4D = 0;
           state.ywVel = 0;
           state.zwVel = 0;
 
@@ -176,8 +178,8 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
           // Snap 4D angles to nearest 90°
           const targetXW = Math.round(state.xwAngle / (Math.PI / 2)) * (Math.PI / 2);
           state.xwAngle += (targetXW - state.xwAngle) * snapSpeed;
-          const targetZW = Math.round(state.zwAngle4D / (Math.PI / 2)) * (Math.PI / 2);
-          state.zwAngle4D += (targetZW - state.zwAngle4D) * snapSpeed;
+          const targetYW = Math.round(state.ywAngle4D / (Math.PI / 2)) * (Math.PI / 2);
+          state.ywAngle4D += (targetYW - state.ywAngle4D) * snapSpeed;
 
           // Snap 3D angles back to zero (canonical view)
           state.ywAngle += (0 - state.ywAngle) * snapSpeed;
@@ -186,27 +188,27 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
       } else {
         // PHYSICS: Apply all velocities
         state.xwAngle += state.xwVel;
-        state.zwAngle4D += state.zwVel4D;
+        state.ywAngle4D += state.ywVel4D;  // 4D YW rotation (tap-triggered)
         state.ywAngle += state.ywVel;
         state.zwAngle += state.zwVel;
 
-        // Very light friction - slow decay (0.997 = ~18% decay per second at 60fps)
-        const friction = 0.997;
+        // Light friction - slow decay
+        const friction = 0.995;  // Slightly more friction for smoother stopping
         state.xwVel *= friction;
-        state.zwVel4D *= friction;
+        state.ywVel4D *= friction;
         state.ywVel *= friction;
         state.zwVel *= friction;
 
         // Stop completely when very slow (prevents infinite tiny spinning)
         if (Math.abs(state.xwVel) < 0.0001) state.xwVel = 0;
-        if (Math.abs(state.zwVel4D) < 0.0001) state.zwVel4D = 0;
+        if (Math.abs(state.ywVel4D) < 0.0001) state.ywVel4D = 0;
         if (Math.abs(state.ywVel) < 0.0001) state.ywVel = 0;
         if (Math.abs(state.zwVel) < 0.0001) state.zwVel = 0;
       }
 
       // Speed factor for visual effects (0-1, clamped) - based on total 4D velocity
-      const total4DVel = Math.abs(state.xwVel) + Math.abs(state.zwVel4D);
-      const speedFactor = Math.min(1, total4DVel / 0.1);
+      const total4DVel = Math.abs(state.xwVel) + Math.abs(state.ywVel4D);
+      const speedFactor = Math.min(1, total4DVel / 0.08);
 
       // Clear
       ctx.fillStyle = '#000000';
@@ -220,12 +222,12 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
       const projected: { x: number; y: number; scale: number; w: number; z: number }[] = [];
       for (const v of tesseractVertices) {
         let p = { ...v };
-        // 4D rotations (momentum-based) - both contribute to "inside-out" effect
-        p = rotate4D(p, state.xwAngle, 'xw'); // Background 4D drift
-        p = rotate4D(p, state.zwAngle4D, 'zw'); // TAP-triggered inside-out
-        // 3D rotations (direct control)
-        p = rotate4D(p, state.ywAngle, 'xz'); // Horizontal drag
-        p = rotate4D(p, state.zwAngle, 'yz'); // Vertical drag
+        // 4D rotations (momentum-based)
+        p = rotate4D(p, state.xwAngle, 'xw');    // Background 4D drift (subtle)
+        p = rotate4D(p, state.ywAngle4D, 'yw');  // TAP-triggered inside-out (dramatic vertical + size swap)
+        // 3D rotations (drag control)
+        p = rotate4D(p, state.ywAngle, 'xz');    // Horizontal drag
+        p = rotate4D(p, state.zwAngle, 'yz');    // Vertical drag
 
         const p3 = project4Dto3D(p);
         const p2 = project3Dto2D(p3.x, p3.y, p3.z);
@@ -355,8 +357,8 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
       ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
 
-      // Fill (velocity) - show ZW velocity since that's the tap-triggered 4D rotation
-      const fillWidth = Math.min(1, Math.abs(state.zwVel4D) / 0.15) * meterWidth;
+      // Fill (velocity) - show YW velocity since that's the tap-triggered 4D rotation
+      const fillWidth = Math.min(1, Math.abs(state.ywVel4D) / 0.06) * meterWidth;
       const meterHue = 30 + speedFactor * 290;
       ctx.fillStyle = `hsla(${meterHue}, 100%, 60%, 0.8)`;
       ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
@@ -491,10 +493,10 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
         }
       }
 
-      // STRONG 4D impulse on tap - ZW rotation gives pure "inside-out" effect
-      // Kill everything else to make the 4D morphing unmistakable
-      state.zwVel4D += 0.15;  // ZW plane = vertices move in depth + W, very visible inside-out
-      state.xwVel = 0;        // Kill XW (causes horizontal drift)
+      // 4D impulse on tap - YW rotation gives dramatic "inside-out" + vertical shift
+      // This is the most visually obvious 4D effect: inner/outer cubes swap + bounce
+      state.ywVel4D += 0.06;  // YW plane = vertical displacement + inside-out (slower for clarity)
+      state.xwVel = 0;        // Kill XW drift
       state.ywVel = 0;        // Kill 3D horizontal
       state.zwVel = 0;        // Kill 3D vertical
       state.lastTapTime = Date.now();

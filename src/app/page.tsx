@@ -37,12 +37,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Interactive visualization */}
+      {/* Interactive visualization - Observer Demo (original) */}
       <section className="mb-20 flex justify-center">
-        <TesseractHero className="rounded-xl w-full max-w-4xl" />
+        <ObserverDemo />
       </section>
 
-      {/* Why Coherence Dynamics */}
+      {/* Why Coherence Dynamics - with TesseractHero */}
       <section className="mb-20 py-12 border-y border-gray-800">
         <h2 className="text-2xl font-bold mb-8 text-white">Why &quot;Coherence Dynamics&quot;?</h2>
         <div className="grid md:grid-cols-2 gap-12">
@@ -65,7 +65,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex items-center justify-center">
-            <ObserverDemo />
+            <TesseractHero className="rounded-xl w-full max-w-md" />
           </div>
         </div>
       </section>
