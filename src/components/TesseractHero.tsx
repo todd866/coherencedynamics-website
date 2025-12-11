@@ -47,6 +47,8 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
 
     // Interaction
     isDragging: false,
+    isHolding: false, // True when holding still (not moving)
+    holdStartTime: 0,
     dragStartX: 0,
     dragStartY: 0,
     lastX: 0,
@@ -153,17 +155,43 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
       const state = stateRef.current;
       state.time += 0.016;
 
-      // PHYSICS: 4D Momentum with friction
-      state.xwAngle += state.xwVel;
+      // HOLD TO SETTLE: If holding (not moving), snap to canonical orientation
+      if (state.isDragging && state.isHolding) {
+        const holdDuration = Date.now() - state.holdStartTime;
 
-      // Friction: decay toward idle speed
-      const idleSpeed = 0.005;
-      const currentSpeed = Math.abs(state.xwVel);
-      if (currentSpeed > idleSpeed) {
-        state.xwVel *= 0.985; // Friction
-        // Don't let it drop below idle
-        if (Math.abs(state.xwVel) < idleSpeed) {
-          state.xwVel = idleSpeed * Math.sign(state.xwVel);
+        // After 100ms of holding, start settling
+        if (holdDuration > 100) {
+          // Freeze 4D velocity immediately
+          state.xwVel = 0;
+
+          // Snap all angles toward nearest canonical orientation (multiples of π/2)
+          const snapSpeed = 0.08; // Smooth settling
+
+          // Snap XW angle to nearest 90°
+          const targetXW = Math.round(state.xwAngle / (Math.PI / 2)) * (Math.PI / 2);
+          state.xwAngle += (targetXW - state.xwAngle) * snapSpeed;
+
+          // Snap 3D angles back to zero (canonical view)
+          state.ywAngle += (0 - state.ywAngle) * snapSpeed;
+          state.zwAngle += (0 - state.zwAngle) * snapSpeed;
+        }
+      }
+
+      // PHYSICS: 4D Momentum with friction (only when not holding)
+      if (!state.isHolding) {
+        state.xwAngle += state.xwVel;
+      }
+
+      // Friction: decay toward idle speed (only when not dragging)
+      if (!state.isDragging) {
+        const idleSpeed = 0.005;
+        const currentSpeed = Math.abs(state.xwVel);
+        if (currentSpeed > idleSpeed) {
+          state.xwVel *= 0.985; // Friction
+          // Don't let it drop below idle
+          if (Math.abs(state.xwVel) < idleSpeed) {
+            state.xwVel = idleSpeed * Math.sign(state.xwVel);
+          }
         }
       }
 
@@ -340,6 +368,11 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
       ctx.fillStyle = '#aaa';
       ctx.fillText(' → Boost 4D Spin', 50, 70);
 
+      ctx.fillStyle = '#66ff88';
+      ctx.fillText('HOLD', 24, 88);
+      ctx.fillStyle = '#aaa';
+      ctx.fillText(' → Settle to Cube', 58, 88);
+
       // Speed label
       ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
@@ -376,11 +409,16 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
     const state = stateRef.current;
 
     state.isDragging = true;
+    state.isHolding = true; // Start as holding (until they move)
+    state.holdStartTime = Date.now();
     state.dragStartX = x;
     state.dragStartY = y;
     state.lastX = x;
     state.lastY = y;
     state.dragDistance = 0;
+
+    // Immediately freeze 4D velocity on click
+    state.xwVel = 0;
   }, [getCanvasCoords]);
 
   const handleMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -395,9 +433,16 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
     // Track total drag distance (to distinguish tap from drag)
     state.dragDistance += Math.abs(dx) + Math.abs(dy);
 
-    // Direct 3D rotation control
-    state.ywAngle += dx * 0.005;
-    state.zwAngle += dy * 0.005;
+    // If moved enough, no longer holding
+    if (state.dragDistance > 5) {
+      state.isHolding = false;
+    }
+
+    // Direct 3D rotation control (only if not holding to settle)
+    if (!state.isHolding) {
+      state.ywAngle += dx * 0.005;
+      state.zwAngle += dy * 0.005;
+    }
 
     state.lastX = x;
     state.lastY = y;
@@ -405,9 +450,11 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
 
   const handleEnd = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const state = stateRef.current;
+    const holdDuration = Date.now() - state.holdStartTime;
 
-    // If this was a tap (minimal drag), add 4D impulse
-    if (state.dragDistance < 10) {
+    // If this was a quick tap (minimal drag AND short hold), add 4D impulse
+    // Long holds are for settling, not spinning
+    if (state.dragDistance < 10 && holdDuration < 200) {
       // Get tap position for ripple
       let tapX = state.dragStartX;
       let tapY = state.dragStartY;
@@ -432,6 +479,7 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
     }
 
     state.isDragging = false;
+    state.isHolding = false;
   }, []);
 
   return (
