@@ -4,8 +4,8 @@
  * Each dimension as a self-contained module.
  * Uses renderer.ts for "The Flattening" mechanic - automatic visual mode switching.
  */
-import { COLORS, DIMENSION_CONFIGS, checkMatch, } from './types.js';
-import { CANVAS_WIDTH, CANVAS_HEIGHT, CENTER_X, CENTER_Y, drawEntity, drawGlow, drawGlowText, drawTunnel, drawScanlines, drawVignette, applyRedShift, applyBlackHole, drawFlattenTransition, project3D, project4D, } from './renderer.js';
+import { COLORS, DIMENSION_CONFIGS, checkMatch, } from './lib/types.js';
+import { CANVAS_WIDTH, CANVAS_HEIGHT, CENTER_X, CENTER_Y, drawEntity, drawGlow, drawGlowText, drawTunnel, drawScanlines, drawVignette, applyRedShift, applyBlackHole, drawFlattenTransition, project3D, project4D, } from './lib/renderer.js';
 import { cycleShape, shapeMatches, drawShape, } from './shapes.js';
 // =============================================================================
 // HELPERS
@@ -443,7 +443,7 @@ export class Dim2Weaver {
     }
 }
 // =============================================================================
-// DIMENSION 3: THE TUMBLE (Skeleton)
+// DIMENSION 3: THE TUMBLE - With Input Smoothing
 // =============================================================================
 export class Dim3Tumble {
     constructor() {
@@ -451,6 +451,10 @@ export class Dim3Tumble {
         this.distance = 0;
         this.spawnTimer = 0;
         this.successfulPasses = 0;
+        // Input smoothing state
+        this.targetVelX = 0;
+        this.targetVelY = 0;
+        this.targetRotVel = 0;
     }
     init(state) {
         state.position = [CENTER_X, CENTER_Y];
@@ -460,24 +464,65 @@ export class Dim3Tumble {
         this.distance = 0;
         this.spawnTimer = 0;
         this.successfulPasses = 0;
+        this.targetVelX = 0;
+        this.targetVelY = 0;
+        this.targetRotVel = 0;
     }
     update(state, input, dt) {
-        // Movement
-        const speed = 300;
+        // Movement with momentum (LERP smoothing)
+        const maxSpeed = 350;
+        const accel = 12; // Higher = snappier response
+        const friction = 8; // Deceleration when no input
+        // Calculate target velocities from input
+        this.targetVelX = 0;
+        this.targetVelY = 0;
         if (input.left)
-            state.position[0] -= speed * dt;
+            this.targetVelX = -maxSpeed;
         if (input.right)
-            state.position[0] += speed * dt;
+            this.targetVelX = maxSpeed;
         if (input.up)
-            state.position[1] -= speed * dt;
+            this.targetVelY = -maxSpeed;
         if (input.down)
-            state.position[1] += speed * dt;
-        // Rotation
-        const rotSpeed = 4;
+            this.targetVelY = maxSpeed;
+        // LERP current velocity towards target
+        const lerpFactor = 1 - Math.exp(-accel * dt);
+        const frictionFactor = 1 - Math.exp(-friction * dt);
+        if (this.targetVelX !== 0) {
+            state.velocity[0] += (this.targetVelX - state.velocity[0]) * lerpFactor;
+        }
+        else {
+            state.velocity[0] *= (1 - frictionFactor);
+        }
+        if (this.targetVelY !== 0) {
+            state.velocity[1] += (this.targetVelY - state.velocity[1]) * lerpFactor;
+        }
+        else {
+            state.velocity[1] *= (1 - frictionFactor);
+        }
+        // Apply velocity to position
+        state.position[0] += state.velocity[0] * dt;
+        state.position[1] += state.velocity[1] * dt;
+        // Rotation with momentum
+        const maxRotSpeed = 5;
+        const rotAccel = 10;
+        const rotFriction = 6;
+        this.targetRotVel = 0;
         if (input.rotateLeft)
-            state.rotation[0] -= rotSpeed * dt;
+            this.targetRotVel = -maxRotSpeed;
         if (input.rotateRight)
-            state.rotation[0] += rotSpeed * dt;
+            this.targetRotVel = maxRotSpeed;
+        const rotLerp = 1 - Math.exp(-rotAccel * dt);
+        const rotFric = 1 - Math.exp(-rotFriction * dt);
+        if (this.targetRotVel !== 0) {
+            // Smooth acceleration towards target rotation speed
+            const currentRotVel = state.velocity[2] || 0;
+            state.velocity[2] = currentRotVel + (this.targetRotVel - currentRotVel) * rotLerp;
+        }
+        else {
+            // Friction when no input
+            state.velocity[2] = (state.velocity[2] || 0) * (1 - rotFric);
+        }
+        state.rotation[0] += (state.velocity[2] || 0) * dt;
         // Color cycling handled by main.ts (single-press detection)
         // Clamp
         state.position[0] = Math.max(50, Math.min(CANVAS_WIDTH - 50, state.position[0]));
@@ -882,12 +927,12 @@ export class Dim4HyperTunnel {
             }];
     }
 }
-// =============================================================================
-// DIMENSION 5: THE CLOUD (Skeleton)
-// =============================================================================
 export class Dim5Cloud {
     constructor() {
         this.config = DIMENSION_CONFIGS[5];
+        this.clouds = [];
+        this.spawnTimer = 0;
+        this.successfulMerges = 0;
     }
     init(state) {
         state.position = [CENTER_X, CENTER_Y, 0];
@@ -897,78 +942,169 @@ export class Dim5Cloud {
         state.density = 0.5;
         state.symbol = 'point';
         state.entities = [];
+        this.clouds = [];
+        this.spawnTimer = 0;
+        this.successfulMerges = 0;
     }
     update(state, input, dt) {
-        // All the 4D controls plus symbol/density
+        // Density control (Shift keys)
+        const densitySpeed = 1.2;
+        if (input.densityUp)
+            state.density = Math.min(1, state.density + densitySpeed * dt);
+        if (input.densityDown)
+            state.density = Math.max(0, state.density - densitySpeed * dt);
+        // Scale control (W/S)
         if (input.expand)
             state.scale = Math.min(2, state.scale + dt);
         if (input.contract)
             state.scale = Math.max(0.3, state.scale - dt);
+        // Rotation (aesthetic, helps visualize)
         if (input.left)
             state.rotation[0] -= 2 * dt;
         if (input.right)
             state.rotation[0] += 2 * dt;
-        // Color cycling handled by main.ts (single-press detection)
-        if (input.densityUp)
-            state.density = Math.min(1, state.density + dt);
-        if (input.densityDown)
-            state.density = Math.max(0, state.density - dt);
+        // Spawn clouds
+        this.spawnTimer += dt;
+        if (this.spawnTimer >= 2.0) {
+            this.spawnTimer = 0;
+            this.clouds.push(this.spawnCloud());
+        }
+        // Update clouds (approach player)
+        const cloudSpeed = 250;
+        this.clouds = this.clouds.filter(cloud => {
+            cloud.z -= cloudSpeed * dt;
+            // Check collision when cloud reaches player plane
+            if (cloud.z < 50 && cloud.z > -50) {
+                // Check density match (within 0.15 tolerance)
+                const densityMatch = Math.abs(state.density - cloud.targetDensity) < 0.15;
+                // Check color match
+                const colorResult = checkMatch(state.color, cloud.color);
+                const colorMatch = colorResult === 'perfect' || colorResult === 'white';
+                // Black clouds = death
+                if (cloud.color === 'black') {
+                    state.saturation = 0;
+                    return false;
+                }
+                if (densityMatch && colorMatch) {
+                    // Perfect merge!
+                    state.saturation = Math.min(1, state.saturation + 0.12);
+                    state.streak++;
+                    state.score += 500 * state.streak;
+                    this.successfulMerges++;
+                }
+                else if (densityMatch) {
+                    // Right density, wrong color
+                    state.saturation = Math.max(0, state.saturation - 0.08);
+                    state.streak = 0;
+                }
+                else if (colorMatch) {
+                    // Right color, wrong density
+                    state.saturation = Math.max(0, state.saturation - 0.1);
+                    state.streak = 0;
+                }
+                else {
+                    // Both wrong
+                    state.saturation = Math.max(0, state.saturation - 0.18);
+                    state.streak = 0;
+                }
+                return false;
+            }
+            // Remove if behind player
+            return cloud.z > -100;
+        });
     }
     render(ctx, state) {
         // Background
         drawVignette(ctx, 0.6);
-        // Point cloud visualization - the 5D projection
-        const numPoints = Math.floor(20 + state.density * 80);
-        const spread = 150 * state.scale;
+        // Draw incoming clouds (sorted by depth - far first)
+        const sortedClouds = [...this.clouds].sort((a, b) => b.z - a.z);
+        for (const cloud of sortedClouds) {
+            const proj = project3D(cloud.x - CENTER_X, cloud.y - CENTER_Y, cloud.z);
+            if (!proj.visible)
+                continue;
+            const cloudSize = cloud.size * proj.scale;
+            const numPoints = Math.floor(15 + cloud.targetDensity * 40);
+            ctx.save();
+            ctx.translate(proj.x, proj.y);
+            // Draw cloud particles
+            ctx.fillStyle = COLORS[cloud.color].hex;
+            ctx.shadowColor = COLORS[cloud.color].hex;
+            ctx.shadowBlur = 8;
+            ctx.globalAlpha = 0.4 + cloud.targetDensity * 0.5;
+            for (let i = 0; i < numPoints; i++) {
+                const angle = (i / numPoints) * Math.PI * 2;
+                const r = cloudSize * (0.3 + Math.sin(i * 1.3 + Date.now() * 0.001) * 0.3);
+                const px = Math.cos(angle) * r;
+                const py = Math.sin(angle) * r;
+                const psize = 2 + cloud.targetDensity * 3;
+                ctx.beginPath();
+                ctx.arc(px, py, psize * proj.scale, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            // Density indicator ring
+            ctx.strokeStyle = COLORS[cloud.color].hex;
+            ctx.lineWidth = 2 * proj.scale;
+            ctx.globalAlpha = 0.6;
+            ctx.beginPath();
+            ctx.arc(0, 0, cloudSize * cloud.targetDensity, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+        // Draw player cloud
+        const playerSpread = 100 * state.scale;
+        const playerPoints = Math.floor(20 + state.density * 60);
         ctx.save();
         ctx.translate(CENTER_X, CENTER_Y);
         ctx.rotate(state.rotation[0]);
-        if (state.renderMode === 'flat') {
-            // FLAT MODE: Symbol cloud
-            ctx.font = `bold ${12 + state.density * 8}px monospace`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = COLORS[state.color].hex;
-            ctx.shadowColor = COLORS[state.color].hex;
-            ctx.shadowBlur = 5;
-            const symbols = ['*', '+', '·', '○', '◊', '∞'];
-            for (let i = 0; i < numPoints; i++) {
-                const angle = (i / numPoints) * Math.PI * 2 + state.rotation[0] * 0.5;
-                const r = spread * (0.3 + (Math.sin(i * 0.7 + Date.now() * 0.001) * 0.5 + 0.5) * 0.7);
-                const x = Math.cos(angle) * r;
-                const y = Math.sin(angle) * r;
-                ctx.globalAlpha = 0.3 + state.density * 0.7;
-                ctx.fillText(symbols[i % symbols.length], x, y);
-            }
-            ctx.shadowBlur = 0;
+        ctx.fillStyle = COLORS[state.color].hex;
+        ctx.shadowColor = COLORS[state.color].hex;
+        ctx.shadowBlur = 15 * state.saturation;
+        for (let i = 0; i < playerPoints; i++) {
+            const angle = (i / playerPoints) * Math.PI * 2 + state.rotation[0] * 0.5;
+            const phase = Math.sin(i * 0.7 + Date.now() * 0.002);
+            const r = playerSpread * (0.3 + (phase * 0.5 + 0.5) * 0.7);
+            const x = Math.cos(angle) * r;
+            const y = Math.sin(angle) * r;
+            const size = 3 + state.density * 5 + phase * 2;
+            ctx.globalAlpha = 0.4 + state.density * 0.6;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
         }
-        else {
-            // GEOMETRIC MODE: Glowing particle cloud
-            ctx.fillStyle = COLORS[state.color].hex;
-            ctx.shadowColor = COLORS[state.color].hex;
-            ctx.shadowBlur = 10 * state.saturation;
-            for (let i = 0; i < numPoints; i++) {
-                const angle = (i / numPoints) * Math.PI * 2 + state.rotation[0] * 0.5;
-                const phase = Math.sin(i * 0.7 + Date.now() * 0.002);
-                const r = spread * (0.3 + (phase * 0.5 + 0.5) * 0.7);
-                const x = Math.cos(angle) * r;
-                const y = Math.sin(angle) * r;
-                // Particle size varies with density and distance
-                const size = 2 + state.density * 4 + phase * 2;
-                ctx.globalAlpha = 0.3 + state.density * 0.7;
-                ctx.beginPath();
-                ctx.arc(x, y, size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.shadowBlur = 0;
-        }
+        // Player density ring
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 3;
+        ctx.globalAlpha = 0.8;
+        ctx.beginPath();
+        ctx.arc(0, 0, playerSpread * state.density, 0, Math.PI * 2);
+        ctx.stroke();
         ctx.restore();
         ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
         // Center glow
-        drawGlow(ctx, CENTER_X, CENTER_Y, spread * 0.5, COLORS[state.color].hex, state.saturation * state.density);
+        drawGlow(ctx, CENTER_X, CENTER_Y, playerSpread * 0.5, COLORS[state.color].hex, state.saturation * state.density);
         // UI
-        drawGlowText(ctx, `DENSITY: ${state.density.toFixed(2)}`, CENTER_X, 30, '#fff', 16, 5);
-        drawGlowText(ctx, `[W/S] scale  [←→] rotate  [Q/E] color  [Shift] density`, CENTER_X, CANVAS_HEIGHT - 10, '#888', 12, 3);
+        drawGlowText(ctx, `MERGES: ${this.successfulMerges}/10`, CENTER_X, 30, '#fff', 20, 5);
+        // Density bar
+        const barWidth = 150;
+        const barHeight = 12;
+        const barX = CENTER_X - barWidth / 2;
+        const barY = 55;
+        ctx.fillStyle = '#222';
+        ctx.fillRect(barX, barY, barWidth, barHeight);
+        ctx.fillStyle = COLORS[state.color].hex;
+        ctx.shadowColor = COLORS[state.color].hex;
+        ctx.shadowBlur = 8;
+        ctx.fillRect(barX, barY, barWidth * state.density, barHeight);
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = '#444';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(barX, barY, barWidth, barHeight);
+        ctx.font = '10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#888';
+        ctx.fillText(`DENSITY: ${(state.density * 100).toFixed(0)}%`, CENTER_X, barY + barHeight + 12);
+        drawGlowText(ctx, `[Shift L/R] density  [Q/E] color  [W/S] scale`, CENTER_X, CANVAS_HEIGHT - 10, '#888', 12, 3);
         // Screen effects
         drawScanlines(ctx, 0.05);
         // Excess state effects
@@ -980,10 +1116,23 @@ export class Dim5Cloud {
         }
     }
     checkAscension(state) {
-        return state.streak >= 30;
+        return this.successfulMerges >= 10;
     }
     checkDeath(state) {
         return state.saturation <= 0;
+    }
+    spawnCloud() {
+        const isBlack = Math.random() < 0.08;
+        const isWhite = !isBlack && Math.random() < 0.12;
+        return {
+            id: Math.random().toString(36),
+            x: CENTER_X + (Math.random() - 0.5) * 200,
+            y: CENTER_Y + (Math.random() - 0.5) * 150,
+            z: 1000,
+            color: isBlack ? 'black' : isWhite ? 'white' : randomColor(),
+            targetDensity: 0.2 + Math.random() * 0.6, // 0.2 - 0.8
+            size: 60 + Math.random() * 40,
+        };
     }
     spawnEntities() {
         return [];

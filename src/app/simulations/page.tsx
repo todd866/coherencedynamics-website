@@ -76,11 +76,11 @@ const simulations: Simulation[] = [
   },
   {
     slug: 'lsd-landscape',
-    title: 'LSD Landscape',
-    description: 'Explore effective dimensionality in altered states. Visualize how psychedelics might expand the accessible state space.',
-    paper: 'LSD Dimensionality',
+    title: 'The Desynchronization Engine',
+    description: 'Drag to modulate 5-HT2A gain and watch cortical oscillators break free. See how psychedelics dismantle synchronization constraints to expand effective dimensionality — the mechanism that distinguishes psilocybin from ketamine.',
+    paper: 'Psychedelics as Dimensionality Modulators',
     paperSlug: 'lsd-dimensionality',
-    status: 'coming_soon',
+    status: 'playable',
   },
   {
     slug: 'coherence-helix',

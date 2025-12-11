@@ -3,7 +3,7 @@
  *
  * State machine and main game loop.
  */
-import { createInitialState, createEmptyInput, checkMatch, DIMENSION_CONFIGS, } from './types.js';
+import { createInitialState, createEmptyInput, checkMatch, DIMENSION_CONFIGS, } from './lib/types.js';
 // =============================================================================
 // CONSTANTS
 // =============================================================================
@@ -143,7 +143,9 @@ export function handleCollision(state, entity, emit) {
             // White doesn't add to excess
             break;
         case 'mismatch':
-            state.saturation = Math.max(0, state.saturation - SATURATION_DRAIN_RATE * 2);
+            // Blackhole makes mismatches more punishing despite slow-mo
+            const drainMult = state.excessState === 'blackhole' ? 1.8 : 1.0;
+            state.saturation = Math.max(0, state.saturation - SATURATION_DRAIN_RATE * 2 * drainMult);
             state.streak = 0;
             break;
         case 'void':
@@ -300,14 +302,29 @@ export function createGame(canvas, externalInput) {
     inputHandler.attach(canvas);
     let running = false;
     let lastTime = 0;
+    let lastDimension = state.dimension;
     const loop = (time) => {
         if (!running)
             return;
-        const dt = Math.min((time - lastTime) / 1000, 0.1); // Cap dt at 100ms
+        const rawDt = (time - lastTime) / 1000;
         lastTime = time;
+        // Apply time dilation based on excess state
+        let timeScale = 1.0;
+        if (state.excessState === 'redshift') {
+            timeScale = 1.5; // Everything moves 50% faster
+        }
+        else if (state.excessState === 'blackhole') {
+            timeScale = 0.6; // Everything moves in slow motion
+        }
+        const dt = Math.min(rawDt, 0.1) * timeScale;
         // Get current dimension handler
         const dim = dimensions.get(state.dimension);
         if (dim) {
+            // Check for dimension change and initialize new dimension
+            if (state.dimension !== lastDimension) {
+                dim.init(state);
+                lastDimension = state.dimension;
+            }
             update(state, inputHandler.input, dt, dim, emit);
             // Render
             ctx.fillStyle = '#0a0a0a';

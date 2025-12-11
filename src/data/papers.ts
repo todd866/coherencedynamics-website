@@ -308,6 +308,31 @@ The same constraint applies to neural network latent spaces: if you compress too
     github: 'todd866/minimalembeddingdimension',
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
+  {
+    slug: 'lsd-dimensionality',
+    title: 'Psychedelics as Dimensionality Modulators: A Cortical Reservoir Theory of Serotonergic Plasticity',
+    journal: 'Translational Psychiatry (submitted)',
+    year: 2025,
+    status: 'submitted',
+    github: 'todd866/lsd-dimensionality',
+    pdf: 'https://raw.githubusercontent.com/todd866/lsd-dimensionality/main/lsd_dimensionality.pdf',
+    simulation: 'lsd-landscape',
+    image: 'lsd-dimensionality.png',
+    description: `**Classical psychedelics work by dismantling the oscillatory constraints that lock cortical dynamics into low-dimensional attractors** — and MEG data reveals a mechanism-specific dissociation that distinguishes psychedelics from ketamine at the neural level.
+
+Analysis of 136 MEG sessions across four compounds shows that 5-HT2A agonists (psilocybin, LSD) produce significant oscillatory desynchronization (psilocybin: −15%, p=0.003; LSD: −13%), while ketamine (NMDA antagonist) shows no effect. This specificity suggests that while both drug classes produce altered states, only serotonergic psychedelics function by breaking the synchronous constraints of the cortex.
+
+The framework proposes effective dimensionality — the number of independent modes available to cortical dynamics — as the computational target of psychedelic therapy. Through dendritic gain amplification at 5-HT2A receptors on layer 5 pyramidal neurons, psychedelics expand the eigenmode spectrum, enabling exploration of configurations inaccessible under baseline conditions. This dimensionality expansion manifests across measurement modalities: as increased metabolic diversity (fMRI) mediated by the breakdown of synchronous oscillatory constraints (MEG).
+
+A three-phase model (overshoot → refractory → recanalization) explains how transient dimensionality expansion enables lasting therapeutic reorganization. MEG-derived oscillatory coherence could serve as a real-time biomarker for "psychedelic depth" during treatment sessions.`,
+    keyFindings: [
+      'Mechanism-specific dissociation: psilocybin desynchronizes (−15%, p=0.003), ketamine does not',
+      'Three-phase model: overshoot → refractory → recanalization',
+      'MEG coherence as real-time biomarker for psychedelic depth',
+      'Dimensionality expansion via 5-HT2A dendritic gain amplification',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and MEG analysis code; Gemini 2.5 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
+  },
 
   // === IN PREPARATION ===
   {

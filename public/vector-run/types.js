@@ -8,7 +8,7 @@ export const COLORS = {
     red: { name: 'red', hex: '#FF0044', rgb: [255, 0, 68] },
     green: { name: 'green', hex: '#00FF88', rgb: [0, 255, 136] },
     blue: { name: 'blue', hex: '#0088FF', rgb: [0, 136, 255] },
-    black: { name: 'black', hex: '#000000', rgb: [0, 0, 0] },
+    black: { name: 'black', hex: '#660066', rgb: [102, 0, 102] }, // Dark purple "void"
 };
 export function checkMatch(a, b) {
     if (a === 'black' || b === 'black')
