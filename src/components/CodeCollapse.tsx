@@ -13,6 +13,7 @@
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 
 const CHARS = '01λφψ{}[]<>∂∫∑∏xyz=+-*/#@&|~^:;';
+const DNA = 'ACGT';  // 4-letter code for singularity
 
 interface Vec4 { x: number; y: number; z: number; w: number; }
 
@@ -252,27 +253,96 @@ export default function CodeCollapse({}: CodeCollapseProps) {
         ctx.globalCompositeOperation = 'source-over';
       }
 
-      // --- LAYER 3: THE SINGULARITY (Core Symbol) ---
-      if (D < 1.3) {
-        const stability = Math.max(0, (1.1 - D) * 10); // 1.0 = fully stable
-        const flickerRate = (1 - stability) * 20;
-        const charIdx = Math.floor(s.time * flickerRate + 7) % CHARS.length;
-        const char = CHARS[Math.abs(charIdx)];
-
-        ctx.font = 'bold 140px monospace';
+      // --- LAYER 3: THE SINGULARITY (Central symbol + DNA orbit) ---
+      // High-alphabet symbol in center, surrounded by 4-letter DNA code
+      // As D drops, central symbol dissipates, more DNA appears
+      if (D < 1.6) {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
-        // Glitch effect when unstable
-        const gx = (Math.random() - 0.5) * (1 - stability) * 15;
-        const gy = (Math.random() - 0.5) * (1 - stability) * 15;
+        // How much singularity effect (0 at 1.6, 1 at 1.0)
+        const singularityWeight = Math.min(1, (1.6 - D) / 0.6);
 
-        const symbolAlpha = Math.min(1, (1.3 - D) * 3);
-        ctx.fillStyle = `rgba(168, 85, 247, ${symbolAlpha})`;
-        ctx.shadowColor = '#a855f7';
-        ctx.shadowBlur = 60 * stability;
-        ctx.fillText(char, centerX + gx, centerY + gy);
-        ctx.shadowBlur = 0;
+        // Central symbol: fades as we approach pure 4-letter code
+        // Visible from 1.6 down to ~1.1, then fades out
+        const centralAlpha = D > 1.1 ? singularityWeight : Math.max(0, (D - 1.0) * 5);
+        if (centralAlpha > 0.01) {
+          // Slow flickering for the big-alphabet central symbol
+          const flickerRate = 0.3;  // Much slower than before
+          const charIdx = Math.floor(s.time * flickerRate) % CHARS.length;
+          const char = CHARS[charIdx];
+
+          const centralSize = 100 + (1.6 - D) * 40;  // Gets bigger as we compress
+          ctx.font = `bold ${centralSize}px monospace`;
+
+          ctx.fillStyle = `rgba(168, 85, 247, ${centralAlpha * 0.9})`;
+          ctx.shadowColor = '#a855f7';
+          ctx.shadowBlur = 40 * centralAlpha;
+          ctx.fillText(char, centerX, centerY);
+          ctx.shadowBlur = 0;
+        }
+
+        // DNA orbit: number of letters increases as D drops
+        // At 1.5D: 4 letters, at 1.0D: 20+ letters
+        const dnaCount = Math.floor(4 + (1.5 - D) * 32);  // 4 to 20 letters
+        const orbitRadius = 80 + (1.5 - D) * 100;  // Expands as D drops
+        const dnaAlpha = Math.min(1, (1.5 - D) * 2);  // Fades in
+
+        if (dnaAlpha > 0.01 && dnaCount > 0) {
+          ctx.font = 'bold 28px monospace';
+
+          for (let i = 0; i < dnaCount; i++) {
+            // Orbit position (slowly rotating)
+            const angle = (i / dnaCount) * Math.PI * 2 + s.time * 0.5;
+            // Slight wobble in radius for organic feel
+            const r = orbitRadius * (0.9 + 0.2 * Math.sin(angle * 3 + s.time));
+
+            const dx = Math.cos(angle) * r;
+            const dy = Math.sin(angle) * r * 0.6;  // Elliptical
+
+            // Pick DNA letter based on position
+            const dnaIdx = (i + Math.floor(s.time * 0.5)) % 4;
+            const dnaChar = DNA[dnaIdx];
+
+            // Color by base: A=green, C=blue, G=yellow, T=red
+            const colors = ['#4ade80', '#60a5fa', '#fbbf24', '#f87171'];
+            ctx.fillStyle = colors[dnaIdx];
+            ctx.globalAlpha = dnaAlpha * 0.8;
+            ctx.fillText(dnaChar, centerX + dx, centerY + dy);
+          }
+          ctx.globalAlpha = 1.0;
+        }
+
+        // At very low D (approaching 1.0), add more DNA in a grid pattern
+        if (D < 1.2) {
+          const gridAlpha = Math.min(1, (1.2 - D) * 5);
+          ctx.font = 'bold 20px monospace';
+
+          // Grid of DNA around center
+          const gridSize = 5;  // 5x5 grid
+          const spacing = 50;
+
+          for (let gx = -gridSize; gx <= gridSize; gx++) {
+            for (let gy = -gridSize; gy <= gridSize; gy++) {
+              // Skip center area (already has main symbol)
+              const dist = Math.sqrt(gx * gx + gy * gy);
+              if (dist < 2) continue;
+
+              const px = centerX + gx * spacing;
+              const py = centerY + gy * spacing;
+
+              // DNA letter based on position + time
+              const dnaIdx = Math.abs((gx + gy + Math.floor(s.time * 0.8))) % 4;
+              const dnaChar = DNA[dnaIdx];
+
+              const colors = ['#4ade80', '#60a5fa', '#fbbf24', '#f87171'];
+              ctx.fillStyle = colors[dnaIdx];
+              ctx.globalAlpha = gridAlpha * 0.5 * (1 - dist / gridSize / 1.5);
+              ctx.fillText(dnaChar, px, py);
+            }
+          }
+          ctx.globalAlpha = 1.0;
+        }
       }
 
       // --- TAP RIPPLE ---

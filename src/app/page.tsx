@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import InteractiveHero from '@/components/InteractiveHero';
 import TesseractHero from '@/components/TesseractHero';
+import CodeCollapse from '@/components/CodeCollapse';
 
 export default function Home() {
   return (
@@ -66,6 +67,34 @@ export default function Home() {
           </div>
           <div className="flex items-center justify-center">
             <TesseractHero className="rounded-xl w-full max-w-md" />
+          </div>
+        </div>
+      </section>
+
+      {/* Code Formation - with CodeCollapse */}
+      <section className="mb-20 py-12 border-y border-gray-800">
+        <h2 className="text-2xl font-bold mb-8 text-white">Code Formation</h2>
+        <div className="grid md:grid-cols-2 gap-12">
+          <div className="flex items-center justify-center order-2 md:order-1">
+            <CodeCollapse />
+          </div>
+          <div className="space-y-6 order-1 md:order-2">
+            <p className="text-gray-300 leading-relaxed">
+              Biology is the study of code formation. DNA, proteins, neural signals—all are
+              low-dimensional codes that represent high-dimensional physical processes.
+            </p>
+            <p className="text-gray-300 leading-relaxed">
+              Codes emerge when high-dimensional systems collapse to low-dimensional
+              representations. The 4D chaos of a protein&apos;s conformational space becomes
+              the 1D sequence of amino acids. The continuous dynamics of neural activity
+              become discrete action potentials.
+            </p>
+            <p className="text-gray-300 leading-relaxed">
+              This isn&apos;t information loss—it&apos;s <em>information creation</em>. The code
+              carries meaning precisely because it discards the details. Tap the visualization
+              to induce 4D rotation, then slide to collapse dimensions and watch code form
+              from chaos.
+            </p>
           </div>
         </div>
       </section>
