@@ -1,10 +1,13 @@
 'use client';
 
 /**
- * PsychedelicGainMini - Compact version for embedding in paper pages
+ * PsychedelicGainMini - Compact version for paper page embeds
  *
- * Same physics as PsychedelicGainDemo but smaller canvas, no metrics panel.
- * Optimized with ImageData for 60fps on mobile.
+ * Same physics as PsychedelicGainDemo but:
+ * - Smaller canvas (300x300)
+ * - No metrics panel
+ * - Ref-based loop (decoupled from React)
+ * - Smooth latent lerp
  */
 
 import { useRef, useEffect, useState } from 'react';
@@ -20,10 +23,15 @@ export default function PsychedelicGainMini() {
   const frequenciesRef = useRef<Float32Array>(new Float32Array(N_OSCILLATORS));
   const latentPatternRef = useRef<Float32Array>(new Float32Array(N_OSCILLATORS));
 
-  const [gain, setGain] = useState(0.15);
-  const [latentSignal, setLatentSignal] = useState(false);
+  // Physics Refs (Decoupled from React)
+  const gainRef = useRef(0.15);
+  const latentTargetRef = useRef(0);
+  const latentCurrentRef = useRef(0);
+
+  // UI State
+  const [uiGain, setUiGain] = useState(0.15);
+  const [uiLatent, setUiLatent] = useState(false);
   const isDraggingRef = useRef(false);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize
   useEffect(() => {
@@ -32,36 +40,41 @@ export default function PsychedelicGainMini() {
       frequenciesRef.current[i] = 1.0 + (Math.random() - 0.5) * 0.3;
     }
 
-    // Mandala pattern
     const cx = GRID_SIZE / 2;
-    const cy = GRID_SIZE / 2;
     for (let i = 0; i < GRID_SIZE; i++) {
       for (let j = 0; j < GRID_SIZE; j++) {
         const idx = i * GRID_SIZE + j;
         const x = j - cx;
-        const y = i - cy;
-        const r = Math.sqrt(x * x + y * y) / (GRID_SIZE / 2);
-        const val = Math.sin(r * 15) * 0.5 + Math.cos(Math.atan2(y, x) * 6) * 0.5;
-        latentPatternRef.current[idx] = val;
+        const y = i - cx;
+        const r = Math.sqrt(x * x + y * y) / cx;
+        latentPatternRef.current[idx] = Math.sin(r * 15) * 0.5 + Math.cos(Math.atan2(y, x) * 6) * 0.5;
       }
     }
-
-    setIsInitialized(true);
   }, []);
 
-  // Physics + Render loop
+  // Physics + Render loop (decoupled)
   useEffect(() => {
-    if (!isInitialized) return;
-
     let frameId: number;
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     if (!canvas || !ctx) return;
 
+    // Pre-allocate buffers
+    const imgData = ctx.createImageData(GRID_SIZE, GRID_SIZE);
+    const data = imgData.data;
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = GRID_SIZE;
+    tempCanvas.height = GRID_SIZE;
+    const tempCtx = tempCanvas.getContext('2d');
+
     const loop = () => {
+      // Smooth lerp for latent signal
+      latentCurrentRef.current += (latentTargetRef.current - latentCurrentRef.current) * 0.05;
+
+      const gain = gainRef.current;
       const K = BASE_COUPLING * (1 - gain * 0.9);
       const noiseStr = gain * 0.6;
-      const signalStrength = latentSignal ? 2.0 : 0;
+      const signalStrength = latentCurrentRef.current * 2.5;
 
       const newPhases = new Float32Array(N_OSCILLATORS);
 
@@ -90,12 +103,6 @@ export default function PsychedelicGainMini() {
       phasesRef.current = newPhases;
 
       // Render with ImageData
-      const width = canvas.width;
-      const height = canvas.height;
-
-      const imgData = ctx.createImageData(GRID_SIZE, GRID_SIZE);
-      const data = imgData.data;
-
       for (let i = 0; i < N_OSCILLATORS; i++) {
         const p = phasesRef.current[i];
         const r = Math.sin(p) * 127 + 128;
@@ -109,28 +116,29 @@ export default function PsychedelicGainMini() {
         data[ptr + 3] = 255;
       }
 
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = GRID_SIZE;
-      tempCanvas.height = GRID_SIZE;
-      tempCanvas.getContext('2d')?.putImageData(imgData, 0, 0);
-
-      ctx.save();
+      tempCtx?.putImageData(imgData, 0, 0);
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(tempCanvas, 0, 0, width, height);
-      ctx.restore();
+      ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
 
       frameId = requestAnimationFrame(loop);
     };
 
     frameId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frameId);
-  }, [gain, latentSignal, isInitialized]);
+  }, []); // Empty dependency = loop never restarts
 
   const handleInput = (clientX: number) => {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    setGain(x);
+    gainRef.current = x;
+    setUiGain(x);
+  };
+
+  const toggleLatent = () => {
+    const newVal = !uiLatent;
+    setUiLatent(newVal);
+    latentTargetRef.current = newVal ? 1 : 0;
   };
 
   return (
@@ -138,23 +146,23 @@ export default function PsychedelicGainMini() {
       {/* Controls */}
       <div className="flex justify-between items-center mb-2">
         <button
-          onClick={() => setLatentSignal(!latentSignal)}
+          onClick={toggleLatent}
           className={`px-2 py-1 rounded text-xs transition-all ${
-            latentSignal
+            uiLatent
               ? 'bg-amber-900/80 text-amber-200 border border-amber-600'
               : 'bg-slate-800 text-slate-400 border border-slate-600 hover:border-slate-500'
           }`}
         >
-          {latentSignal ? 'SIGNAL ON' : 'INJECT SIGNAL'}
+          {uiLatent ? 'SIGNAL ON' : 'INJECT SIGNAL'}
         </button>
         <span className={`px-2 py-1 rounded text-xs ${
-          gain > 0.6
+          uiGain > 0.6
             ? 'bg-purple-900/80 text-purple-200'
-            : gain > 0.3
+            : uiGain > 0.3
             ? 'bg-indigo-900/60 text-indigo-200'
             : 'bg-slate-800 text-slate-400'
         }`}>
-          {gain > 0.6 ? 'PSYCHEDELIC' : gain > 0.3 ? 'TRANSITIONAL' : 'BASELINE'}
+          {uiGain > 0.6 ? 'CRITICAL' : uiGain > 0.3 ? 'TRANSITIONAL' : 'BASELINE'}
         </span>
       </div>
 
@@ -185,7 +193,7 @@ export default function PsychedelicGainMini() {
         />
 
         {/* Pattern revealed indicator */}
-        {latentSignal && gain > 0.65 && (
+        {uiLatent && uiGain > 0.65 && (
           <div className="absolute top-2 right-2 pointer-events-none animate-pulse">
             <span className="bg-amber-900/90 text-amber-200 px-2 py-1 rounded border border-amber-600 text-xs">
               REVEALED
@@ -198,7 +206,7 @@ export default function PsychedelicGainMini() {
       <div className="mt-2 h-2 bg-slate-800 rounded overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all"
-          style={{ width: `${gain * 100}%` }}
+          style={{ width: `${uiGain * 100}%` }}
         />
       </div>
       <p className="text-slate-500 text-center mt-1">Drag to modulate 5-HT2A gain</p>
