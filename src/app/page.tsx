@@ -1,6 +1,6 @@
 import Link from 'next/link';
+import InteractiveHero from '@/components/InteractiveHero';
 import TesseractHero from '@/components/TesseractHero';
-import ObserverDemo from '@/components/ObserverDemo';
 
 export default function Home() {
   return (
@@ -37,9 +37,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Interactive visualization - Observer Demo (original) */}
+      {/* Interactive visualization - Bits vs Dynamics (InteractiveHero) */}
       <section className="mb-20 flex justify-center">
-        <ObserverDemo />
+        <InteractiveHero />
       </section>
 
       {/* Why Coherence Dynamics - with TesseractHero */}
