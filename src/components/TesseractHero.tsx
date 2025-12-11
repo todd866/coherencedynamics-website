@@ -36,14 +36,14 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
   const stateRef = useRef({
     time: 0,
     // Angles
-    xwAngle: 0, // 4D (Inside-Out) - controlled by TAPS
-    ywAngle: 0, // 3D Y-rotation - controlled by DRAG
-    zwAngle: 0, // 3D X-rotation - controlled by DRAG
+    xwAngle: 0, // 4D (Inside-Out)
+    ywAngle: 0, // 3D Y-rotation
+    zwAngle: 0, // 3D X-rotation
 
-    // 4D Physics (momentum-based)
-    xwVel: 0.008, // Start with idle drift
-
-    // 3D is direct control (no momentum)
+    // ALL rotations are momentum-based now
+    xwVel: 0.008, // 4D velocity - start with gentle drift
+    ywVel: 0,     // 3D horizontal velocity
+    zwVel: 0,     // 3D vertical velocity
 
     // Interaction
     isDragging: false,
@@ -53,6 +53,7 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
     dragStartY: 0,
     lastX: 0,
     lastY: 0,
+    lastMoveTime: 0,
     dragDistance: 0,
 
     // Tap effect
@@ -161,11 +162,13 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
 
         // After 100ms of holding, start settling
         if (holdDuration > 100) {
-          // Freeze 4D velocity immediately
+          // Freeze all velocities
           state.xwVel = 0;
+          state.ywVel = 0;
+          state.zwVel = 0;
 
-          // Snap all angles toward nearest canonical orientation (multiples of π/2)
-          const snapSpeed = 0.08; // Smooth settling
+          // Snap all angles toward nearest canonical orientation
+          const snapSpeed = 0.08;
 
           // Snap XW angle to nearest 90°
           const targetXW = Math.round(state.xwAngle / (Math.PI / 2)) * (Math.PI / 2);
@@ -175,24 +178,22 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
           state.ywAngle += (0 - state.ywAngle) * snapSpeed;
           state.zwAngle += (0 - state.zwAngle) * snapSpeed;
         }
-      }
-
-      // PHYSICS: 4D Momentum with friction (only when not holding)
-      if (!state.isHolding) {
+      } else {
+        // PHYSICS: Apply all velocities
         state.xwAngle += state.xwVel;
-      }
+        state.ywAngle += state.ywVel;
+        state.zwAngle += state.zwVel;
 
-      // Friction: decay toward idle speed (only when not dragging)
-      if (!state.isDragging) {
-        const idleSpeed = 0.005;
-        const currentSpeed = Math.abs(state.xwVel);
-        if (currentSpeed > idleSpeed) {
-          state.xwVel *= 0.985; // Friction
-          // Don't let it drop below idle
-          if (Math.abs(state.xwVel) < idleSpeed) {
-            state.xwVel = idleSpeed * Math.sign(state.xwVel);
-          }
-        }
+        // Very light friction - slow decay (0.997 = ~18% decay per second at 60fps)
+        const friction = 0.997;
+        state.xwVel *= friction;
+        state.ywVel *= friction;
+        state.zwVel *= friction;
+
+        // Stop completely when very slow (prevents infinite tiny spinning)
+        if (Math.abs(state.xwVel) < 0.0001) state.xwVel = 0;
+        if (Math.abs(state.ywVel) < 0.0001) state.ywVel = 0;
+        if (Math.abs(state.zwVel) < 0.0001) state.zwVel = 0;
       }
 
       // Speed factor for visual effects (0-1, clamped)
@@ -359,19 +360,19 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
 
       ctx.font = '12px system-ui';
       ctx.fillStyle = '#88aacc';
-      ctx.fillText('DRAG', 24, 52);
+      ctx.fillText('FLICK', 24, 52);
       ctx.fillStyle = '#aaa';
-      ctx.fillText(' → Rotate 3D View', 60, 52);
+      ctx.fillText(' → Spin 3D', 62, 52);
 
       ctx.fillStyle = '#ffaa66';
       ctx.fillText('TAP', 24, 70);
       ctx.fillStyle = '#aaa';
-      ctx.fillText(' → Boost 4D Spin', 50, 70);
+      ctx.fillText(' → Spin 4D', 50, 70);
 
       ctx.fillStyle = '#66ff88';
       ctx.fillText('HOLD', 24, 88);
       ctx.fillStyle = '#aaa';
-      ctx.fillText(' → Settle to Cube', 58, 88);
+      ctx.fillText(' → Freeze & Settle', 58, 88);
 
       // Speed label
       ctx.textAlign = 'center';
@@ -415,10 +416,9 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
     state.dragStartY = y;
     state.lastX = x;
     state.lastY = y;
+    state.lastMoveTime = Date.now();
     state.dragDistance = 0;
-
-    // Immediately freeze 4D velocity on click
-    state.xwVel = 0;
+    // Don't freeze velocity - let it keep spinning until they hold
   }, [getCanvasCoords]);
 
   const handleMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -427,6 +427,8 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
     e.preventDefault();
 
     const { x, y } = getCanvasCoords(e);
+    const now = Date.now();
+    const dt = Math.max(1, now - state.lastMoveTime); // ms since last move
     const dx = x - state.lastX;
     const dy = y - state.lastY;
 
@@ -438,22 +440,30 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
       state.isHolding = false;
     }
 
-    // Direct 3D rotation control (only if not holding to settle)
+    // Apply rotation directly while dragging (for responsiveness)
+    // AND track velocity for release
     if (!state.isHolding) {
-      state.ywAngle += dx * 0.005;
-      state.zwAngle += dy * 0.005;
+      const rotationScale = 0.005;
+      state.ywAngle += dx * rotationScale;
+      state.zwAngle += dy * rotationScale;
+
+      // Track instantaneous velocity (pixels/ms -> radians/frame)
+      // We'll use this on release to impart momentum
+      state.ywVel = (dx * rotationScale) / dt * 16; // Convert to per-frame
+      state.zwVel = (dy * rotationScale) / dt * 16;
     }
 
     state.lastX = x;
     state.lastY = y;
+    state.lastMoveTime = now;
   }, [getCanvasCoords]);
 
   const handleEnd = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     const state = stateRef.current;
     const holdDuration = Date.now() - state.holdStartTime;
+    const timeSinceLastMove = Date.now() - state.lastMoveTime;
 
     // If this was a quick tap (minimal drag AND short hold), add 4D impulse
-    // Long holds are for settling, not spinning
     if (state.dragDistance < 10 && holdDuration < 200) {
       // Get tap position for ripple
       let tapX = state.dragStartX;
@@ -471,11 +481,22 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
         }
       }
 
-      // Add 4D momentum!
-      state.xwVel += 0.04;
+      // STRONG 4D impulse on tap!
+      state.xwVel += 0.08;
       state.lastTapTime = Date.now();
       state.tapX = tapX;
       state.tapY = tapY;
+    } else if (state.dragDistance > 10 && timeSinceLastMove < 50) {
+      // This was a flick! Velocity was set in handleMove, just let it fly.
+      // Boost the velocity a bit for a satisfying flick feel
+      state.ywVel *= 1.5;
+      state.zwVel *= 1.5;
+    } else {
+      // Long hold or stopped moving - kill velocity
+      if (timeSinceLastMove > 100) {
+        state.ywVel = 0;
+        state.zwVel = 0;
+      }
     }
 
     state.isDragging = false;
