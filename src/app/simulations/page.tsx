@@ -45,9 +45,17 @@ const simulations: Simulation[] = [
   {
     slug: 'bits-vs-dynamics',
     title: 'Bits vs Dynamics',
-    description: "Compare two kinds of systems: billiard balls (bits) that lose energy at every collision, versus a Lorenz attractor (dynamics) that never settles but stays bounded. See the fundamental trade-off between addressability and coherence.",
+    description: "Watch high-dimensional fluid dynamics squeeze through a bottleneck and crystallize into discrete code (A, C, G, T). The 'Bottleneck Engine' shows how structure emerges from the constraint of a continuous system.",
     paper: 'Dimensional Landauer Bound',
     paperSlug: 'dimensional-landauer',
+    status: 'playable',
+  },
+  {
+    slug: 'interaction-engine',
+    title: 'Interaction Engine',
+    description: "Two complex dynamical systems communicating through a low-dimensional code. Choose different systems (Lorenz chaos, neural networks, harmonic oscillators) and watch how they couple through discrete symbols. The bottleneck creates the protocol.",
+    paper: 'High-Dimensional Coherence',
+    paperSlug: 'high-dimensional-coherence',
     status: 'playable',
   },
   {

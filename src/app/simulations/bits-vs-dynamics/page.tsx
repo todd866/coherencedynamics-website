@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import InteractiveHero from '@/components/InteractiveHero';
+import BitsVsDynamics from '../../../../../interactives/interactive-hero/BitsVsDynamics';
 
 export default function BitsVsDynamicsPage() {
   return (
@@ -20,7 +20,7 @@ export default function BitsVsDynamicsPage() {
         {/* Visualization - takes 3 columns */}
         <div className="lg:col-span-3">
           <div className="border border-gray-800 rounded-lg overflow-hidden mb-4 bg-black">
-            <InteractiveHero />
+            <BitsVsDynamics />
           </div>
 
           {/* Legend */}

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import TesseractHero from '@/components/TesseractHero';
+import TesseractSimple from '../../../../../interactives/tesseract/TesseractSimple';
 
 export default function DimensionalCollapsePage() {
   return (
@@ -23,7 +23,7 @@ export default function DimensionalCollapsePage() {
           </p>
         </div>
 
-        <TesseractHero className="rounded-xl shadow-2xl" />
+        <TesseractSimple className="rounded-xl shadow-2xl" />
 
         {/* Info cards below */}
         <div className="max-w-4xl mt-8 grid md:grid-cols-3 gap-4">

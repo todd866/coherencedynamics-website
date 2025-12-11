@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import CodeCollapse from '@/components/CodeCollapse';
+import CodeForming from '../../../../../interactives/code-collapse/CodeForming';
 
 export default function CodeCollapsePage() {
   return (
@@ -20,7 +20,7 @@ export default function CodeCollapsePage() {
         {/* Visualization - takes 3 columns */}
         <div className="lg:col-span-3">
           <div className="border border-gray-800 rounded-lg overflow-hidden mb-4 bg-black">
-            <CodeCollapse />
+            <CodeForming />
           </div>
 
           {/* Legend */}

@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import InteractiveHero from '@/components/InteractiveHero';
-import TesseractHero from '@/components/TesseractHero';
-import CodeCollapse from '@/components/CodeCollapse';
+import BitsVsDynamics from '../../../interactives/interactive-hero/BitsVsDynamics';
+import TesseractSimple from '../../../interactives/tesseract/TesseractSimple';
+import CodeForming from '../../../interactives/code-collapse/CodeForming';
 
 export default function Home() {
   return (
@@ -40,7 +40,7 @@ export default function Home() {
 
       {/* Interactive visualization - Bits vs Dynamics (InteractiveHero) */}
       <section className="mb-20 flex justify-center">
-        <InteractiveHero />
+        <BitsVsDynamics />
       </section>
 
       {/* Why Coherence Dynamics - with TesseractHero */}
@@ -66,7 +66,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex items-center justify-center">
-            <TesseractHero className="rounded-xl w-full max-w-md" />
+            <TesseractSimple className="rounded-xl w-full max-w-md" />
           </div>
         </div>
       </section>
@@ -76,7 +76,7 @@ export default function Home() {
         <h2 className="text-2xl font-bold mb-8 text-white">Code Formation</h2>
         <div className="grid md:grid-cols-2 gap-12">
           <div className="flex items-center justify-center order-2 md:order-1">
-            <CodeCollapse />
+            <CodeForming />
           </div>
           <div className="space-y-6 order-1 md:order-2">
             <p className="text-gray-300 leading-relaxed">
