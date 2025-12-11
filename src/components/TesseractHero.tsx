@@ -1,32 +1,22 @@
 'use client';
 
 /**
- * TesseractHero - "Impulse" Interaction Model
+ * TesseractHero - Mobile Hardened Edition
  *
- * CONCEPT:
- * - Drag: Standard 3D Orbit (X/Y rotation). Natural object manipulation.
- * - Click/Tap: Injects "4D Momentum". Like flicking a spinner.
- *   Each tap accelerates the "Inside-Out" rotation.
- *
- * PHYSICS:
- * - 4D rotation decays (friction) unless "kept alive" by taps.
- * - 3D rotation tracks mouse movement 1:1.
- * - Color shifts from cool (slow) to hot (fast) based on 4D velocity.
+ * MOBILE FIXES:
+ * 1. `touch-action: none` (CSS) prevents scrolling/zooming while dragging.
+ * 2. `onContextMenu` prevention stops the "Save Image / Copy" popup on long-press.
+ * 3. `select-none` prevents text highlighting.
+ * 4. `-webkit-tap-highlight-color: transparent` prevents the blue flash on tap.
  */
 
-import { useRef, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useEffect, useMemo } from 'react';
 
 interface TesseractHeroProps {
   className?: string;
 }
 
-interface Vec4 {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-}
-
+interface Vec4 { x: number; y: number; z: number; w: number; }
 type EdgeType = 'x' | 'y' | 'z' | 'w';
 
 export default function TesseractHero({ className = '' }: TesseractHeroProps) {
@@ -35,509 +25,293 @@ export default function TesseractHero({ className = '' }: TesseractHeroProps) {
 
   const stateRef = useRef({
     time: 0,
-    // Angles - 4D rotations
-    xwAngle: 0,   // 4D XW plane (background drift)
-    ywAngle4D: 0, // 4D YW plane - TAP triggers this (dramatic inside-out)
-
-    // Angles - 3D rotations (drag control)
-    ywAngle: 0,   // Horizontal drag (XZ plane rotation)
-    zwAngle: 0,   // Vertical drag (YZ plane rotation)
-
-    // Velocities - ALL momentum-based
-    xwVel: 0.002,  // Background 4D drift (very gentle)
-    ywVel4D: 0,    // TAP adds YW velocity - vertical + inside-out effect
-    ywVel: 0,      // 3D horizontal velocity (from drag)
-    zwVel: 0,      // 3D vertical velocity (from drag)
+    xwAngle: 0, ywAngle: 0, zwAngle: 0,
+    xwVel: 0.02, ywVel: 0, zwVel: 0,
 
     // Interaction
     isDragging: false,
-    isHolding: false, // True when holding still (not moving)
+    isHolding: false,
+    lastX: 0, lastY: 0,
+    dragStartTime: 0,
     holdStartTime: 0,
-    dragStartX: 0,
-    dragStartY: 0,
-    lastX: 0,
-    lastY: 0,
-    lastMoveTime: 0,
     dragDistance: 0,
 
-    // Tap effect
-    lastTapTime: 0,
-    tapX: 0,
-    tapY: 0,
+    // Tap Visuals
+    tapX: 0, tapY: 0, lastTapTime: 0,
   });
 
-  const W = 1200;
-  const H = 800;
+  const W = 1600;
+  const H = 900;
 
-  // Tesseract vertices
-  const tesseractVertices: Vec4[] = useMemo(() => {
+  // 1. GEOMETRY
+  const { vertices, edges } = useMemo(() => {
     const verts: Vec4[] = [];
     for (let i = 0; i < 16; i++) {
-      verts.push({
-        x: (i & 1) ? 1 : -1,
-        y: (i & 2) ? 1 : -1,
-        z: (i & 4) ? 1 : -1,
-        w: (i & 8) ? 1 : -1,
-      });
+      verts.push({ x: (i&1)?1:-1, y: (i&2)?1:-1, z: (i&4)?1:-1, w: (i&8)?1:-1 });
     }
-    return verts;
-  }, []);
-
-  // Edges
-  const edges: { from: number; to: number; type: EdgeType }[] = useMemo(() => {
-    const e: { from: number; to: number; type: EdgeType }[] = [];
+    const edgesList: { from: number; to: number; type: EdgeType }[] = [];
     for (let i = 0; i < 16; i++) {
       for (let j = i + 1; j < 16; j++) {
-        const v1 = tesseractVertices[i];
-        const v2 = tesseractVertices[j];
-        const dx = v1.x !== v2.x ? 1 : 0;
-        const dy = v1.y !== v2.y ? 1 : 0;
-        const dz = v1.z !== v2.z ? 1 : 0;
-        const dw = v1.w !== v2.w ? 1 : 0;
-        if (dx + dy + dz + dw === 1) {
+        const v1 = verts[i], v2 = verts[j];
+        const diff = (v1.x!==v2.x?1:0) + (v1.y!==v2.y?1:0) + (v1.z!==v2.z?1:0) + (v1.w!==v2.w?1:0);
+        if (diff === 1) {
           let type: EdgeType = 'x';
-          if (dy) type = 'y';
-          if (dz) type = 'z';
-          if (dw) type = 'w';
-          e.push({ from: i, to: j, type });
+          if (v1.y !== v2.y) type = 'y'; if (v1.z !== v2.z) type = 'z'; if (v1.w !== v2.w) type = 'w';
+          edgesList.push({ from: i, to: j, type });
         }
       }
     }
-    return e;
-  }, [tesseractVertices]);
-
-  // 4D rotation (single plane)
-  const rotate4D = useCallback((v: Vec4, angle: number, plane: string): Vec4 => {
-    const s = Math.sin(angle);
-    const c = Math.cos(angle);
-    const result = { ...v };
-    if (plane === 'xw') {
-      result.x = v.x * c - v.w * s;
-      result.w = v.x * s + v.w * c;
-    } else if (plane === 'yw') {
-      result.y = v.y * c - v.w * s;
-      result.w = v.y * s + v.w * c;
-    } else if (plane === 'zw') {
-      result.z = v.z * c - v.w * s;
-      result.w = v.z * s + v.w * c;
-    } else if (plane === 'xy') {
-      result.x = v.x * c - v.y * s;
-      result.y = v.x * s + v.y * c;
-    } else if (plane === 'xz') {
-      result.x = v.x * c - v.z * s;
-      result.z = v.x * s + v.z * c;
-    } else if (plane === 'yz') {
-      result.y = v.y * c - v.z * s;
-      result.z = v.y * s + v.z * c;
-    }
-    return result;
+    return { vertices: verts, edges: edgesList };
   }, []);
 
-  // 4D → 3D stereographic
-  const project4Dto3D = useCallback((v: Vec4): { x: number; y: number; z: number; w: number } => {
-    const distance = 2.5;
-    const scale = 1 / (distance - v.w * 0.5);
-    return { x: v.x * scale, y: v.y * scale, z: v.z * scale, w: v.w };
-  }, []);
+  // 2. MATH & PROJECTION
+  // Order matters! 3D rotations first, then 4D rotation LAST for clean inside-out effect
+  const rotate4D = (v: Vec4, xw: number, yw: number, zw: number): Vec4 => {
+    let { x, y, z, w } = v;
 
-  // 3D → 2D perspective
-  const project3Dto2D = useCallback((x: number, y: number, z: number) => {
-    const fov = 3;
-    const scale = fov / (fov + z + 1.5);
-    return { x: x * scale, y: y * scale, scale, z };
-  }, []);
+    // 3D rotations first (so the view orientation is established)
+    // XZ rotation (yaw - horizontal spin from drag)
+    let c = Math.cos(yw), s = Math.sin(yw);
+    let nx = x * c - z * s;
+    let nz = x * s + z * c;
+    x = nx; z = nz;
 
+    // YZ rotation (pitch - vertical tilt from drag)
+    c = Math.cos(zw); s = Math.sin(zw);
+    const ny = y * c - z * s;
+    nz = y * s + z * c;
+    y = ny; z = nz;
+
+    // XW rotation LAST (4D inside-out from tap) - clean hypercube inversion
+    c = Math.cos(xw); s = Math.sin(xw);
+    nx = x * c - w * s;
+    const nw = x * s + w * c;
+    x = nx; w = nw;
+
+    return { x, y, z, w };
+  };
+
+  const project = (v: Vec4) => {
+    const dist4d = 3.2;
+    const scale4d = 1 / (dist4d - v.w);
+    const x3 = v.x * scale4d, y3 = v.y * scale4d, z3 = v.z * scale4d;
+    const dist3d = 4.0;
+    const scale3d = 900 / (dist3d - z3);
+    return { x: W/2 + x3 * scale3d, y: H/2 + y3 * scale3d, scale: scale3d, w: v.w, z: z3 };
+  };
+
+  // 3. ANIMATION LOOP
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
     const loop = () => {
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        animationRef.current = requestAnimationFrame(loop);
-        return;
-      }
-      const state = stateRef.current;
-      state.time += 0.016;
+      const ctx = canvasRef.current?.getContext('2d');
+      if (!ctx) { animationRef.current = requestAnimationFrame(loop); return; }
+      const s = stateRef.current;
 
-      // HOLD TO SETTLE: If holding (not moving), snap to canonical orientation
-      if (state.isDragging && state.isHolding) {
-        const holdDuration = Date.now() - state.holdStartTime;
-
-        // After 100ms of holding, start settling
-        if (holdDuration > 100) {
-          // Freeze all velocities
-          state.xwVel = 0;
-          state.ywVel4D = 0;
-          state.ywVel = 0;
-          state.zwVel = 0;
-
-          // Snap all angles toward nearest canonical orientation
-          const snapSpeed = 0.08;
-
-          // Snap 4D angles to nearest 90°
-          const targetXW = Math.round(state.xwAngle / (Math.PI / 2)) * (Math.PI / 2);
-          state.xwAngle += (targetXW - state.xwAngle) * snapSpeed;
-          const targetYW = Math.round(state.ywAngle4D / (Math.PI / 2)) * (Math.PI / 2);
-          state.ywAngle4D += (targetYW - state.ywAngle4D) * snapSpeed;
-
-          // Snap 3D angles back to zero (canonical view)
-          state.ywAngle += (0 - state.ywAngle) * snapSpeed;
-          state.zwAngle += (0 - state.zwAngle) * snapSpeed;
-        }
+      // PHYSICS: Hold logic
+      if (s.isDragging && s.isHolding) {
+          const holdDuration = Date.now() - s.holdStartTime;
+          // If holding > 100ms, start freezing/snapping
+          if (holdDuration > 100) {
+              s.xwVel = 0; s.ywVel = 0; s.zwVel = 0;
+              const snapSpeed = 0.08;
+              const targetXW = Math.round(s.xwAngle / (Math.PI/2)) * (Math.PI/2);
+              s.xwAngle += (targetXW - s.xwAngle) * snapSpeed;
+              s.ywAngle += (0 - s.ywAngle) * snapSpeed;
+              s.zwAngle += (0 - s.zwAngle) * snapSpeed;
+          }
       } else {
-        // PHYSICS: Apply all velocities
-        state.xwAngle += state.xwVel;
-        state.ywAngle4D += state.ywVel4D;  // 4D YW rotation (tap-triggered)
-        state.ywAngle += state.ywVel;
-        state.zwAngle += state.zwVel;
-
-        // Light friction - slow decay
-        const friction = 0.995;  // Slightly more friction for smoother stopping
-        state.xwVel *= friction;
-        state.ywVel4D *= friction;
-        state.ywVel *= friction;
-        state.zwVel *= friction;
-
-        // Stop completely when very slow (prevents infinite tiny spinning)
-        if (Math.abs(state.xwVel) < 0.0001) state.xwVel = 0;
-        if (Math.abs(state.ywVel4D) < 0.0001) state.ywVel4D = 0;
-        if (Math.abs(state.ywVel) < 0.0001) state.ywVel = 0;
-        if (Math.abs(state.zwVel) < 0.0001) state.zwVel = 0;
+          // Normal Momentum - unified with CodeCollapse
+          // 4D persists much longer than 3D for exploration
+          s.xwAngle += s.xwVel; s.ywAngle += s.ywVel; s.zwAngle += s.zwVel;
+          s.xwVel *= 0.998;  // 4D: very slow decay - keeps spinning
+          s.ywVel *= 0.96;   // 3D: moderate decay
+          s.zwVel *= 0.96;
+          // Idle 4D spin (minimum)
+          if (Math.abs(s.xwVel) < 0.003) s.xwVel = 0.003;
+          if (Math.abs(s.ywVel) < 0.0001) s.ywVel = 0;
+          if (Math.abs(s.zwVel) < 0.0001) s.zwVel = 0;
       }
 
-      // Speed factor for visual effects (0-1, clamped) - based on total 4D velocity
-      const total4DVel = Math.abs(state.xwVel) + Math.abs(state.ywVel4D);
-      const speedFactor = Math.min(1, total4DVel / 0.08);
-
-      // Clear
-      ctx.fillStyle = '#000000';
+      // RENDER
+      ctx.fillStyle = '#020617';
       ctx.fillRect(0, 0, W, H);
 
-      const centerX = W / 2;
-      const centerY = H / 2;
-      const renderScale = 280;
-
-      // Transform vertices
-      const projected: { x: number; y: number; scale: number; w: number; z: number }[] = [];
-      for (const v of tesseractVertices) {
-        let p = { ...v };
-        // 4D rotations (momentum-based)
-        p = rotate4D(p, state.xwAngle, 'xw');    // Background 4D drift (subtle)
-        p = rotate4D(p, state.ywAngle4D, 'yw');  // TAP-triggered inside-out (dramatic vertical + size swap)
-        // 3D rotations (drag control)
-        p = rotate4D(p, state.ywAngle, 'xz');    // Horizontal drag
-        p = rotate4D(p, state.zwAngle, 'yz');    // Vertical drag
-
-        const p3 = project4Dto3D(p);
-        const p2 = project3Dto2D(p3.x, p3.y, p3.z);
-
-        projected.push({
-          x: centerX + p2.x * renderScale,
-          y: centerY - p2.y * renderScale,
-          scale: p2.scale,
-          w: p3.w,
-          z: p2.z,
-        });
-      }
-
-      // Sort edges by depth
-      const sortedEdges = [...edges].sort((a, b) => {
-        const aDepth = (projected[a.from].z + projected[a.to].z) / 2;
-        const bDepth = (projected[b.from].z + projected[b.to].z) / 2;
-        return bDepth - aDepth;
+      const projected = vertices.map(v => {
+        const rv = rotate4D(v, s.xwAngle, s.ywAngle, s.zwAngle);
+        return project(rv);
       });
 
-      // Draw edges
+      // Sort Edges by Z
+      const sortedEdges = [...edges].sort((a, b) => {
+          const za = (projected[a.from].z + projected[a.to].z) / 2;
+          const zb = (projected[b.from].z + projected[b.to].z) / 2;
+          return zb - za;
+      });
+
       ctx.lineCap = 'round';
-      for (const edge of sortedEdges) {
-        const p1 = projected[edge.from];
-        const p2 = projected[edge.to];
-        const v1 = tesseractVertices[edge.from];
-        const v2 = tesseractVertices[edge.to];
+      sortedEdges.forEach(e => {
+        const p1 = projected[e.from], p2 = projected[e.to];
+        const speed4D = Math.min(1, Math.abs(s.xwVel) / 0.05);
 
-        const avgW = (v1.w + v2.w) / 2;
-        const alpha = 0.3 + (avgW + 1) * 0.35;
-
-        const isWEdge = edge.type === 'w';
-        const lineWidth = isWEdge ? 3 : 2;
-        const glowSize = isWEdge ? 15 : 8;
-
-        // Color based on edge type + speed
-        // Cool (idle) -> Hot (fast spinning)
-        let hue: number;
-        if (edge.type === 'w') {
-          // W edges: Orange (idle) -> Pink/Magenta (fast)
-          hue = 30 + speedFactor * 290; // 30 -> 320
-        } else if (edge.type === 'x') {
-          // X: Pink -> Purple
-          hue = 340 + speedFactor * 40;
-        } else if (edge.type === 'y') {
-          // Y: Green -> Cyan
-          hue = 140 - speedFactor * 20;
+        // Color Logic
+        let hue, sat, light, alpha, glow;
+        if (e.type === 'w') {
+            hue = 280 + speed4D * 60; // Purple -> Pink
+            sat = 80 + speed4D * 20; light = 60 + speed4D * 20;
+            alpha = 0.5 + speed4D * 0.5; glow = speed4D * 20;
         } else {
-          // Z: Blue -> Indigo
-          hue = 220 + speedFactor * 30;
+            const pW = (p1.w + p2.w) / 2;
+            hue = 200 + pW * 30; // Cyan -> Blue
+            sat = 70; light = 50; alpha = 0.4 + pW * 0.2; glow = 0;
         }
 
-        const saturation = 70 + speedFactor * 30;
-        const lightness = 50 + speedFactor * 20;
+        ctx.strokeStyle = `hsla(${hue}, ${sat}%, ${light}%, ${alpha})`;
+        ctx.lineWidth = e.type === 'w' ? 3 : 4;
+        if (glow > 0) {
+            ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur = glow;
+        } else {
+            ctx.shadowBlur = 0;
+        }
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+      });
 
-        // Glow (stronger when fast)
-        ctx.save();
-        ctx.shadowColor = `hsla(${hue}, ${saturation}%, ${lightness}%, ${0.5 + speedFactor * 0.5})`;
-        ctx.shadowBlur = glowSize + speedFactor * 20;
-        ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha * 0.5})`;
-        ctx.lineWidth = lineWidth;
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.stroke();
-        ctx.restore();
+      // Vertices
+      ctx.shadowBlur = 0;
+      projected.forEach(p => {
+        const size = 6 + (p.w + 1) * 4;
+        ctx.fillStyle = p.w > 0 ? '#60a5fa' : '#34d399';
+        ctx.globalAlpha = 0.7 + p.w * 0.3;
+        ctx.beginPath(); ctx.arc(p.x, p.y, size, 0, Math.PI*2); ctx.fill();
+      });
+      ctx.globalAlpha = 1.0;
 
-        // Main edge
-        ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
-        ctx.lineWidth = lineWidth;
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.stroke();
+      // TAP RIPPLE
+      const timeSinceTap = Date.now() - s.lastTapTime;
+      if (timeSinceTap < 500) {
+          const progress = timeSinceTap / 500;
+          const alpha = 1 - progress;
+          ctx.strokeStyle = `rgba(236, 72, 153, ${alpha})`;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(s.tapX, s.tapY, progress * 200, 0, Math.PI*2);
+          ctx.stroke();
       }
-
-      // Draw vertices
-      for (let i = 0; i < projected.length; i++) {
-        const p = projected[i];
-        const v = tesseractVertices[i];
-        const size = 4 + (v.w + 1) * 3;
-
-        // Color: shift hue based on speed
-        const baseHue = v.w > 0 ? 180 : 300; // Cyan vs Magenta
-        const hue = baseHue + speedFactor * 40;
-
-        ctx.save();
-        ctx.shadowColor = `hsla(${hue}, 100%, 60%, 0.8)`;
-        ctx.shadowBlur = 12 + speedFactor * 10;
-        ctx.fillStyle = `hsla(${hue}, 80%, 70%, ${0.6 + (v.w + 1) * 0.2})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      // TAP RIPPLE EFFECT
-      const timeSinceTap = Date.now() - state.lastTapTime;
-      if (timeSinceTap < 600) {
-        const progress = timeSinceTap / 600;
-        const radius = progress * 150;
-        const rippleAlpha = (1 - progress) * 0.6;
-
-        ctx.save();
-        ctx.strokeStyle = `rgba(255, 200, 100, ${rippleAlpha})`;
-        ctx.lineWidth = 3 * (1 - progress);
-        ctx.beginPath();
-        ctx.arc(state.tapX, state.tapY, radius, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Inner ring
-        ctx.strokeStyle = `rgba(255, 255, 255, ${rippleAlpha * 0.5})`;
-        ctx.lineWidth = 2 * (1 - progress);
-        ctx.beginPath();
-        ctx.arc(state.tapX, state.tapY, radius * 0.5, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      // 4D VELOCITY METER (subtle bar at bottom)
-      const meterWidth = 200;
-      const meterHeight = 4;
-      const meterX = centerX - meterWidth / 2;
-      const meterY = H - 50;
-
-      // Background
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.fillRect(meterX, meterY, meterWidth, meterHeight);
-
-      // Fill (velocity) - show YW velocity since that's the tap-triggered 4D rotation
-      const fillWidth = Math.min(1, Math.abs(state.ywVel4D) / 0.06) * meterWidth;
-      const meterHue = 30 + speedFactor * 290;
-      ctx.fillStyle = `hsla(${meterHue}, 100%, 60%, 0.8)`;
-      ctx.fillRect(meterX, meterY, fillWidth, meterHeight);
-
-      // HUD
-      ctx.save();
-      ctx.globalAlpha = 0.7;
-      ctx.font = 'bold 14px system-ui';
-      ctx.fillStyle = '#fff';
-      ctx.fillText('TESSERACT', 24, 30);
-
-      ctx.font = '12px system-ui';
-      ctx.fillStyle = '#88aacc';
-      ctx.fillText('FLICK', 24, 52);
-      ctx.fillStyle = '#aaa';
-      ctx.fillText(' → Spin 3D', 62, 52);
-
-      ctx.fillStyle = '#ffaa66';
-      ctx.fillText('TAP', 24, 70);
-      ctx.fillStyle = '#aaa';
-      ctx.fillText(' → Spin 4D', 50, 70);
-
-      ctx.fillStyle = '#66ff88';
-      ctx.fillText('HOLD', 24, 88);
-      ctx.fillStyle = '#aaa';
-      ctx.fillText(' → Freeze & Settle', 58, 88);
-
-      // Speed label
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.fillText('4D ENERGY', centerX, meterY + 20);
-      ctx.restore();
 
       animationRef.current = requestAnimationFrame(loop);
     };
-
     animationRef.current = requestAnimationFrame(loop);
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    };
-  }, [rotate4D, project4Dto3D, project3Dto2D, tesseractVertices, edges]);
+    return () => cancelAnimationFrame(animationRef.current!);
+  }, [vertices, edges]);
 
-  // Get canvas coordinates
-  const getCanvasCoords = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    const cx = 'touches' in e ? e.touches[0]?.clientX ?? 0 : e.clientX;
-    const cy = 'touches' in e ? e.touches[0]?.clientY ?? 0 : e.clientY;
-    return {
-      x: (cx - rect.left) * scaleX,
-      y: (cy - rect.top) * scaleY,
-    };
-  }, []);
+  // === INPUT HANDLERS ===
+  const getCoords = (e: React.MouseEvent | React.TouchEvent) => {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if(!rect) return {x:0, y:0};
+      const scaleX = W / rect.width;
+      const scaleY = H / rect.height;
 
-  const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    const { x, y } = getCanvasCoords(e);
-    const state = stateRef.current;
+      let cx, cy;
+      if ('touches' in e && e.touches.length > 0) {
+          cx = e.touches[0].clientX; cy = e.touches[0].clientY;
+      } else if ('changedTouches' in e && e.changedTouches.length > 0) {
+          cx = e.changedTouches[0].clientX; cy = e.changedTouches[0].clientY;
+      } else if ('clientX' in e) {
+          cx = e.clientX; cy = e.clientY;
+      } else {
+          return { x: 0, y: 0 };
+      }
+      return { x: (cx - rect.left)*scaleX, y: (cy - rect.top)*scaleY };
+  };
 
-    state.isDragging = true;
-    state.isHolding = true; // Start as holding (until they move)
-    state.holdStartTime = Date.now();
-    state.dragStartX = x;
-    state.dragStartY = y;
-    state.lastX = x;
-    state.lastY = y;
-    state.lastMoveTime = Date.now();
-    state.dragDistance = 0;
-    // Don't freeze velocity - let it keep spinning until they hold
-  }, [getCanvasCoords]);
+  const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
+      if(e.cancelable) e.preventDefault();
 
-  const handleMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    const state = stateRef.current;
-    if (!state.isDragging) return;
-    e.preventDefault();
+      const { x, y } = getCoords(e);
+      const s = stateRef.current;
 
-    const { x, y } = getCanvasCoords(e);
-    const now = Date.now();
-    const dt = Math.max(1, now - state.lastMoveTime); // ms since last move
-    const dx = x - state.lastX;
-    const dy = y - state.lastY;
+      s.isDragging = true;
+      s.isHolding = true;
+      s.dragStartTime = Date.now();
+      s.holdStartTime = Date.now();
+      s.lastX = x; s.lastY = y;
+      s.dragDistance = 0;
 
-    // Track total drag distance (to distinguish tap from drag)
-    state.dragDistance += Math.abs(dx) + Math.abs(dy);
+      // Stop 3D spin on grab
+      s.ywVel = 0; s.zwVel = 0;
+  };
 
-    // If moved enough, no longer holding
-    if (state.dragDistance > 5) {
-      state.isHolding = false;
-    }
+  const handleMove = (e: React.MouseEvent | React.TouchEvent) => {
+      const s = stateRef.current;
+      if (!s.isDragging) return;
+      if(e.cancelable) e.preventDefault();
 
-    // Apply rotation directly while dragging (for responsiveness)
-    // AND track velocity for release
-    if (!state.isHolding) {
-      const rotationScale = 0.005;
-      state.ywAngle += dx * rotationScale;
-      state.zwAngle += dy * rotationScale;
+      const { x, y } = getCoords(e);
+      const dx = x - s.lastX;
+      const dy = y - s.lastY;
 
-      // Track instantaneous velocity (pixels/ms -> radians/frame)
-      // We'll use this on release to impart momentum
-      state.ywVel = (dx * rotationScale) / dt * 16; // Convert to per-frame
-      state.zwVel = (dy * rotationScale) / dt * 16;
-    }
+      s.dragDistance += Math.abs(dx) + Math.abs(dy);
+      if (s.dragDistance > 5) s.isHolding = false;
 
-    state.lastX = x;
-    state.lastY = y;
-    state.lastMoveTime = now;
-  }, [getCanvasCoords]);
+      if (!s.isHolding) {
+          s.ywAngle += dx * 0.003; s.zwAngle += dy * 0.003;
+          s.ywVel = dx * 0.003; s.zwVel = dy * 0.003;
+      }
+      s.lastX = x; s.lastY = y;
+  };
 
-  const handleEnd = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    const state = stateRef.current;
-    const holdDuration = Date.now() - state.holdStartTime;
-    const timeSinceLastMove = Date.now() - state.lastMoveTime;
+  const handleEnd = (e: React.MouseEvent | React.TouchEvent) => {
+      const s = stateRef.current;
+      const duration = Date.now() - s.dragStartTime;
 
-    // If this was a quick tap (minimal drag AND short hold), add 4D impulse
-    if (state.dragDistance < 10 && holdDuration < 200) {
-      // Get tap position for ripple
-      let tapX = state.dragStartX;
-      let tapY = state.dragStartY;
+      // TAP DETECTION
+      if (s.dragDistance < 20 && duration < 300) {
+          const { x, y } = getCoords(e);
+          s.tapX = x; s.tapY = y;
+          s.lastTapTime = Date.now();
 
-      // For touch end, use last known position
-      if ('changedTouches' in e && e.changedTouches.length > 0) {
-        const canvas = canvasRef.current;
-        if (canvas) {
-          const rect = canvas.getBoundingClientRect();
-          const scaleX = canvas.width / rect.width;
-          const scaleY = canvas.height / rect.height;
-          tapX = (e.changedTouches[0].clientX - rect.left) * scaleX;
-          tapY = (e.changedTouches[0].clientY - rect.top) * scaleY;
-        }
+          // IMPULSE
+          s.ywVel = 0; s.zwVel = 0; // Freeze 3D
+          s.xwVel += 0.04; // Add 4D
       }
 
-      // 4D impulse on tap - YW rotation gives dramatic "inside-out" + vertical shift
-      // This is the most visually obvious 4D effect: inner/outer cubes swap + bounce
-      state.ywVel4D += 0.06;  // YW plane = vertical displacement + inside-out (slower for clarity)
-      state.xwVel = 0;        // Kill XW drift
-      state.ywVel = 0;        // Kill 3D horizontal
-      state.zwVel = 0;        // Kill 3D vertical
-      state.lastTapTime = Date.now();
-      state.tapX = tapX;
-      state.tapY = tapY;
-    } else if (state.dragDistance > 10 && timeSinceLastMove < 50) {
-      // This was a flick! Velocity was set in handleMove, just let it fly.
-      // Boost the velocity a bit for a satisfying flick feel
-      state.ywVel *= 1.5;
-      state.zwVel *= 1.5;
-    } else {
-      // Long hold or stopped moving - kill velocity
-      if (timeSinceLastMove > 100) {
-        state.ywVel = 0;
-        state.zwVel = 0;
-      }
-    }
-
-    state.isDragging = false;
-    state.isHolding = false;
-  }, []);
+      s.isDragging = false;
+      s.isHolding = false;
+  };
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={W}
-      height={H}
-      style={{
-        width: '100%',
-        maxWidth: W,
-        aspectRatio: `${W} / ${H}`,
-        touchAction: 'none',
-      }}
-      className={`cursor-grab active:cursor-grabbing ${className}`}
-      onMouseDown={handleStart}
-      onMouseMove={handleMove}
-      onMouseUp={handleEnd}
-      onMouseLeave={handleEnd}
-      onTouchStart={handleStart}
-      onTouchMove={handleMove}
-      onTouchEnd={handleEnd}
-    />
+    <div className={`w-full flex flex-col items-center ${className}`}>
+        <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border border-slate-800 relative select-none">
+            <canvas
+                ref={canvasRef}
+                width={W}
+                height={H}
+                className="w-full h-full object-cover touch-none cursor-grab active:cursor-grabbing outline-none"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+                onMouseDown={handleStart} onMouseMove={handleMove} onMouseUp={handleEnd} onMouseLeave={handleEnd}
+                onTouchStart={handleStart} onTouchMove={handleMove} onTouchEnd={handleEnd}
+                onContextMenu={(e) => e.preventDefault()}
+            />
+        </div>
+
+        {/* CONTROLS GUIDE (Mobile Friendly) */}
+        <div className="w-full max-w-2xl mt-4 grid grid-cols-2 gap-4 text-xs font-mono text-slate-400">
+            <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 text-lg">↔</div>
+                <div>
+                    <strong className="text-slate-200 block">3D ORBIT</strong>
+                    <span className="hidden sm:inline">Drag to rotate the shadow</span>
+                    <span className="sm:hidden">Drag to rotate</span>
+                </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-800">
+                <div className="w-8 h-8 rounded-full bg-pink-500/20 flex items-center justify-center text-pink-400 text-lg">⚡</div>
+                <div>
+                    <strong className="text-slate-200 block">4D IMPULSE</strong>
+                    <span className="hidden sm:inline">Tap/Click to spin inside-out</span>
+                    <span className="sm:hidden">Tap to spin 4D</span>
+                </div>
+            </div>
+        </div>
+    </div>
   );
 }
