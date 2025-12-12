@@ -344,7 +344,6 @@ A three-phase model (overshoot → refractory → recanalization) explains how t
     github: 'todd866/code-formation-jtb',
     pdf: 'https://raw.githubusercontent.com/todd866/code-formation-jtb/main/code_formation_jtb.pdf',
     simulation: 'code-collapse',
-    image: 'code-formation.png',
     description: `**Biological systems exhibit persistent organization despite operating in high-dimensional, noisy, and finite-time dynamical regimes.** While order parameters and attractor dynamics explain pattern formation within single systems, they do not account for how biological organization is stabilized through low-dimensional interfaces such as genetic, regulatory, or homeostatic codes.
 
 We propose a minimal dynamical mechanism by which low-dimensional codes emerge as stabilizing constraints between coupled high-dimensional systems. We model two locally coupled phase fields — an environment and a responding system — where interaction is restricted to a low-dimensional projection of the environmental state.

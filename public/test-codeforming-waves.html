@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code-Forming: Wave Bottleneck</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 300;
+      margin-bottom: 10px;
+      color: #888;
+    }
+    .subtitle {
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 30px;
+      text-align: center;
+      max-width: 600px;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      width: 100%;
+      max-width: 800px;
+    }
+    .wave-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .wave-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: #888;
+    }
+    .wave-label .complexity {
+      font-family: monospace;
+      color: #aaa;
+    }
+    .wave-canvas {
+      width: 100%;
+      height: 80px;
+      border-radius: 4px;
+      background: #111;
+    }
+    .code-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px;
+      background: #111;
+      border-radius: 8px;
+      border: 1px solid #222;
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .code-header h3 {
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: #888;
+    }
+    .bandwidth-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .bandwidth-control label {
+      font-size: 0.8rem;
+      color: #666;
+    }
+    .bandwidth-control input[type="range"] {
+      width: 150px;
+      accent-color: #4a9eff;
+    }
+    .bandwidth-value {
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: #4a9eff;
+      min-width: 60px;
+    }
+    #codeCanvas {
+      width: 100%;
+      height: 60px;
+      background: transparent;
+    }
+    .metrics {
+      display: flex;
+      justify-content: space-around;
+      gap: 20px;
+      padding: 15px;
+      background: #0d0d0d;
+      border-radius: 6px;
+    }
+    .metric {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+    .metric-label {
+      font-size: 0.75rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .metric-value {
+      font-family: monospace;
+      font-size: 1.1rem;
+      color: #fff;
+    }
+    .metric-bar {
+      width: 80px;
+      height: 4px;
+      background: #222;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .metric-bar-fill {
+      height: 100%;
+      background: #4a9eff;
+      transition: width 0.1s;
+    }
+    .info {
+      margin-top: 20px;
+      padding: 15px;
+      background: #0d0d0d;
+      border-radius: 6px;
+      border-left: 3px solid #333;
+    }
+    .info p {
+      font-size: 0.8rem;
+      color: #666;
+      line-height: 1.6;
+    }
+    .info strong {
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <h1>Code Formation at Dimensional Bottlenecks</h1>
+  <p class="subtitle">
+    Two wave systems communicating through a limited bandwidth channel.
+    Reduce bandwidth to see complexity collapse.
+  </p>
+
+  <div class="container">
+    <div class="wave-section">
+      <div class="wave-label">
+        <span>System A (source) — evolves freely</span>
+        <span class="complexity" id="complexityA">Complexity: --</span>
+      </div>
+      <canvas id="waveA" class="wave-canvas"></canvas>
+    </div>
+
+    <div class="code-section">
+      <div class="code-header">
+        <h3>Code Channel (Fourier modes transmitted)</h3>
+        <div class="bandwidth-control">
+          <label>Bandwidth:</label>
+          <input type="range" id="bandwidth" min="1" max="16" value="8">
+          <span class="bandwidth-value" id="bandwidthValue">k=8</span>
+        </div>
+      </div>
+      <canvas id="codeCanvas"></canvas>
+    </div>
+
+    <div class="wave-section">
+      <div class="wave-label">
+        <span>System B (receiver) — constrained by code</span>
+        <span class="complexity" id="complexityB">Complexity: --</span>
+      </div>
+      <canvas id="waveB" class="wave-canvas"></canvas>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <span class="metric-label">A Complexity</span>
+        <span class="metric-value" id="metricA">--</span>
+        <div class="metric-bar"><div class="metric-bar-fill" id="barA"></div></div>
+      </div>
+      <div class="metric">
+        <span class="metric-label">B Complexity</span>
+        <span class="metric-value" id="metricB">--</span>
+        <div class="metric-bar"><div class="metric-bar-fill" id="barB"></div></div>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Mismatch</span>
+        <span class="metric-value" id="metricMismatch">--</span>
+        <div class="metric-bar"><div class="metric-bar-fill" id="barMismatch" style="background: #ff6b6b;"></div></div>
+      </div>
+    </div>
+
+    <div class="info">
+      <p>
+        <strong>What you're seeing:</strong> System A is a Kuramoto oscillator lattice —
+        64 phase oscillators locally coupled, forming traveling waves. System B tries to
+        match A, but can only receive the first <em>k</em> Fourier modes (the "code").
+        As bandwidth decreases, B loses the ability to reproduce A's fine structure,
+        and its complexity collapses.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // =============================================================================
+    // KURAMOTO LATTICE
+    // =============================================================================
+    const N = 64;
+
+    function createLattice() {
+      const theta = new Float32Array(N);
+      const omega = new Float32Array(N);
+      for (let i = 0; i < N; i++) {
+        theta[i] = Math.random() * 2 * Math.PI - Math.PI;
+        omega[i] = 0.5 + (Math.random() - 0.5) * 0.3;
+      }
+      return { theta, omega };
+    }
+
+    function stepLattice(lattice, K, noise, dt) {
+      const { theta, omega } = lattice;
+      const dtheta = new Float32Array(N);
+
+      for (let i = 0; i < N; i++) {
+        const left = (i - 1 + N) % N;
+        const right = (i + 1) % N;
+        let coupling = Math.sin(theta[left] - theta[i]) + Math.sin(theta[right] - theta[i]);
+        const u1 = Math.random(), u2 = Math.random();
+        const eta = Math.sqrt(-2 * Math.log(u1 + 1e-10)) * Math.cos(2 * Math.PI * u2);
+        dtheta[i] = omega[i] + K * coupling + noise * eta;
+      }
+
+      for (let i = 0; i < N; i++) {
+        theta[i] += dt * dtheta[i];
+        theta[i] = ((theta[i] + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      }
+    }
+
+    // =============================================================================
+    // FOURIER CODE
+    // =============================================================================
+
+    function fourierEncode(theta, maxK) {
+      const modes = [];
+      for (let k = 0; k <= maxK; k++) {
+        let re = 0, im = 0;
+        for (let i = 0; i < N; i++) {
+          const phase = theta[i] - 2 * Math.PI * k * i / N;
+          re += Math.cos(phase);
+          im += Math.sin(phase);
+        }
+        modes.push({ re: re / N, im: im / N });
+      }
+      return modes;
+    }
+
+    function fourierDecode(modes, k) {
+      const recon = new Float32Array(N);
+      for (let i = 0; i < N; i++) {
+        let zRe = 0, zIm = 0;
+        for (let m = 0; m <= Math.min(k, modes.length - 1); m++) {
+          const phase = 2 * Math.PI * m * i / N;
+          const c = Math.cos(phase), s = Math.sin(phase);
+          zRe += modes[m].re * c - modes[m].im * s;
+          zIm += modes[m].re * s + modes[m].im * c;
+          if (m > 0) {
+            zRe += modes[m].re * c + modes[m].im * s;
+            zIm += -modes[m].re * s + modes[m].im * c;
+          }
+        }
+        recon[i] = Math.atan2(zIm, zRe);
+      }
+      return recon;
+    }
+
+    // =============================================================================
+    // METRICS
+    // =============================================================================
+
+    function spectralComplexity(theta) {
+      const modes = fourierEncode(theta, N / 2);
+      const amps = [];
+      let sum = 0;
+      for (let k = 1; k < modes.length; k++) {
+        const amp = Math.sqrt(modes[k].re ** 2 + modes[k].im ** 2);
+        amps.push(amp);
+        sum += amp;
+      }
+      if (sum < 1e-10) return 1;
+      let entropy = 0;
+      for (const a of amps) {
+        const p = a / sum;
+        if (p > 1e-10) entropy -= p * Math.log(p);
+      }
+      return Math.exp(entropy);
+    }
+
+    function phaseMismatch(thetaA, thetaB) {
+      let sum = 0;
+      for (let i = 0; i < N; i++) {
+        const diff = thetaA[i] - thetaB[i];
+        sum += Math.abs(Math.sin(diff / 2));
+      }
+      return sum / N;
+    }
+
+    // =============================================================================
+    // COUPLED STEP
+    // =============================================================================
+
+    function stepCoupled(A, B, k, K, lambda, noise, dt) {
+      stepLattice(A, K, noise, dt);
+
+      const modesA = fourierEncode(A.theta, k);
+      const targetPhase = fourierDecode(modesA, k);
+
+      const { theta, omega } = B;
+      const dtheta = new Float32Array(N);
+
+      for (let i = 0; i < N; i++) {
+        const left = (i - 1 + N) % N;
+        const right = (i + 1) % N;
+        let coupling = Math.sin(theta[left] - theta[i]) + Math.sin(theta[right] - theta[i]);
+        const codeConstraint = lambda * Math.sin(targetPhase[i] - theta[i]);
+        const u1 = Math.random(), u2 = Math.random();
+        const eta = Math.sqrt(-2 * Math.log(u1 + 1e-10)) * Math.cos(2 * Math.PI * u2);
+        dtheta[i] = omega[i] + K * coupling + codeConstraint + noise * 0.5 * eta;
+      }
+
+      for (let i = 0; i < N; i++) {
+        theta[i] += dt * dtheta[i];
+        theta[i] = ((theta[i] + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+      }
+    }
+
+    // =============================================================================
+    // VISUALIZATION
+    // =============================================================================
+
+    const canvasA = document.getElementById('waveA');
+    const canvasB = document.getElementById('waveB');
+    const canvasCode = document.getElementById('codeCanvas');
+    const ctxA = canvasA.getContext('2d');
+    const ctxB = canvasB.getContext('2d');
+    const ctxCode = canvasCode.getContext('2d');
+
+    function resizeCanvases() {
+      const dpr = window.devicePixelRatio || 1;
+      [canvasA, canvasB, canvasCode].forEach(canvas => {
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        canvas.getContext('2d').scale(dpr, dpr);
+      });
+    }
+    resizeCanvases();
+    window.addEventListener('resize', resizeCanvases);
+
+    // Phase to color (HSL cycle)
+    function phaseToColor(phase) {
+      const hue = ((phase + Math.PI) / (2 * Math.PI)) * 360;
+      return `hsl(${hue}, 70%, 50%)`;
+    }
+
+    function drawWaveField(ctx, canvas, theta, label) {
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cellWidth = w / N;
+
+      // Draw wave as colored bars
+      for (let i = 0; i < N; i++) {
+        ctx.fillStyle = phaseToColor(theta[i]);
+        ctx.fillRect(i * cellWidth, 0, cellWidth + 1, h);
+      }
+
+      // Draw wave curve overlay
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < N; i++) {
+        const x = (i + 0.5) * cellWidth;
+        const y = h / 2 - (theta[i] / Math.PI) * (h / 2 - 10);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    function drawCodeChannel(ctx, canvas, modesA, k) {
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const maxModes = 16;
+      const barWidth = (w - 40) / maxModes;
+      const startX = 20;
+
+      // Find max amplitude for scaling
+      let maxAmp = 0;
+      for (let m = 1; m <= maxModes; m++) {
+        if (m < modesA.length) {
+          const amp = Math.sqrt(modesA[m].re ** 2 + modesA[m].im ** 2);
+          maxAmp = Math.max(maxAmp, amp);
+        }
+      }
+      maxAmp = Math.max(maxAmp, 0.1);
+
+      for (let m = 1; m <= maxModes; m++) {
+        const x = startX + (m - 1) * barWidth;
+        const amp = m < modesA.length ? Math.sqrt(modesA[m].re ** 2 + modesA[m].im ** 2) : 0;
+        const barH = (amp / maxAmp) * (h - 15);
+
+        // Gray if filtered out, blue if transmitted
+        const transmitted = m <= k;
+        ctx.fillStyle = transmitted ? 'rgba(74, 158, 255, 0.8)' : 'rgba(50, 50, 50, 0.5)';
+        ctx.fillRect(x + 2, h - 10 - barH, barWidth - 4, barH);
+
+        // Mode label
+        ctx.fillStyle = transmitted ? '#666' : '#333';
+        ctx.font = '9px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(m.toString(), x + barWidth / 2, h - 1);
+      }
+    }
+
+    // =============================================================================
+    // MAIN LOOP
+    // =============================================================================
+
+    const A = createLattice();
+    const B = createLattice();
+
+    const K = 0.5;
+    const lambda = 1.0;
+    const noise = 0.3;
+    const dt = 0.1;
+    let currentK = 8;
+
+    // UI elements
+    const bandwidthSlider = document.getElementById('bandwidth');
+    const bandwidthValue = document.getElementById('bandwidthValue');
+    const metricA = document.getElementById('metricA');
+    const metricB = document.getElementById('metricB');
+    const metricMismatch = document.getElementById('metricMismatch');
+    const barA = document.getElementById('barA');
+    const barB = document.getElementById('barB');
+    const barMismatch = document.getElementById('barMismatch');
+    const complexityA = document.getElementById('complexityA');
+    const complexityB = document.getElementById('complexityB');
+
+    bandwidthSlider.addEventListener('input', () => {
+      currentK = parseInt(bandwidthSlider.value);
+      bandwidthValue.textContent = `k=${currentK}`;
+    });
+
+    // Smoothed metrics
+    let smoothComplexA = 10, smoothComplexB = 10, smoothMismatch = 0.3;
+
+    function animate() {
+      // Multiple physics steps per frame
+      for (let s = 0; s < 5; s++) {
+        stepCoupled(A, B, currentK, K, lambda, noise, dt);
+      }
+
+      // Measure
+      const cA = spectralComplexity(A.theta);
+      const cB = spectralComplexity(B.theta);
+      const mm = phaseMismatch(A.theta, B.theta);
+
+      // Smooth
+      smoothComplexA = smoothComplexA * 0.95 + cA * 0.05;
+      smoothComplexB = smoothComplexB * 0.95 + cB * 0.05;
+      smoothMismatch = smoothMismatch * 0.95 + mm * 0.05;
+
+      // Draw
+      drawWaveField(ctxA, canvasA, A.theta, 'A');
+      drawWaveField(ctxB, canvasB, B.theta, 'B');
+
+      const modesA = fourierEncode(A.theta, 16);
+      drawCodeChannel(ctxCode, canvasCode, modesA, currentK);
+
+      // Update metrics
+      metricA.textContent = smoothComplexA.toFixed(1);
+      metricB.textContent = smoothComplexB.toFixed(1);
+      metricMismatch.textContent = smoothMismatch.toFixed(3);
+
+      complexityA.textContent = `Complexity: ${smoothComplexA.toFixed(1)}`;
+      complexityB.textContent = `Complexity: ${smoothComplexB.toFixed(1)}`;
+
+      // Update bars (max complexity ~20, max mismatch ~0.5)
+      barA.style.width = `${Math.min(100, smoothComplexA / 20 * 100)}%`;
+      barB.style.width = `${Math.min(100, smoothComplexB / 20 * 100)}%`;
+      barMismatch.style.width = `${Math.min(100, smoothMismatch / 0.5 * 100)}%`;
+
+      requestAnimationFrame(animate);
+    }
+
+    // Burn-in
+    for (let i = 0; i < 200; i++) {
+      stepCoupled(A, B, currentK, K, lambda, noise, dt);
+    }
+
+    animate();
+  </script>
+</body>
+</html>

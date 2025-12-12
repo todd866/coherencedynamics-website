@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code-Forming v4: Proper Physics + Smooth Projection</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #000;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 40px 30px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.95) 40%);
+    }
+    .slider-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .slider-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #666;
+    }
+    .dim-readout {
+      font-family: monospace;
+      font-size: 24px;
+      font-weight: bold;
+      transition: color 0.1s;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      background: linear-gradient(to right, #22c55e, #eab308, #a855f7, #3b82f6);
+      border-radius: 4px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 10px;
+      color: #555;
+    }
+    .info {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 12px;
+      color: #555;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+    .info strong { color: #777; }
+    .state-label {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      text-align: right;
+    }
+    .state-label .dim {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .state-label .desc {
+      font-size: 18px;
+      font-weight: 500;
+      transition: color 0.1s;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div class="info">
+    <strong>Dzhanibekov effect:</strong> A T-handle spinning in zero-g spontaneously flips. This happens because rotation around the intermediate inertia axis is unstable.<br><br>
+    <strong>Slide to collapse dimensions.</strong> The physics stays the same — only your view changes.
+  </div>
+
+  <div class="state-label">
+    <div class="dim" id="dim-label">3D projection</div>
+    <div class="desc" id="state-desc">Full rotation</div>
+  </div>
+
+  <div class="controls">
+    <div class="slider-container">
+      <div class="slider-label">
+        <span class="slider-title">Observation Dimensionality</span>
+        <span class="dim-readout" id="dim-readout">3.0D</span>
+      </div>
+      <input type="range" id="dimension" min="0" max="3" step="0.005" value="3">
+      <div class="slider-labels">
+        <span>0D — symbol</span>
+        <span>1D — line</span>
+        <span>2D — flat</span>
+        <span>3D — full</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================================================
+    // CANVAS SETUP
+    // ==========================================================================
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ==========================================================================
+    // QUATERNION MATH (for proper rotation)
+    // ==========================================================================
+
+    function quatMul(a, b) {
+      return {
+        w: a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
+        x: a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
+        y: a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
+        z: a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w
+      };
+    }
+
+    function quatNormalize(q) {
+      const mag = Math.sqrt(q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z);
+      return { w: q.w/mag, x: q.x/mag, y: q.y/mag, z: q.z/mag };
+    }
+
+    function quatFromAxisAngle(ax, ay, az, angle) {
+      const half = angle / 2;
+      const s = Math.sin(half);
+      return quatNormalize({
+        w: Math.cos(half),
+        x: ax * s,
+        y: ay * s,
+        z: az * s
+      });
+    }
+
+    function quatRotateVec(q, v) {
+      // Rotate vector v by quaternion q
+      const qv = { w: 0, x: v.x, y: v.y, z: v.z };
+      const qConj = { w: q.w, x: -q.x, y: -q.y, z: -q.z };
+      const result = quatMul(quatMul(q, qv), qConj);
+      return { x: result.x, y: result.y, z: result.z };
+    }
+
+    function quatToMatrix(q) {
+      const { w, x, y, z } = q;
+      return [
+        [1 - 2*(y*y + z*z), 2*(x*y - w*z), 2*(x*z + w*y)],
+        [2*(x*y + w*z), 1 - 2*(x*x + z*z), 2*(y*z - w*x)],
+        [2*(x*z - w*y), 2*(y*z + w*x), 1 - 2*(x*x + y*y)]
+      ];
+    }
+
+    // ==========================================================================
+    // WRENCH GEOMETRY
+    // ==========================================================================
+
+    function generateWrench() {
+      const vertices = [];
+      const edges = [];
+
+      const handleLength = 2.0;
+      const handleRadius = 0.12;
+      const segments = 12;
+      const headLength = 1.0;
+      const headRadius = 0.15;
+
+      // Handle (along Y axis)
+      for (let ring = 0; ring <= 6; ring++) {
+        const y = -handleLength / 2 + (ring / 6) * handleLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: Math.cos(angle) * handleRadius,
+            y: y,
+            z: Math.sin(angle) * handleRadius
+          });
+        }
+      }
+
+      for (let ring = 0; ring < 6; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = ring * segments + i;
+          const next = ring * segments + ((i + 1) % segments);
+          const above = (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([6 * segments + i, 6 * segments + ((i + 1) % segments)]);
+      }
+
+      // Head (along X axis, at top of handle)
+      const headY = handleLength / 2;
+      const headStart = vertices.length;
+
+      for (let ring = 0; ring <= 5; ring++) {
+        const x = -headLength / 2 + (ring / 5) * headLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: x,
+            y: headY + Math.cos(angle) * headRadius,
+            z: Math.sin(angle) * headRadius
+          });
+        }
+      }
+
+      for (let ring = 0; ring < 5; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = headStart + ring * segments + i;
+          const next = headStart + ring * segments + ((i + 1) % segments);
+          const above = headStart + (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([headStart + 5 * segments + i, headStart + 5 * segments + ((i + 1) % segments)]);
+      }
+
+      return { vertices, edges };
+    }
+
+    const wrench = generateWrench();
+
+    // ==========================================================================
+    // RIGID BODY PHYSICS (Proper Euler equations with quaternion orientation)
+    // ==========================================================================
+
+    // Principal moments of inertia for T-handle
+    // I1 (around X - through head): smallest
+    // I2 (around Y - along handle): intermediate - UNSTABLE (Dzhanibekov!)
+    // I3 (around Z - perpendicular): largest
+    const I1 = 0.2;   // Smallest - rotation around head axis
+    const I2 = 1.0;   // Intermediate - rotation around handle - UNSTABLE
+    const I3 = 1.2;   // Largest - rotation perpendicular
+
+    let physics = {
+      // Orientation quaternion
+      q: quatNormalize({ w: 1, x: 0.1, y: 0.05, z: 0 }),
+
+      // Angular velocity in BODY frame (rad/frame)
+      // Start with rotation mostly around intermediate axis = unstable!
+      omegaX: 0.002,
+      omegaY: 0.045,  // Intermediate axis - will cause flipping
+      omegaZ: 0.003
+    };
+
+    let viewDimension = 3;
+
+    function physicsStep() {
+      // Euler's equations for rigid body rotation (torque-free)
+      // dω₁/dt = (I₂ - I₃) * ω₂ * ω₃ / I₁
+      // dω₂/dt = (I₃ - I₁) * ω₃ * ω₁ / I₂
+      // dω₃/dt = (I₁ - I₂) * ω₁ * ω₂ / I₃
+
+      const { omegaX, omegaY, omegaZ } = physics;
+
+      // Euler equation terms
+      const dOmegaX = (I2 - I3) * omegaY * omegaZ / I1;
+      const dOmegaY = (I3 - I1) * omegaZ * omegaX / I2;
+      const dOmegaZ = (I1 - I2) * omegaX * omegaY / I3;
+
+      // Semi-implicit Euler integration for stability
+      physics.omegaX += dOmegaX;
+      physics.omegaY += dOmegaY;
+      physics.omegaZ += dOmegaZ;
+
+      // Tiny damping (numerical stability + very slow energy loss)
+      const damping = 0.9999;
+      physics.omegaX *= damping;
+      physics.omegaY *= damping;
+      physics.omegaZ *= damping;
+
+      // Update orientation quaternion
+      // q_new = q * quaternion_from_angular_velocity
+      const omegaMag = Math.sqrt(
+        physics.omegaX * physics.omegaX +
+        physics.omegaY * physics.omegaY +
+        physics.omegaZ * physics.omegaZ
+      );
+
+      if (omegaMag > 1e-10) {
+        const axis = {
+          x: physics.omegaX / omegaMag,
+          y: physics.omegaY / omegaMag,
+          z: physics.omegaZ / omegaMag
+        };
+        const dq = quatFromAxisAngle(axis.x, axis.y, axis.z, omegaMag);
+        physics.q = quatNormalize(quatMul(physics.q, dq));
+      }
+    }
+
+    // ==========================================================================
+    // DIMENSIONAL PROJECTION
+    // ==========================================================================
+
+    // Smooth interpolation: dim goes from 3 (full) to 0 (symbol)
+    // - perspectiveStrength: 1 at 3D, 0 at 2D and below
+    // - yScale: 1 at 2D+, fades to 0 approaching 1D
+    // - xScale: 1 at 1D+, fades to 0 approaching 0D
+    // - symbolAlpha: 0 above 0.5D, fades in below
+
+    function projectVertex(v, dim) {
+      const W = canvas.width;
+      const H = canvas.height;
+      const cx = W / 2;
+      const cy = H / 2 - 30;
+      const baseScale = Math.min(W, H) * 0.16;
+
+      // Rotate by current orientation
+      const rotated = quatRotateVec(physics.q, v);
+
+      // Smooth dimension-dependent parameters
+      // Use smooth hermite interpolation for nice transitions
+
+      // Perspective: full at dim=3, gone by dim=2
+      const perspectiveT = smoothstep(2, 3, dim);
+      const fov = 4;
+      const zDepth = rotated.z * perspectiveT * 0.4;
+      const perspectiveScale = fov / (fov + zDepth + 2);
+
+      // Y contribution: full at dim>=2, zero by dim=1
+      const yT = smoothstep(1, 2, dim);
+
+      // X contribution: full at dim>=1, zero by dim=0
+      const xT = smoothstep(0, 1, dim);
+
+      // Compute screen position
+      const scale = baseScale * (perspectiveT * perspectiveScale + (1 - perspectiveT));
+
+      const screenX = cx + rotated.x * scale * xT;
+      const screenY = cy - rotated.y * scale * yT;
+
+      // Alpha based on depth (only when perspective active)
+      const depthAlpha = perspectiveT * (0.5 + (1 - rotated.z * 0.2) * 0.5) + (1 - perspectiveT);
+
+      return {
+        x: screenX,
+        y: screenY,
+        z: rotated.z,
+        alpha: depthAlpha * (0.4 + dim / 3 * 0.6)
+      };
+    }
+
+    function smoothstep(edge0, edge1, x) {
+      const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+      return t * t * (3 - 2 * t);
+    }
+
+    // ==========================================================================
+    // COLOR
+    // ==========================================================================
+
+    function getDimColor(dim) {
+      // Smooth color gradient: 3D=blue, 2D=purple, 1D=yellow, 0D=green
+      if (dim >= 2) {
+        const t = (dim - 2);
+        return lerpColor({ r: 168, g: 85, b: 247 }, { r: 59, g: 130, b: 246 }, t);
+      } else if (dim >= 1) {
+        const t = (dim - 1);
+        return lerpColor({ r: 234, g: 179, b: 8 }, { r: 168, g: 85, b: 247 }, t);
+      } else {
+        const t = dim;
+        return lerpColor({ r: 34, g: 197, b: 94 }, { r: 234, g: 179, b: 8 }, t);
+      }
+    }
+
+    function lerpColor(c1, c2, t) {
+      return {
+        r: Math.round(c1.r + (c2.r - c1.r) * t),
+        g: Math.round(c1.g + (c2.g - c1.g) * t),
+        b: Math.round(c1.b + (c2.b - c1.b) * t)
+      };
+    }
+
+    // ==========================================================================
+    // RENDERING
+    // ==========================================================================
+
+    function render() {
+      const W = canvas.width;
+      const H = canvas.height;
+      const dim = viewDimension;
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      const color = getDimColor(dim);
+      const colorStr = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
+      // Symbol overlay (fades in below dim=0.7)
+      const symbolAlpha = smoothstep(0.7, 0, dim);
+      if (symbolAlpha > 0) {
+        ctx.save();
+        ctx.globalAlpha = symbolAlpha;
+        ctx.fillStyle = colorStr;
+        ctx.font = `bold ${Math.min(W, H) * 0.15}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('WRENCH', W / 2, H / 2 - 30);
+
+        ctx.font = `${Math.min(W, H) * 0.022}px system-ui`;
+        ctx.fillStyle = '#444';
+        ctx.fillText('T-handle · Dzhanibekov dynamics', W / 2, H / 2 + 30);
+        ctx.restore();
+      }
+
+      // Wireframe (fades out below dim=0.5)
+      const wireAlpha = smoothstep(0, 0.8, dim);
+      if (wireAlpha > 0.01) {
+        ctx.globalAlpha = wireAlpha;
+
+        // Project all vertices
+        const projected = wrench.vertices.map(v => projectVertex(v, dim));
+
+        // Sort edges by depth for proper occlusion (when perspective active)
+        const sortedEdges = wrench.edges
+          .map(([i, j]) => ({
+            i, j,
+            depth: (projected[i].z + projected[j].z) / 2
+          }))
+          .sort((a, b) => b.depth - a.depth);
+
+        // Draw edges
+        ctx.lineCap = 'round';
+        ctx.lineWidth = 1.5;
+
+        for (const { i, j } of sortedEdges) {
+          const p1 = projected[i];
+          const p2 = projected[j];
+
+          // Skip tiny edges (collapsed dimensions)
+          const dx = p2.x - p1.x;
+          const dy = p2.y - p1.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          if (len < 1) continue;
+
+          const alpha = Math.min(p1.alpha, p2.alpha) * wireAlpha;
+          ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`;
+
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+
+        ctx.globalAlpha = 1;
+      }
+
+      updateUI(dim, colorStr);
+    }
+
+    function updateUI(dim, colorStr) {
+      const readout = document.getElementById('dim-readout');
+      const dimLabel = document.getElementById('dim-label');
+      const stateDesc = document.getElementById('state-desc');
+
+      readout.textContent = dim.toFixed(1) + 'D';
+      readout.style.color = colorStr;
+      stateDesc.style.color = colorStr;
+
+      if (dim >= 2.5) {
+        dimLabel.textContent = '3D projection';
+        stateDesc.textContent = 'Full rotation visible';
+      } else if (dim >= 1.5) {
+        dimLabel.textContent = '2D projection';
+        stateDesc.textContent = 'Flattened shadow';
+      } else if (dim >= 0.5) {
+        dimLabel.textContent = '1D projection';
+        stateDesc.textContent = 'Linear extent';
+      } else {
+        dimLabel.textContent = '0D projection';
+        stateDesc.textContent = 'Symbol only';
+      }
+    }
+
+    // ==========================================================================
+    // CONTROLS
+    // ==========================================================================
+
+    document.getElementById('dimension').addEventListener('input', (e) => {
+      viewDimension = parseFloat(e.target.value);
+    });
+
+    // Click to perturb
+    canvas.addEventListener('click', () => {
+      physics.omegaX += (Math.random() - 0.5) * 0.02;
+      physics.omegaY += (Math.random() - 0.5) * 0.02;
+      physics.omegaZ += (Math.random() - 0.5) * 0.02;
+    });
+
+    // ==========================================================================
+    // MAIN LOOP
+    // ==========================================================================
+
+    function loop() {
+      physicsStep();
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

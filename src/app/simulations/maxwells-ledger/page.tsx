@@ -182,6 +182,18 @@ function Part1() {
     return () => stopTinnitus();
   }, [noiseLevel, startTinnitus, stopTinnitus]);
 
+  // Stop tone
+  const stopTone = useCallback(() => {
+    if (oscillatorRef.current) {
+      oscillatorRef.current.stop();
+      oscillatorRef.current.disconnect();
+      oscillatorRef.current = null;
+    }
+    setIsPlaying(false);
+    setSignalActive(false);
+    setSignalStartTime(null);
+  }, []);
+
   // Play tone
   const playTone = useCallback(() => {
     const ctx = initAudio();
@@ -215,18 +227,7 @@ function Part1() {
     setTimeout(() => {
       stopTone();
     }, 3000);
-  }, [initAudio, selectedFreq, signalStrength, time]);
-
-  const stopTone = useCallback(() => {
-    if (oscillatorRef.current) {
-      oscillatorRef.current.stop();
-      oscillatorRef.current.disconnect();
-      oscillatorRef.current = null;
-    }
-    setIsPlaying(false);
-    setSignalActive(false);
-    setSignalStartTime(null);
-  }, []);
+  }, [initAudio, selectedFreq, signalStrength, time, stopTone]);
 
   // Get canvas-relative coordinates
   const getCanvasCoords = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {

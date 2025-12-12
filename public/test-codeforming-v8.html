@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Formation v8: Testing Dynamics</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #000;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-bar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      background: #050505;
+      border-bottom: 1px solid #1a1a1a;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .mode-btn {
+      padding: 6px 12px;
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 4px;
+      color: #666;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .mode-btn:hover { background: #1a1a1a; color: #888; }
+    .mode-btn.active { background: #22c55e; border-color: #22c55e; color: #000; }
+
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 16px;
+    }
+    .slider-label {
+      font-size: 10px;
+      color: #666;
+      text-transform: uppercase;
+    }
+    input[type="range"] {
+      width: 100px;
+      height: 3px;
+      -webkit-appearance: none;
+      background: #333;
+      border-radius: 2px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .slider-value {
+      font-family: monospace;
+      font-size: 11px;
+      color: #22c55e;
+      min-width: 50px;
+    }
+
+    .main-area {
+      flex: 1;
+      display: flex;
+      position: relative;
+    }
+
+    canvas {
+      flex: 1;
+    }
+
+    /* Code display overlay - top right of canvas */
+    .code-overlay {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      gap: 12px;
+      background: rgba(0,0,0,0.8);
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #222;
+    }
+    .code-box {
+      text-align: center;
+    }
+    .code-label {
+      font-size: 9px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .code-value {
+      font-family: monospace;
+      font-size: 28px;
+      font-weight: bold;
+      color: #22c55e;
+    }
+    .code-arrow {
+      font-size: 20px;
+      color: #333;
+      align-self: center;
+    }
+
+    /* Test console */
+    .test-console {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.9);
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 11px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .test-console h4 {
+      color: #22c55e;
+      margin-bottom: 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+    .test-line {
+      color: #888;
+      margin: 2px 0;
+    }
+    .test-line.pass { color: #22c55e; }
+    .test-line.fail { color: #ef4444; }
+    .test-line.info { color: #60a5fa; }
+
+    .run-tests-btn {
+      position: absolute;
+      bottom: 230px;
+      left: 16px;
+      padding: 8px 16px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #888;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .run-tests-btn:hover { background: #222; color: #fff; }
+
+    .instructions {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      font-size: 10px;
+      color: #444;
+      max-width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button class="mode-btn active" data-mode="passive">Passive</button>
+    <button class="mode-btn" data-mode="constrained">Constrained</button>
+    <button class="mode-btn" data-mode="coupled">Coupled</button>
+
+    <div class="slider-group">
+      <span class="slider-label">Bandwidth</span>
+      <input type="range" id="bandwidth" min="0" max="1" step="0.01" value="0.5">
+      <span class="slider-value" id="bw-value">1 bit</span>
+    </div>
+
+    <div class="slider-group" id="coupling-group" style="display: none;">
+      <span class="slider-label">Coupling</span>
+      <input type="range" id="coupling" min="0" max="1" step="0.01" value="0.5">
+      <span class="slider-value" id="coupling-value">0.50</span>
+    </div>
+  </div>
+
+  <div class="main-area">
+    <canvas id="canvas"></canvas>
+
+    <div class="instructions" id="instructions">
+      Click to perturb. Dzhanibekov effect: rotation around intermediate axis is unstable.
+    </div>
+
+    <div class="code-overlay" id="code-overlay">
+      <div class="code-box">
+        <div class="code-label">CODE</div>
+        <div class="code-value" id="code-a">A</div>
+      </div>
+    </div>
+
+    <button class="run-tests-btn" id="run-tests">Run Physics Tests</button>
+
+    <div class="test-console" id="test-console">
+      <h4>Physics Test Console</h4>
+      <div id="test-output"></div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================================================
+    // SETUP
+    // ==========================================================================
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const testOutput = document.getElementById('test-output');
+
+    function resize() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    let mode = 'passive';
+    let bandwidth = 0.5;
+    let coupling = 0.5;
+    let paused = false;
+
+    function log(msg, type = '') {
+      const div = document.createElement('div');
+      div.className = 'test-line ' + type;
+      div.textContent = msg;
+      testOutput.appendChild(div);
+      testOutput.scrollTop = testOutput.scrollHeight;
+    }
+
+    function clearLog() {
+      testOutput.innerHTML = '';
+    }
+
+    // ==========================================================================
+    // QUATERNION MATH
+    // ==========================================================================
+    const quat = {
+      mul: (a, b) => ({
+        w: a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
+        x: a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
+        y: a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
+        z: a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w
+      }),
+      normalize: (q) => {
+        const m = Math.sqrt(q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z);
+        return { w: q.w/m, x: q.x/m, y: q.y/m, z: q.z/m };
+      },
+      fromAxisAngle: (ax, ay, az, angle) => {
+        const h = angle/2, s = Math.sin(h);
+        return quat.normalize({ w: Math.cos(h), x: ax*s, y: ay*s, z: az*s });
+      },
+      rotateVec: (q, v) => {
+        const qv = { w: 0, x: v.x, y: v.y, z: v.z };
+        const qc = { w: q.w, x: -q.x, y: -q.y, z: -q.z };
+        const r = quat.mul(quat.mul(q, qv), qc);
+        return { x: r.x, y: r.y, z: r.z };
+      },
+      toEuler: (q) => {
+        // Returns pitch, yaw, roll in radians
+        const sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+        const cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+        const roll = Math.atan2(sinr_cosp, cosr_cosp);
+
+        const sinp = 2 * (q.w * q.y - q.z * q.x);
+        const pitch = Math.abs(sinp) >= 1 ? Math.sign(sinp) * Math.PI / 2 : Math.asin(sinp);
+
+        const siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+        const cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+        const yaw = Math.atan2(siny_cosp, cosy_cosp);
+
+        return { pitch, yaw, roll };
+      }
+    };
+
+    // ==========================================================================
+    // WRENCH GEOMETRY
+    // ==========================================================================
+    function generateWrench() {
+      const verts = [], edges = [];
+      const hLen = 2.2, hRad = 0.12, tLen = 1.2, tRad = 0.16, seg = 8;
+
+      // Handle (cylinder along Y)
+      for (let r = 0; r <= 4; r++) {
+        const y = -hLen/2 + (r/4)*hLen;
+        for (let i = 0; i < seg; i++) {
+          const a = (i/seg) * Math.PI * 2;
+          verts.push({ x: Math.cos(a)*hRad, y, z: Math.sin(a)*hRad });
+        }
+      }
+      for (let r = 0; r < 4; r++) {
+        for (let i = 0; i < seg; i++) {
+          edges.push([r*seg+i, r*seg+(i+1)%seg]);
+          edges.push([r*seg+i, (r+1)*seg+i]);
+        }
+      }
+      for (let i = 0; i < seg; i++) edges.push([4*seg+i, 4*seg+(i+1)%seg]);
+
+      // Head (cylinder along X at top of handle)
+      const hs = verts.length, headY = hLen/2;
+      for (let r = 0; r <= 3; r++) {
+        const x = -tLen/2 + (r/3)*tLen;
+        for (let i = 0; i < seg; i++) {
+          const a = (i/seg) * Math.PI * 2;
+          verts.push({ x, y: headY + Math.cos(a)*tRad, z: Math.sin(a)*tRad });
+        }
+      }
+      for (let r = 0; r < 3; r++) {
+        for (let i = 0; i < seg; i++) {
+          edges.push([hs+r*seg+i, hs+r*seg+(i+1)%seg]);
+          edges.push([hs+r*seg+i, hs+(r+1)*seg+i]);
+        }
+      }
+      for (let i = 0; i < seg; i++) edges.push([hs+3*seg+i, hs+3*seg+(i+1)%seg]);
+
+      return { verts, edges };
+    }
+
+    const wrench = generateWrench();
+
+    // Moments of inertia for T-handle
+    // I1 (smallest) = rotation around handle axis (Y)
+    // I2 (intermediate) = rotation around axis through head (X) - UNSTABLE
+    // I3 (largest) = rotation around Z
+    const I1 = 0.15;  // Y axis (handle)
+    const I2 = 0.8;   // X axis (through head) - intermediate = unstable!
+    const I3 = 0.95;  // Z axis
+
+    let wrenchState = {
+      q: quat.normalize({ w: 1, x: 0, y: 0, z: 0 }),
+      // Start with rotation primarily around intermediate axis (X) + small perturbation
+      wx: 0.08,   // main rotation - intermediate axis
+      wy: 0.002,  // small perturbation
+      wz: 0.003   // small perturbation
+    };
+
+    function stepWrench(dt = 1) {
+      let { wx, wy, wz, q } = wrenchState;
+
+      // Euler's equations for torque-free rotation
+      // dω₁/dt = (I₂ - I₃) * ω₂ * ω₃ / I₁
+      // We use: X=1, Y=2, Z=3 mapping to our axes
+      const dwx = ((I2 - I3) * wy * wz / I1) * dt;
+      const dwy = ((I3 - I1) * wz * wx / I2) * dt;
+      const dwz = ((I1 - I2) * wx * wy / I3) * dt;
+
+      wx += dwx;
+      wy += dwy;
+      wz += dwz;
+
+      // Very slight damping (numerical stability)
+      const damp = 0.99995;
+      wx *= damp;
+      wy *= damp;
+      wz *= damp;
+
+      // Update quaternion
+      const wMag = Math.sqrt(wx*wx + wy*wy + wz*wz);
+      if (wMag > 1e-10) {
+        const dq = quat.fromAxisAngle(wx/wMag, wy/wMag, wz/wMag, wMag * dt);
+        q = quat.normalize(quat.mul(dq, q));
+      }
+
+      wrenchState = { wx, wy, wz, q };
+      return wrenchState;
+    }
+
+    function getWrenchState() {
+      // Get the orientation of the head (X axis in body frame)
+      const headDir = quat.rotateVec(wrenchState.q, { x: 1, y: 0, z: 0 });
+      const handleDir = quat.rotateVec(wrenchState.q, { x: 0, y: 1, z: 0 });
+
+      // The "flip" state is determined by which way the head is pointing
+      // In Dzhanibekov effect, the head flips between pointing +Z and -Z
+      const flipState = headDir.z > 0 ? 'A' : 'B';
+
+      // Continuous measure of flip progress (-1 to 1)
+      const flipProgress = headDir.z;
+
+      // Angular momentum magnitude (conserved in torque-free rotation)
+      const L = Math.sqrt(
+        (I1 * wrenchState.wx) ** 2 +
+        (I2 * wrenchState.wy) ** 2 +
+        (I3 * wrenchState.wz) ** 2
+      );
+
+      // Rotational kinetic energy (also conserved)
+      const T = 0.5 * (
+        I1 * wrenchState.wx ** 2 +
+        I2 * wrenchState.wy ** 2 +
+        I3 * wrenchState.wz ** 2
+      );
+
+      return { headDir, handleDir, flipState, flipProgress, L, T };
+    }
+
+    function getWrenchCode() {
+      const state = getWrenchState();
+
+      if (bandwidth < 0.25) {
+        return { sym: 'WRENCH', color: '#22c55e', detail: 'identity' };
+      }
+      if (bandwidth < 0.5) {
+        return {
+          sym: state.flipState,
+          color: state.flipState === 'A' ? '#3b82f6' : '#ef4444',
+          detail: 'binary'
+        };
+      }
+      if (bandwidth < 0.75) {
+        // Show flip progress as percentage
+        const pct = Math.round((state.flipProgress + 1) * 50);
+        return { sym: pct + '%', color: '#a855f7', detail: 'continuous' };
+      }
+      // Full detail: show head direction angles
+      const angle = Math.round(Math.atan2(state.headDir.z, state.headDir.x) * 180 / Math.PI);
+      return { sym: angle + '°', color: '#f59e0b', detail: 'full' };
+    }
+
+    // ==========================================================================
+    // PARTICLE SYSTEM
+    // ==========================================================================
+    class ParticleSystem {
+      constructor(id, hue) {
+        this.id = id;
+        this.hue = hue;
+        this.particles = [];
+        this.code = 0;
+        this.codeOutput = '•';
+        this.potentialBias = 0;
+        this.history = []; // Track code over time
+
+        for (let i = 0; i < 30; i++) {
+          this.particles.push({
+            x: (Math.random() - 0.5) * 100,
+            y: (Math.random() - 0.5) * 60,
+            vx: (Math.random() - 0.5) * 1,
+            vy: (Math.random() - 0.5) * 1
+          });
+        }
+      }
+
+      step(couplingStrength, externalSignal = 0) {
+        // External signal comes through the code channel
+        const totalBias = this.potentialBias + externalSignal * couplingStrength * 0.3;
+
+        for (const p of this.particles) {
+          // Double-well potential with bias
+          // U(x) = (x^2 - wellSep^2)^2 + bias*x
+          const wellSep = 40;
+          const wellCenter = totalBias * 30;
+
+          // Force from potential
+          const fx = -0.008 * (p.x - wellCenter);
+          const fy = -0.012 * p.y;
+
+          // Thermal noise
+          const temp = 0.4;
+          p.vx += fx + (Math.random() - 0.5) * temp;
+          p.vy += fy + (Math.random() - 0.5) * temp;
+
+          // Damping
+          p.vx *= 0.95;
+          p.vy *= 0.95;
+
+          p.x += p.vx;
+          p.y += p.vy;
+
+          // Soft walls
+          if (Math.abs(p.x) > 80) p.vx -= Math.sign(p.x) * 0.3;
+          if (Math.abs(p.y) > 50) p.vy -= Math.sign(p.y) * 0.3;
+        }
+
+        // Compute code from particle distribution
+        let leftCount = 0;
+        for (const p of this.particles) {
+          if (p.x < 0) leftCount++;
+        }
+        this.code = (this.particles.length - 2 * leftCount) / this.particles.length;
+
+        // Record history
+        this.history.push(this.code);
+        if (this.history.length > 500) this.history.shift();
+
+        // Quantize code based on bandwidth
+        this.codeOutput = this.quantize();
+
+        // Self-constraint feedback
+        if (mode === 'constrained' || mode === 'coupled') {
+          const feedbackTarget = this.code > 0 ? 0.3 : -0.3;
+          this.potentialBias += (feedbackTarget - this.potentialBias) * couplingStrength * 0.01;
+        }
+
+        return this.code;
+      }
+
+      quantize() {
+        if (bandwidth < 0.2) return '•';
+        if (bandwidth < 0.5) return this.code > 0 ? 'R' : 'L';
+        if (bandwidth < 0.75) {
+          const level = Math.round(this.code * 2);
+          return ['L+', 'L', '0', 'R', 'R+'][level + 2] || '0';
+        }
+        return (this.code * 100).toFixed(0);
+      }
+
+      draw(ctx, cx, cy, width, height) {
+        // Background
+        ctx.fillStyle = '#080808';
+        ctx.fillRect(cx - width/2, cy - height/2, width, height);
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.strokeRect(cx - width/2, cy - height/2, width, height);
+
+        // Potential well indicator
+        ctx.strokeStyle = `hsla(${this.hue}, 40%, 40%, 0.4)`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const wellX = cx + this.potentialBias * 30;
+        ctx.moveTo(wellX, cy - 40);
+        ctx.lineTo(wellX, cy + 40);
+        ctx.stroke();
+
+        // Particles
+        for (const p of this.particles) {
+          const sx = cx + p.x;
+          const sy = cy + p.y;
+          const particleHue = p.x > 0 ? this.hue + 40 : this.hue - 20;
+          ctx.fillStyle = `hsla(${particleHue}, 60%, 55%, 0.8)`;
+          ctx.beginPath();
+          ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Code display
+        ctx.fillStyle = this.code > 0 ?
+          `hsl(${this.hue + 40}, 70%, 60%)` :
+          `hsl(${this.hue - 20}, 70%, 60%)`;
+        ctx.font = 'bold 24px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(this.codeOutput, cx, cy + height/2 - 15);
+
+        // Label
+        ctx.fillStyle = '#444';
+        ctx.font = '10px system-ui';
+        ctx.fillText(`System ${this.id}`, cx, cy - height/2 + 15);
+      }
+
+      getStats() {
+        const mean = this.history.reduce((a, b) => a + b, 0) / this.history.length || 0;
+        const variance = this.history.reduce((a, b) => a + (b - mean) ** 2, 0) / this.history.length || 0;
+        const transitions = this.history.reduce((count, val, i) => {
+          if (i === 0) return 0;
+          const prev = this.history[i - 1];
+          if ((prev > 0 && val < 0) || (prev < 0 && val > 0)) return count + 1;
+          return count;
+        }, 0);
+        return { mean, variance, std: Math.sqrt(variance), transitions };
+      }
+    }
+
+    let systemA = new ParticleSystem('A', 200);
+    let systemB = new ParticleSystem('B', 30);
+
+    // ==========================================================================
+    // PHYSICS TESTS
+    // ==========================================================================
+    async function runTests() {
+      clearLog();
+      log('Starting physics tests...', 'info');
+
+      // Test 1: Conservation laws in wrench
+      log('');
+      log('=== WRENCH PHYSICS TESTS ===', 'info');
+
+      // Reset wrench
+      wrenchState = {
+        q: quat.normalize({ w: 1, x: 0, y: 0, z: 0 }),
+        wx: 0.08, wy: 0.002, wz: 0.003
+      };
+
+      const initial = getWrenchState();
+      log(`Initial L (angular momentum): ${initial.L.toFixed(6)}`);
+      log(`Initial T (kinetic energy): ${initial.T.toFixed(6)}`);
+
+      // Run 1000 steps
+      for (let i = 0; i < 1000; i++) stepWrench();
+
+      const after1000 = getWrenchState();
+      log(`After 1000 steps L: ${after1000.L.toFixed(6)}`);
+      log(`After 1000 steps T: ${after1000.T.toFixed(6)}`);
+
+      const Ldrift = Math.abs(after1000.L - initial.L) / initial.L;
+      const Tdrift = Math.abs(after1000.T - initial.T) / initial.T;
+
+      if (Ldrift < 0.01) {
+        log(`✓ Angular momentum conserved (drift: ${(Ldrift*100).toFixed(3)}%)`, 'pass');
+      } else {
+        log(`✗ Angular momentum NOT conserved (drift: ${(Ldrift*100).toFixed(3)}%)`, 'fail');
+      }
+
+      if (Tdrift < 0.01) {
+        log(`✓ Kinetic energy conserved (drift: ${(Tdrift*100).toFixed(3)}%)`, 'pass');
+      } else {
+        log(`✗ Kinetic energy NOT conserved (drift: ${(Tdrift*100).toFixed(3)}%)`, 'fail');
+      }
+
+      // Test 2: Dzhanibekov flipping
+      log('');
+      log('=== DZHANIBEKOV FLIP TEST ===', 'info');
+
+      wrenchState = {
+        q: quat.normalize({ w: 1, x: 0, y: 0, z: 0 }),
+        wx: 0.06, wy: 0.003, wz: 0.002
+      };
+
+      let flips = 0;
+      let lastState = 'A';
+      const flipTimes = [];
+
+      for (let i = 0; i < 5000; i++) {
+        stepWrench();
+        const state = getWrenchState();
+        if (state.flipState !== lastState) {
+          flips++;
+          flipTimes.push(i);
+          lastState = state.flipState;
+        }
+      }
+
+      log(`Observed ${flips} flips in 5000 steps`);
+      if (flips >= 2) {
+        log(`✓ Dzhanibekov effect observed!`, 'pass');
+        if (flipTimes.length >= 2) {
+          const intervals = [];
+          for (let i = 1; i < flipTimes.length; i++) {
+            intervals.push(flipTimes[i] - flipTimes[i-1]);
+          }
+          const avgInterval = intervals.reduce((a,b) => a+b, 0) / intervals.length;
+          log(`  Average flip interval: ${avgInterval.toFixed(0)} steps`);
+        }
+      } else {
+        log(`✗ No Dzhanibekov flipping detected`, 'fail');
+      }
+
+      // Test 3: Particle system statistics
+      log('');
+      log('=== PARTICLE SYSTEM TESTS ===', 'info');
+
+      // Reset systems
+      systemA = new ParticleSystem('A', 200);
+      coupling = 0;
+
+      // Run uncoupled
+      for (let i = 0; i < 500; i++) {
+        systemA.step(0, 0);
+      }
+
+      const uncoupledStats = systemA.getStats();
+      log(`Uncoupled system (coupling=0):`);
+      log(`  Mean code: ${uncoupledStats.mean.toFixed(3)}`);
+      log(`  Std dev: ${uncoupledStats.std.toFixed(3)}`);
+      log(`  Transitions: ${uncoupledStats.transitions}`);
+
+      // Reset and run with self-constraint
+      systemA = new ParticleSystem('A', 200);
+      mode = 'constrained';
+      coupling = 0.8;
+
+      for (let i = 0; i < 500; i++) {
+        systemA.step(coupling, 0);
+      }
+
+      const constrainedStats = systemA.getStats();
+      log(`Self-constrained (coupling=0.8):`);
+      log(`  Mean code: ${constrainedStats.mean.toFixed(3)}`);
+      log(`  Std dev: ${constrainedStats.std.toFixed(3)}`);
+      log(`  Transitions: ${constrainedStats.transitions}`);
+
+      if (constrainedStats.transitions < uncoupledStats.transitions * 0.8) {
+        log(`✓ Self-constraint reduces transitions`, 'pass');
+      } else {
+        log(`? Self-constraint effect unclear`, 'info');
+      }
+
+      // Test 4: Coupled systems
+      log('');
+      log('=== COUPLED SYSTEMS TEST ===', 'info');
+
+      systemA = new ParticleSystem('A', 200);
+      systemB = new ParticleSystem('B', 30);
+      mode = 'coupled';
+      coupling = 0.7;
+
+      let correlationSum = 0;
+      for (let i = 0; i < 500; i++) {
+        const codeA = systemA.step(coupling, systemB.code);
+        const codeB = systemB.step(coupling, systemA.code);
+        correlationSum += codeA * codeB;
+      }
+
+      const avgCorrelation = correlationSum / 500;
+      log(`Coupled systems (coupling=0.7):`);
+      log(`  Average correlation: ${avgCorrelation.toFixed(3)}`);
+
+      if (Math.abs(avgCorrelation) > 0.1) {
+        log(`✓ Systems show correlated behavior`, 'pass');
+      } else {
+        log(`? Correlation is weak`, 'info');
+      }
+
+      log('');
+      log('Tests complete.', 'info');
+
+      // Reset to passive mode
+      mode = 'passive';
+      wrenchState = {
+        q: quat.normalize({ w: 1, x: 0, y: 0, z: 0 }),
+        wx: 0.08, wy: 0.002, wz: 0.003
+      };
+    }
+
+    // ==========================================================================
+    // RENDERING
+    // ==========================================================================
+    function renderWrench() {
+      const W = canvas.width, H = canvas.height;
+      const cx = W/2, cy = H/2;
+      const scale = Math.min(W, H) * 0.18;
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      const code = getWrenchCode();
+
+      // Project vertices
+      const proj = wrench.verts.map(v => {
+        const r = quat.rotateVec(wrenchState.q, v);
+        const perspective = 3 / (3 + r.z * 0.3);
+        return {
+          x: cx + r.x * perspective * scale,
+          y: cy - r.y * perspective * scale,
+          z: r.z
+        };
+      });
+
+      // Sort edges by depth
+      const sorted = wrench.edges
+        .map(([i, j]) => ({ i, j, z: (proj[i].z + proj[j].z) / 2 }))
+        .sort((a, b) => a.z - b.z);
+
+      // Draw edges
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 2;
+      for (const { i, j, z } of sorted) {
+        const alpha = 0.3 + (1 - z / 2) * 0.5;
+        ctx.strokeStyle = hexToRgba(code.color, alpha);
+        ctx.beginPath();
+        ctx.moveTo(proj[i].x, proj[i].y);
+        ctx.lineTo(proj[j].x, proj[j].y);
+        ctx.stroke();
+      }
+
+      // Update code display
+      document.getElementById('code-a').textContent = code.sym;
+      document.getElementById('code-a').style.color = code.color;
+    }
+
+    function renderConstrained() {
+      const W = canvas.width, H = canvas.height;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      systemA.draw(ctx, W/2, H/2 - 30, 200, 140);
+
+      // Feedback arrow
+      if (coupling > 0.1) {
+        ctx.strokeStyle = `rgba(100, 200, 100, ${coupling * 0.5})`;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.arc(W/2, H/2 - 30, 90, 0.3, 2.8);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = `rgba(100, 200, 100, ${coupling * 0.5})`;
+        ctx.font = '10px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('feedback', W/2 + 100, H/2 - 30);
+      }
+
+      document.getElementById('code-a').textContent = systemA.codeOutput;
+      document.getElementById('code-a').style.color = systemA.code > 0 ? '#60a5fa' : '#f87171';
+    }
+
+    function renderCoupled() {
+      const W = canvas.width, H = canvas.height;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      const sysWidth = 180;
+      const sysHeight = 120;
+      const gap = 100;
+
+      systemA.draw(ctx, W/2 - sysWidth/2 - gap/2, H/2 - 40, sysWidth, sysHeight);
+      systemB.draw(ctx, W/2 + sysWidth/2 + gap/2, H/2 - 40, sysWidth, sysHeight);
+
+      // Code channel
+      const chanY = H/2 + 50;
+      const chanX1 = W/2 - gap/2;
+      const chanX2 = W/2 + gap/2;
+
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(chanX1, chanY);
+      ctx.lineTo(chanX2, chanY);
+      ctx.stroke();
+
+      // Show code flow
+      if (coupling > 0.1) {
+        ctx.fillStyle = `rgba(100, 200, 100, ${coupling * 0.6})`;
+        ctx.font = '12px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('↔', W/2, chanY + 4);
+      }
+
+      document.getElementById('code-a').textContent = systemA.codeOutput;
+      document.getElementById('code-a').style.color = systemA.code > 0 ? '#60a5fa' : '#f87171';
+
+      const codeB = document.getElementById('code-b');
+      if (codeB) {
+        codeB.textContent = systemB.codeOutput;
+        codeB.style.color = systemB.code > 0 ? '#fbbf24' : '#fb923c';
+      }
+    }
+
+    function hexToRgba(hex, a) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+
+    // ==========================================================================
+    // MAIN LOOP
+    // ==========================================================================
+    function loop() {
+      if (!paused) {
+        if (mode === 'passive') {
+          stepWrench();
+          renderWrench();
+        } else if (mode === 'constrained') {
+          systemA.step(coupling, 0);
+          renderConstrained();
+        } else if (mode === 'coupled') {
+          const codeA = systemA.code;
+          const codeB = systemB.code;
+          systemA.step(coupling, codeB);
+          systemB.step(coupling, codeA);
+          renderCoupled();
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+
+    // ==========================================================================
+    // CONTROLS
+    // ==========================================================================
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        mode = btn.dataset.mode;
+
+        const couplingGroup = document.getElementById('coupling-group');
+        const codeOverlay = document.getElementById('code-overlay');
+        const instructions = document.getElementById('instructions');
+
+        if (mode === 'passive') {
+          couplingGroup.style.display = 'none';
+          codeOverlay.innerHTML = `
+            <div class="code-box">
+              <div class="code-label">CODE</div>
+              <div class="code-value" id="code-a">A</div>
+            </div>`;
+          instructions.textContent = 'Click to perturb. Dzhanibekov effect: rotation around intermediate axis is unstable.';
+          wrenchState = { q: quat.normalize({ w: 1, x: 0, y: 0, z: 0 }), wx: 0.08, wy: 0.002, wz: 0.003 };
+        } else if (mode === 'constrained') {
+          couplingGroup.style.display = 'flex';
+          codeOverlay.innerHTML = `
+            <div class="code-box">
+              <div class="code-label">CODE</div>
+              <div class="code-value" id="code-a">•</div>
+            </div>
+            <span class="code-arrow">↺</span>`;
+          instructions.textContent = 'Code feeds back to bias potential well. High coupling = stronger self-reinforcement.';
+          systemA = new ParticleSystem('A', 200);
+        } else if (mode === 'coupled') {
+          couplingGroup.style.display = 'flex';
+          codeOverlay.innerHTML = `
+            <div class="code-box">
+              <div class="code-label">SYS A</div>
+              <div class="code-value" id="code-a">•</div>
+            </div>
+            <span class="code-arrow">⇄</span>
+            <div class="code-box">
+              <div class="code-label">SYS B</div>
+              <div class="code-value" id="code-b">•</div>
+            </div>`;
+          instructions.textContent = 'Two systems exchange codes through channel. Bandwidth limits information flow.';
+          systemA = new ParticleSystem('A', 200);
+          systemB = new ParticleSystem('B', 30);
+        }
+      });
+    });
+
+    document.getElementById('bandwidth').addEventListener('input', (e) => {
+      bandwidth = parseFloat(e.target.value);
+      const labels = ['~0', '1 bit', '2 bits', '∞'];
+      const idx = Math.min(3, Math.floor(bandwidth * 4));
+      document.getElementById('bw-value').textContent = labels[idx];
+    });
+
+    document.getElementById('coupling').addEventListener('input', (e) => {
+      coupling = parseFloat(e.target.value);
+      document.getElementById('coupling-value').textContent = coupling.toFixed(2);
+    });
+
+    canvas.addEventListener('click', () => {
+      if (mode === 'passive') {
+        wrenchState.wy += (Math.random() - 0.5) * 0.02;
+        wrenchState.wz += (Math.random() - 0.5) * 0.02;
+      } else {
+        for (const p of systemA.particles) {
+          p.vx += (Math.random() - 0.5) * 4;
+          p.vy += (Math.random() - 0.5) * 4;
+        }
+        if (mode === 'coupled') {
+          for (const p of systemB.particles) {
+            p.vx += (Math.random() - 0.5) * 4;
+            p.vy += (Math.random() - 0.5) * 4;
+          }
+        }
+      }
+    });
+
+    document.getElementById('run-tests').addEventListener('click', () => {
+      paused = true;
+      runTests().then(() => {
+        paused = false;
+      });
+    });
+
+    // Start
+    loop();
+  </script>
+</body>
+</html>

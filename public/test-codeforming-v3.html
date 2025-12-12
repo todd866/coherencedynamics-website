@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code-Forming v3: Dimensional Collapse</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #000;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 40px 30px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.9) 30%);
+    }
+    .slider-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .slider-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #666;
+    }
+    .dim-readout {
+      font-family: monospace;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      background: #222;
+      border-radius: 4px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 10px;
+      color: #444;
+    }
+    .info {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 11px;
+      color: #444;
+      max-width: 250px;
+      line-height: 1.5;
+    }
+    .info strong { color: #666; }
+    .state-label {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      text-align: right;
+    }
+    .state-label .dim {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .state-label .desc {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div class="info">
+    <strong>The physics never changes.</strong><br>
+    The wrench rotates with Dzhanibekov dynamics regardless of how you view it.<br><br>
+    <strong>Only the projection changes.</strong><br>
+    Lower dimensions = less information = coarser code.
+  </div>
+
+  <div class="state-label">
+    <div class="dim" id="dim-label">3D PROJECTION</div>
+    <div class="desc" id="state-desc" style="color: #3b82f6">Full rotation visible</div>
+  </div>
+
+  <div class="controls">
+    <div class="slider-container">
+      <div class="slider-label">
+        <span class="slider-title">Observation Dimensionality</span>
+        <span class="dim-readout" id="dim-readout" style="color: #3b82f6">3D</span>
+      </div>
+      <input type="range" id="dimension" min="0" max="3" step="0.01" value="3">
+      <div class="slider-labels">
+        <span>0D (symbol)</span>
+        <span>1D (line)</span>
+        <span>2D (shadow)</span>
+        <span>3D (full)</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================================================
+    // SETUP
+    // ==========================================================================
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ==========================================================================
+    // WRENCH GEOMETRY
+    // ==========================================================================
+
+    function generateWrench() {
+      const vertices = [];
+      const edges = [];
+
+      const handleLength = 2.2;
+      const handleRadius = 0.14;
+      const segments = 10;
+      const headLength = 1.1;
+      const headRadius = 0.18;
+
+      // Handle
+      for (let ring = 0; ring <= 5; ring++) {
+        const y = -handleLength / 2 + (ring / 5) * handleLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: Math.cos(angle) * handleRadius,
+            y: y,
+            z: Math.sin(angle) * handleRadius
+          });
+        }
+      }
+
+      for (let ring = 0; ring < 5; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = ring * segments + i;
+          const next = ring * segments + ((i + 1) % segments);
+          const above = (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([5 * segments + i, 5 * segments + ((i + 1) % segments)]);
+      }
+
+      // Head
+      const headY = handleLength / 2;
+      const headStart = vertices.length;
+
+      for (let ring = 0; ring <= 4; ring++) {
+        const x = -headLength / 2 + (ring / 4) * headLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: x,
+            y: headY + Math.cos(angle) * headRadius,
+            z: Math.sin(angle) * headRadius
+          });
+        }
+      }
+
+      for (let ring = 0; ring < 4; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = headStart + ring * segments + i;
+          const next = headStart + ring * segments + ((i + 1) % segments);
+          const above = headStart + (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([headStart + 4 * segments + i, headStart + 4 * segments + ((i + 1) % segments)]);
+      }
+
+      return { vertices, edges };
+    }
+
+    const wrench = generateWrench();
+
+    // ==========================================================================
+    // PHYSICS (Pure Dzhanibekov)
+    // ==========================================================================
+
+    const INERTIA = { I1: 0.3, I2: 1.0, I3: 1.8 };
+    const EULER_COUPLING = 0.12;
+    const DAMPING = 0.0003;
+
+    let physics = {
+      angleX: 0.3,
+      angleY: 0.1,
+      angleZ: 0,
+      Lx: 0.003,
+      Ly: 0.08,
+      Lz: 0.004
+    };
+
+    let viewDimension = 3;
+
+    function physicsStep() {
+      const { I1, I2, I3 } = INERTIA;
+
+      let omegaX = physics.Lx / I1;
+      let omegaY = physics.Ly / I2;
+      let omegaZ = physics.Lz / I3;
+
+      const dOmegaX = EULER_COUPLING * (I2 - I3) * omegaY * omegaZ / I1;
+      const dOmegaY = EULER_COUPLING * (I3 - I1) * omegaZ * omegaX / I2;
+      const dOmegaZ = EULER_COUPLING * (I1 - I2) * omegaX * omegaY / I3;
+
+      physics.Lx = (physics.Lx + dOmegaX * I1) * (1 - DAMPING);
+      physics.Ly = (physics.Ly + dOmegaY * I2) * (1 - DAMPING);
+      physics.Lz = (physics.Lz + dOmegaZ * I3) * (1 - DAMPING);
+
+      omegaX = physics.Lx / I1;
+      omegaY = physics.Ly / I2;
+      omegaZ = physics.Lz / I3;
+
+      physics.angleX += omegaX;
+      physics.angleY += omegaY;
+      physics.angleZ += omegaZ;
+    }
+
+    // ==========================================================================
+    // RENDERING
+    // ==========================================================================
+
+    function rotatePoint(p) {
+      let { x, y, z } = p;
+
+      const cx = Math.cos(physics.angleX), sx = Math.sin(physics.angleX);
+      let y1 = y * cx - z * sx;
+      let z1 = y * sx + z * cx;
+      y = y1; z = z1;
+
+      const cy = Math.cos(physics.angleY), sy = Math.sin(physics.angleY);
+      let x1 = x * cy + z * sy;
+      z1 = -x * sy + z * cy;
+      x = x1; z = z1;
+
+      const cz = Math.cos(physics.angleZ), sz = Math.sin(physics.angleZ);
+      x1 = x * cz - y * sz;
+      y1 = x * sz + y * cz;
+      x = x1; y = y1;
+
+      return { x, y, z };
+    }
+
+    function projectPoint(p, dim) {
+      // dim: 3 = full 3D, 2 = flat (no depth), 1 = line, 0 = point
+      const W = canvas.width;
+      const H = canvas.height;
+      const cx = W / 2;
+      const cy = H / 2 - 40;
+      const scale = Math.min(W, H) * 0.18;
+
+      if (dim >= 2.5) {
+        // Full 3D with perspective
+        const perspective = dim - 2; // 0.5 to 1
+        const fov = 3 + (1 - perspective) * 10;
+        const zScale = perspective * 0.4;
+        const s = fov / (fov + p.z * zScale + 2);
+        return {
+          x: cx + p.x * s * scale,
+          y: cy - p.y * s * scale,
+          z: p.z,
+          alpha: 0.4 + (1 - p.z * 0.3) * 0.6 * perspective + (1 - perspective) * 0.6
+        };
+      }
+      else if (dim >= 1.5) {
+        // 2D - flatten Z completely, interpolate from 3D
+        const t = dim - 1.5; // 0 to 1, where 1 = still has some Z
+        const zContrib = t * 0.3;
+        const fov = 4;
+        const s = fov / (fov + p.z * zContrib + 2);
+        return {
+          x: cx + p.x * s * scale,
+          y: cy - p.y * s * scale,
+          z: p.z * t,
+          alpha: 0.7
+        };
+      }
+      else if (dim >= 0.5) {
+        // 1D - collapse to horizontal line, interpolate from 2D
+        const t = dim - 0.5; // 0 to 1, where 1 = still 2D-ish
+        const yContrib = t;
+        return {
+          x: cx + p.x * scale,
+          y: cy - p.y * scale * yContrib,
+          z: 0,
+          alpha: 0.5 + t * 0.3
+        };
+      }
+      else {
+        // 0D - collapse to single point/symbol
+        const t = dim; // 0 to 0.5
+        const spread = t * 2; // 0 to 1
+        return {
+          x: cx + p.x * scale * spread * 0.3,
+          y: cy - p.y * scale * spread * 0.1,
+          z: 0,
+          alpha: 0.3 + t
+        };
+      }
+    }
+
+    function getColor(dim) {
+      if (dim >= 2.5) return { r: 59, g: 130, b: 246 };  // Blue - 3D
+      if (dim >= 1.5) return { r: 168, g: 85, b: 247 }; // Purple - 2D
+      if (dim >= 0.5) return { r: 234, g: 179, b: 8 };  // Yellow - 1D
+      return { r: 34, g: 197, b: 94 };                   // Green - 0D
+    }
+
+    function lerp(a, b, t) {
+      return a + (b - a) * t;
+    }
+
+    function lerpColor(c1, c2, t) {
+      return {
+        r: Math.round(lerp(c1.r, c2.r, t)),
+        g: Math.round(lerp(c1.g, c2.g, t)),
+        b: Math.round(lerp(c1.b, c2.b, t))
+      };
+    }
+
+    function getDimColor(dim) {
+      if (dim >= 2.5) {
+        const t = (dim - 2.5) / 0.5;
+        return lerpColor({ r: 168, g: 85, b: 247 }, { r: 59, g: 130, b: 246 }, t);
+      }
+      if (dim >= 1.5) {
+        const t = (dim - 1.5) / 1;
+        return lerpColor({ r: 234, g: 179, b: 8 }, { r: 168, g: 85, b: 247 }, t);
+      }
+      if (dim >= 0.5) {
+        const t = (dim - 0.5) / 1;
+        return lerpColor({ r: 34, g: 197, b: 94 }, { r: 234, g: 179, b: 8 }, t);
+      }
+      return { r: 34, g: 197, b: 94 };
+    }
+
+    function render() {
+      const W = canvas.width;
+      const H = canvas.height;
+      const dim = viewDimension;
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      const color = getDimColor(dim);
+      const colorStr = `rgb(${color.r}, ${color.g}, ${color.b})`;
+
+      // At very low dimensions, show the symbol/label instead
+      if (dim < 0.3) {
+        const symbolAlpha = 1 - dim / 0.3;
+        ctx.save();
+        ctx.globalAlpha = symbolAlpha;
+
+        // Draw "WRENCH" label
+        ctx.fillStyle = colorStr;
+        ctx.font = `bold ${Math.min(W, H) * 0.12}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('WRENCH', W / 2, H / 2 - 40);
+
+        // Smaller subtitle
+        ctx.font = `${Math.min(W, H) * 0.025}px system-ui`;
+        ctx.fillStyle = '#444';
+        ctx.fillText('3D rigid body with asymmetric inertia', W / 2, H / 2 + 20);
+
+        ctx.restore();
+
+        // Still draw faint wireframe underneath if dim > 0
+        if (dim > 0) {
+          ctx.globalAlpha = dim / 0.3 * 0.3;
+        } else {
+          // Update UI and return early
+          updateUI(dim, colorStr);
+          return;
+        }
+      }
+
+      // Transform vertices
+      const transformed = wrench.vertices.map(v => rotatePoint(v));
+      const projected = transformed.map(p => projectPoint(p, dim));
+
+      // Sort edges by depth (only matters for 3D)
+      const sortedEdges = wrench.edges
+        .map(([i, j]) => ({
+          i, j,
+          depth: (transformed[i].z + transformed[j].z) / 2
+        }))
+        .sort((a, b) => b.depth - a.depth);
+
+      // Draw edges
+      ctx.lineCap = 'round';
+      ctx.lineWidth = dim > 2 ? 1.5 : dim > 1 ? 2 : 2.5;
+
+      for (const { i, j, depth } of sortedEdges) {
+        const p1 = projected[i];
+        const p2 = projected[j];
+
+        // Skip very short edges at low dimensions (they overlap)
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (dim < 1.5 && len < 2) continue;
+
+        const alpha = Math.min(p1.alpha, p2.alpha);
+
+        ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+
+      ctx.globalAlpha = 1;
+
+      // At low dimensions, add visual indicators of the collapsed state
+      if (dim < 1.5 && dim >= 0.5) {
+        // 1D mode - show it's a horizontal projection
+        ctx.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, 0.15)`;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(W * 0.2, H / 2 - 40);
+        ctx.lineTo(W * 0.8, H / 2 - 40);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      updateUI(dim, colorStr);
+    }
+
+    function updateUI(dim, colorStr) {
+      // Dimension readout
+      const readout = document.getElementById('dim-readout');
+      const dimLabel = document.getElementById('dim-label');
+      const stateDesc = document.getElementById('state-desc');
+
+      readout.style.color = colorStr;
+      stateDesc.style.color = colorStr;
+
+      if (dim >= 2.5) {
+        readout.textContent = '3D';
+        dimLabel.textContent = '3D PROJECTION';
+        stateDesc.textContent = 'Full rotation visible';
+      } else if (dim >= 1.5) {
+        readout.textContent = '2D';
+        dimLabel.textContent = '2D PROJECTION';
+        stateDesc.textContent = 'Shadow on a wall';
+      } else if (dim >= 0.5) {
+        readout.textContent = '1D';
+        dimLabel.textContent = '1D PROJECTION';
+        stateDesc.textContent = 'Horizontal extent only';
+      } else {
+        readout.textContent = '0D';
+        dimLabel.textContent = '0D PROJECTION';
+        stateDesc.textContent = 'Symbol: "WRENCH"';
+      }
+    }
+
+    // ==========================================================================
+    // CONTROLS
+    // ==========================================================================
+
+    document.getElementById('dimension').addEventListener('input', (e) => {
+      viewDimension = parseFloat(e.target.value);
+    });
+
+    // Kick on click
+    canvas.addEventListener('click', () => {
+      physics.Lx += (Math.random() - 0.5) * 0.04;
+      physics.Ly += (Math.random() - 0.5) * 0.04;
+      physics.Lz += (Math.random() - 0.5) * 0.04;
+    });
+
+    // ==========================================================================
+    // MAIN LOOP
+    // ==========================================================================
+
+    function loop() {
+      physicsStep();
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code-Forming v5: Observable States</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #000;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 40px 30px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.95) 40%);
+    }
+    .slider-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .slider-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #666;
+    }
+    .dim-readout {
+      font-family: monospace;
+      font-size: 24px;
+      font-weight: bold;
+      transition: color 0.1s;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      background: linear-gradient(to right, #22c55e, #eab308, #a855f7, #3b82f6);
+      border-radius: 4px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 28px;
+      height: 28px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 10px;
+      color: #555;
+    }
+    .info {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 12px;
+      color: #555;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+    .info strong { color: #777; }
+    .state-label {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      text-align: right;
+    }
+    .state-label .dim {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+    .state-label .desc {
+      font-size: 18px;
+      font-weight: 500;
+      transition: color 0.1s;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div class="info">
+    <strong>Dzhanibekov effect:</strong> Rotation around the intermediate inertia axis is unstable. The wrench flips between two stable orientations.<br><br>
+    <strong>Lower dimensions = coarser observation.</strong><br>
+    At 1D, you can only tell which stable state it's in.
+  </div>
+
+  <div class="state-label">
+    <div class="dim" id="dim-label">3D — full state</div>
+    <div class="desc" id="state-desc">Continuous rotation</div>
+  </div>
+
+  <div class="controls">
+    <div class="slider-container">
+      <div class="slider-label">
+        <span class="slider-title">Observation Resolution</span>
+        <span class="dim-readout" id="dim-readout">3.0D</span>
+      </div>
+      <input type="range" id="dimension" min="0" max="3" step="0.005" value="3">
+      <div class="slider-labels">
+        <span>0D — identity</span>
+        <span>1D — binary state</span>
+        <span>2D — shape</span>
+        <span>3D — full</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================================================
+    // CANVAS SETUP
+    // ==========================================================================
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ==========================================================================
+    // QUATERNION MATH
+    // ==========================================================================
+
+    function quatMul(a, b) {
+      return {
+        w: a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
+        x: a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
+        y: a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
+        z: a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w
+      };
+    }
+
+    function quatNormalize(q) {
+      const mag = Math.sqrt(q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z);
+      return { w: q.w/mag, x: q.x/mag, y: q.y/mag, z: q.z/mag };
+    }
+
+    function quatFromAxisAngle(ax, ay, az, angle) {
+      const half = angle / 2;
+      const s = Math.sin(half);
+      return quatNormalize({
+        w: Math.cos(half),
+        x: ax * s,
+        y: ay * s,
+        z: az * s
+      });
+    }
+
+    function quatRotateVec(q, v) {
+      const qv = { w: 0, x: v.x, y: v.y, z: v.z };
+      const qConj = { w: q.w, x: -q.x, y: -q.y, z: -q.z };
+      const result = quatMul(quatMul(q, qv), qConj);
+      return { x: result.x, y: result.y, z: result.z };
+    }
+
+    // ==========================================================================
+    // WRENCH GEOMETRY
+    // ==========================================================================
+
+    function generateWrench() {
+      const vertices = [];
+      const edges = [];
+
+      const handleLength = 2.0;
+      const handleRadius = 0.12;
+      const segments = 12;
+      const headLength = 1.0;
+      const headRadius = 0.15;
+
+      // Handle (along Y axis)
+      for (let ring = 0; ring <= 6; ring++) {
+        const y = -handleLength / 2 + (ring / 6) * handleLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: Math.cos(angle) * handleRadius,
+            y: y,
+            z: Math.sin(angle) * handleRadius
+          });
+        }
+      }
+
+      for (let ring = 0; ring < 6; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = ring * segments + i;
+          const next = ring * segments + ((i + 1) % segments);
+          const above = (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([6 * segments + i, 6 * segments + ((i + 1) % segments)]);
+      }
+
+      // Head (along X axis, at top of handle)
+      const headY = handleLength / 2;
+      const headStart = vertices.length;
+
+      for (let ring = 0; ring <= 5; ring++) {
+        const x = -headLength / 2 + (ring / 5) * headLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: x,
+            y: headY + Math.cos(angle) * headRadius,
+            z: Math.sin(angle) * headRadius
+          });
+        }
+      }
+
+      for (let ring = 0; ring < 5; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = headStart + ring * segments + i;
+          const next = headStart + ring * segments + ((i + 1) % segments);
+          const above = headStart + (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([headStart + 5 * segments + i, headStart + 5 * segments + ((i + 1) % segments)]);
+      }
+
+      return { vertices, edges };
+    }
+
+    const wrench = generateWrench();
+
+    // ==========================================================================
+    // PHYSICS
+    // ==========================================================================
+
+    // Principal moments of inertia
+    const I1 = 0.2;   // Smallest (rotation around head/X)
+    const I2 = 1.0;   // Intermediate (rotation around handle/Y) - UNSTABLE
+    const I3 = 1.2;   // Largest (rotation around Z)
+
+    let physics = {
+      q: quatNormalize({ w: 1, x: 0.1, y: 0.05, z: 0 }),
+      omegaX: 0.002,
+      omegaY: 0.045,  // Mostly around intermediate axis = will flip!
+      omegaZ: 0.003
+    };
+
+    let viewDimension = 3;
+
+    // Track which stable state we're in (for 1D display)
+    let currentState = 'A';
+    let stateConfidence = 0;
+
+    function physicsStep() {
+      const { omegaX, omegaY, omegaZ } = physics;
+
+      // Euler's equations
+      const dOmegaX = (I2 - I3) * omegaY * omegaZ / I1;
+      const dOmegaY = (I3 - I1) * omegaZ * omegaX / I2;
+      const dOmegaZ = (I1 - I2) * omegaX * omegaY / I3;
+
+      physics.omegaX += dOmegaX;
+      physics.omegaY += dOmegaY;
+      physics.omegaZ += dOmegaZ;
+
+      // Tiny damping
+      const damping = 0.9999;
+      physics.omegaX *= damping;
+      physics.omegaY *= damping;
+      physics.omegaZ *= damping;
+
+      // Update quaternion
+      const omegaMag = Math.sqrt(
+        physics.omegaX ** 2 + physics.omegaY ** 2 + physics.omegaZ ** 2
+      );
+
+      if (omegaMag > 1e-10) {
+        const axis = {
+          x: physics.omegaX / omegaMag,
+          y: physics.omegaY / omegaMag,
+          z: physics.omegaZ / omegaMag
+        };
+        const dq = quatFromAxisAngle(axis.x, axis.y, axis.z, omegaMag);
+        physics.q = quatNormalize(quatMul(physics.q, dq));
+      }
+
+      // Determine which stable state we're in
+      updateStableState();
+    }
+
+    function updateStableState() {
+      // The handle direction in world space
+      const handleDir = quatRotateVec(physics.q, { x: 0, y: 1, z: 0 });
+
+      // The two stable states for Dzhanibekov are rotations around
+      // the smallest and largest principal axes.
+      // For our wrench, we can detect state by looking at where the handle points.
+
+      // Simplified: check if handle Y component is positive or negative
+      // (this corresponds to the two stable orientations the wrench flips between)
+
+      // Actually, for Dzhanibekov, the flip is a 180° rotation.
+      // We track which "hemisphere" the handle is in.
+
+      // Use the X component of the handle direction
+      // (since the flip happens around the Y axis, X flips sign)
+      const headDir = quatRotateVec(physics.q, { x: 1, y: 0, z: 0 });
+
+      // Project onto a reference to determine state
+      // The wrench flips around Y, so X and Z swap signs
+      const stateMetric = headDir.z; // or could use handle's x
+
+      const newState = stateMetric > 0 ? 'A' : 'B';
+
+      if (newState === currentState) {
+        stateConfidence = Math.min(1, stateConfidence + 0.02);
+      } else {
+        stateConfidence -= 0.05;
+        if (stateConfidence <= 0) {
+          currentState = newState;
+          stateConfidence = 0.1;
+        }
+      }
+    }
+
+    // ==========================================================================
+    // PROJECTION
+    // ==========================================================================
+
+    function projectVertex(v, dim) {
+      const W = canvas.width;
+      const H = canvas.height;
+      const cx = W / 2;
+      const cy = H / 2 - 30;
+      const baseScale = Math.min(W, H) * 0.16;
+
+      const rotated = quatRotateVec(physics.q, v);
+
+      // 3D→2D: perspective fades out
+      const perspectiveT = smoothstep(2, 3, dim);
+      const fov = 4;
+      const zDepth = rotated.z * perspectiveT * 0.4;
+      const perspectiveScale = fov / (fov + zDepth + 2);
+
+      const scale = baseScale * (perspectiveT * perspectiveScale + (1 - perspectiveT));
+
+      const screenX = cx + rotated.x * scale;
+      const screenY = cy - rotated.y * scale;
+
+      const depthAlpha = perspectiveT * (0.5 + (1 - rotated.z * 0.2) * 0.5) + (1 - perspectiveT);
+
+      return {
+        x: screenX,
+        y: screenY,
+        z: rotated.z,
+        alpha: depthAlpha
+      };
+    }
+
+    function smoothstep(edge0, edge1, x) {
+      const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+      return t * t * (3 - 2 * t);
+    }
+
+    // ==========================================================================
+    // COLORS
+    // ==========================================================================
+
+    const COLORS = {
+      state_A: { r: 59, g: 130, b: 246 },   // Blue
+      state_B: { r: 239, g: 68, b: 68 },    // Red
+      dim_3: { r: 59, g: 130, b: 246 },     // Blue
+      dim_2: { r: 168, g: 85, b: 247 },     // Purple
+      dim_1: { r: 234, g: 179, b: 8 },      // Yellow
+      dim_0: { r: 34, g: 197, b: 94 }       // Green
+    };
+
+    function getDimColor(dim) {
+      if (dim >= 2) {
+        const t = dim - 2;
+        return lerpColor(COLORS.dim_2, COLORS.dim_3, t);
+      } else if (dim >= 1) {
+        const t = dim - 1;
+        return lerpColor(COLORS.dim_1, COLORS.dim_2, t);
+      } else {
+        return lerpColor(COLORS.dim_0, COLORS.dim_1, dim);
+      }
+    }
+
+    function getStateColor() {
+      return currentState === 'A' ? COLORS.state_A : COLORS.state_B;
+    }
+
+    function lerpColor(c1, c2, t) {
+      return {
+        r: Math.round(c1.r + (c2.r - c1.r) * t),
+        g: Math.round(c1.g + (c2.g - c1.g) * t),
+        b: Math.round(c1.b + (c2.b - c1.b) * t)
+      };
+    }
+
+    function colorStr(c, alpha = 1) {
+      return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+    }
+
+    // ==========================================================================
+    // RENDERING
+    // ==========================================================================
+
+    function render() {
+      const W = canvas.width;
+      const H = canvas.height;
+      const cx = W / 2;
+      const cy = H / 2 - 30;
+      const dim = viewDimension;
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      const dimColor = getDimColor(dim);
+      const stateColor = getStateColor();
+
+      // === 0D: Just the word "WRENCH" ===
+      const show0D = smoothstep(0.8, 0, dim);
+      if (show0D > 0) {
+        ctx.save();
+        ctx.globalAlpha = show0D;
+        ctx.fillStyle = colorStr(dimColor);
+        ctx.font = `bold ${Math.min(W, H) * 0.14}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('WRENCH', cx, cy);
+
+        ctx.font = `${Math.min(W, H) * 0.022}px system-ui`;
+        ctx.fillStyle = '#444';
+        ctx.fillText('T-handle rigid body', cx, cy + 50);
+        ctx.restore();
+      }
+
+      // === 1D: Binary state indicator ===
+      const show1D = smoothstep(0.5, 1.2, dim) * smoothstep(2, 1.2, dim);
+      if (show1D > 0) {
+        ctx.save();
+        ctx.globalAlpha = show1D;
+
+        // Show current stable state as a big letter
+        const stateSize = Math.min(W, H) * 0.2;
+        ctx.font = `bold ${stateSize}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // State A or B with appropriate color
+        ctx.fillStyle = colorStr(stateColor, 0.9);
+        ctx.fillText(currentState, cx, cy);
+
+        // Confidence indicator
+        const barWidth = 120;
+        const barHeight = 6;
+        const barY = cy + stateSize * 0.45;
+
+        ctx.fillStyle = '#222';
+        ctx.fillRect(cx - barWidth/2, barY, barWidth, barHeight);
+
+        ctx.fillStyle = colorStr(stateColor, 0.7);
+        ctx.fillRect(cx - barWidth/2, barY, barWidth * stateConfidence, barHeight);
+
+        // Label
+        ctx.font = `${Math.min(W, H) * 0.018}px system-ui`;
+        ctx.fillStyle = '#555';
+        ctx.fillText(currentState === 'A' ? 'Orientation A' : 'Orientation B', cx, barY + 25);
+
+        ctx.restore();
+      }
+
+      // === 2D: Flat wireframe (no perspective) ===
+      const show2D = smoothstep(1.2, 2, dim) * smoothstep(3, 2.2, dim);
+      if (show2D > 0) {
+        ctx.globalAlpha = show2D;
+        renderWireframe(dim, dimColor, false);
+        ctx.globalAlpha = 1;
+      }
+
+      // === 3D: Full wireframe with perspective ===
+      const show3D = smoothstep(2.2, 3, dim);
+      if (show3D > 0) {
+        ctx.globalAlpha = show3D;
+        renderWireframe(dim, dimColor, true);
+        ctx.globalAlpha = 1;
+      }
+
+      updateUI(dim, dimColor);
+    }
+
+    function renderWireframe(dim, color, withDepth) {
+      const projected = wrench.vertices.map(v => projectVertex(v, dim));
+
+      // Sort by depth if 3D
+      let edgesToDraw = wrench.edges.map(([i, j]) => ({
+        i, j,
+        depth: (projected[i].z + projected[j].z) / 2
+      }));
+
+      if (withDepth) {
+        edgesToDraw.sort((a, b) => b.depth - a.depth);
+      }
+
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 1.5;
+
+      for (const { i, j } of edgesToDraw) {
+        const p1 = projected[i];
+        const p2 = projected[j];
+
+        const alpha = withDepth
+          ? Math.min(p1.alpha, p2.alpha) * 0.8
+          : 0.6;
+
+        ctx.strokeStyle = colorStr(color, alpha);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+    }
+
+    function updateUI(dim, color) {
+      const readout = document.getElementById('dim-readout');
+      const dimLabel = document.getElementById('dim-label');
+      const stateDesc = document.getElementById('state-desc');
+
+      readout.textContent = dim.toFixed(1) + 'D';
+      readout.style.color = colorStr(color);
+      stateDesc.style.color = colorStr(color);
+
+      if (dim >= 2.2) {
+        dimLabel.textContent = '3D — full state';
+        stateDesc.textContent = 'Continuous rotation';
+      } else if (dim >= 1.2) {
+        dimLabel.textContent = '2D — shape only';
+        stateDesc.textContent = 'Flat projection';
+      } else if (dim >= 0.5) {
+        dimLabel.textContent = '1D — binary state';
+        stateDesc.textContent = currentState === 'A' ? 'State A (blue)' : 'State B (red)';
+      } else {
+        dimLabel.textContent = '0D — identity';
+        stateDesc.textContent = '"It\'s a wrench"';
+      }
+    }
+
+    // ==========================================================================
+    // CONTROLS
+    // ==========================================================================
+
+    document.getElementById('dimension').addEventListener('input', (e) => {
+      viewDimension = parseFloat(e.target.value);
+    });
+
+    canvas.addEventListener('click', () => {
+      physics.omegaX += (Math.random() - 0.5) * 0.02;
+      physics.omegaY += (Math.random() - 0.5) * 0.02;
+      physics.omegaZ += (Math.random() - 0.5) * 0.02;
+    });
+
+    // ==========================================================================
+    // MAIN LOOP
+    // ==========================================================================
+
+    function loop() {
+      physicsStep();
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

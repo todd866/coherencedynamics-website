@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Formation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #000;
+      color: #e0e0e0;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      height: 100vh;
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+    }
+
+    canvas {
+      flex: 1;
+      width: 100%;
+    }
+
+    .channel {
+      background: #0a0a0a;
+      border-top: 1px solid #1a1a1a;
+      padding: 20px 30px;
+    }
+
+    .channel-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #444;
+      margin-bottom: 12px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      background: #222;
+      border-radius: 3px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    .bandwidth-display {
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: bold;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .sidebar {
+      background: #080808;
+      border-left: 1px solid #1a1a1a;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel {
+      background: #0a0a0a;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .panel-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #444;
+      margin-bottom: 12px;
+    }
+
+    .code-output {
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .code-symbol {
+      font-size: 48px;
+      font-weight: bold;
+      font-family: monospace;
+      line-height: 1;
+      transition: all 0.15s;
+    }
+
+    .code-label {
+      font-size: 11px;
+      color: #555;
+      margin-top: 8px;
+    }
+
+    .code-stream {
+      font-family: monospace;
+      font-size: 14px;
+      letter-spacing: 2px;
+      color: #666;
+      word-break: break-all;
+      line-height: 1.8;
+      min-height: 60px;
+    }
+
+    .code-stream span {
+      transition: color 0.1s;
+    }
+
+    .physics-info {
+      font-size: 11px;
+      color: #444;
+      line-height: 1.6;
+    }
+
+    .physics-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+    }
+
+    .explanation {
+      font-size: 11px;
+      color: #444;
+      line-height: 1.6;
+      margin-top: auto;
+    }
+
+    .explanation strong {
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="main">
+      <canvas id="canvas"></canvas>
+
+      <div class="channel">
+        <div class="channel-label">Code Channel Bandwidth</div>
+        <div class="slider-row">
+          <span style="font-size: 11px; color: #555;">0 bits</span>
+          <input type="range" id="bandwidth" min="0" max="1" step="0.005" value="0.5">
+          <span style="font-size: 11px; color: #555;">∞ bits</span>
+          <div class="bandwidth-display" id="bandwidth-display">1 bit</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel code-output">
+        <div class="code-symbol" id="code-symbol">A</div>
+        <div class="code-label" id="code-label">Binary state</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Code Stream</div>
+        <div class="code-stream" id="code-stream">—</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">System State (always full)</div>
+        <div class="physics-info">
+          <div class="physics-row">
+            <span>ωx</span>
+            <span id="omega-x">0.000</span>
+          </div>
+          <div class="physics-row">
+            <span>ωy</span>
+            <span id="omega-y">0.000</span>
+          </div>
+          <div class="physics-row">
+            <span>ωz</span>
+            <span id="omega-z">0.000</span>
+          </div>
+          <div class="physics-row">
+            <span>Orientation</span>
+            <span id="orientation">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="explanation">
+        <strong>The wrench has continuous dynamics.</strong>
+        It rotates with Dzhanibekov instability—flipping between two stable orientations.<br><br>
+
+        <strong>The code channel has limited bandwidth.</strong>
+        At low bandwidth, only coarse distinctions pass through. At high bandwidth, fine details are preserved.<br><br>
+
+        <strong>The code emerges from the bottleneck.</strong>
+        It's not in the wrench. It's in the interface.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================================================
+    // SETUP
+    // ==========================================================================
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height - 80; // Account for channel controls
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ==========================================================================
+    // QUATERNION MATH
+    // ==========================================================================
+
+    const quat = {
+      mul: (a, b) => ({
+        w: a.w*b.w - a.x*b.x - a.y*b.y - a.z*b.z,
+        x: a.w*b.x + a.x*b.w + a.y*b.z - a.z*b.y,
+        y: a.w*b.y - a.x*b.z + a.y*b.w + a.z*b.x,
+        z: a.w*b.z + a.x*b.y - a.y*b.x + a.z*b.w
+      }),
+
+      normalize: (q) => {
+        const mag = Math.sqrt(q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z);
+        return { w: q.w/mag, x: q.x/mag, y: q.y/mag, z: q.z/mag };
+      },
+
+      fromAxisAngle: (ax, ay, az, angle) => {
+        const half = angle / 2;
+        const s = Math.sin(half);
+        return quat.normalize({ w: Math.cos(half), x: ax*s, y: ay*s, z: az*s });
+      },
+
+      rotateVec: (q, v) => {
+        const qv = { w: 0, x: v.x, y: v.y, z: v.z };
+        const qConj = { w: q.w, x: -q.x, y: -q.y, z: -q.z };
+        const result = quat.mul(quat.mul(q, qv), qConj);
+        return { x: result.x, y: result.y, z: result.z };
+      }
+    };
+
+    // ==========================================================================
+    // WRENCH GEOMETRY
+    // ==========================================================================
+
+    function generateWrench() {
+      const vertices = [];
+      const edges = [];
+      const handleLength = 2.0, handleRadius = 0.11;
+      const headLength = 1.0, headRadius = 0.14;
+      const segments = 10;
+
+      // Handle
+      for (let ring = 0; ring <= 5; ring++) {
+        const y = -handleLength/2 + (ring/5) * handleLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i/segments) * Math.PI * 2;
+          vertices.push({
+            x: Math.cos(angle) * handleRadius,
+            y: y,
+            z: Math.sin(angle) * handleRadius
+          });
+        }
+      }
+      for (let ring = 0; ring < 5; ring++) {
+        for (let i = 0; i < segments; i++) {
+          edges.push([ring*segments + i, ring*segments + (i+1)%segments]);
+          edges.push([ring*segments + i, (ring+1)*segments + i]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([5*segments + i, 5*segments + (i+1)%segments]);
+      }
+
+      // Head
+      const headY = handleLength/2;
+      const hs = vertices.length;
+      for (let ring = 0; ring <= 4; ring++) {
+        const x = -headLength/2 + (ring/4) * headLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i/segments) * Math.PI * 2;
+          vertices.push({
+            x: x,
+            y: headY + Math.cos(angle) * headRadius,
+            z: Math.sin(angle) * headRadius
+          });
+        }
+      }
+      for (let ring = 0; ring < 4; ring++) {
+        for (let i = 0; i < segments; i++) {
+          edges.push([hs + ring*segments + i, hs + ring*segments + (i+1)%segments]);
+          edges.push([hs + ring*segments + i, hs + (ring+1)*segments + i]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([hs + 4*segments + i, hs + 4*segments + (i+1)%segments]);
+      }
+
+      return { vertices, edges };
+    }
+
+    const wrench = generateWrench();
+
+    // ==========================================================================
+    // PHYSICS (Dzhanibekov)
+    // ==========================================================================
+
+    const I1 = 0.2, I2 = 1.0, I3 = 1.2;
+
+    let physics = {
+      q: quat.normalize({ w: 1, x: 0.1, y: 0.05, z: 0 }),
+      omegaX: 0.003,
+      omegaY: 0.05,
+      omegaZ: 0.004
+    };
+
+    let bandwidth = 0.5;
+    let codeHistory = [];
+    let lastCodeTime = 0;
+
+    function physicsStep() {
+      const { omegaX, omegaY, omegaZ } = physics;
+
+      const dOmegaX = (I2 - I3) * omegaY * omegaZ / I1;
+      const dOmegaY = (I3 - I1) * omegaZ * omegaX / I2;
+      const dOmegaZ = (I1 - I2) * omegaX * omegaY / I3;
+
+      physics.omegaX = (physics.omegaX + dOmegaX) * 0.9999;
+      physics.omegaY = (physics.omegaY + dOmegaY) * 0.9999;
+      physics.omegaZ = (physics.omegaZ + dOmegaZ) * 0.9999;
+
+      const omegaMag = Math.sqrt(physics.omegaX**2 + physics.omegaY**2 + physics.omegaZ**2);
+      if (omegaMag > 1e-10) {
+        const dq = quat.fromAxisAngle(
+          physics.omegaX/omegaMag,
+          physics.omegaY/omegaMag,
+          physics.omegaZ/omegaMag,
+          omegaMag
+        );
+        physics.q = quat.normalize(quat.mul(physics.q, dq));
+      }
+    }
+
+    // ==========================================================================
+    // CODE FORMATION
+    // ==========================================================================
+
+    // The code depends on bandwidth:
+    // - 0: null (no information)
+    // - 0.01-0.3: 1 symbol ("W" for wrench)
+    // - 0.3-0.6: 2 symbols (A/B stable states)
+    // - 0.6-0.85: 4 symbols (A+/A-/B+/B-)
+    // - 0.85-1: continuous (angle)
+
+    function getStableState() {
+      const head = quat.rotateVec(physics.q, { x: 1, y: 0, z: 0 });
+      const handle = quat.rotateVec(physics.q, { x: 0, y: 1, z: 0 });
+
+      // Primary state: which way is the head pointing (z component)
+      const primaryState = head.z > 0 ? 'A' : 'B';
+
+      // Secondary: handle up or down
+      const secondaryState = handle.y > 0 ? '+' : '-';
+
+      // Angle for continuous
+      const angle = Math.atan2(head.z, head.x) * 180 / Math.PI;
+
+      return { primary: primaryState, secondary: secondaryState, angle };
+    }
+
+    function getCode() {
+      const state = getStableState();
+
+      if (bandwidth < 0.01) {
+        return { symbol: '·', label: 'No signal', color: '#333' };
+      }
+      else if (bandwidth < 0.3) {
+        return { symbol: 'W', label: 'Object identity', color: '#22c55e' };
+      }
+      else if (bandwidth < 0.6) {
+        const color = state.primary === 'A' ? '#3b82f6' : '#ef4444';
+        return { symbol: state.primary, label: 'Binary state', color };
+      }
+      else if (bandwidth < 0.85) {
+        const symbol = state.primary + state.secondary;
+        const baseColor = state.primary === 'A' ? { r: 59, g: 130, b: 246 } : { r: 239, g: 68, b: 68 };
+        const shade = state.secondary === '+' ? 1 : 0.6;
+        const color = `rgb(${baseColor.r * shade}, ${baseColor.g * shade}, ${baseColor.b * shade})`;
+        return { symbol, label: 'Quaternary state', color };
+      }
+      else {
+        const angle = Math.round(state.angle / 5) * 5;
+        return { symbol: `${angle}°`, label: 'Continuous', color: '#a855f7' };
+      }
+    }
+
+    function updateCodeStream() {
+      const now = Date.now();
+      // Update rate depends on bandwidth (lower bandwidth = slower updates)
+      const interval = 500 - bandwidth * 400;
+
+      if (now - lastCodeTime > interval) {
+        const code = getCode();
+        if (codeHistory.length === 0 || codeHistory[codeHistory.length - 1].symbol !== code.symbol) {
+          codeHistory.push(code);
+          if (codeHistory.length > 30) codeHistory.shift();
+        }
+        lastCodeTime = now;
+      }
+    }
+
+    // ==========================================================================
+    // RENDERING
+    // ==========================================================================
+
+    function render() {
+      const W = canvas.width;
+      const H = canvas.height;
+      const cx = W / 2;
+      const cy = H / 2;
+      const scale = Math.min(W, H) * 0.22;
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      // Project and render wrench
+      const projected = wrench.vertices.map(v => {
+        const r = quat.rotateVec(physics.q, v);
+        const fov = 4;
+        const s = fov / (fov + r.z * 0.4 + 2);
+        return {
+          x: cx + r.x * s * scale,
+          y: cy - r.y * s * scale,
+          z: r.z
+        };
+      });
+
+      const sorted = wrench.edges
+        .map(([i, j]) => ({ i, j, z: (projected[i].z + projected[j].z) / 2 }))
+        .sort((a, b) => b.z - a.z);
+
+      const code = getCode();
+
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 1.5;
+
+      for (const { i, j } of sorted) {
+        const p1 = projected[i], p2 = projected[j];
+        const alpha = 0.3 + (1 - (p1.z + p2.z) / 4) * 0.5;
+        ctx.strokeStyle = hexWithAlpha(code.color, alpha);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      }
+
+      updateUI(code);
+    }
+
+    function hexWithAlpha(color, alpha) {
+      // Handle rgb() format
+      if (color.startsWith('rgb')) {
+        return color.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
+      }
+      // Handle hex
+      const hex = color.replace('#', '');
+      const r = parseInt(hex.substr(0, 2), 16);
+      const g = parseInt(hex.substr(2, 2), 16);
+      const b = parseInt(hex.substr(4, 2), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function updateUI(code) {
+      // Code display
+      document.getElementById('code-symbol').textContent = code.symbol;
+      document.getElementById('code-symbol').style.color = code.color;
+      document.getElementById('code-label').textContent = code.label;
+
+      // Bandwidth display
+      let bwText;
+      if (bandwidth < 0.01) bwText = '0 bits';
+      else if (bandwidth < 0.3) bwText = '~0 bits';
+      else if (bandwidth < 0.6) bwText = '1 bit';
+      else if (bandwidth < 0.85) bwText = '2 bits';
+      else bwText = '∞ bits';
+      document.getElementById('bandwidth-display').textContent = bwText;
+      document.getElementById('bandwidth-display').style.color = code.color;
+
+      // Code stream
+      const streamEl = document.getElementById('code-stream');
+      streamEl.innerHTML = codeHistory.map(c =>
+        `<span style="color: ${c.color}">${c.symbol}</span>`
+      ).join(' ');
+
+      // Physics
+      document.getElementById('omega-x').textContent = physics.omegaX.toFixed(4);
+      document.getElementById('omega-y').textContent = physics.omegaY.toFixed(4);
+      document.getElementById('omega-z').textContent = physics.omegaZ.toFixed(4);
+
+      const state = getStableState();
+      document.getElementById('orientation').textContent = `${state.angle.toFixed(1)}°`;
+    }
+
+    // ==========================================================================
+    // CONTROLS
+    // ==========================================================================
+
+    document.getElementById('bandwidth').addEventListener('input', (e) => {
+      bandwidth = parseFloat(e.target.value);
+      codeHistory = []; // Reset stream on bandwidth change
+    });
+
+    canvas.addEventListener('click', () => {
+      physics.omegaX += (Math.random() - 0.5) * 0.03;
+      physics.omegaY += (Math.random() - 0.5) * 0.03;
+      physics.omegaZ += (Math.random() - 0.5) * 0.03;
+    });
+
+    // ==========================================================================
+    // LOOP
+    // ==========================================================================
+
+    function loop() {
+      physicsStep();
+      updateCodeStream();
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>

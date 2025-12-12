@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code-Forming v2: Observation Resolution</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 4px;
+      color: #22c55e;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+    }
+    .canvas-area {
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 4/3;
+      display: block;
+    }
+    .resolution-bar {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      max-width: 500px;
+    }
+    .resolution-bar label {
+      display: block;
+      text-align: center;
+      font-size: 10px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .resolution-bar input {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      background: linear-gradient(to right, #22c55e, #eab308, #3b82f6);
+      border-radius: 4px;
+      outline: none;
+    }
+    .resolution-bar input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .resolution-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 10px;
+    }
+    .resolution-labels span:first-child { color: #22c55e; }
+    .resolution-labels span:last-child { color: #3b82f6; }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .panel {
+      background: #111;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .panel-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    /* What you see panel */
+    .observation {
+      text-align: center;
+    }
+    .obs-level {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .obs-symbol {
+      font-size: 64px;
+      font-weight: bold;
+      font-family: monospace;
+      line-height: 1;
+      margin-bottom: 8px;
+      transition: color 0.2s;
+    }
+    .obs-description {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    /* Code readout */
+    .code-readout {
+      font-family: monospace;
+      font-size: 18px;
+      letter-spacing: 3px;
+      text-align: center;
+      padding: 12px;
+      background: #0a0a0a;
+      border-radius: 6px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .code-readout span {
+      transition: color 0.15s;
+    }
+
+    /* Physics state */
+    .physics-state {
+      font-family: monospace;
+      font-size: 11px;
+      color: #555;
+    }
+    .physics-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+    }
+    .physics-label { color: #444; }
+
+    /* Explanation */
+    .explanation {
+      font-size: 11px;
+      color: #555;
+      line-height: 1.5;
+    }
+    .explanation strong {
+      color: #888;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 8px;
+    }
+    button {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #888;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #222;
+      color: #fff;
+      border-color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Code Formation = Observation Resolution</h1>
+    <p class="subtitle">The same physics, seen at different levels of detail</p>
+
+    <div class="main-grid">
+      <div class="canvas-area">
+        <canvas id="canvas" width="900" height="675"></canvas>
+        <div class="resolution-bar">
+          <label>Observation Resolution</label>
+          <input type="range" id="resolution" min="0" max="1" step="0.01" value="1">
+          <div class="resolution-labels">
+            <span>Coarse (object)</span>
+            <span>Fine (full state)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar">
+        <div class="panel observation">
+          <div class="panel-title">What You Can Distinguish</div>
+          <div class="obs-level" id="obs-level">Full rotation state</div>
+          <div class="obs-symbol" id="obs-symbol">-</div>
+          <div class="obs-description" id="obs-description">
+            Continuous angular momentum vector
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Code Sequence (at current resolution)</div>
+          <div class="code-readout" id="code-readout">-</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Actual Physics (unchanged)</div>
+          <div class="physics-state">
+            <div class="physics-row">
+              <span class="physics-label">ωx</span>
+              <span id="phys-wx">0.000</span>
+            </div>
+            <div class="physics-row">
+              <span class="physics-label">ωy</span>
+              <span id="phys-wy">0.000</span>
+            </div>
+            <div class="physics-row">
+              <span class="physics-label">ωz</span>
+              <span id="phys-wz">0.000</span>
+            </div>
+            <div class="physics-row">
+              <span class="physics-label">|L|</span>
+              <span id="phys-L">0.000</span>
+            </div>
+            <div class="physics-row">
+              <span class="physics-label">Flips</span>
+              <span id="phys-flips">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button id="btn-kick">Perturb</button>
+          <button id="btn-reset">Reset</button>
+        </div>
+
+        <div class="panel explanation">
+          <p>
+            <strong>The wrench obeys Dzhanibekov dynamics.</strong>
+            It flips between two stable orientations around the intermediate inertia axis.
+          </p>
+          <p style="margin-top: 8px;">
+            <strong>The code depends on your resolution.</strong>
+            Zoom out: it's just "a wrench". Zoom in a bit: you see two states (A/B).
+            Zoom in more: you see the flip transitions. Full zoom: continuous rotation.
+          </p>
+          <p style="margin-top: 8px;">
+            <strong>The physics never changes.</strong>
+            Only what you can <em>distinguish</em> changes.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================================================
+    // PURE DZHANIBEKOV PHYSICS (no fake attractors)
+    // ==========================================================================
+
+    // Wrench inertia tensor: I1 < I2 < I3
+    // Rotation around I2 (intermediate) is UNSTABLE
+    const INERTIA = { I1: 0.3, I2: 1.0, I3: 1.8 };
+    const EULER_COUPLING = 0.15;
+    const DAMPING = 0.0005;  // Very light damping
+
+    let state = {
+      // Euler angles
+      angleX: 0,
+      angleY: 0,
+      angleZ: 0,
+
+      // Angular momentum in body frame
+      Lx: 0.002,
+      Ly: 0.1,    // Mostly around intermediate axis → unstable → flipping!
+      Lz: 0.003,
+
+      // Observation resolution (0 = coarsest, 1 = finest)
+      resolution: 1.0,
+
+      // Tracking
+      flipCount: 0,
+      lastOrientation: null,
+      codeHistory: [],
+      lastCodeUpdate: 0
+    };
+
+    // Detect which stable orientation we're closer to
+    function getOrientation() {
+      const handleDir = getHandleDirection();
+      // Project onto Y axis (the intermediate/unstable axis)
+      // Stable states are roughly ±X or ±Z
+
+      // Dot with principal axes
+      const dotX = handleDir[0];
+      const dotY = handleDir[1];
+      const dotZ = handleDir[2];
+
+      // The two stable orientations are rotations around I1 (smallest) and I3 (largest)
+      // Unstable is around I2
+      // For a T-handle, stable states are "handle pointing ±X" vs "handle pointing ±Z"
+
+      // Simplified: which axis is the handle closest to?
+      const absX = Math.abs(dotX);
+      const absY = Math.abs(dotY);
+      const absZ = Math.abs(dotZ);
+
+      if (absY > absX && absY > absZ) {
+        // Near Y axis - this is unstable, transitioning
+        return { state: 'transition', axis: 'Y', value: dotY };
+      } else if (absX > absZ) {
+        // Near X axis - stable state A
+        return { state: dotX > 0 ? 'A+' : 'A-', axis: 'X', value: dotX };
+      } else {
+        // Near Z axis - stable state B
+        return { state: dotZ > 0 ? 'B+' : 'B-', axis: 'Z', value: dotZ };
+      }
+    }
+
+    function getHandleDirection() {
+      const cx = Math.cos(state.angleX), sx = Math.sin(state.angleX);
+      const cy = Math.cos(state.angleY), sy = Math.sin(state.angleY);
+      const cz = Math.cos(state.angleZ), sz = Math.sin(state.angleZ);
+
+      // Y-axis in rotated frame
+      const x = sy * cz + cy * sx * sz;
+      const y = cy * cx;
+      const z = -sy * sz + cy * sx * cz;
+
+      return [x, y, z];
+    }
+
+    function physicsStep() {
+      const { I1, I2, I3 } = INERTIA;
+
+      // === PURE EULER EQUATIONS ===
+      let omegaX = state.Lx / I1;
+      let omegaY = state.Ly / I2;
+      let omegaZ = state.Lz / I3;
+
+      // Euler coupling - this IS the Dzhanibekov effect
+      const dOmegaX = EULER_COUPLING * (I2 - I3) * omegaY * omegaZ / I1;
+      const dOmegaY = EULER_COUPLING * (I3 - I1) * omegaZ * omegaX / I2;
+      const dOmegaZ = EULER_COUPLING * (I1 - I2) * omegaX * omegaY / I3;
+
+      // Update angular momentum (with tiny damping for numerical stability)
+      state.Lx = (state.Lx + dOmegaX * I1) * (1 - DAMPING);
+      state.Ly = (state.Ly + dOmegaY * I2) * (1 - DAMPING);
+      state.Lz = (state.Lz + dOmegaZ * I3) * (1 - DAMPING);
+
+      // Recalculate omega
+      omegaX = state.Lx / I1;
+      omegaY = state.Ly / I2;
+      omegaZ = state.Lz / I3;
+
+      // Integrate angles
+      state.angleX += omegaX;
+      state.angleY += omegaY;
+      state.angleZ += omegaZ;
+
+      // Track orientation changes (flips)
+      const orient = getOrientation();
+      if (state.lastOrientation &&
+          state.lastOrientation.state !== orient.state &&
+          orient.state !== 'transition' &&
+          state.lastOrientation.state !== 'transition') {
+        state.flipCount++;
+      }
+      if (orient.state !== 'transition') {
+        state.lastOrientation = orient;
+      }
+
+      // Update code history based on current resolution
+      updateCodeHistory(orient);
+    }
+
+    // ==========================================================================
+    // OBSERVATION / CODE FORMATION
+    // ==========================================================================
+
+    // Resolution levels and what they can distinguish:
+    // 0.0 - 0.2: "It's a wrench" (1 symbol)
+    // 0.2 - 0.5: Two stable states A/B (2 symbols)
+    // 0.5 - 0.75: A/B plus transition state (3 symbols)
+    // 0.75 - 1.0: Full continuous state (∞)
+
+    function getObservableState(orient) {
+      const res = state.resolution;
+
+      if (res < 0.2) {
+        // Coarsest: just "wrench"
+        return { symbol: 'W', description: 'Object', color: '#888' };
+      }
+      else if (res < 0.5) {
+        // Binary: two stable orientations
+        if (orient.state === 'transition') {
+          // At this resolution, can't distinguish transition - assign to nearest
+          return Math.random() > 0.5
+            ? { symbol: 'A', description: 'Stable state A', color: '#22c55e' }
+            : { symbol: 'B', description: 'Stable state B', color: '#3b82f6' };
+        }
+        const isA = orient.state.startsWith('A');
+        return isA
+          ? { symbol: 'A', description: 'Stable state A', color: '#22c55e' }
+          : { symbol: 'B', description: 'Stable state B', color: '#3b82f6' };
+      }
+      else if (res < 0.75) {
+        // Ternary: A, B, and transition
+        if (orient.state === 'transition') {
+          return { symbol: '~', description: 'Transitioning', color: '#eab308' };
+        }
+        const isA = orient.state.startsWith('A');
+        return isA
+          ? { symbol: 'A', description: 'Stable state A', color: '#22c55e' }
+          : { symbol: 'B', description: 'Stable state B', color: '#3b82f6' };
+      }
+      else {
+        // Full resolution: show actual angle
+        const handleDir = getHandleDirection();
+        const angle = Math.atan2(handleDir[2], handleDir[0]) * 180 / Math.PI;
+        const symbol = Math.round(angle / 30) * 30; // Quantize to 30° bins
+        return {
+          symbol: `${symbol >= 0 ? '+' : ''}${symbol}°`,
+          description: `θ = ${angle.toFixed(1)}°`,
+          color: '#a855f7',
+          continuous: true
+        };
+      }
+    }
+
+    function updateCodeHistory(orient) {
+      const now = Date.now();
+      const interval = state.resolution < 0.5 ? 200 : state.resolution < 0.75 ? 100 : 50;
+
+      if (now - state.lastCodeUpdate > interval) {
+        const obs = getObservableState(orient);
+        const lastCode = state.codeHistory[state.codeHistory.length - 1];
+
+        // Only add if different from last (run-length encoding)
+        if (!lastCode || lastCode.symbol !== obs.symbol) {
+          state.codeHistory.push(obs);
+          if (state.codeHistory.length > 40) {
+            state.codeHistory = state.codeHistory.slice(-30);
+          }
+        }
+        state.lastCodeUpdate = now;
+      }
+    }
+
+    // ==========================================================================
+    // WRENCH GEOMETRY
+    // ==========================================================================
+
+    function generateWrench() {
+      const vertices = [];
+      const edges = [];
+
+      const handleLength = 2.0;
+      const handleRadius = 0.12;
+      const segments = 8;
+      const headLength = 1.0;
+      const headRadius = 0.16;
+
+      // Handle
+      for (let ring = 0; ring <= 4; ring++) {
+        const y = -handleLength / 2 + (ring / 4) * handleLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: Math.cos(angle) * handleRadius,
+            y: y,
+            z: Math.sin(angle) * handleRadius
+          });
+        }
+      }
+
+      for (let ring = 0; ring < 4; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = ring * segments + i;
+          const next = ring * segments + ((i + 1) % segments);
+          const above = (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([4 * segments + i, 4 * segments + ((i + 1) % segments)]);
+      }
+
+      // Head
+      const headY = handleLength / 2;
+      const headStart = vertices.length;
+
+      for (let ring = 0; ring <= 3; ring++) {
+        const x = -headLength / 2 + (ring / 3) * headLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: x,
+            y: headY + Math.cos(angle) * headRadius,
+            z: Math.sin(angle) * headRadius
+          });
+        }
+      }
+
+      for (let ring = 0; ring < 3; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = headStart + ring * segments + i;
+          const next = headStart + ring * segments + ((i + 1) % segments);
+          const above = headStart + (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([headStart + 3 * segments + i, headStart + 3 * segments + ((i + 1) % segments)]);
+      }
+
+      return { vertices, edges };
+    }
+
+    const wrench = generateWrench();
+
+    // ==========================================================================
+    // RENDERING
+    // ==========================================================================
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+    const CX = W / 2;
+    const CY = H / 2 - 30;
+    const SCALE = 150;
+
+    function rotatePoint(p) {
+      let { x, y, z } = p;
+
+      const cx = Math.cos(state.angleX), sx = Math.sin(state.angleX);
+      let y1 = y * cx - z * sx;
+      let z1 = y * sx + z * cx;
+      y = y1; z = z1;
+
+      const cy = Math.cos(state.angleY), sy = Math.sin(state.angleY);
+      let x1 = x * cy + z * sy;
+      z1 = -x * sy + z * cy;
+      x = x1; z = z1;
+
+      const cz = Math.cos(state.angleZ), sz = Math.sin(state.angleZ);
+      x1 = x * cz - y * sz;
+      y1 = x * sz + y * cz;
+      x = x1; y = y1;
+
+      return { x, y, z };
+    }
+
+    function project(p) {
+      const fov = 4;
+      const scale = fov / (fov + p.z + 2);
+      return {
+        x: CX + p.x * scale * SCALE,
+        y: CY - p.y * scale * SCALE,
+        z: p.z,
+        scale
+      };
+    }
+
+    function render() {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      const orient = getOrientation();
+      const obs = getObservableState(orient);
+
+      // Transform and project
+      const projected = wrench.vertices.map(v => project(rotatePoint(v)));
+
+      // Sort edges by depth
+      const sortedEdges = wrench.edges
+        .map(([i, j]) => ({ i, j, depth: (projected[i].z + projected[j].z) / 2 }))
+        .sort((a, b) => b.depth - a.depth);
+
+      // Draw wrench
+      ctx.lineCap = 'round';
+
+      for (const { i, j, depth } of sortedEdges) {
+        const p1 = projected[i];
+        const p2 = projected[j];
+        const alpha = 0.3 + (1 - depth) * 0.5;
+
+        ctx.save();
+        ctx.shadowColor = obs.color;
+        ctx.shadowBlur = 6;
+        ctx.strokeStyle = obs.color + Math.round(alpha * 255).toString(16).padStart(2, '0');
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw vertices
+      for (const p of projected) {
+        const size = 1.5 + (1 - p.z) * 1.5;
+        ctx.fillStyle = obs.color;
+        ctx.globalAlpha = 0.6;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // Draw axes indicator (small, top left)
+      const axisLen = 40;
+      const axisOrigin = { x: 60, y: 80 };
+
+      const axes = [
+        { dir: [1, 0, 0], color: '#ef4444', label: 'X' },
+        { dir: [0, 1, 0], color: '#22c55e', label: 'Y' },
+        { dir: [0, 0, 1], color: '#3b82f6', label: 'Z' }
+      ];
+
+      ctx.font = '10px monospace';
+      for (const axis of axes) {
+        const rotated = rotatePoint({ x: axis.dir[0], y: axis.dir[1], z: axis.dir[2] });
+        const endX = axisOrigin.x + rotated.x * axisLen;
+        const endY = axisOrigin.y - rotated.y * axisLen;
+
+        ctx.strokeStyle = axis.color + '88';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(axisOrigin.x, axisOrigin.y);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+
+        ctx.fillStyle = axis.color;
+        ctx.fillText(axis.label, endX + 4, endY + 4);
+      }
+
+      // Resolution indicator visual
+      // At low resolution, blur/simplify the view
+      if (state.resolution < 0.3) {
+        ctx.fillStyle = `rgba(0, 0, 0, ${0.3 - state.resolution})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+    }
+
+    function updateUI() {
+      const orient = getOrientation();
+      const obs = getObservableState(orient);
+      const { I1, I2, I3 } = INERTIA;
+
+      // Observation display
+      const obsLevel = document.getElementById('obs-level');
+      const obsSymbol = document.getElementById('obs-symbol');
+      const obsDesc = document.getElementById('obs-description');
+
+      if (state.resolution < 0.2) {
+        obsLevel.textContent = 'Object-level';
+        obsSymbol.textContent = 'W';
+        obsSymbol.style.color = '#888';
+        obsDesc.textContent = 'It\'s a wrench. That\'s all you can tell.';
+      } else if (state.resolution < 0.5) {
+        obsLevel.textContent = 'Binary states';
+        obsSymbol.textContent = obs.symbol;
+        obsSymbol.style.color = obs.color;
+        obsDesc.textContent = 'Two distinguishable orientations (A or B)';
+      } else if (state.resolution < 0.75) {
+        obsLevel.textContent = 'Ternary states';
+        obsSymbol.textContent = obs.symbol;
+        obsSymbol.style.color = obs.color;
+        obsDesc.textContent = orient.state === 'transition'
+          ? 'Caught mid-flip between A and B'
+          : `Stable orientation ${obs.symbol}`;
+      } else {
+        obsLevel.textContent = 'Continuous state';
+        obsSymbol.textContent = obs.symbol;
+        obsSymbol.style.color = obs.color;
+        obsDesc.textContent = obs.description;
+      }
+
+      // Code readout
+      const codeEl = document.getElementById('code-readout');
+      const recent = state.codeHistory.slice(-15);
+      if (recent.length > 0) {
+        codeEl.innerHTML = recent.map(c =>
+          `<span style="color: ${c.color}">${c.symbol}</span>`
+        ).join('');
+      } else {
+        codeEl.innerHTML = '<span style="color: #333">-</span>';
+      }
+
+      // Physics state (always shows true values)
+      const omegaX = state.Lx / I1;
+      const omegaY = state.Ly / I2;
+      const omegaZ = state.Lz / I3;
+      const Lmag = Math.sqrt(state.Lx**2 + state.Ly**2 + state.Lz**2);
+
+      document.getElementById('phys-wx').textContent = omegaX.toFixed(4);
+      document.getElementById('phys-wy').textContent = omegaY.toFixed(4);
+      document.getElementById('phys-wz').textContent = omegaZ.toFixed(4);
+      document.getElementById('phys-L').textContent = Lmag.toFixed(4);
+      document.getElementById('phys-flips').textContent = state.flipCount;
+    }
+
+    // ==========================================================================
+    // MAIN LOOP
+    // ==========================================================================
+
+    function loop() {
+      physicsStep();
+      render();
+      updateUI();
+      requestAnimationFrame(loop);
+    }
+
+    // ==========================================================================
+    // CONTROLS
+    // ==========================================================================
+
+    document.getElementById('resolution').addEventListener('input', (e) => {
+      state.resolution = parseFloat(e.target.value);
+      // Clear code history when resolution changes
+      state.codeHistory = [];
+    });
+
+    document.getElementById('btn-kick').addEventListener('click', () => {
+      state.Lx += (Math.random() - 0.5) * 0.05;
+      state.Ly += (Math.random() - 0.5) * 0.05;
+      state.Lz += (Math.random() - 0.5) * 0.05;
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      state.angleX = 0;
+      state.angleY = 0;
+      state.angleZ = 0;
+      state.Lx = 0.002;
+      state.Ly = 0.1;
+      state.Lz = 0.003;
+      state.flipCount = 0;
+      state.codeHistory = [];
+      state.lastOrientation = null;
+    });
+
+    // Start
+    loop();
+  </script>
+</body>
+</html>

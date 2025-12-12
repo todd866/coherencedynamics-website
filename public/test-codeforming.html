@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code-Forming Physics Test</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #22c55e;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 24px;
+    }
+    .canvas-container {
+      background: #000;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #000;
+      border-radius: 8px;
+    }
+    .controls {
+      background: #111;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .control-group {
+      margin-bottom: 20px;
+    }
+    .control-group label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      background: #222;
+      border-radius: 3px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #22c55e;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .value {
+      font-family: monospace;
+      font-size: 14px;
+      min-width: 50px;
+      text-align: right;
+      color: #22c55e;
+    }
+    .metrics {
+      background: #0a0a0a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    .metric:last-child { border-bottom: none; }
+    .metric-label { color: #666; font-size: 12px; }
+    .metric-value { font-family: monospace; font-size: 13px; }
+    .code-display {
+      background: #0a0a0a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .code-display label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .code-sequence {
+      font-family: monospace;
+      font-size: 20px;
+      letter-spacing: 4px;
+      min-height: 30px;
+    }
+    .code-sequence span {
+      display: inline-block;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    .basin-A { color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+    .basin-B { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+    .basin-C { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+    .basin-D { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+    .basin-active {
+      font-size: 48px;
+      text-align: center;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+    .console {
+      background: #0a0a0a;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #666;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    .console-line { padding: 2px 0; }
+    button {
+      background: #222;
+      border: none;
+      color: #aaa;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 8px;
+      transition: background 0.2s;
+    }
+    button:hover { background: #333; color: #fff; }
+    button.active { background: #22c55e; color: #000; }
+    .buttons { margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Code-Forming Physics Test</h1>
+    <p class="subtitle">Testing the headless physics model - high-D dynamics → discrete codes</p>
+
+    <div class="grid">
+      <div class="canvas-container">
+        <canvas id="canvas" width="600" height="600"></canvas>
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Dimensionality (1 = full, 0 = collapsed)</label>
+          <div class="slider-row">
+            <input type="range" id="dimensionality" min="0.05" max="1" step="0.01" value="1">
+            <span class="value" id="dim-value">1.00</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Temperature (noise)</label>
+          <div class="slider-row">
+            <input type="range" id="temperature" min="0" max="0.5" step="0.01" value="0.1">
+            <span class="value" id="temp-value">0.10</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Basin Strength</label>
+          <div class="slider-row">
+            <input type="range" id="basinStrength" min="0" max="2" step="0.05" value="0.5">
+            <span class="value" id="basin-value">0.50</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Constraint Strength</label>
+          <div class="slider-row">
+            <input type="range" id="constraintStrength" min="0" max="1" step="0.05" value="0.5">
+            <span class="value" id="constraint-value">0.50</span>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button id="btn-reset">Reset</button>
+          <button id="btn-pause">Pause</button>
+          <button id="btn-step">Step</button>
+        </div>
+
+        <div class="basin-active" id="active-basin">-</div>
+
+        <div class="code-display">
+          <label>Code Sequence</label>
+          <div class="code-sequence" id="code-sequence"></div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <span class="metric-label">Entropy</span>
+            <span class="metric-value" id="metric-entropy">-</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Code Strength</span>
+            <span class="metric-value" id="metric-codestrength">-</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Transition Rate</span>
+            <span class="metric-value" id="metric-rate">-</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Position (x,y,z)</span>
+            <span class="metric-value" id="metric-position">-</span>
+          </div>
+        </div>
+
+        <div class="console" id="console"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Inline the physics engine since we can't easily import TS
+    // This is a simplified version for testing
+
+    // Vector utilities
+    const vec = {
+      create: (dims, fill = 0) => ({ components: new Array(dims).fill(fill) }),
+
+      randomOnSphere: (dims, radius = 1) => {
+        const components = [];
+        let sumSq = 0;
+        for (let i = 0; i < dims; i++) {
+          const u1 = Math.random();
+          const u2 = Math.random();
+          const g = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+          components.push(g);
+          sumSq += g * g;
+        }
+        const norm = radius / Math.sqrt(sumSq);
+        return { components: components.map(c => c * norm) };
+      },
+
+      random: (dims, mag = 1) => ({
+        components: Array.from({length: dims}, () => (Math.random() - 0.5) * 2 * mag)
+      }),
+
+      add: (a, b) => ({ components: a.components.map((v, i) => v + (b.components[i] || 0)) }),
+      sub: (a, b) => ({ components: a.components.map((v, i) => v - (b.components[i] || 0)) }),
+      scale: (v, s) => ({ components: v.components.map(c => c * s) }),
+      magnitude: (v) => Math.sqrt(v.components.reduce((sum, c) => sum + c * c, 0)),
+      normalize: (v, targetMag = 1) => {
+        const mag = vec.magnitude(v);
+        return mag < 0.0001 ? v : vec.scale(v, targetMag / mag);
+      },
+      dot: (a, b) => a.components.reduce((sum, c, i) => sum + c * (b.components[i] || 0), 0),
+      distance: (a, b) => vec.magnitude(vec.sub(a, b)),
+
+      projectSmooth: (v, dimensionality) => ({
+        components: v.components.map((c, i) => {
+          const fadePoint = i / v.components.length;
+          const fade = dimensionality > fadePoint ? 1 : Math.max(0, dimensionality / fadePoint);
+          return c * fade;
+        })
+      })
+    };
+
+    // Basin colors
+    const BASIN_COLORS = {
+      A: '#22c55e',
+      B: '#3b82f6',
+      C: '#f59e0b',
+      D: '#ef4444'
+    };
+
+    // Physics state
+    let config = {
+      dimensions: 4,
+      numBasins: 4,
+      baseSpeed: 0.02,
+      basinStrength: 0.5,
+      temperature: 0.1,
+      basinLearningRate: 0.01,
+      constraintStrength: 0.5
+    };
+
+    let state = null;
+    let time = 0;
+    let lastBasinChange = 0;
+    let paused = false;
+
+    function generateBasins() {
+      const labels = ['A', 'B', 'C', 'D'];
+      const basins = [];
+
+      for (let i = 0; i < config.numBasins; i++) {
+        const phi = (i / config.numBasins) * Math.PI * 2;
+        const theta = Math.acos(1 - 2 * ((i + 0.5) / config.numBasins));
+
+        const center = {
+          components: [
+            Math.sin(theta) * Math.cos(phi),
+            Math.sin(theta) * Math.sin(phi),
+            Math.cos(theta),
+            0
+          ]
+        };
+
+        basins.push({
+          id: labels[i],
+          center,
+          strength: 0.1,
+          occupancy: 0
+        });
+      }
+
+      return basins;
+    }
+
+    function createInitialState() {
+      return {
+        position: vec.randomOnSphere(config.dimensions, 1),
+        velocity: vec.random(config.dimensions, config.baseSpeed),
+        dimensionality: 1.0,
+        basins: generateBasins(),
+        currentBasin: null,
+        codeHistory: [],
+        entropy: 1.0,
+        codeStrength: 0,
+        transitionRate: 0
+      };
+    }
+
+    function step(dt = 1) {
+      time += dt;
+      const { dimensionality, basins } = state;
+      const { temperature, basinStrength, baseSpeed, basinLearningRate, constraintStrength } = config;
+
+      // Compute effective position
+      const effectivePos = vec.projectSmooth(state.position, dimensionality);
+
+      // Find nearest basin and compute forces
+      let nearestBasin = null;
+      let nearestDist = Infinity;
+      let basinForce = vec.create(config.dimensions);
+
+      const basinInfluence = (1 - dimensionality) * basinStrength;
+
+      for (const basin of basins) {
+        const basinPos = vec.projectSmooth(basin.center, dimensionality);
+        const dist = vec.distance(effectivePos, basinPos);
+
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearestBasin = basin;
+        }
+
+        if (dist > 0.01) {
+          const dir = vec.normalize(vec.sub(basinPos, effectivePos));
+          const strength = basinInfluence * basin.strength / (dist * dist + 0.1);
+          basinForce = vec.add(basinForce, vec.scale(dir, strength));
+        }
+      }
+
+      // Update current basin
+      const basinThreshold = 0.3 + dimensionality * 0.4;
+
+      if (nearestBasin && nearestDist < basinThreshold) {
+        if (state.currentBasin !== nearestBasin.id) {
+          state.currentBasin = nearestBasin.id;
+          state.codeHistory.push(nearestBasin.id);
+          if (state.codeHistory.length > 100) {
+            state.codeHistory = state.codeHistory.slice(-50);
+          }
+
+          const timeSinceLastChange = time - lastBasinChange;
+          state.transitionRate = 1 / Math.max(1, timeSinceLastChange);
+          lastBasinChange = time;
+
+          log(`Basin transition → ${nearestBasin.id}`);
+        }
+
+        nearestBasin.occupancy += dt;
+        nearestBasin.strength = Math.min(2, nearestBasin.strength + basinLearningRate * dt);
+
+        // Constraint: codes channel dynamics
+        if (constraintStrength > 0 && dimensionality < 0.8) {
+          const toCenter = vec.sub(nearestBasin.center, state.position);
+          const toCenterMagSq = vec.dot(toCenter, toCenter) + 0.01;
+          const radialComponent = vec.scale(toCenter, vec.dot(state.velocity, toCenter) / toCenterMagSq);
+          state.velocity = vec.sub(state.velocity, vec.scale(radialComponent, constraintStrength * (1 - dimensionality)));
+        }
+      } else {
+        state.currentBasin = null;
+      }
+
+      // Autonomous dynamics
+      const radial = vec.normalize(state.position);
+      const distFromSphere = vec.magnitude(state.position) - 1;
+      const centripetal = vec.scale(radial, -distFromSphere * 0.5);
+
+      // Noise
+      const noise = vec.random(config.dimensions, temperature * (0.5 + dimensionality * 0.5));
+
+      // Integrate
+      let totalForce = vec.add(vec.add(centripetal, basinForce), noise);
+      totalForce = vec.projectSmooth(totalForce, dimensionality);
+
+      state.velocity = vec.add(state.velocity, vec.scale(totalForce, dt));
+
+      // Damping
+      const damping = 0.98 - (1 - dimensionality) * 0.1;
+      state.velocity = vec.scale(state.velocity, damping);
+
+      // Speed limit
+      const speed = vec.magnitude(state.velocity);
+      if (speed > baseSpeed * 3) {
+        state.velocity = vec.scale(state.velocity, baseSpeed * 3 / speed);
+      }
+
+      // Update position
+      state.position = vec.add(state.position, vec.scale(state.velocity, dt));
+      state.position = vec.normalize(state.position, 1);
+
+      // Update metrics
+      const speedEntropy = Math.min(1, speed / config.baseSpeed);
+      state.entropy = speedEntropy * 0.5 + dimensionality * 0.5;
+      const avgBasinStrength = basins.reduce((s, b) => s + b.strength, 0) / basins.length;
+      state.codeStrength = Math.min(1, avgBasinStrength * 0.5 + (1 - dimensionality) * 0.5);
+    }
+
+    // Rendering
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+    const CX = W / 2;
+    const CY = H / 2;
+    const SCALE = 200;
+
+    function render() {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      const { dimensionality, basins, currentBasin } = state;
+      const effectivePos = vec.projectSmooth(state.position, dimensionality);
+
+      // Draw coordinate axes (faded based on dimensionality)
+      ctx.strokeStyle = `rgba(50, 50, 50, ${0.3 + dimensionality * 0.3})`;
+      ctx.lineWidth = 1;
+
+      // X axis
+      ctx.beginPath();
+      ctx.moveTo(CX - SCALE, CY);
+      ctx.lineTo(CX + SCALE, CY);
+      ctx.stroke();
+
+      // Y axis
+      ctx.beginPath();
+      ctx.moveTo(CX, CY - SCALE);
+      ctx.lineTo(CX, CY + SCALE);
+      ctx.stroke();
+
+      // Unit circle
+      ctx.beginPath();
+      ctx.arc(CX, CY, SCALE, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw basins
+      for (const basin of basins) {
+        const basinPos = vec.projectSmooth(basin.center, dimensionality);
+        const x = CX + basinPos.components[0] * SCALE;
+        const y = CY - basinPos.components[1] * SCALE;
+        const radius = 20 + basin.strength * 30 + (1 - dimensionality) * 40;
+
+        const color = BASIN_COLORS[basin.id] || '#666';
+        const isActive = basin.id === currentBasin;
+
+        // Basin influence radius
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = color + (isActive ? '40' : '15');
+        ctx.fill();
+
+        // Basin center
+        ctx.beginPath();
+        ctx.arc(x, y, isActive ? 12 : 8, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Label
+        ctx.font = `bold ${isActive ? 18 : 14}px system-ui`;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(basin.id, x, y);
+      }
+
+      // Draw particle
+      const px = CX + effectivePos.components[0] * SCALE;
+      const py = CY - effectivePos.components[1] * SCALE;
+
+      // Trail (velocity direction)
+      const vel = vec.projectSmooth(state.velocity, dimensionality);
+      const trailLen = vec.magnitude(vel) * 500;
+      ctx.beginPath();
+      ctx.moveTo(px, py);
+      ctx.lineTo(px - vel.components[0] * 500, py + vel.components[1] * 500);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Particle
+      ctx.beginPath();
+      ctx.arc(px, py, 10, 0, Math.PI * 2);
+      ctx.fillStyle = currentBasin ? BASIN_COLORS[currentBasin] : '#fff';
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(px, py, 10, 0, Math.PI * 2);
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Dimensionality indicator
+      ctx.fillStyle = '#333';
+      ctx.fillRect(20, H - 40, W - 40, 10);
+
+      const dimColor = dimensionality > 0.7 ? '#3b82f6' : dimensionality > 0.3 ? '#f59e0b' : '#22c55e';
+      ctx.fillStyle = dimColor;
+      ctx.fillRect(20, H - 40, (W - 40) * dimensionality, 10);
+
+      ctx.font = '11px system-ui';
+      ctx.fillStyle = '#666';
+      ctx.textAlign = 'left';
+      ctx.fillText('DIMENSIONALITY', 20, H - 50);
+
+      ctx.textAlign = 'right';
+      ctx.fillStyle = dimColor;
+      ctx.fillText(`${(dimensionality * 100).toFixed(0)}%`, W - 20, H - 50);
+    }
+
+    function updateUI() {
+      const { currentBasin, codeHistory, entropy, codeStrength, transitionRate } = state;
+      const effectivePos = vec.projectSmooth(state.position, state.dimensionality);
+
+      // Active basin display
+      const basinEl = document.getElementById('active-basin');
+      if (currentBasin) {
+        basinEl.textContent = currentBasin;
+        basinEl.style.color = BASIN_COLORS[currentBasin];
+        basinEl.style.background = BASIN_COLORS[currentBasin] + '20';
+      } else {
+        basinEl.textContent = '-';
+        basinEl.style.color = '#333';
+        basinEl.style.background = '#111';
+      }
+
+      // Code sequence
+      const codeEl = document.getElementById('code-sequence');
+      const recent = codeHistory.slice(-15);
+      codeEl.innerHTML = recent.map(c =>
+        `<span class="basin-${c}">${c}</span>`
+      ).join('');
+
+      // Metrics
+      document.getElementById('metric-entropy').textContent = entropy.toFixed(3);
+      document.getElementById('metric-codestrength').textContent = codeStrength.toFixed(3);
+      document.getElementById('metric-rate').textContent = transitionRate.toFixed(4);
+      document.getElementById('metric-position').textContent =
+        effectivePos.components.slice(0, 3).map(c => c.toFixed(2)).join(', ');
+    }
+
+    // Console logging
+    const consoleEl = document.getElementById('console');
+    function log(msg) {
+      const line = document.createElement('div');
+      line.className = 'console-line';
+      line.textContent = `[${time.toFixed(0)}] ${msg}`;
+      consoleEl.appendChild(line);
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+
+      // Keep limited
+      while (consoleEl.children.length > 50) {
+        consoleEl.removeChild(consoleEl.firstChild);
+      }
+    }
+
+    // Animation loop
+    function loop() {
+      if (!paused) {
+        step(1);
+      }
+      render();
+      updateUI();
+      requestAnimationFrame(loop);
+    }
+
+    // Controls
+    document.getElementById('dimensionality').addEventListener('input', (e) => {
+      state.dimensionality = parseFloat(e.target.value);
+      document.getElementById('dim-value').textContent = state.dimensionality.toFixed(2);
+    });
+
+    document.getElementById('temperature').addEventListener('input', (e) => {
+      config.temperature = parseFloat(e.target.value);
+      document.getElementById('temp-value').textContent = config.temperature.toFixed(2);
+    });
+
+    document.getElementById('basinStrength').addEventListener('input', (e) => {
+      config.basinStrength = parseFloat(e.target.value);
+      document.getElementById('basin-value').textContent = config.basinStrength.toFixed(2);
+    });
+
+    document.getElementById('constraintStrength').addEventListener('input', (e) => {
+      config.constraintStrength = parseFloat(e.target.value);
+      document.getElementById('constraint-value').textContent = config.constraintStrength.toFixed(2);
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      state = createInitialState();
+      state.dimensionality = parseFloat(document.getElementById('dimensionality').value);
+      time = 0;
+      lastBasinChange = 0;
+      log('Reset');
+    });
+
+    document.getElementById('btn-pause').addEventListener('click', (e) => {
+      paused = !paused;
+      e.target.textContent = paused ? 'Resume' : 'Pause';
+      e.target.classList.toggle('active', paused);
+    });
+
+    document.getElementById('btn-step').addEventListener('click', () => {
+      step(1);
+    });
+
+    // Initialize
+    state = createInitialState();
+    log('Physics initialized');
+    log(`Dimensions: ${config.dimensions}, Basins: ${config.numBasins}`);
+    loop();
+  </script>
+</body>
+</html>

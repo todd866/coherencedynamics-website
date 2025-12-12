@@ -630,68 +630,74 @@ export default function TesseractSimple({ className = '' }: TesseractSimpleProps
         }
       }
 
-      // Sort edges by depth
-      const sortedEdges = [...shape.edges].sort((a, b) => {
-        const aDepth = (projected[a.from].z + projected[a.to].z) / 2;
-        const bDepth = (projected[b.from].z + projected[b.to].z) / 2;
-        return bDepth - aDepth;
-      });
-
-      // Draw edges
+      // Draw edges (no sorting - negligible visual impact, big perf win)
       ctx.lineCap = 'round';
-      for (const edge of sortedEdges) {
+
+      // Quantized hue bands (reduces shimmer, feels more designed)
+      const speedBand = speedFactor < 0.33 ? 0 : speedFactor < 0.66 ? 1 : 2;
+      const hueBase4D = [60, 180, 300][speedBand];
+      const hueBase3D = [200, 240, 280][speedBand];
+      const saturation = 70 + speedBand * 15;
+      const lightness = 50 + speedBand * 10;
+
+      // GLOW PASS - one save/restore for all edges
+      ctx.save();
+      ctx.shadowBlur = 10 + speedFactor * 15;
+      ctx.lineWidth = 2;
+
+      for (const edge of shape.edges) {
         const p1 = projected[edge.from];
         const p2 = projected[edge.to];
-
         const avgZ = (p1.z + p2.z) / 2;
         const avgW = (p1.w + p2.w) / 2;
+
         const alpha = shape.is4D
           ? 0.3 + (avgW + 1) * 0.35
           : 0.4 + (1 - avgZ) * 0.3;
+        const hue = shape.is4D ? hueBase4D + avgW * 20 : hueBase3D;
 
-        const hue = shape.is4D
-          ? 30 + speedFactor * 290 + avgW * 30
-          : 200 + speedFactor * 100;
-        const saturation = 70 + speedFactor * 30;
-        const lightness = 50 + speedFactor * 20;
-
-        // Glow
-        ctx.save();
         ctx.shadowColor = `hsla(${hue}, ${saturation}%, ${lightness}%, ${0.5 + speedFactor * 0.5})`;
-        ctx.shadowBlur = 10 + speedFactor * 15;
         ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha * 0.5})`;
-        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
-        ctx.restore();
+      }
+      ctx.restore();
 
-        // Main edge
+      // MAIN PASS - no save/restore needed
+      ctx.lineWidth = 2;
+      for (const edge of shape.edges) {
+        const p1 = projected[edge.from];
+        const p2 = projected[edge.to];
+        const avgZ = (p1.z + p2.z) / 2;
+        const avgW = (p1.w + p2.w) / 2;
+
+        const alpha = shape.is4D
+          ? 0.3 + (avgW + 1) * 0.35
+          : 0.4 + (1 - avgZ) * 0.3;
+        const hue = shape.is4D ? hueBase4D + avgW * 20 : hueBase3D;
+
         ctx.strokeStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
-        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
       }
 
-      // Draw vertices (smaller for 3D shapes)
+      // Draw vertices - no per-vertex save/restore, no shadow (sharper, faster)
       const vertexSize = shape.is4D ? 4 : 2;
+      const vertexHue4D = speedBand === 0 ? 180 : speedBand === 1 ? 200 : 220;
+      const vertexHue3D = hueBase3D;
+
       for (const p of projected) {
         const size = vertexSize + (shape.is4D ? (p.w + 1) * 2 : (1 - p.z) * 2);
-        const hue = shape.is4D
-          ? (p.w > 0 ? 180 : 300) + speedFactor * 40
-          : 200 + speedFactor * 100;
+        const hue = shape.is4D ? (p.w > 0 ? vertexHue4D : vertexHue4D + 120) : vertexHue3D;
 
-        ctx.save();
-        ctx.shadowColor = `hsla(${hue}, 100%, 60%, 0.8)`;
-        ctx.shadowBlur = 8 + speedFactor * 8;
-        ctx.fillStyle = `hsla(${hue}, 80%, 70%, 0.8)`;
+        ctx.fillStyle = `hsla(${hue}, 80%, 70%, 0.85)`;
         ctx.beginPath();
         ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
         ctx.fill();
-        ctx.restore();
       }
 
       // Tap ripple

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code-Forming: Wrench Test</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a0a;
+      color: #e0e0e0;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #22c55e;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 24px;
+    }
+    .canvas-container {
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    canvas {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #000;
+      display: block;
+    }
+    .controls {
+      background: #111;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .control-group {
+      margin-bottom: 20px;
+    }
+    .control-group label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      background: #222;
+      border-radius: 3px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #22c55e;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .value {
+      font-family: monospace;
+      font-size: 14px;
+      min-width: 60px;
+      text-align: right;
+      color: #22c55e;
+    }
+    .basin-display {
+      text-align: center;
+      padding: 20px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .basin-symbol {
+      font-size: 72px;
+      font-weight: bold;
+      font-family: monospace;
+      transition: all 0.15s ease;
+      text-shadow: 0 0 30px currentColor;
+    }
+    .basin-label {
+      font-size: 11px;
+      color: #666;
+      margin-top: 8px;
+      text-transform: uppercase;
+    }
+    .code-display {
+      background: #0a0a0a;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .code-display label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .code-sequence {
+      font-family: monospace;
+      font-size: 16px;
+      letter-spacing: 2px;
+      word-break: break-all;
+      line-height: 1.6;
+    }
+    .metrics {
+      background: #0a0a0a;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 11px;
+    }
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+    .metric-label { color: #666; }
+    .metric-value { font-family: monospace; color: #888; }
+    button {
+      background: #222;
+      border: none;
+      color: #aaa;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      margin-right: 8px;
+      transition: background 0.2s;
+    }
+    button:hover { background: #333; color: #fff; }
+    .buttons { margin-bottom: 16px; }
+    .dim-indicator {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .dim-label {
+      font-size: 32px;
+      font-weight: bold;
+      font-family: monospace;
+    }
+    .dim-desc {
+      font-size: 11px;
+      color: #666;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Code-Forming: Wrench Visualization</h1>
+    <p class="subtitle">Reduce dimensionality to watch continuous rotation collapse into discrete orientation codes</p>
+
+    <div class="grid">
+      <div class="canvas-container">
+        <canvas id="canvas" width="1000" height="750"></canvas>
+      </div>
+
+      <div class="controls">
+        <div class="dim-indicator">
+          <div class="dim-label" id="dim-display">3D</div>
+          <div class="dim-desc">
+            <div id="dim-state">Free rotation</div>
+            <div style="color: #444">Continuous dynamics</div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Dimensionality</label>
+          <div class="slider-row">
+            <input type="range" id="dimensionality" min="0.1" max="1" step="0.01" value="1">
+            <span class="value" id="dim-value">3.0D</span>
+          </div>
+        </div>
+
+        <div class="basin-display">
+          <div class="basin-symbol" id="basin-symbol">-</div>
+          <div class="basin-label" id="basin-label">No orientation lock</div>
+        </div>
+
+        <div class="code-display">
+          <label>Orientation Code Sequence</label>
+          <div class="code-sequence" id="code-sequence">-</div>
+        </div>
+
+        <div class="control-group">
+          <label>Angular Momentum</label>
+          <div class="slider-row">
+            <input type="range" id="momentum" min="0.01" max="0.2" step="0.005" value="0.08">
+            <span class="value" id="momentum-value">0.08</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label>Basin Stickiness</label>
+          <div class="slider-row">
+            <input type="range" id="stickiness" min="0" max="1" step="0.05" value="0.5">
+            <span class="value" id="stickiness-value">0.50</span>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button id="btn-kick">Kick</button>
+          <button id="btn-reset">Reset</button>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <span class="metric-label">Angular velocity</span>
+            <span class="metric-value" id="metric-omega">-</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Orientation stability</span>
+            <span class="metric-value" id="metric-stability">-</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Transitions</span>
+            <span class="metric-value" id="metric-transitions">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================================================
+    // WRENCH GEOMETRY
+    // ==========================================================================
+
+    function generateWrench() {
+      const vertices = [];
+      const edges = [];
+
+      const handleLength = 2.0;
+      const handleRadius = 0.15;
+      const segments = 8;
+      const headLength = 1.2;
+      const headRadius = 0.2;
+
+      // Handle rings
+      for (let ring = 0; ring <= 4; ring++) {
+        const y = -handleLength / 2 + (ring / 4) * handleLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: Math.cos(angle) * handleRadius,
+            y: y,
+            z: Math.sin(angle) * handleRadius
+          });
+        }
+      }
+
+      // Connect handle
+      for (let ring = 0; ring < 4; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = ring * segments + i;
+          const next = ring * segments + ((i + 1) % segments);
+          const above = (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([4 * segments + i, 4 * segments + ((i + 1) % segments)]);
+      }
+
+      // Head
+      const headY = handleLength / 2;
+      const headStart = vertices.length;
+
+      for (let ring = 0; ring <= 3; ring++) {
+        const x = -headLength / 2 + (ring / 3) * headLength;
+        for (let i = 0; i < segments; i++) {
+          const angle = (i / segments) * Math.PI * 2;
+          vertices.push({
+            x: x,
+            y: headY + Math.cos(angle) * headRadius,
+            z: Math.sin(angle) * headRadius
+          });
+        }
+      }
+
+      for (let ring = 0; ring < 3; ring++) {
+        for (let i = 0; i < segments; i++) {
+          const curr = headStart + ring * segments + i;
+          const next = headStart + ring * segments + ((i + 1) % segments);
+          const above = headStart + (ring + 1) * segments + i;
+          edges.push([curr, next]);
+          edges.push([curr, above]);
+        }
+      }
+      for (let i = 0; i < segments; i++) {
+        edges.push([headStart + 3 * segments + i, headStart + 3 * segments + ((i + 1) % segments)]);
+      }
+
+      return { vertices, edges };
+    }
+
+    // ==========================================================================
+    // ORIENTATION BASINS (discrete states the wrench can be in)
+    // ==========================================================================
+
+    // Define 6 canonical orientations (like faces of a cube)
+    const ORIENTATION_BASINS = [
+      { id: 'A', name: 'Handle Up',    axis: [0, 1, 0],  color: '#22c55e' },
+      { id: 'B', name: 'Handle Down',  axis: [0, -1, 0], color: '#3b82f6' },
+      { id: 'C', name: 'Handle Left',  axis: [-1, 0, 0], color: '#f59e0b' },
+      { id: 'D', name: 'Handle Right', axis: [1, 0, 0],  color: '#ef4444' },
+      { id: 'E', name: 'Handle Front', axis: [0, 0, 1],  color: '#a855f7' },
+      { id: 'F', name: 'Handle Back',  axis: [0, 0, -1], color: '#ec4899' },
+    ];
+
+    // ==========================================================================
+    // PHYSICS STATE
+    // ==========================================================================
+
+    const wrench = generateWrench();
+
+    // Inertia tensor for T-handle (asymmetric!)
+    // I1 < I2 < I3: rotation around I2 is UNSTABLE (Dzhanibekov)
+    const INERTIA = { I1: 0.3, I2: 1.0, I3: 1.8 };
+
+    let state = {
+      // Rotation angles (Euler-ish, for simplicity)
+      angleX: 0,
+      angleY: 0,
+      angleZ: 0,
+
+      // Angular momentum (conserved in body frame)
+      Lx: 0.001,
+      Ly: 0.08,  // Mostly around intermediate axis = unstable!
+      Lz: 0.002,
+
+      // Dimensionality (1 = full 3D, lower = more quantized)
+      dimensionality: 1.0,
+
+      // Basin tracking
+      currentBasin: null,
+      basinStrength: 0,  // How "locked in" to current basin
+      codeHistory: [],
+      transitionCount: 0,
+
+      // Stickiness parameter
+      stickiness: 0.5
+    };
+
+    // ==========================================================================
+    // PHYSICS UPDATE
+    // ==========================================================================
+
+    const EULER_COUPLING = 0.15;
+    const BASE_DAMPING = 0.002;
+
+    function physicsStep() {
+      const { I1, I2, I3 } = INERTIA;
+      const dim = state.dimensionality;
+
+      // === EULER'S EQUATIONS (Dzhanibekov dynamics) ===
+      let omegaX = state.Lx / I1;
+      let omegaY = state.Ly / I2;
+      let omegaZ = state.Lz / I3;
+
+      // Coupling terms - this is what causes Dzhanibekov flipping
+      const dOmegaX = EULER_COUPLING * (I2 - I3) * omegaY * omegaZ / I1;
+      const dOmegaY = EULER_COUPLING * (I3 - I1) * omegaZ * omegaX / I2;
+      const dOmegaZ = EULER_COUPLING * (I1 - I2) * omegaX * omegaY / I3;
+
+      // === DIMENSIONALITY COLLAPSE ===
+      // As dimensionality drops, we:
+      // 1. Increase damping (motion becomes "sticky")
+      // 2. Quantize rotation to preferred orientations
+      // 3. Eventually lock into discrete basins
+
+      const collapseFactor = 1 - dim;  // 0 at full 3D, 1 at collapsed
+      const extraDamping = collapseFactor * state.stickiness * 0.05;
+      const damping = 1 - BASE_DAMPING - extraDamping;
+
+      // Update angular momentum
+      state.Lx = (state.Lx + dOmegaX * I1) * damping;
+      state.Ly = (state.Ly + dOmegaY * I2) * damping;
+      state.Lz = (state.Lz + dOmegaZ * I3) * damping;
+
+      // Recalculate omega
+      omegaX = state.Lx / I1;
+      omegaY = state.Ly / I2;
+      omegaZ = state.Lz / I3;
+
+      // === BASIN ATTRACTION ===
+      // At low dimensionality, attract toward nearest canonical orientation
+      if (collapseFactor > 0.2) {
+        const basin = findNearestBasin();
+        if (basin) {
+          const attractStrength = collapseFactor * state.stickiness * 0.02;
+
+          // Compute torque toward basin orientation
+          // This is simplified - proper version would use quaternions
+          const handleDir = getHandleDirection();
+          const targetDir = basin.axis;
+
+          // Cross product gives rotation axis, dot product gives alignment
+          const torqueX = (targetDir[1] * handleDir[2] - targetDir[2] * handleDir[1]) * attractStrength;
+          const torqueY = (targetDir[2] * handleDir[0] - targetDir[0] * handleDir[2]) * attractStrength;
+          const torqueZ = (targetDir[0] * handleDir[1] - targetDir[1] * handleDir[0]) * attractStrength;
+
+          state.Lx += torqueX * I1;
+          state.Ly += torqueY * I2;
+          state.Lz += torqueZ * I3;
+        }
+      }
+
+      // === INTEGRATE ANGLES ===
+      state.angleX += omegaX;
+      state.angleY += omegaY;
+      state.angleZ += omegaZ;
+
+      // === UPDATE BASIN STATE ===
+      updateBasinState();
+    }
+
+    function getHandleDirection() {
+      // Get the Y-axis of the rotated wrench (handle direction)
+      // Apply rotation matrix to [0, 1, 0]
+      const cx = Math.cos(state.angleX), sx = Math.sin(state.angleX);
+      const cy = Math.cos(state.angleY), sy = Math.sin(state.angleY);
+      const cz = Math.cos(state.angleZ), sz = Math.sin(state.angleZ);
+
+      // Combined rotation matrix applied to [0, 1, 0]
+      const x = sy * cz + cy * sx * sz;
+      const y = cy * cx;
+      const z = -sy * sz + cy * sx * cz;
+
+      return [x, y, z];
+    }
+
+    function findNearestBasin() {
+      const handleDir = getHandleDirection();
+      let best = null;
+      let bestDot = -2;
+
+      for (const basin of ORIENTATION_BASINS) {
+        const dot = handleDir[0] * basin.axis[0] +
+                    handleDir[1] * basin.axis[1] +
+                    handleDir[2] * basin.axis[2];
+        if (dot > bestDot) {
+          bestDot = dot;
+          best = { ...basin, alignment: dot };
+        }
+      }
+
+      return best;
+    }
+
+    function updateBasinState() {
+      const basin = findNearestBasin();
+      const threshold = 0.7 + state.dimensionality * 0.2;  // Easier to lock at low dim
+
+      if (basin && basin.alignment > threshold) {
+        if (state.currentBasin !== basin.id) {
+          // Basin transition!
+          state.currentBasin = basin.id;
+          state.codeHistory.push(basin.id);
+          state.transitionCount++;
+
+          // Keep history bounded
+          if (state.codeHistory.length > 50) {
+            state.codeHistory = state.codeHistory.slice(-30);
+          }
+        }
+        state.basinStrength = Math.min(1, state.basinStrength + 0.02);
+      } else {
+        state.currentBasin = null;
+        state.basinStrength = Math.max(0, state.basinStrength - 0.01);
+      }
+    }
+
+    // ==========================================================================
+    // RENDERING
+    // ==========================================================================
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+    const CX = W / 2;
+    const CY = H / 2;
+    const SCALE = 180;
+
+    function rotatePoint(p) {
+      let { x, y, z } = p;
+
+      // Rotate X
+      const cx = Math.cos(state.angleX), sx = Math.sin(state.angleX);
+      let y1 = y * cx - z * sx;
+      let z1 = y * sx + z * cx;
+      y = y1; z = z1;
+
+      // Rotate Y
+      const cy = Math.cos(state.angleY), sy = Math.sin(state.angleY);
+      let x1 = x * cy + z * sy;
+      z1 = -x * sy + z * cy;
+      x = x1; z = z1;
+
+      // Rotate Z
+      const cz = Math.cos(state.angleZ), sz = Math.sin(state.angleZ);
+      x1 = x * cz - y * sz;
+      y1 = x * sz + y * cz;
+      x = x1; y = y1;
+
+      return { x, y, z };
+    }
+
+    function project(p) {
+      const fov = 4;
+      const scale = fov / (fov + p.z + 2);
+      return {
+        x: CX + p.x * scale * SCALE,
+        y: CY - p.y * scale * SCALE,
+        z: p.z,
+        scale
+      };
+    }
+
+    function render() {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      const dim = state.dimensionality;
+      const basin = findNearestBasin();
+      const basinColor = basin ? basin.color : '#666';
+
+      // Transform and project vertices
+      const projected = wrench.vertices.map(v => {
+        const rotated = rotatePoint(v);
+        return project(rotated);
+      });
+
+      // Sort edges by depth
+      const sortedEdges = wrench.edges
+        .map(([i, j]) => ({
+          i, j,
+          depth: (projected[i].z + projected[j].z) / 2
+        }))
+        .sort((a, b) => b.depth - a.depth);
+
+      // Draw edges
+      ctx.lineCap = 'round';
+
+      for (const { i, j, depth } of sortedEdges) {
+        const p1 = projected[i];
+        const p2 = projected[j];
+
+        const alpha = 0.3 + (1 - depth) * 0.4;
+
+        // Color shifts toward basin color as dimensionality drops
+        const baseHue = 200;
+        const baseSat = 70;
+        const baseLight = 60;
+
+        // Glow
+        ctx.save();
+        ctx.shadowColor = state.currentBasin ? basinColor : `hsl(${baseHue}, ${baseSat}%, ${baseLight}%)`;
+        ctx.shadowBlur = 8 + state.basinStrength * 12;
+
+        ctx.strokeStyle = state.currentBasin
+          ? basinColor + Math.round(alpha * 255).toString(16).padStart(2, '0')
+          : `hsla(${baseHue}, ${baseSat}%, ${baseLight}%, ${alpha})`;
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw vertices
+      for (const p of projected) {
+        const size = 2 + (1 - p.z) * 2;
+        ctx.fillStyle = state.currentBasin ? basinColor : '#88ccff';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // === DIMENSIONALITY INDICATOR ===
+      const barW = 300;
+      const barH = 8;
+      const barX = CX - barW / 2;
+      const barY = H - 50;
+
+      // Background
+      ctx.fillStyle = '#1a1a1a';
+      ctx.beginPath();
+      ctx.roundRect(barX, barY, barW, barH, 4);
+      ctx.fill();
+
+      // Fill
+      const gradient = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+      gradient.addColorStop(0, '#22c55e');
+      gradient.addColorStop(0.5, '#eab308');
+      gradient.addColorStop(1, '#3b82f6');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.roundRect(barX, barY, barW * dim, barH, 4);
+      ctx.fill();
+
+      // Labels
+      ctx.font = '11px system-ui';
+      ctx.fillStyle = '#22c55e';
+      ctx.textAlign = 'left';
+      ctx.fillText('1D (Locked)', barX, barY + 22);
+      ctx.fillStyle = '#3b82f6';
+      ctx.textAlign = 'right';
+      ctx.fillText('3D (Free)', barX + barW, barY + 22);
+
+      // === BASIN INDICATORS (subtle, around the wrench) ===
+      if (dim < 0.8) {
+        const indicatorRadius = 250;
+        const indicatorAlpha = (0.8 - dim) / 0.6;
+
+        for (const b of ORIENTATION_BASINS) {
+          // Project basin axis direction
+          const bx = CX + b.axis[0] * indicatorRadius;
+          const by = CY - b.axis[1] * indicatorRadius * 0.7;
+
+          const isActive = state.currentBasin === b.id;
+          const size = isActive ? 24 : 16;
+
+          ctx.save();
+          ctx.globalAlpha = indicatorAlpha * (isActive ? 1 : 0.4);
+          ctx.fillStyle = b.color;
+          ctx.font = `bold ${size}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(b.id, bx, by);
+
+          if (isActive) {
+            ctx.beginPath();
+            ctx.arc(bx, by, size + 8, 0, Math.PI * 2);
+            ctx.strokeStyle = b.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+      }
+    }
+
+    function updateUI() {
+      const dim = state.dimensionality;
+      const basin = findNearestBasin();
+      const omega = Math.sqrt(
+        (state.Lx / INERTIA.I1) ** 2 +
+        (state.Ly / INERTIA.I2) ** 2 +
+        (state.Lz / INERTIA.I3) ** 2
+      );
+
+      // Dimensionality display
+      const dimDisplay = document.getElementById('dim-display');
+      const dimState = document.getElementById('dim-state');
+
+      if (dim > 0.8) {
+        dimDisplay.textContent = '3D';
+        dimDisplay.style.color = '#3b82f6';
+        dimState.textContent = 'Free rotation';
+      } else if (dim > 0.5) {
+        dimDisplay.textContent = '2D';
+        dimDisplay.style.color = '#eab308';
+        dimState.textContent = 'Quantizing...';
+      } else {
+        dimDisplay.textContent = '1D';
+        dimDisplay.style.color = '#22c55e';
+        dimState.textContent = 'Discrete states';
+      }
+
+      // Basin symbol
+      const symbolEl = document.getElementById('basin-symbol');
+      const labelEl = document.getElementById('basin-label');
+
+      if (state.currentBasin && dim < 0.8) {
+        const b = ORIENTATION_BASINS.find(x => x.id === state.currentBasin);
+        symbolEl.textContent = state.currentBasin;
+        symbolEl.style.color = b ? b.color : '#fff';
+        labelEl.textContent = b ? b.name : '';
+      } else if (dim < 0.8) {
+        symbolEl.textContent = '?';
+        symbolEl.style.color = '#444';
+        labelEl.textContent = 'Transitioning...';
+      } else {
+        symbolEl.textContent = '-';
+        symbolEl.style.color = '#222';
+        labelEl.textContent = 'Continuous rotation';
+      }
+
+      // Code sequence
+      const codeEl = document.getElementById('code-sequence');
+      const recent = state.codeHistory.slice(-20);
+      if (recent.length > 0) {
+        codeEl.innerHTML = recent.map(c => {
+          const b = ORIENTATION_BASINS.find(x => x.id === c);
+          return `<span style="color: ${b ? b.color : '#666'}">${c}</span>`;
+        }).join('');
+      } else {
+        codeEl.textContent = '-';
+      }
+
+      // Metrics
+      document.getElementById('metric-omega').textContent = omega.toFixed(4);
+      document.getElementById('metric-stability').textContent =
+        (state.basinStrength * 100).toFixed(0) + '%';
+      document.getElementById('metric-transitions').textContent = state.transitionCount;
+    }
+
+    // ==========================================================================
+    // ANIMATION LOOP
+    // ==========================================================================
+
+    function loop() {
+      physicsStep();
+      render();
+      updateUI();
+      requestAnimationFrame(loop);
+    }
+
+    // ==========================================================================
+    // CONTROLS
+    // ==========================================================================
+
+    document.getElementById('dimensionality').addEventListener('input', (e) => {
+      state.dimensionality = parseFloat(e.target.value);
+      const dimVal = (state.dimensionality * 3).toFixed(1);
+      document.getElementById('dim-value').textContent = dimVal + 'D';
+    });
+
+    document.getElementById('momentum').addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      document.getElementById('momentum-value').textContent = val.toFixed(2);
+      // Scale current momentum
+      const scale = val / 0.08;
+      state.Ly = 0.08 * scale;
+      state.Lx = 0.001 * scale;
+      state.Lz = 0.002 * scale;
+    });
+
+    document.getElementById('stickiness').addEventListener('input', (e) => {
+      state.stickiness = parseFloat(e.target.value);
+      document.getElementById('stickiness-value').textContent = state.stickiness.toFixed(2);
+    });
+
+    document.getElementById('btn-kick').addEventListener('click', () => {
+      // Random perturbation
+      state.Lx += (Math.random() - 0.5) * 0.04;
+      state.Ly += (Math.random() - 0.5) * 0.04;
+      state.Lz += (Math.random() - 0.5) * 0.04;
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      state.angleX = 0;
+      state.angleY = 0;
+      state.angleZ = 0;
+      state.Lx = 0.001;
+      state.Ly = 0.08;
+      state.Lz = 0.002;
+      state.currentBasin = null;
+      state.basinStrength = 0;
+      state.codeHistory = [];
+      state.transitionCount = 0;
+    });
+
+    // Start
+    loop();
+  </script>
+</body>
+</html>
