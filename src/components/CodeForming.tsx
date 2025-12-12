@@ -213,7 +213,8 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
   const animationRef = useRef<number>();
 
   const maxBandwidth = Math.floor(N / 2);
-  const [bandwidth, setBandwidth] = useState(maxBandwidth);
+  const defaultBandwidth = Math.floor(N / 4); // Start with visible constraint
+  const [bandwidth, setBandwidth] = useState(defaultBandwidth);
   const systemA = useRef<KuramotoState>(initKuramoto(42));
   const systemB = useRef<KuramotoState>(initKuramoto(137));
 
