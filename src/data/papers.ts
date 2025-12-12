@@ -337,27 +337,32 @@ A three-phase model (overshoot → refractory → recanalization) explains how t
   // === IN PREPARATION ===
   {
     slug: 'code-formation',
-    title: 'Code Formation: Discrete Symbols from Continuous Substrates',
-    journal: 'Physical Review E (target)',
+    title: 'Low-Dimensional Codes Constrain High-Dimensional Biological Dynamics',
+    journal: 'Journal of Theoretical Biology (submitted)',
     year: 2025,
-    status: 'in_prep',
-    description: `**Discrete symbols emerge spontaneously when continuous data passes through a bandwidth-limited noisy channel** — and this is the foundational mechanism behind all the other papers. Thoughts become words, neural activity becomes behaviour, genes become phenotypes — all through the same bottleneck + noise mechanism forcing discretisation.
-
-The key insight: you need *both* a dimensional bottleneck *and* noise. Neither alone is sufficient.
-
-Bottleneck alone? The continuous ring compresses but stays continuous. Noise alone? The ring gets fuzzy but stays continuous. But *both together*? Discrete clusters emerge. The system learns to space codes apart to avoid confusion, breaking continuous $O(2)$ symmetry into discrete $C_6$ symmetry. It's a topological phase transition.
-
-Information capacity follows: $C \\approx k \\cdot \\log(1 + \\text{SNR})$. More dimensions (k) and better signal-to-noise ratio give you more discrete symbols. This explains why language has finite phonemes, why neural populations encode discrete categories, why genetic codes are digital despite the analogue chemistry underneath.
-
-*Note: The GitHub repo contains an early demo — this will require significant theoretical development before submission.*`,
-    keyFindings: [
-      'Bottleneck alone: continuous ring preserved',
-      'Noise alone: continuous ring preserved',
-      'Both together: discrete clusters emerge',
-      'Information capacity: $C \\approx k \\cdot \\log(1 + \\text{SNR})$',
-    ],
-    github: 'todd866/code-formation',
+    status: 'submitted',
+    github: 'todd866/code-formation-jtb',
+    pdf: 'https://raw.githubusercontent.com/todd866/code-formation-jtb/main/code_formation_jtb.pdf',
+    simulation: 'code-collapse',
     image: 'code-formation.png',
+    description: `**Biological systems exhibit persistent organization despite operating in high-dimensional, noisy, and finite-time dynamical regimes.** While order parameters and attractor dynamics explain pattern formation within single systems, they do not account for how biological organization is stabilized through low-dimensional interfaces such as genetic, regulatory, or homeostatic codes.
+
+We propose a minimal dynamical mechanism by which low-dimensional codes emerge as stabilizing constraints between coupled high-dimensional systems. We model two locally coupled phase fields — an environment and a responding system — where interaction is restricted to a low-dimensional projection of the environmental state.
+
+Using a Fourier bottleneck to control code bandwidth, we show that reducing coupling dimensionality induces a systematic collapse in the responding system's behavioral complexity while preserving bounded tracking of the driving system. Crucially, this collapse requires *structured* projections that capture coherent macroscopic degrees of freedom; random k-mode projections of the same dimensionality fail to constrain complexity.
+
+Parameter sweeps suggest a trade-off between stability and behavioral richness: intermediate code dimensionality maintains bounded tracking under noise, while excessive compression produces rigid, low-complexity behavior.`,
+    whyItMatters: `This provides a dynamical explanation for the ubiquity of low-dimensional coding structures in biology — DNA, neural codes, hormonal signals — as *constraint-forming devices* that preserve viability in high-dimensional systems, rather than as predictive representations.
+
+The code constrains dynamics without enabling prediction or reconstruction of the full environmental microstate. This is fundamentally different from how we typically think about biological "information" — it's not about transmitting data, it's about enforcing coherence.`,
+    keyFindings: [
+      'Low-dimensional codes emerge as stabilizing constraints between coupled high-D systems',
+      'Fourier bandwidth bottleneck induces systematic complexity collapse in responding system',
+      'Structured projections (low-frequency Fourier modes) constrain; random projections fail',
+      'Trade-off between stability and behavioral richness at intermediate code dimensionality',
+      'Codes constrain dynamics without enabling prediction of full environmental microstate',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'embryo-oscillators',

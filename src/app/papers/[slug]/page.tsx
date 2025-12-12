@@ -5,6 +5,7 @@ import { papers, getPaperBySlug, getAdjacentPapers } from '@/data/papers';
 import Markdown from '@/components/Markdown';
 import PaperNavigation from '@/components/PaperNavigation';
 import PsychedelicGainMini from '@/components/PsychedelicGainMini';
+import CodeForming from '@/components/CodeForming';
 
 export function generateStaticParams() {
   // Exclude papers with custom pages
@@ -138,6 +139,25 @@ export default async function PaperPage({
           </div>
           <p className="text-xs text-gray-500 mt-3 text-center">
             <Link href="/simulations/lsd-landscape" className="text-orange-400 hover:text-orange-300">
+              Open full simulation &rarr;
+            </Link>
+          </p>
+        </section>
+      )}
+
+      {/* Inline simulation for code-formation */}
+      {paper.simulation === 'code-collapse' && (
+        <section className="mb-8 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+          <h3 className="text-lg font-semibold mb-3 text-white">Interactive: Fourier Bandwidth Bottleneck</h3>
+          <p className="text-sm text-gray-400 mb-4">
+            System A (top) drives System B (bottom) through a bandwidth-limited code. Drag the slider
+            to reduce bandwidth k and watch B&apos;s complexity collapse while A stays complex.
+          </p>
+          <div className="flex justify-center">
+            <CodeForming />
+          </div>
+          <p className="text-xs text-gray-500 mt-3 text-center">
+            <Link href="/simulations/code-collapse" className="text-orange-400 hover:text-orange-300">
               Open full simulation &rarr;
             </Link>
           </p>
