@@ -100,7 +100,7 @@ export default function Home() {
       </section>
 
       {/* Featured sections */}
-      <section className="grid md:grid-cols-3 gap-8 mb-20">
+      <section className="grid md:grid-cols-2 gap-8 mb-20">
         <Link href="/papers" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
           <h2 className="text-lg font-semibold mb-3 text-white">Research Papers</h2>
           <p className="text-gray-400 mb-4">
@@ -123,17 +123,6 @@ export default function Home() {
           </p>
           <span className="text-sm font-medium text-gray-300">
             Explore simulations &rarr;
-          </span>
-        </Link>
-
-        <Link href="/about" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
-          <h2 className="text-lg font-semibold mb-3 text-white">Core Ideas</h2>
-          <p className="text-gray-400 mb-4">
-            High-dimensional systems, dimensional collapse, coherence gates,
-            and the physics of biological organization.
-          </p>
-          <span className="text-sm font-medium text-gray-300">
-            Learn more &rarr;
           </span>
         </Link>
       </section>
