@@ -10,7 +10,7 @@ export default function CodeCollapsePage() {
 
       <h1 className="text-2xl font-bold mb-1 text-white">Code Formation</h1>
       <p className="text-gray-500 text-sm mb-4">
-        How dimensional collapse creates discrete symbols from continuous dynamics
+        How bandwidth-limited codes constrain downstream dynamics
       </p>
 
       {/* Full-width visualization */}
@@ -21,38 +21,38 @@ export default function CodeCollapsePage() {
       {/* Info panels below */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm text-gray-500 mb-2">The Dzhanibekov Effect</h3>
+          <h3 className="text-sm text-gray-500 mb-2">Two Coupled Systems</h3>
           <p className="text-gray-300 text-sm">
-            <strong className="text-white">Asymmetric objects flip spontaneously.</strong>{' '}
-            A wrench spinning in space will periodically reverse its orientation&mdash;intermediate
-            axes of rotation are unstable. In 4D, there are more axes to be unstable around.
+            <strong className="text-white">System A drives System B through a code.</strong>{' '}
+            Both are Kuramoto oscillator lattices with nearest-neighbor coupling. A runs freely
+            with noise; B tracks A but only sees what passes through the bandwidth bottleneck.
           </p>
         </div>
 
         <div className="border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm text-gray-500 mb-2">Symbolic Attractors</h3>
+          <h3 className="text-sm text-gray-500 mb-2">Fourier Bandwidth Bottleneck</h3>
           <p className="text-gray-300 text-sm">
-            <strong className="text-white">Basin depth determines stability.</strong>{' '}
-            Symmetric shapes (tesseract) cycle freely through bases. Asymmetric shapes (4D wrench)
-            lock onto single symbols. The attractor landscape emerges from geometry.
+            <strong className="text-white">The code is a truncated Fourier representation.</strong>{' '}
+            Only the lowest k frequency modes pass through. High-frequency structure in A
+            is invisible to B. This is lossy compression&mdash;not noise, but structured filtering.
           </p>
         </div>
 
         <div className="border border-gray-800 rounded-lg p-4">
-          <h3 className="text-sm text-gray-500 mb-2">Bidirectional Coupling</h3>
+          <h3 className="text-sm text-gray-500 mb-2">Complexity Collapse</h3>
           <p className="text-gray-300 text-sm">
-            <strong className="text-white">Code constrains dynamics.</strong>{' '}
-            As observation collapses toward 2D, the symbolic attractor pulls back on the rotation.
-            The code isn&apos;t just a readout&mdash;it actively shapes what states are accessible.
+            <strong className="text-white">Reducing k collapses B&apos;s complexity.</strong>{' '}
+            A stays complex regardless of bandwidth. B&apos;s wave smooths out as k drops&mdash;it
+            can only express what the code allows. The code constrains without enabling prediction.
           </p>
         </div>
 
         <div className="border border-yellow-700/50 bg-yellow-900/20 rounded-lg p-4">
           <h3 className="text-sm text-yellow-400 mb-2">Key Experiment</h3>
           <p className="text-gray-300 text-sm">
-            Select <strong>4D Wrench</strong>, set basin depth to maximum, and collapse to 2D.
-            The asymmetric moments of inertia create a deep attractor&mdash;the system locks
-            onto a single base and resists perturbation.
+            Drag the slider from k=32 (full bandwidth) down to k=1. Watch B&apos;s wave collapse
+            from jagged to smooth while A stays complex. This is how biology stabilizes
+            organization: low-D codes constrain high-D dynamics.
           </p>
         </div>
       </div>
