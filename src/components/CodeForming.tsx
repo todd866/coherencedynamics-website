@@ -2,245 +2,206 @@
 
 /**
  * =============================================================================
- * CodeForming - Dimensional Collapse Creates Discrete Symbols
+ * CodeForming - Two-System Code Formation Visualization
  * =============================================================================
  *
- * Shows how reducing observer dimensionality creates attractor basins.
- * LEFT: Full 3D/4D view of the shape
- * RIGHT: Flattened view showing dimensional collapse → discrete symbols
+ * Based on the paper "Code formation in bandwidth-limited communication"
  *
- * Two sliders:
- * 1. BASINS: How many discrete states (1→4→coherent)
- * 2. DEPTH: How deep the attractor wells are
+ * VISUAL DESIGN:
+ * - TOP: System A as a complex wave (high-frequency + low-frequency components)
+ * - MIDDLE: The CODE - truncated Fourier representation (only k modes)
+ * - BOTTOM: System B tracking through code (wave smooths out at low k)
+ * - SLIDER: Bandwidth k
+ *
+ * THE KEY INSIGHT:
+ * As bandwidth k decreases:
+ * - System A keeps all its complexity (jagged wave)
+ * - System B's wave becomes smoother (only sees low-frequency modes)
+ * - B tracks A but with "blurred vision"
+ *
+ * =============================================================================
  */
 
-import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 
 // =============================================================================
-// TYPES
+// CONSTANTS
 // =============================================================================
 
-interface Vec4 {
-  x: number;
-  y: number;
-  z: number;
-  w: number;
-}
+const N = 64;              // Number of oscillators (larger for better waves)
+const K_COUPLING = 0.15;   // Weaker coupling = more chaotic A
+const NOISE_A = 0.12;      // Higher noise in A = more complex
+const NOISE_B = 0.02;      // Lower noise in B
+const TRACK_STRENGTH = 1.2; // How strongly B tracks code(A)
 
-type ShapeType = 'tesseract' | '16-cell' | '3d-cube' | '3d-wrench';
-
-interface Shape {
-  vertices: Vec4[];
-  edges: { from: number; to: number }[];
-  name: string;
-  is4D: boolean;
-}
-
-interface PhysicsState {
-  angleXY: number;
-  angleXZ: number;
-  angleYZ: number;
-  angleXW: number;
-  angleYW: number;
-  angleZW: number;
-  omegaXY: number;
-  omegaXZ: number;
-  omegaYZ: number;
-  omegaXW: number;
-  omegaYW: number;
-  omegaZW: number;
-  Lx: number;
-  Ly: number;
-  Lz: number;
-  isDragging: boolean;
-  activePanel: 'left' | 'right' | null;
-  draggingSlider: 'flatten' | 'depth' | null;
-  lastMouseX: number;
-  lastMouseY: number;
-}
+const SCALE = 2;
 
 interface CodeFormingProps {
   fullPage?: boolean;
 }
 
 // =============================================================================
-// CONSTANTS
+// KURAMOTO LATTICE SYSTEM
 // =============================================================================
 
-type Base = 'A' | 'C' | 'G' | 'T';
+interface KuramotoState {
+  theta: Float64Array;
+  omega: Float64Array;
+}
 
-const BASE_COLORS: Record<Base, string> = {
-  A: '#22c55e',
-  C: '#3b82f6',
-  G: '#f59e0b',
-  T: '#ef4444',
-};
+function initKuramoto(seed: number): KuramotoState {
+  let s = seed;
+  const rand = () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
 
-const DAMPING = 0.003;
-const DRAG_SENSITIVITY = 0.006;
-const EULER_COUPLING = 0.15;  // Match TesseractSimple for proper Dzhanibekov
+  const theta = new Float64Array(N);
+  const omega = new Float64Array(N);
 
-// Canvas dimensions (no SCALE multiplier - native resolution)
-const W = 1200;
-const H = 700;
-const RENDER_SCALE = 280;
+  for (let i = 0; i < N; i++) {
+    theta[i] = rand() * 2 * Math.PI;
+    // Varied frequencies for more interesting dynamics
+    omega[i] = 0.3 + rand() * 0.8;
+  }
+
+  return { theta, omega };
+}
+
+function stepKuramoto(state: KuramotoState, dt: number, noiseLevel: number): void {
+  const { theta, omega } = state;
+  const dtheta = new Float64Array(N);
+
+  for (let i = 0; i < N; i++) {
+    let coupling = 0;
+    const left = (i - 1 + N) % N;
+    const right = (i + 1) % N;
+    coupling += Math.sin(theta[left] - theta[i]);
+    coupling += Math.sin(theta[right] - theta[i]);
+
+    const noise = (Math.random() - 0.5) * noiseLevel;
+    dtheta[i] = omega[i] + K_COUPLING * coupling + noise;
+  }
+
+  for (let i = 0; i < N; i++) {
+    theta[i] += dtheta[i] * dt;
+  }
+}
 
 // =============================================================================
-// SHAPE GENERATORS
+// FOURIER CODE (BANDWIDTH-LIMITED PROJECTION)
 // =============================================================================
 
-function generateTesseract(): Shape {
-  const vertices: Vec4[] = [];
-  for (let i = 0; i < 16; i++) {
-    vertices.push({
-      x: (i & 1) ? 1 : -1,
-      y: (i & 2) ? 1 : -1,
-      z: (i & 4) ? 1 : -1,
-      w: (i & 8) ? 1 : -1,
-    });
-  }
+function computeFourierCode(theta: Float64Array, bandwidth: number): Float64Array {
+  const k = Math.max(1, Math.min(Math.floor(N / 2), bandwidth));
+  const code = new Float64Array(k * 2);
 
-  const edges: { from: number; to: number }[] = [];
-  for (let i = 0; i < 16; i++) {
-    for (let j = i + 1; j < 16; j++) {
-      const v1 = vertices[i];
-      const v2 = vertices[j];
-      const diff =
-        (v1.x !== v2.x ? 1 : 0) +
-        (v1.y !== v2.y ? 1 : 0) +
-        (v1.z !== v2.z ? 1 : 0) +
-        (v1.w !== v2.w ? 1 : 0);
-      if (diff === 1) {
-        edges.push({ from: i, to: j });
-      }
+  for (let m = 0; m < k; m++) {
+    let re = 0, im = 0;
+    for (let i = 0; i < N; i++) {
+      const angle = (2 * Math.PI * m * i) / N;
+      re += Math.cos(theta[i]) * Math.cos(angle) + Math.sin(theta[i]) * Math.sin(angle);
+      im += Math.sin(theta[i]) * Math.cos(angle) - Math.cos(theta[i]) * Math.sin(angle);
     }
+    code[m * 2] = re / N;
+    code[m * 2 + 1] = im / N;
   }
 
-  return { vertices, edges, name: 'Tesseract', is4D: true };
+  return code;
 }
 
-function generate16Cell(): Shape {
-  const scale = 1.5;
-  const vertices: Vec4[] = [
-    { x: scale, y: 0, z: 0, w: 0 },
-    { x: -scale, y: 0, z: 0, w: 0 },
-    { x: 0, y: scale, z: 0, w: 0 },
-    { x: 0, y: -scale, z: 0, w: 0 },
-    { x: 0, y: 0, z: scale, w: 0 },
-    { x: 0, y: 0, z: -scale, w: 0 },
-    { x: 0, y: 0, z: 0, w: scale },
-    { x: 0, y: 0, z: 0, w: -scale },
-  ];
+function reconstructFromCode(code: Float64Array): Float64Array {
+  const k = code.length / 2;
+  const reconstructed = new Float64Array(N);
 
-  const edges: { from: number; to: number }[] = [];
-  for (let i = 0; i < 8; i++) {
-    for (let j = i + 1; j < 8; j++) {
-      if (Math.floor(i / 2) !== Math.floor(j / 2)) {
-        edges.push({ from: i, to: j });
-      }
+  for (let i = 0; i < N; i++) {
+    let val = 0;
+    for (let m = 0; m < k; m++) {
+      const angle = (2 * Math.PI * m * i) / N;
+      val += code[m * 2] * Math.cos(angle) - code[m * 2 + 1] * Math.sin(angle);
     }
+    reconstructed[i] = val;
   }
 
-  return { vertices, edges, name: '16-Cell', is4D: true };
+  return reconstructed;
 }
 
-function generate3DCube(): Shape {
-  const vertices: Vec4[] = [];
-  const edges: { from: number; to: number }[] = [];
+function stepSystemB(
+  stateB: KuramotoState,
+  codeTarget: Float64Array,
+  dt: number,
+  noiseLevel: number
+): void {
+  const { theta, omega } = stateB;
+  const dtheta = new Float64Array(N);
 
-  for (let i = 0; i < 8; i++) {
-    vertices.push({
-      x: (i & 1) ? 1 : -1,
-      y: (i & 2) ? 1 : -1,
-      z: (i & 4) ? 1 : -1,
-      w: 0,
-    });
+  for (let i = 0; i < N; i++) {
+    let coupling = 0;
+    const left = (i - 1 + N) % N;
+    const right = (i + 1) % N;
+    coupling += Math.sin(theta[left] - theta[i]);
+    coupling += Math.sin(theta[right] - theta[i]);
+
+    // Track the code target (force toward reconstructed target)
+    const targetPhase = Math.atan2(Math.sin(codeTarget[i] * 2), Math.cos(codeTarget[i] * 2));
+    const trackForce = TRACK_STRENGTH * Math.sin(targetPhase - theta[i]);
+
+    const noise = (Math.random() - 0.5) * noiseLevel;
+    dtheta[i] = omega[i] + K_COUPLING * coupling + trackForce + noise;
   }
 
-  for (let i = 0; i < 8; i++) {
-    for (let j = i + 1; j < 8; j++) {
-      const diff = i ^ j;
-      if (diff === 1 || diff === 2 || diff === 4) {
-        edges.push({ from: i, to: j });
-      }
-    }
+  for (let i = 0; i < N; i++) {
+    theta[i] += dtheta[i] * dt;
   }
-
-  return { vertices, edges, name: '3D Cube', is4D: false };
 }
 
-function generate3DWrench(): Shape {
-  const vertices: Vec4[] = [];
-  const edges: { from: number; to: number }[] = [];
+// =============================================================================
+// METRICS
+// =============================================================================
 
-  const handleLength = 2.0;
-  const handleRadius = 0.15;
-  const segments = 8;
-  const headLength = 1.2;
-  const headRadius = 0.2;
+function computeNeff(values: Float64Array): number {
+  const k = Math.floor(N / 2);
+  const power = new Float64Array(k);
+  let totalPower = 0;
 
-  // Handle rings
-  for (let ring = 0; ring <= 4; ring++) {
-    const y = -handleLength / 2 + (ring / 4) * handleLength;
-    for (let i = 0; i < segments; i++) {
-      const angle = (i / segments) * Math.PI * 2;
-      vertices.push({
-        x: Math.cos(angle) * handleRadius,
-        y: y,
-        z: Math.sin(angle) * handleRadius,
-        w: 0,
-      });
+  for (let m = 0; m < k; m++) {
+    let re = 0, im = 0;
+    for (let i = 0; i < N; i++) {
+      const angle = (2 * Math.PI * m * i) / N;
+      re += values[i] * Math.cos(angle);
+      im += values[i] * Math.sin(angle);
     }
+    power[m] = (re * re + im * im) / (N * N);
+    totalPower += power[m];
   }
 
-  // Connect handle
-  for (let ring = 0; ring < 4; ring++) {
-    for (let i = 0; i < segments; i++) {
-      const curr = ring * segments + i;
-      const next = ring * segments + ((i + 1) % segments);
-      const above = (ring + 1) * segments + i;
-      edges.push({ from: curr, to: next });
-      edges.push({ from: curr, to: above });
-    }
-  }
-  for (let i = 0; i < segments; i++) {
-    edges.push({ from: 4 * segments + i, to: 4 * segments + ((i + 1) % segments) });
+  if (totalPower < 0.0001) return 1;
+
+  let sumSq = 0;
+  for (let m = 0; m < k; m++) {
+    const p = power[m] / totalPower;
+    sumSq += p * p;
   }
 
-  // Head
-  const headY = handleLength / 2;
-  const headStart = vertices.length;
+  return Math.min(k, 1 / sumSq);
+}
 
-  for (let ring = 0; ring <= 3; ring++) {
-    const x = -headLength / 2 + (ring / 3) * headLength;
-    for (let i = 0; i < segments; i++) {
-      const angle = (i / segments) * Math.PI * 2;
-      vertices.push({
-        x: x,
-        y: headY + Math.cos(angle) * headRadius,
-        z: Math.sin(angle) * headRadius,
-        w: 0,
-      });
-    }
+function computeComplexity(theta: Float64Array): number {
+  // Compute variance of phase differences (higher = more complex)
+  let sum = 0;
+  let sumSq = 0;
+  for (let i = 0; i < N; i++) {
+    const next = (i + 1) % N;
+    let diff = theta[next] - theta[i];
+    // Wrap to [-π, π]
+    while (diff > Math.PI) diff -= 2 * Math.PI;
+    while (diff < -Math.PI) diff += 2 * Math.PI;
+    sum += diff;
+    sumSq += diff * diff;
   }
-
-  for (let ring = 0; ring < 3; ring++) {
-    for (let i = 0; i < segments; i++) {
-      const curr = headStart + ring * segments + i;
-      const next = headStart + ring * segments + ((i + 1) % segments);
-      const above = headStart + (ring + 1) * segments + i;
-      edges.push({ from: curr, to: next });
-      edges.push({ from: curr, to: above });
-    }
-  }
-  for (let i = 0; i < segments; i++) {
-    edges.push({
-      from: headStart + 3 * segments + i,
-      to: headStart + 3 * segments + ((i + 1) % segments),
-    });
-  }
-
-  return { vertices, edges, name: '3D Wrench', is4D: false };
+  const mean = sum / N;
+  const variance = sumSq / N - mean * mean;
+  return Math.sqrt(variance);
 }
 
 // =============================================================================
@@ -250,159 +211,212 @@ function generate3DWrench(): Shape {
 export default function CodeForming({ fullPage = false }: CodeFormingProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
-  const [shapeType, setShapeType] = useState<ShapeType>('3d-wrench');
 
-  // Use refs for slider values to avoid re-renders that freeze animation
-  const flattenRef = useRef(0);  // Start at 0 = full 3D (slider on right)
-  const depthRef = useRef(0.5);
+  const maxBandwidth = Math.floor(N / 2);
+  const [bandwidth, setBandwidth] = useState(maxBandwidth);
+  const systemA = useRef<KuramotoState>(initKuramoto(42));
+  const systemB = useRef<KuramotoState>(initKuramoto(137));
 
-  const symbolState = useRef({
-    currentBase: 'A' as Base,
-    baseStrength: 0,
+  const metricsRef = useRef({
+    complexityA: 0,
+    complexityB: 0,
+    neffA: 0,
+    neffB: 0,
   });
 
-  const shape = useMemo(() => {
-    switch (shapeType) {
-      case 'tesseract':
-        return generateTesseract();
-      case '16-cell':
-        return generate16Cell();
-      case '3d-cube':
-        return generate3DCube();
-      case '3d-wrench':
-        return generate3DWrench();
-      default:
-        return generateTesseract();
-    }
-  }, [shapeType]);
+  const BASE_W = fullPage ? 1100 : 700;
+  const BASE_H = fullPage ? 700 : 480;
+  const W = BASE_W * SCALE;
+  const H = BASE_H * SCALE;
 
-  // Compute shape asymmetry
-  const shapeAsymmetry = useMemo(() => {
-    const verts = shape.vertices;
-    const maxW = Math.max(...verts.map((v) => Math.abs(v.w)));
-    const is3D = maxW < 0.01;
-
-    let Ix = 0,
-      Iy = 0,
-      Iz = 0,
-      Iw = 0;
-    for (const v of verts) {
-      Ix += v.y * v.y + v.z * v.z + v.w * v.w;
-      Iy += v.x * v.x + v.z * v.z + v.w * v.w;
-      Iz += v.x * v.x + v.y * v.y + v.w * v.w;
-      Iw += v.x * v.x + v.y * v.y + v.z * v.z;
-    }
-
-    const moments = is3D ? [Ix, Iy, Iz].sort((a, b) => a - b) : [Ix, Iy, Iz, Iw].sort((a, b) => a - b);
-    const total = moments.reduce((s, m) => s + m, 0);
-    if (total === 0) return 0;
-
-    const mean = total / moments.length;
-    const variance = moments.reduce((s, m) => s + (m - mean) ** 2, 0) / moments.length;
-    return Math.min(1, (Math.sqrt(variance) / mean) * 2);
-  }, [shape]);
-
-  // Inertia for Dzhanibekov
-  const inertia = useMemo(() => {
-    if (shape.is4D) return { I1: 1, I2: 1, I3: 1 };
-    if (shapeType === '3d-wrench') return { I1: 0.3, I2: 1.0, I3: 1.8 };
-    return { I1: 1, I2: 1, I3: 1 };
-  }, [shape, shapeType]);
-
-  const physics = useRef<PhysicsState>({
-    angleXY: 0,
-    angleXZ: 0,
-    angleYZ: 0,
-    angleXW: 0,
-    angleYW: 0,
-    angleZW: 0,
-    omegaXY: 0,
-    omegaXZ: 0,
-    omegaYZ: 0,
-    omegaXW: 0.008,
-    omegaYW: 0.005,
-    omegaZW: 0.003,
-    Lx: 0.001,
-    Ly: 0.08,  // Mostly around intermediate axis for Dzhanibekov
-    Lz: 0.002,
+  const dragState = useRef({
     isDragging: false,
-    activePanel: null,
-    draggingSlider: null,
-    lastMouseX: 0,
-    lastMouseY: 0,
+    activeControl: null as string | null,
   });
 
-  // Reset on shape change
-  useEffect(() => {
-    const state = physics.current;
-    state.angleXY = 0;
-    state.angleXZ = 0;
-    state.angleYZ = 0;
-    state.angleXW = 0;
-    state.angleYW = 0;
-    state.angleZW = 0;
-
-    if (shape.is4D) {
-      state.omegaXW = 0.008;
-      state.omegaYW = 0.005;
-      state.Lx = 0;
-      state.Ly = 0;
-      state.Lz = 0;
-    } else {
-      // Match TesseractSimple initial conditions for proper Dzhanibekov
-      state.omegaXW = 0;
-      state.omegaYW = 0;
-      state.Lx = 0.001;
-      state.Ly = 0.08;  // Mostly around intermediate axis (unstable!)
-      state.Lz = 0.002;
-    }
-  }, [shape]);
-
   // ---------------------------------------------------------------------------
-  // 4D Rotation
+  // DRAW WAVE
   // ---------------------------------------------------------------------------
 
-  const rotate4D = useCallback((v: Vec4, angle: number, plane: string): Vec4 => {
-    const s = Math.sin(angle);
-    const c = Math.cos(angle);
-    const result = { ...v };
+  const drawWave = useCallback((
+    ctx: CanvasRenderingContext2D,
+    values: Float64Array | number[],
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    color: string,
+    label: string,
+    metric: number,
+    metricLabel: string
+  ) => {
+    const arr = values instanceof Float64Array ? Array.from(values) : values;
 
-    switch (plane) {
-      case 'xy':
-        result.x = v.x * c - v.y * s;
-        result.y = v.x * s + v.y * c;
-        break;
-      case 'xz':
-        result.x = v.x * c - v.z * s;
-        result.z = v.x * s + v.z * c;
-        break;
-      case 'xw':
-        result.x = v.x * c - v.w * s;
-        result.w = v.x * s + v.w * c;
-        break;
-      case 'yz':
-        result.y = v.y * c - v.z * s;
-        result.z = v.y * s + v.z * c;
-        break;
-      case 'yw':
-        result.y = v.y * c - v.w * s;
-        result.w = v.y * s + v.w * c;
-        break;
-      case 'zw':
-        result.z = v.z * c - v.w * s;
-        result.w = v.z * s + v.w * c;
-        break;
+    // Find range for normalization
+    let min = Infinity, max = -Infinity;
+    for (const v of arr) {
+      if (v < min) min = v;
+      if (v > max) max = v;
     }
-    return result;
+    const range = Math.max(0.1, max - min);
+
+    // Background
+    ctx.fillStyle = '#0a0a0a';
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, 8 * SCALE);
+    ctx.fill();
+
+    // Border
+    ctx.strokeStyle = '#222';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Label
+    ctx.fillStyle = color;
+    ctx.font = `bold ${11 * SCALE}px system-ui`;
+    ctx.textAlign = 'left';
+    ctx.fillText(label, x + 10 * SCALE, y + 18 * SCALE);
+
+    // Metric
+    ctx.fillStyle = '#666';
+    ctx.font = `${9 * SCALE}px monospace`;
+    ctx.textAlign = 'right';
+    ctx.fillText(`${metricLabel}: ${metric.toFixed(1)}`, x + width - 10 * SCALE, y + 18 * SCALE);
+
+    // Center line
+    const centerY = y + height / 2;
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(x + 10 * SCALE, centerY);
+    ctx.lineTo(x + width - 10 * SCALE, centerY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Wave
+    const padding = 15 * SCALE;
+    const waveWidth = width - padding * 2;
+    const waveHeight = height - 50 * SCALE;
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5 * SCALE;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+
+    for (let i = 0; i < arr.length; i++) {
+      const px = x + padding + (i / (arr.length - 1)) * waveWidth;
+      const normalized = (arr[i] - min) / range - 0.5;
+      const py = centerY - normalized * waveHeight * 0.8;
+
+      if (i === 0) {
+        ctx.moveTo(px, py);
+      } else {
+        ctx.lineTo(px, py);
+      }
+    }
+    ctx.stroke();
+
+    // Draw dots at each oscillator position
+    ctx.fillStyle = color;
+    for (let i = 0; i < arr.length; i += 2) {
+      const px = x + padding + (i / (arr.length - 1)) * waveWidth;
+      const normalized = (arr[i] - min) / range - 0.5;
+      const py = centerY - normalized * waveHeight * 0.8;
+      ctx.beginPath();
+      ctx.arc(px, py, 3 * SCALE, 0, Math.PI * 2);
+      ctx.fill();
+    }
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Animation Loop
+  // DRAW SPECTRUM BAR
+  // ---------------------------------------------------------------------------
+
+  const drawSpectrumBar = useCallback((
+    ctx: CanvasRenderingContext2D,
+    code: Float64Array,
+    bandwidth: number,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) => {
+    const k = code.length / 2;
+    const barWidth = (width - 20 * SCALE) / maxBandwidth;
+
+    // Background
+    ctx.fillStyle = '#0a0a0a';
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, 6 * SCALE);
+    ctx.fill();
+
+    // Label
+    ctx.fillStyle = '#888';
+    ctx.font = `bold ${9 * SCALE}px system-ui`;
+    ctx.textAlign = 'center';
+    ctx.fillText(`CODE: ${bandwidth} Fourier modes`, x + width / 2, y + 14 * SCALE);
+
+    // Draw frequency bars
+    const barAreaY = y + 22 * SCALE;
+    const barAreaH = height - 28 * SCALE;
+
+    // Find max magnitude for normalization
+    let maxMag = 0;
+    for (let m = 0; m < k; m++) {
+      const mag = Math.sqrt(code[m * 2] * code[m * 2] + code[m * 2 + 1] * code[m * 2 + 1]);
+      if (mag > maxMag) maxMag = mag;
+    }
+    maxMag = Math.max(0.1, maxMag);
+
+    for (let m = 0; m < maxBandwidth; m++) {
+      const bx = x + 10 * SCALE + m * barWidth;
+
+      if (m < k) {
+        // Active mode
+        const mag = Math.sqrt(code[m * 2] * code[m * 2] + code[m * 2 + 1] * code[m * 2 + 1]);
+        const barH = (mag / maxMag) * barAreaH * 0.8;
+
+        // Gradient based on frequency
+        const hue = 200 - (m / maxBandwidth) * 150; // Blue to yellow
+        ctx.fillStyle = `hsl(${hue}, 70%, 55%)`;
+        ctx.fillRect(bx, barAreaY + barAreaH - barH, barWidth - 2, barH);
+      } else {
+        // Filtered out mode (grayed out)
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(bx, barAreaY + barAreaH * 0.2, barWidth - 2, barAreaH * 0.6);
+
+        // X mark
+        ctx.strokeStyle = '#333';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(bx + 2, barAreaY + barAreaH * 0.3);
+        ctx.lineTo(bx + barWidth - 4, barAreaY + barAreaH * 0.7);
+        ctx.moveTo(bx + barWidth - 4, barAreaY + barAreaH * 0.3);
+        ctx.lineTo(bx + 2, barAreaY + barAreaH * 0.7);
+        ctx.stroke();
+      }
+    }
+
+    // Frequency labels
+    ctx.fillStyle = '#444';
+    ctx.font = `${7 * SCALE}px system-ui`;
+    ctx.textAlign = 'left';
+    ctx.fillText('low freq', x + 10 * SCALE, y + height - 3 * SCALE);
+    ctx.textAlign = 'right';
+    ctx.fillText('high freq', x + width - 10 * SCALE, y + height - 3 * SCALE);
+  }, [maxBandwidth]);
+
+  // ---------------------------------------------------------------------------
+  // ANIMATION LOOP
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    const dt = 0.04;
 
     const loop = () => {
       const ctx = canvas.getContext('2d');
@@ -411,509 +425,258 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
         return;
       }
 
-      const state = physics.current;
-      const { I1, I2, I3 } = inertia;
-
       // -----------------------------------------------------------------------
       // PHYSICS UPDATE
       // -----------------------------------------------------------------------
 
-      if (!state.isDragging) {
-        if (shape.is4D) {
-          // 4D: Simple damped rotation
-          state.omegaXZ *= 1 - DAMPING;
-          state.omegaYZ *= 1 - DAMPING;
-          state.omegaXW *= 1 - DAMPING;
-          state.omegaYW *= 1 - DAMPING;
+      stepKuramoto(systemA.current, dt, NOISE_A);
 
-          state.angleXZ += state.omegaXZ;
-          state.angleYZ += state.omegaYZ;
-          state.angleXW += state.omegaXW;
-          state.angleYW += state.omegaYW;
-        } else {
-          // 3D: Euler's equations for Dzhanibekov
-          let omegaX = state.Lx / I1;
-          let omegaY = state.Ly / I2;
-          let omegaZ = state.Lz / I3;
+      const code = computeFourierCode(systemA.current.theta, bandwidth);
+      const codeTarget = reconstructFromCode(code);
 
-          const dOmegaX = (EULER_COUPLING * (I2 - I3) * omegaY * omegaZ) / I1;
-          const dOmegaY = (EULER_COUPLING * (I3 - I1) * omegaZ * omegaX) / I2;
-          const dOmegaZ = (EULER_COUPLING * (I1 - I2) * omegaX * omegaY) / I3;
+      stepSystemB(systemB.current, codeTarget, dt, NOISE_B);
 
-          state.Lx = (state.Lx + dOmegaX * I1) * (1 - DAMPING * 0.5);
-          state.Ly = (state.Ly + dOmegaY * I2) * (1 - DAMPING * 0.5);
-          state.Lz = (state.Lz + dOmegaZ * I3) * (1 - DAMPING * 0.5);
-
-          omegaX = state.Lx / I1;
-          omegaY = state.Ly / I2;
-          omegaZ = state.Lz / I3;
-
-          state.omegaYZ = omegaX;
-          state.omegaXZ = omegaY;
-          state.omegaXY = omegaZ;
-
-          state.angleYZ += state.omegaYZ;
-          state.angleXZ += state.omegaXZ;
-          state.angleXY += state.omegaXY;
-        }
+      // Convert phases to wave values (sin of phase)
+      const waveA = new Float64Array(N);
+      const waveB = new Float64Array(N);
+      for (let i = 0; i < N; i++) {
+        waveA[i] = Math.sin(systemA.current.theta[i]);
+        waveB[i] = Math.sin(systemB.current.theta[i]);
       }
 
-      // -----------------------------------------------------------------------
-      // BASIN DYNAMICS
-      // -----------------------------------------------------------------------
-
-      // Read from refs (no re-render on change!)
-      const flattenAmount = flattenRef.current;
-      const basinDepth = depthRef.current;
-
-      // effectiveDepth combines slider depth with shape asymmetry
-      const effectiveDepth = basinDepth * (0.3 + shapeAsymmetry * 0.7);
-      // isCoherent: fully unflattened (flattenAmount = 0)
-      const isCoherent = flattenAmount < 0.05;
-
-      // Apply basin damping based on flattenAmount and depth
-      // More flattened + deeper basins = more damping = stickier attractors
-      if (!isCoherent && effectiveDepth > 0.05) {
-        const depthFactor = effectiveDepth * effectiveDepth;
-        // flattenAmount directly controls how much damping is applied
-        const basinDamping = depthFactor * flattenAmount * 0.03;
-        const dampMult = 1 - basinDamping;
-
-        if (shape.is4D) {
-          state.omegaXZ *= dampMult;
-          state.omegaYZ *= dampMult;
-          state.omegaXW *= dampMult;
-          state.omegaYW *= dampMult;
-        } else {
-          state.Lx *= dampMult;
-          state.Ly *= dampMult;
-          state.Lz *= dampMult;
-        }
-      }
+      // Compute metrics
+      const complexityA = computeComplexity(systemA.current.theta);
+      const complexityB = computeComplexity(systemB.current.theta);
+      metricsRef.current.complexityA = complexityA;
+      metricsRef.current.complexityB = complexityB;
+      metricsRef.current.neffA = computeNeff(waveA);
+      metricsRef.current.neffB = computeNeff(waveB);
 
       // -----------------------------------------------------------------------
       // RENDERING
       // -----------------------------------------------------------------------
 
-      ctx.fillStyle = '#000';
+      ctx.fillStyle = '#050505';
       ctx.fillRect(0, 0, W, H);
 
-      const panelW = fullPage ? W / 2 - 10 : W;
-      const leftCenterX = fullPage ? panelW / 2 : W / 2;
-      const rightCenterX = fullPage ? panelW + 20 + panelW / 2 : 0;
-      const centerY = H / 2 - 30;
+      // Header
+      ctx.fillStyle = '#3b82f6';
+      ctx.font = `bold ${16 * SCALE}px system-ui`;
+      ctx.textAlign = 'left';
+      ctx.fillText('CODE FORMATION', 20 * SCALE, 28 * SCALE);
+
+      ctx.fillStyle = '#666';
+      ctx.font = `${11 * SCALE}px system-ui`;
+      ctx.textAlign = 'right';
+      const statusText = bandwidth === maxBandwidth ? 'Full bandwidth' :
+                         bandwidth <= 3 ? 'Severe compression' : 'Partial bandwidth';
+      ctx.fillText(statusText, W - 20 * SCALE, 28 * SCALE);
 
       // Divider
-      if (fullPage) {
-        ctx.strokeStyle = '#222';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(panelW + 10, 20);
-        ctx.lineTo(panelW + 10, H - 100);
-        ctx.stroke();
-      }
+      ctx.strokeStyle = '#222';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, 40 * SCALE);
+      ctx.lineTo(W, 40 * SCALE);
+      ctx.stroke();
 
       // -----------------------------------------------------------------------
-      // Transform vertices
+      // LAYOUT
       // -----------------------------------------------------------------------
 
-      const transformedVerts: Vec4[] = [];
-      for (const v of shape.vertices) {
-        let p = { ...v };
+      const padding = 20 * SCALE;
+      const contentTop = 50 * SCALE;
+      const waveHeight = fullPage ? 110 * SCALE : 90 * SCALE;
+      const spectrumHeight = fullPage ? 70 * SCALE : 55 * SCALE;
+      const gap = 12 * SCALE;
+      const waveWidth = W - padding * 2;
 
-        if (shape.is4D) {
-          p = rotate4D(p, state.angleXW, 'xw');
-          p = rotate4D(p, state.angleYW, 'yw');
-          p = rotate4D(p, state.angleXZ, 'xz');
-          p = rotate4D(p, state.angleYZ, 'yz');
-        } else {
-          p = rotate4D(p, state.angleXY, 'xy');
-          p = rotate4D(p, state.angleXZ, 'xz');
-          p = rotate4D(p, state.angleYZ, 'yz');
-        }
+      // System A wave
+      drawWave(ctx, waveA, padding, contentTop, waveWidth, waveHeight,
+        '#3b82f6', 'SYSTEM A (Driving)', metricsRef.current.complexityA, 'Complexity');
 
-        transformedVerts.push(p);
-      }
+      // Code spectrum
+      const specY = contentTop + waveHeight + gap;
+      drawSpectrumBar(ctx, code, bandwidth, padding, specY, waveWidth, spectrumHeight);
 
-      // -----------------------------------------------------------------------
-      // Project to 2D (full view)
-      // -----------------------------------------------------------------------
+      // Arrow indicating information flow
+      const arrowX = padding + waveWidth / 2;
+      const arrowY1 = contentTop + waveHeight + 3 * SCALE;
+      const arrowY2 = specY - 3 * SCALE;
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2 * SCALE;
+      ctx.beginPath();
+      ctx.moveTo(arrowX, arrowY1);
+      ctx.lineTo(arrowX, arrowY2);
+      ctx.stroke();
+      ctx.fillStyle = '#444';
+      ctx.beginPath();
+      ctx.moveTo(arrowX, arrowY2 + 2);
+      ctx.lineTo(arrowX - 6 * SCALE, arrowY1 + 2);
+      ctx.lineTo(arrowX + 6 * SCALE, arrowY1 + 2);
+      ctx.closePath();
+      ctx.fill();
 
-      const projectFull = (v: Vec4, cx: number): { x: number; y: number; z: number; w: number } => {
-        let x3, y3, z3;
-        if (shape.is4D) {
-          const dist = 2.5;
-          const scale4D = 1 / (dist - v.w * 0.5);
-          x3 = v.x * scale4D;
-          y3 = v.y * scale4D;
-          z3 = v.z * scale4D;
-        } else {
-          x3 = v.x;
-          y3 = v.y;
-          z3 = v.z;
-        }
+      // System B wave (reconstructed from code)
+      const bWaveY = specY + spectrumHeight + gap;
+      drawWave(ctx, waveB, padding, bWaveY, waveWidth, waveHeight,
+        '#22c55e', 'SYSTEM B (Responding)', metricsRef.current.complexityB, 'Complexity');
 
-        const fov = 3;
-        const scale3D = fov / (fov + z3 + 1.5);
-        return {
-          x: cx + x3 * scale3D * RENDER_SCALE,
-          y: centerY - y3 * scale3D * RENDER_SCALE,
-          z: z3,
-          w: v.w,
-        };
-      };
-
-      // -----------------------------------------------------------------------
-      // Project to 2D (flattened view - collapse Z dimension)
-      // -----------------------------------------------------------------------
-
-      // flattenAmount is now a continuous slider (0 = 3D/4D, 1 = flat 2D)
-      // Use it directly for the Z-collapse
-
-      const projectFlat = (v: Vec4, cx: number): { x: number; y: number; z: number; w: number } => {
-        let x3, y3, z3;
-
-        // Collapse Z dimension based on flattenAmount
-        // At 1 basin (flattenAmount=1): Z is nearly 0, view is 2D
-        // At 4 basins (flattenAmount=0.25): Z is mostly preserved
-        // At coherent (flattenAmount=0): Full 3D
-        const zScale = 1 - flattenAmount * 0.95;
-
-        if (shape.is4D) {
-          // For 4D shapes, also collapse W
-          const wScale = 1 - flattenAmount * 0.8;
-          const dist = 2.5;
-          const effectiveW = v.w * wScale;
-          const scale4D = 1 / (dist - effectiveW * 0.5);
-          x3 = v.x * scale4D;
-          y3 = v.y * scale4D;
-          z3 = v.z * scale4D * zScale;
-        } else {
-          x3 = v.x;
-          y3 = v.y;
-          z3 = v.z * zScale;
-        }
-
-        const fov = 3;
-        const scale3D = fov / (fov + z3 + 1.5);
-        return {
-          x: cx + x3 * scale3D * RENDER_SCALE,
-          y: centerY - y3 * scale3D * RENDER_SCALE,
-          z: z3,
-          w: v.w,
-        };
-      };
+      // Arrow from spectrum to B
+      const arrowY3 = specY + spectrumHeight + 3 * SCALE;
+      const arrowY4 = bWaveY - 3 * SCALE;
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 2 * SCALE;
+      ctx.beginPath();
+      ctx.moveTo(arrowX, arrowY3);
+      ctx.lineTo(arrowX, arrowY4);
+      ctx.stroke();
+      ctx.fillStyle = '#444';
+      ctx.beginPath();
+      ctx.moveTo(arrowX, arrowY4 + 2);
+      ctx.lineTo(arrowX - 6 * SCALE, arrowY3 + 8 * SCALE);
+      ctx.lineTo(arrowX + 6 * SCALE, arrowY3 + 8 * SCALE);
+      ctx.closePath();
+      ctx.fill();
 
       // -----------------------------------------------------------------------
-      // Draw edges helper
+      // INSIGHT TEXT
       // -----------------------------------------------------------------------
 
-      const drawShape = (
-        projected: { x: number; y: number; z: number; w: number }[],
-        alpha: number
-      ) => {
-        // Sort edges by depth
-        const sortedEdges = [...shape.edges].sort((a, b) => {
-          const aD = (projected[a.from].z + projected[a.to].z) / 2;
-          const bD = (projected[b.from].z + projected[b.to].z) / 2;
-          return bD - aD;
-        });
+      const textY = bWaveY + waveHeight + 15 * SCALE;
 
-        ctx.lineCap = 'round';
+      const insight = bandwidth >= maxBandwidth - 2
+        ? 'Full bandwidth: B perfectly tracks A\'s complex dynamics'
+        : bandwidth > maxBandwidth / 2
+        ? 'High bandwidth: B captures most of A\'s structure'
+        : bandwidth > 4
+        ? 'Medium bandwidth: B loses fine details, keeps overall pattern'
+        : bandwidth > 2
+        ? 'Low bandwidth: B only sees slow oscillations'
+        : 'Minimal bandwidth: B collapses to single mode';
 
-        for (const edge of sortedEdges) {
-          const p1 = projected[edge.from];
-          const p2 = projected[edge.to];
-
-          const avgW = (p1.w + p2.w) / 2;
-          const avgZ = (p1.z + p2.z) / 2;
-          const edgeAlpha = shape.is4D ? 0.3 + (avgW + 1) * 0.35 : 0.4 + (1 - avgZ) * 0.3;
-
-          const hue = shape.is4D ? 30 + avgW * 30 : 200;
-
-          // Glow
-          ctx.save();
-          ctx.shadowColor = `hsla(${hue}, 80%, 60%, ${alpha * 0.5})`;
-          ctx.shadowBlur = 8;
-          ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${edgeAlpha * alpha * 0.5})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.stroke();
-          ctx.restore();
-
-          // Main line
-          ctx.strokeStyle = `hsla(${hue}, 80%, 60%, ${edgeAlpha * alpha})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.stroke();
-        }
-
-        // Vertices
-        for (const p of projected) {
-          const size = shape.is4D ? 3 + (p.w + 1) * 1.5 : 2 + (1 - p.z) * 1.5;
-          const hue = shape.is4D ? (p.w > 0 ? 180 : 300) : 200;
-
-          ctx.save();
-          ctx.shadowColor = `hsla(${hue}, 100%, 60%, ${alpha * 0.8})`;
-          ctx.shadowBlur = 6;
-          ctx.fillStyle = `hsla(${hue}, 80%, 70%, ${alpha * 0.8})`;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
-      };
-
-      // -----------------------------------------------------------------------
-      // LEFT PANEL: Full 3D/4D view
-      // -----------------------------------------------------------------------
-
-      const leftProj = transformedVerts.map((v) => projectFull(v, leftCenterX));
-      drawShape(leftProj, 1);
-
-      // Label
-      ctx.fillStyle = '#3b82f6';
-      ctx.font = 'bold 11px system-ui';
+      ctx.fillStyle = '#888';
+      ctx.font = `${10 * SCALE}px system-ui`;
       ctx.textAlign = 'center';
-      ctx.fillText(shape.is4D ? '4D VIEW' : '3D VIEW', leftCenterX, 24);
+      ctx.fillText(insight, W / 2, textY);
 
       // -----------------------------------------------------------------------
-      // RIGHT PANEL: Flattened view + Symbol
+      // BANDWIDTH SLIDER
       // -----------------------------------------------------------------------
 
-      if (fullPage) {
-        const rightProj = transformedVerts.map((v) => projectFlat(v, rightCenterX));
-
-        // Shape stays fully visible - flattening IS the visual effect
-        // The Z-collapse in projectFlat makes it pancake-like
-        drawShape(rightProj, 1.0);
-
-        // Compute shape's angular momentum direction from physics state
-        // This is what the "symbol" actually represents - which rotational basin
-        const { Lx, Ly, Lz } = state;
-        const Lmag = Math.sqrt(Lx * Lx + Ly * Ly + Lz * Lz);
-
-        // Which axis dominates? This determines the "basin"
-        // For wrench: I1 < I2 < I3, stable around I1 and I3, unstable around I2
-        let dominantAxis = 'Y'; // intermediate (unstable)
-        if (Lmag > 0.001) {
-          const normLx = Math.abs(Lx) / Lmag;
-          const normLy = Math.abs(Ly) / Lmag;
-          const normLz = Math.abs(Lz) / Lmag;
-
-          // Find which axis has most angular momentum
-          if (normLx > normLy && normLx > normLz) {
-            dominantAxis = 'X';  // stable (smallest I)
-          } else if (normLz > normLy && normLz > normLx) {
-            dominantAxis = 'Z';  // stable (largest I)
-          } else {
-            dominantAxis = 'Y';  // intermediate (flipping - Dzhanibekov!)
-          }
-        }
-
-        // Update symbol state based on actual physics
-        const sym = symbolState.current;
-        const axisToBase: Record<string, Base> = { X: 'A', Y: 'C', Z: 'G' };
-        const instantBase = axisToBase[dominantAxis] || 'T';
-
-        if (instantBase === sym.currentBase) {
-          sym.baseStrength = Math.min(100, sym.baseStrength + 1 + effectiveDepth * 2);
-        } else {
-          sym.baseStrength -= 2 + (1 - effectiveDepth) * 3;
-          if (sym.baseStrength <= 0) {
-            sym.currentBase = instantBase;
-            sym.baseStrength = 10;
-          }
-        }
-
-        // Only show symbol indicator when significantly flattened
-        // Keep it subtle - just a small label, the shape IS the visualization
-        if (flattenAmount > 0.6) {
-          const cx = rightProj.reduce((s, p) => s + p.x, 0) / rightProj.length;
-          const cy = rightProj.reduce((s, p) => s + p.y, 0) / rightProj.length;
-
-          const symbolAlpha = (flattenAmount - 0.6) / 0.4;  // 0 at 0.6, 1 at 1.0
-          const color = BASE_COLORS[sym.currentBase];
-          const stability = sym.baseStrength / 100;
-
-          // Small, tasteful symbol at bottom of shape
-          const fontSize = 16 + flattenAmount * 12 + stability * 8;  // 16-36px max
-
-          ctx.save();
-          ctx.font = `bold ${fontSize}px monospace`;
-          ctx.fillStyle = color;
-          ctx.globalAlpha = symbolAlpha * (0.5 + stability * 0.5);
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(sym.currentBase, cx, cy + 80);  // Below the shape
-          ctx.restore();
-
-          // Stability indicator bar
-          if (flattenAmount > 0.8) {
-            const barWidth = 60;
-            const barHeight = 4;
-            const barX = cx - barWidth / 2;
-            const barY = cy + 100;
-
-            ctx.fillStyle = '#1a1a1a';
-            ctx.fillRect(barX, barY, barWidth, barHeight);
-            ctx.fillStyle = color;
-            ctx.globalAlpha = symbolAlpha * 0.8;
-            ctx.fillRect(barX, barY, barWidth * stability, barHeight);
-          }
-        }
-
-        // Panel label - show continuous dimensionality
-        const dim = shape.is4D ? 4 - flattenAmount * 2 : 3 - flattenAmount;
-        const dimLabel = dim.toFixed(1) + 'D';
-        ctx.fillStyle = isCoherent ? '#3b82f6' : '#22c55e';
-        ctx.font = 'bold 11px system-ui';
-        ctx.textAlign = 'center';
-        ctx.fillText(`${dimLabel} VIEW`, rightCenterX, 24);
-      }
-
-      // -----------------------------------------------------------------------
-      // Controls (bottom area)
-      // -----------------------------------------------------------------------
-
-      const ctrlY = H - 85;
-
-      // Shape buttons
-      ctx.fillStyle = '#555';
-      ctx.font = '9px system-ui';
-      ctx.textAlign = 'left';
-      ctx.fillText('SHAPE', 20, ctrlY);
-
-      const shapes: ShapeType[] = ['tesseract', '16-cell', '3d-cube', '3d-wrench'];
-      const shapeLabels = ['Tesseract', '16-Cell', '3D Cube', '3D Wrench'];
-      const btnW = 70;
-
-      shapes.forEach((s, i) => {
-        const bx = 20 + i * btnW;
-        const by = ctrlY + 6;
-        const isActive = shapeType === s;
-
-        ctx.fillStyle = isActive ? '#22c55e' : '#1a1a1a';
-        ctx.beginPath();
-        ctx.roundRect(bx, by, btnW - 6, 20, 3);
-        ctx.fill();
-
-        if (!isActive) {
-          ctx.strokeStyle = '#333';
-          ctx.lineWidth = 1;
-          ctx.stroke();
-        }
-
-        ctx.fillStyle = isActive ? '#000' : '#777';
-        ctx.font = '9px system-ui';
-        ctx.textAlign = 'center';
-        ctx.fillText(shapeLabels[i], bx + (btnW - 6) / 2, by + 13);
-      });
-
-      // Flatten slider (continuous 0 to 1)
-      // Left = flat (2D), Right = full 3D/4D
-      // Display is INVERTED: slider position = (1 - flattenAmount)
-      const sliderX = 320;
-      const sliderW = 350;
-      const sliderY = ctrlY + 10;
-      const displayPos = 1 - flattenAmount;  // Invert for display
+      const sliderY = textY + 20 * SCALE;
+      const sliderW = W - padding * 2;
+      const sliderH = 14 * SCALE;
 
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 10px system-ui';
+      ctx.font = `bold ${10 * SCALE}px system-ui`;
       ctx.textAlign = 'left';
-      ctx.fillText('DIMENSIONALITY', sliderX, ctrlY);
+      ctx.fillText('BANDWIDTH k (code dimensionality)', padding, sliderY);
+
+      const sliderTrackY = sliderY + 15 * SCALE;
 
       // Track
       ctx.fillStyle = '#1a1a1a';
       ctx.beginPath();
-      ctx.roundRect(sliderX, sliderY, sliderW, 10, 5);
+      ctx.roundRect(padding, sliderTrackY, sliderW, sliderH, 7 * SCALE);
       ctx.fill();
 
-      // Gradient fill: left = green (2D/flat), right = blue (3D/4D)
-      const grad = ctx.createLinearGradient(sliderX, 0, sliderX + sliderW, 0);
-      grad.addColorStop(0, '#22c55e');  // 2D (flat) - left
-      grad.addColorStop(0.5, '#eab308');
-      grad.addColorStop(1, '#3b82f6');  // 3D/4D (coherent) - right
+      // Fill gradient
+      const gradient = ctx.createLinearGradient(padding, 0, padding + sliderW, 0);
+      gradient.addColorStop(0, '#ef4444');
+      gradient.addColorStop(0.3, '#eab308');
+      gradient.addColorStop(1, '#22c55e');
 
-      ctx.fillStyle = grad;
+      const fillW = ((bandwidth - 1) / (maxBandwidth - 1)) * sliderW;
+      ctx.fillStyle = gradient;
       ctx.beginPath();
-      ctx.roundRect(sliderX, sliderY, displayPos * sliderW, 10, 5);
+      ctx.roundRect(padding, sliderTrackY, fillW, sliderH, 7 * SCALE);
       ctx.fill();
 
       // Handle
-      const handleX = sliderX + displayPos * sliderW;
+      const handleX = padding + fillW;
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(handleX, sliderY + 5, 8, 0, Math.PI * 2);
+      ctx.arc(handleX, sliderTrackY + sliderH / 2, 12 * SCALE, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = flattenAmount > 0.9 ? '#22c55e' : '#3b82f6';
-      ctx.lineWidth = 2;
+
+      const handleColor = bandwidth <= 3 ? '#ef4444' : bandwidth < maxBandwidth / 2 ? '#eab308' : '#22c55e';
+      ctx.strokeStyle = handleColor;
+      ctx.lineWidth = 3 * SCALE;
       ctx.stroke();
 
-      // Labels: left = 2D, right = 3D/4D
-      ctx.font = '8px system-ui';
+      // Value in handle
+      ctx.fillStyle = '#000';
+      ctx.font = `bold ${8 * SCALE}px system-ui`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(bandwidth.toString(), handleX, sliderTrackY + sliderH / 2);
+      ctx.textBaseline = 'alphabetic';
+
+      // Labels
+      ctx.fillStyle = '#ef4444';
+      ctx.font = `${8 * SCALE}px system-ui`;
       ctx.textAlign = 'left';
+      ctx.fillText('k=1 (collapsed)', padding, sliderTrackY + sliderH + 14 * SCALE);
+
       ctx.fillStyle = '#22c55e';
-      ctx.fillText('2D', sliderX, sliderY + 24);
       ctx.textAlign = 'right';
-      ctx.fillStyle = '#3b82f6';
-      ctx.fillText(shape.is4D ? '4D' : '3D', sliderX + sliderW, sliderY + 24);
+      ctx.fillText(`k=${maxBandwidth} (full)`, padding + sliderW, sliderTrackY + sliderH + 14 * SCALE);
 
-      // Depth slider
-      const depthX = sliderX + sliderW + 40;
-      const depthW = W - depthX - 20;
-      const depthY = ctrlY + 10;
+      // -----------------------------------------------------------------------
+      // COMPARISON BAR (fullPage only)
+      // -----------------------------------------------------------------------
 
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 10px system-ui';
-      ctx.textAlign = 'left';
-      ctx.fillText('DEPTH', depthX, ctrlY);
+      if (fullPage) {
+        const barY = sliderTrackY + sliderH + 35 * SCALE;
+        const barW = W * 0.5;
+        const barH = 18 * SCALE;
+        const barX = (W - barW) / 2;
 
-      ctx.fillStyle = '#1a1a1a';
-      ctx.beginPath();
-      ctx.roundRect(depthX, depthY, depthW, 10, 5);
-      ctx.fill();
+        ctx.fillStyle = '#111';
+        ctx.beginPath();
+        ctx.roundRect(barX - 15 * SCALE, barY - 25 * SCALE, barW + 30 * SCALE, 80 * SCALE, 8 * SCALE);
+        ctx.fill();
 
-      const depthGrad = ctx.createLinearGradient(depthX, 0, depthX + depthW, 0);
-      depthGrad.addColorStop(0, '#64748b');
-      depthGrad.addColorStop(1, '#f472b6');
-      ctx.fillStyle = depthGrad;
-      ctx.beginPath();
-      ctx.roundRect(depthX, depthY, basinDepth * depthW, 10, 5);
-      ctx.fill();
+        ctx.fillStyle = '#666';
+        ctx.font = `${9 * SCALE}px system-ui`;
+        ctx.textAlign = 'center';
+        ctx.fillText('COMPLEXITY COMPARISON', W / 2, barY - 10 * SCALE);
 
-      const depthHandleX = depthX + basinDepth * depthW;
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(depthHandleX, depthY + 5, 8, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = basinDepth > 0.5 ? '#f472b6' : '#64748b';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+        // A bar
+        ctx.fillStyle = '#1a3a5c';
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, barW, barH, 4 * SCALE);
+        ctx.fill();
 
-      ctx.font = '8px system-ui';
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#64748b';
-      ctx.fillText('FLAT', depthX, depthY + 24);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#f472b6';
-      ctx.fillText('DEEP', depthX + depthW, depthY + 24);
+        ctx.fillStyle = '#3b82f6';
+        const aW = Math.min(1, complexityA / 2) * barW;
+        ctx.beginPath();
+        ctx.roundRect(barX, barY, aW, barH, 4 * SCALE);
+        ctx.fill();
 
-      // Header
-      ctx.fillStyle = '#22c55e';
-      ctx.font = 'bold 13px system-ui';
-      ctx.textAlign = 'left';
-      ctx.fillText('CODE FORMING', 20, H - 12);
+        ctx.fillStyle = '#fff';
+        ctx.font = `${9 * SCALE}px system-ui`;
+        ctx.textAlign = 'right';
+        ctx.fillText('A:', barX - 8 * SCALE, barY + 12 * SCALE);
 
-      ctx.fillStyle = '#555';
-      ctx.font = '10px monospace';
-      ctx.textAlign = 'right';
-      const stateLabel = isCoherent ? 'COHERENT' : `${Math.round((1 - flattenAmount) * 100)}% coherent`;
-      ctx.fillText(`${shape.name} • ${stateLabel}`, W - 20, H - 12);
+        // B bar
+        const barY2 = barY + barH + 6 * SCALE;
+        ctx.fillStyle = '#1a3a2c';
+        ctx.beginPath();
+        ctx.roundRect(barX, barY2, barW, barH, 4 * SCALE);
+        ctx.fill();
+
+        ctx.fillStyle = '#22c55e';
+        const bW = Math.min(1, complexityB / 2) * barW;
+        ctx.beginPath();
+        ctx.roundRect(barX, barY2, bW, barH, 4 * SCALE);
+        ctx.fill();
+
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'right';
+        ctx.fillText('B:', barX - 8 * SCALE, barY2 + 12 * SCALE);
+      }
 
       animationRef.current = requestAnimationFrame(loop);
     };
@@ -922,10 +685,10 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [rotate4D, shape, shapeType, shapeAsymmetry, inertia, fullPage]);
+  }, [bandwidth, W, H, fullPage, drawWave, drawSpectrumBar, maxBandwidth]);
 
   // ---------------------------------------------------------------------------
-  // Input Handling
+  // INPUT HANDLING
   // ---------------------------------------------------------------------------
 
   const getCanvasCoords = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -942,121 +705,50 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     };
   }, []);
 
-  const handleStart = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
-      e.preventDefault();
-      const { x, y } = getCanvasCoords(e);
-      const state = physics.current;
+  const updateBandwidth = useCallback((x: number) => {
+    const padding = 20 * SCALE;
+    const sliderW = W - padding * 2;
+    const norm = Math.max(0, Math.min(1, (x - padding) / sliderW));
+    const newBandwidth = Math.round(1 + norm * (maxBandwidth - 1));
+    setBandwidth(newBandwidth);
+  }, [W, maxBandwidth]);
 
-      const ctrlY = H - 85;
+  const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    const { x, y } = getCanvasCoords(e);
+    const padding = 20 * SCALE;
 
-      // Shape buttons
-      const btnW = 70;
-      const shapes: ShapeType[] = ['tesseract', '16-cell', '3d-cube', '3d-wrench'];
-      if (y >= ctrlY + 6 && y <= ctrlY + 26) {
-        for (let i = 0; i < shapes.length; i++) {
-          const bx = 20 + i * btnW;
-          if (x >= bx && x <= bx + btnW - 6) {
-            setShapeType(shapes[i]);
-            return;
-          }
-        }
-      }
+    // Calculate slider position dynamically based on layout
+    const contentTop = 50 * SCALE;
+    const waveHeight = fullPage ? 110 * SCALE : 90 * SCALE;
+    const spectrumHeight = fullPage ? 70 * SCALE : 55 * SCALE;
+    const gap = 12 * SCALE;
+    const textY = contentTop + waveHeight * 2 + spectrumHeight + gap * 2 + 15 * SCALE;
+    const sliderY = textY + 20 * SCALE + 15 * SCALE;
+    const sliderH = 14 * SCALE;
+    const sliderW = W - padding * 2;
 
-      // Dimensionality slider - write to ref, no re-render!
-      // Left = 2D (flat), Right = 3D/4D
-      // So we INVERT: position 0 (left) = flattenAmount 1, position 1 (right) = flattenAmount 0
-      const sliderX = 320;
-      const sliderW = 350;
-      const sliderY = ctrlY + 10;
-      if (y >= sliderY - 10 && y <= sliderY + 30 && x >= sliderX - 10 && x <= sliderX + sliderW + 10) {
-        const norm = Math.max(0, Math.min(1, (x - sliderX) / sliderW));
-        flattenRef.current = 1 - norm;  // INVERT: left = flat (1), right = 3D (0)
-        state.draggingSlider = 'flatten';
-        return;
-      }
+    if (y >= sliderY - 20 * SCALE && y <= sliderY + sliderH + 20 * SCALE &&
+        x >= padding - 15 * SCALE && x <= padding + sliderW + 15 * SCALE) {
+      dragState.current.isDragging = true;
+      dragState.current.activeControl = 'bandwidth';
+      updateBandwidth(x);
+    }
+  }, [getCanvasCoords, W, fullPage, updateBandwidth]);
 
-      // Depth slider - write to ref, no re-render!
-      const depthX = sliderX + sliderW + 40;
-      const depthW = W - depthX - 20;
-      const depthY = ctrlY + 10;
-      if (y >= depthY - 10 && y <= depthY + 30 && x >= depthX - 10 && x <= depthX + depthW + 10) {
-        const norm = Math.max(0, Math.min(1, (x - depthX) / depthW));
-        depthRef.current = norm;  // No setState = no re-render!
-        state.draggingSlider = 'depth';
-        return;
-      }
-
-      // Viz drag
-      if (y < H - 100) {
-        state.isDragging = true;
-        state.activePanel = fullPage && x > W / 2 ? 'right' : 'left';
-        state.lastMouseX = x;
-        state.lastMouseY = y;
-      }
-    },
-    [getCanvasCoords, fullPage]
-  );
-
-  const handleMove = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
-      const state = physics.current;
-      const { x } = getCanvasCoords(e);
-
-      // Slider drag - use dedicated draggingSlider flag
-      if (state.draggingSlider === 'flatten') {
-        e.preventDefault();
-        const sliderX = 320;
-        const sliderW = 350;
-        const norm = Math.max(0, Math.min(1, (x - sliderX) / sliderW));
-        flattenRef.current = 1 - norm;  // INVERT: left = flat (1), right = 3D (0)
-        return;
-      }
-
-      if (state.draggingSlider === 'depth') {
-        e.preventDefault();
-        const sliderX = 320;
-        const sliderW = 350;
-        const depthX = sliderX + sliderW + 40;
-        const depthW = W - depthX - 20;
-        const norm = Math.max(0, Math.min(1, (x - depthX) / depthW));
-        depthRef.current = norm;
-        return;
-      }
-
-      // Viz drag
-      if (!state.isDragging || !state.activePanel) return;
-      e.preventDefault();
-
-      const { y } = getCanvasCoords(e);
-      const dx = x - state.lastMouseX;
-      const dy = y - state.lastMouseY;
-
-      if (shape.is4D) {
-        state.angleXZ += dx * DRAG_SENSITIVITY;
-        state.angleYZ += dy * DRAG_SENSITIVITY;
-        state.omegaXZ = dx * DRAG_SENSITIVITY * 0.5;
-        state.omegaYZ = dy * DRAG_SENSITIVITY * 0.5;
-      } else {
-        state.Lx += dy * DRAG_SENSITIVITY * 0.3 * inertia.I1;
-        state.Ly += dx * DRAG_SENSITIVITY * 0.3 * inertia.I2;
-      }
-
-      state.lastMouseX = x;
-      state.lastMouseY = y;
-    },
-    [getCanvasCoords, shape, inertia]
-  );
+  const handleMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    if (!dragState.current.isDragging) return;
+    e.preventDefault();
+    const { x } = getCanvasCoords(e);
+    if (dragState.current.activeControl === 'bandwidth') {
+      updateBandwidth(x);
+    }
+  }, [getCanvasCoords, updateBandwidth]);
 
   const handleEnd = useCallback(() => {
-    physics.current.isDragging = false;
-    physics.current.activePanel = null;
-    physics.current.draggingSlider = null;
+    dragState.current.isDragging = false;
+    dragState.current.activeControl = null;
   }, []);
-
-  // ---------------------------------------------------------------------------
-  // Render
-  // ---------------------------------------------------------------------------
 
   return (
     <canvas
@@ -1065,11 +757,11 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       height={H}
       style={{
         width: '100%',
-        maxWidth: W,
+        maxWidth: BASE_W,
         aspectRatio: `${W} / ${H}`,
         touchAction: 'none',
       }}
-      className="rounded-xl cursor-grab active:cursor-grabbing bg-black"
+      className="rounded-xl cursor-pointer bg-black shadow-2xl"
       onMouseDown={handleStart}
       onMouseMove={handleMove}
       onMouseUp={handleEnd}
