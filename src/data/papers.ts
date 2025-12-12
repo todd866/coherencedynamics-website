@@ -311,7 +311,7 @@ The same constraint applies to neural network latent spaces: if you compress too
   {
     slug: 'lsd-dimensionality',
     title: 'Psychedelics as Dimensionality Modulators: A Cortical Reservoir Theory of Serotonergic Plasticity',
-    journal: 'Translational Psychiatry (target)',
+    journal: 'In preparation (reworking after Nature Comms)',
     year: 2025,
     status: 'in_prep',
     github: 'todd866/lsd-dimensionality',
