@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import SiteNavigation from "@/components/SiteNavigation";
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = localFont({
