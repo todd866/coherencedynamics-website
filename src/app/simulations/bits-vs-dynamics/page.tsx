@@ -27,7 +27,7 @@ export default function BitsVsDynamicsPage() {
           <div className="flex flex-wrap gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-              <span>Left: Billiard balls (bits)</span>
+              <span>Left: Floating bits (balloons)</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
@@ -41,8 +41,8 @@ export default function BitsVsDynamicsPage() {
           <div className="border border-gray-800 rounded-lg p-4">
             <h3 className="text-sm text-gray-500 mb-3">Two Kinds of Systems</h3>
             <p className="text-gray-300 text-sm mb-3">
-              <strong className="text-white">Left: Bits</strong>&mdash;Billiard balls that interact
-              locally, lose energy at every collision, and eventually stop. Each ball has a precise
+              <strong className="text-white">Left: Bits</strong>&mdash;Floating bits that interact
+              locally, lose energy at every collision, and eventually settle. Each bit has a precise
               position you can measure without changing anything fundamental.
             </p>
             <p className="text-gray-400 text-sm">
@@ -69,8 +69,8 @@ export default function BitsVsDynamicsPage() {
             <h3 className="text-sm text-gray-500 mb-3">Try This</h3>
             <ul className="text-gray-400 text-sm space-y-2">
               <li>
-                <strong className="text-white">Left panel:</strong> Click to spawn new balls.
-                Drag the spacetime warp slider to bend the table. Watch collisions dissipate energy.
+                <strong className="text-white">Left panel:</strong> Click and drag bits to fling them around.
+                Watch collisions dissipate energy as the system settles.
               </li>
               <li>
                 <strong className="text-white">Right panel:</strong> Click and hold to create a
@@ -78,7 +78,7 @@ export default function BitsVsDynamicsPage() {
                 reorganizing around your probe.
               </li>
               <li>
-                <strong className="text-white">Compare:</strong> The billiard balls run out of
+                <strong className="text-white">Compare:</strong> The bits run out of
                 energy. The attractor never does. Same fundamental physics, different organization.
               </li>
             </ul>

@@ -288,28 +288,28 @@ The same constraint applies to neural network latent spaces: if you compress too
   },
   {
     slug: 'lsd-dimensionality',
-    title: 'Psychedelics as Dimensionality Modulators: A Cortical Reservoir Theory of Serotonergic Plasticity',
-    journal: 'In preparation',
+    title: 'Timescale-Dependent Cortical Dynamics: Psychedelics Desynchronize Fast Oscillations While Concentrating Slow Hemodynamic Variance',
+    journal: 'Frontiers in Neuroscience / Human Brain Mapping (target)',
     year: 2025,
     status: 'in_prep',
     github: 'todd866/lsd-dimensionality',
     pdf: 'https://raw.githubusercontent.com/todd866/lsd-dimensionality/main/lsd_dimensionality.pdf',
     simulation: 'lsd-landscape',
     image: 'lsd-dimensionality.png',
-    description: `**Classical psychedelics work by dismantling the oscillatory constraints that lock cortical dynamics into low-dimensional attractors** — and MEG data reveals a mechanism-specific dissociation that distinguishes psychedelics from ketamine at the neural level.
+    description: `**Psychedelics increase fast electrophysiological dimensionality but decrease slow hemodynamic dimensionality** — implying "psychedelic entropy" is timescale- and measurement-dependent rather than a single brain-wide scalar.
 
-Analysis of 136 MEG sessions across four compounds shows that 5-HT2A agonists (psilocybin, LSD) produce significant oscillatory desynchronization (psilocybin: −15%, p=0.003; LSD: −13%), while ketamine (NMDA antagonist) shows no effect. This specificity suggests that while both drug classes produce altered states, only serotonergic psychedelics function by breaking the synchronous constraints of the cortex.
+Analysis of 136 MEG sessions shows serotonergic psychedelics (psilocybin, LSD) significantly increase effective dimensionality ($D_{\\mathrm{eff}}$: +15%, p=0.003), while ketamine shows no effect — consistent with 5-HT2A-specific desynchronization. But fMRI analysis of the Siegel psilocybin precision mapping dataset (50 sessions across 7 subjects) reveals the opposite: $D_{\\mathrm{eff}}$ *decreases* under psilocybin (−10%, p=0.013), with variance concentrating in the first principal component.
 
-The framework proposes effective dimensionality — the number of independent modes available to cortical dynamics — as the computational target of psychedelic therapy. Through dendritic gain amplification at 5-HT2A receptors on layer 5 pyramidal neurons, psychedelics expand the eigenmode spectrum, enabling exploration of configurations inaccessible under baseline conditions. This dimensionality expansion manifests across measurement modalities: as increased metabolic diversity (fMRI) mediated by the breakdown of synchronous oscillatory constraints (MEG).
+The effect survives global signal regression and is not frequency-localized to the slowest BOLD bands. The sign flip is consistent with different observation operators sampling distinct dynamical layers of cortical activity.
 
-A three-phase model (overshoot → refractory → recanalization) explains how transient dimensionality expansion enables lasting therapeutic reorganization. MEG-derived oscillatory coherence could serve as a real-time biomarker for "psychedelic depth" during treatment sessions.`,
+This resolves an apparent contradiction: the Entropic Brain hypothesis is correct at fast timescales (MEG), but BOLD "entropy" can go the opposite direction because fMRI is a different observation operator with slow integration. Claims about "brain entropy" require explicit specification of measurement timescale and modality.`,
     keyFindings: [
-      'Mechanism-specific dissociation: psilocybin desynchronizes (−15%, p=0.003), ketamine does not',
-      'Three-phase model: overshoot → refractory → recanalization',
-      'MEG coherence as real-time biomarker for psychedelic depth',
-      'Dimensionality expansion via 5-HT2A dendritic gain amplification',
+      'Timescale dissociation: MEG $D_{\\mathrm{eff}}$ +15% vs fMRI $D_{\\mathrm{eff}}$ −10%',
+      'Mechanism-specific: psilocybin desynchronizes (p=0.003), ketamine does not',
+      'Effect survives global signal regression (p=0.036 with GSR)',
+      '"Psychedelic entropy" is observation-operator dependent, not a single scalar',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and MEG analysis code; Gemini 2.5 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and analysis code; GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
 
   // === IN PREPARATION ===
@@ -380,6 +380,29 @@ The implication: stop looking for the first replicator. Look for the first coher
     image: 'abiogenesis-chemistry.png',
   },
   {
+    slug: 'cross-scale-control',
+    title: 'Cross-Scale Control in High-Dimensional Systems: Why Low-Dimensional Codes Are Not Dynamically Closed',
+    journal: 'Biological Cybernetics (target)',
+    year: 2025,
+    status: 'in_prep',
+    github: 'todd866/cross-scale-control',
+    pdf: 'https://raw.githubusercontent.com/todd866/cross-scale-control/main/manuscript.pdf',
+    description: `**The same low-dimensional code state can lead to different outcomes depending on the underlying high-dimensional microstate** — this breaks a core assumption in biological modeling and shows that "codes" are not dynamically closed.
+
+When we model biological systems using low-dimensional codes (neural population vectors, gene expression states, order parameters), we implicitly assume the code is *conditionally sufficient* for predicting future behavior. But codes are projections of high-dimensional substrates, and projection fibers contain microstates with divergent futures.
+
+Using coupled Kuramoto oscillators with field-mediated coupling, we demonstrate three signatures of cross-scale control: (1) code-matched states show 31.7% outcome divergence, (2) mode-targeted perturbations produce 15.4% flip rate (nearly double the noise baseline), (3) field coupling preserves substrate dimensionality ($D_{\\mathrm{eff}} = 7.8$) while synapse-only collapses to $D_{\\mathrm{eff}} = 1.4$.
+
+This connects to Haken's synergetics: the slaving principle is incomplete. Order parameters capture dominant modes but don't exhaust the system's causal structure. Residual microstate information persists and influences outcomes — biology operates in the regime where enslaving is partial.`,
+    keyFindings: [
+      'Code closure fails generically under coarse-graining (factor map $\\pi \\circ F \\neq f \\circ \\pi$)',
+      'Cross-scale information: $I(\\mathbf{x}_t; y_{t+\\Delta} | c_t) = 0.37 \\pm 0.07$ bits',
+      'Mode-targeted perturbations flip outcomes at 15.4% vs 8.2% noise baseline',
+      'Synergetic slaving is incomplete: residual microstate information influences outcomes',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+  },
+  {
     slug: 'immune-cooperation',
     title: 'The Physics of Immune Cooperation: Dimensional Surveillance and Attractor Enforcement',
     journal: 'BioSystems (target)',
@@ -425,6 +448,8 @@ The implication is uncomfortable: we may already be approaching the ceiling of w
       'Consciousness may require volumetric field coupling, not just graph connectivity',
     ],
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    github: 'todd866/substrate-dimensionality',
+    pdf: 'https://raw.githubusercontent.com/todd866/substrate-dimensionality/main/substrate_dimensionality.pdf',
   },
 ];
 

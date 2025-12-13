@@ -67,13 +67,6 @@ export default function PapersPage() {
           </div>
         </section>
 
-        <div className="text-gray-500 text-sm">
-          <Link href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=8484972"
-                className="hover:text-white transition-colors"
-                target="_blank">
-            Full publication list on SSRN &rarr;
-          </Link>
-        </div>
       </div>
     </main>
   );

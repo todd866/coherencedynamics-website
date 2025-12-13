@@ -125,12 +125,15 @@ export default function BitsVsDynamics() {
   }, []);
 
   // --- Bits 3D collisions (normalized space) ---
-  const resolveCollision3D = useCallback((a: Bit3D, b: Bit3D) => {
+  const resolveCollision3D = useCallback((a: Bit3D, b: Bit3D, aIsDragged: boolean, bIsDragged: boolean) => {
     const dx = b.x - a.x;
     const dy = b.y - a.y;
     const dz = b.z - a.z;
 
-    const r = a.r + b.r;
+    // Use larger collision radius for dragged bits (makes it easier to hit things)
+    const aRadius = aIsDragged ? a.r * 2.5 : a.r;
+    const bRadius = bIsDragged ? b.r * 2.5 : b.r;
+    const r = aRadius + bRadius;
     const d2 = dx * dx + dy * dy + dz * dz;
     if (d2 <= 0 || d2 > r * r) return;
 
@@ -440,8 +443,14 @@ export default function BitsVsDynamics() {
       }
 
       // collisions (3D normalized)
+      const stuckIdx = I.stuckBitIndex;
+      const isDragging = P.raw.down && stuckIdx !== null;
       for (let i = 0; i < bits.length; i++) {
-        for (let j = i + 1; j < bits.length; j++) resolveCollision3D(bits[i], bits[j]);
+        for (let j = i + 1; j < bits.length; j++) {
+          const aIsDragged = isDragging && i === stuckIdx;
+          const bIsDragged = isDragging && j === stuckIdx;
+          resolveCollision3D(bits[i], bits[j], aIsDragged, bIsDragged);
+        }
       }
 
       // render: depth-sort by z (far first)

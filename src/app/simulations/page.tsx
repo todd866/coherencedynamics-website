@@ -20,9 +20,9 @@ const simulations: Simulation[] = [
   },
   {
     slug: 'lsd-landscape',
-    title: 'Cortical Desynchronization',
-    description: 'Drag to modulate 5-HT2A gain and watch cortical oscillators break free. See how psychedelics dismantle synchronization constraints to expand effective dimensionality.',
-    paper: 'Psychedelics as Dimensionality Modulators',
+    title: 'Cortical Desynchronization (Fast Timescale)',
+    description: 'At fast timescales, psychedelics break oscillatory synchronization. Drag to modulate 5-HT2A gain and watch cortical oscillators desynchronize. This shows the MEG side of the story — at slow hemodynamic timescales, the effect reverses.',
+    paper: 'Timescale-Dependent Cortical Dynamics',
     paperSlug: 'lsd-dimensionality',
     status: 'playable',
   },
