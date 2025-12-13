@@ -98,6 +98,8 @@ The same principle applies at every scale: bacteria tracking chemical gradients,
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5018691',
+    github: 'todd866/coherence-time-biosystems',
+    pdf: 'https://raw.githubusercontent.com/todd866/coherence-time-biosystems/main/coherence_time.pdf',
     image: 'coherence-time.png',
     description: `**The speed of thought is limited by how quickly brain regions can synchronise their oscillations** — not by how fast neurons fire. This creates a fundamental trade-off: larger, more flexible networks process information more slowly.
 
