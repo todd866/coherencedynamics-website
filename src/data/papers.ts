@@ -75,6 +75,8 @@ This isn't a trick or an approximation. It's a fundamentally different computati
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4978594',
+    github: 'todd866/intelligence-biosystems',
+    pdf: 'https://raw.githubusercontent.com/todd866/intelligence-biosystems/main/intelligence_biosystems.pdf',
     image: 'high-dimensional-coherence.png',
     description: `**Intelligence emerges whenever a system maintains high-dimensional internal dynamics that collapse to coherent outputs** — and this architectural principle, not clever algorithms, explains the million-fold efficiency gap between brains and computers.
 
