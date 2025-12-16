@@ -6,6 +6,7 @@ import Markdown from '@/components/Markdown';
 import PaperNavigation from '@/components/PaperNavigation';
 import PsychedelicGainMini from '@/components/PsychedelicGainMini';
 import CodeForming from '@/components/CodeForming';
+import EmbeddingDimensionMini from '@/components/EmbeddingDimensionMini';
 
 export function generateStaticParams() {
   // Exclude papers with custom pages
@@ -99,7 +100,7 @@ export default async function PaperPage({
               href={`/simulations/${paper.simulation}`}
               className="text-orange-400 hover:text-orange-300"
             >
-              Try Simulation (alpha) &rarr;
+              Try Simulation &rarr;
             </Link>
           )}
         </div>
@@ -158,6 +159,25 @@ export default async function PaperPage({
           </div>
           <p className="text-xs text-gray-500 mt-3 text-center">
             <Link href="/simulations/code-collapse" className="text-orange-400 hover:text-orange-300">
+              Open full simulation &rarr;
+            </Link>
+          </p>
+        </section>
+      )}
+
+      {/* Inline simulation for minimal-embedding */}
+      {paper.simulation === 'dimensional-collapse' && (
+        <section className="mb-8 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+          <h3 className="text-lg font-semibold mb-3 text-white">Interactive: Embedding Dimension Threshold</h3>
+          <p className="text-sm text-gray-400 mb-4">
+            Toggle between k=3 (helix) and k=2 (circle) to see how dimensional collapse forces
+            self-intersections. Try &quot;Spiral&quot; to see the phase-preservation constraint.
+          </p>
+          <div className="flex justify-center">
+            <EmbeddingDimensionMini />
+          </div>
+          <p className="text-xs text-gray-500 mt-3 text-center">
+            <Link href="/simulations/dimensional-collapse" className="text-orange-400 hover:text-orange-300">
               Open full simulation &rarr;
             </Link>
           </p>

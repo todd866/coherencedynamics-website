@@ -145,30 +145,6 @@ The practical implications are significant. Interventions that enhance slow-wave
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
-    slug: 'coherence-gate-scaling',
-    title: 'Thermodynamic Scaling Limits of Algorithmic Oscillatory Synchronization',
-    journal: 'Neuromorphic Computing and Engineering (submitted)',
-    year: 2025,
-    status: 'submitted',
-    github: 'todd866/coherence-gate',
-    pdf: 'https://raw.githubusercontent.com/todd866/coherence-gate/main/coherence_gate_scaling.pdf',
-    image: 'coherence-gate-scaling.png',
-    description: `**Oscillatory neural networks hit a hard scaling wall on digital hardware** — $O(N^2)$ operations per timestep — but physical coupling does the same computation at $O(K)$, offering 100–1000× better energy efficiency.
-
-[Oscillating neural networks](https://www.nature.com/articles/s41467-025-64471-2) can extract powerful relational patterns from data by letting oscillators synchronise into meaningful clusters. But simulating all-to-all coupling on a digital computer requires checking every pair of oscillators at every timestep. For 400 oscillators, that's 160,000 operations per tick. Physical coupling — electrical circuits, optical resonators, memristive crossbars — does this automatically through the physics of the substrate.
-
-The numbers are striking: $86\\times$ energy advantage at 100 oscillators, $224\\times$ at 400 oscillators, and the gap grows quadratically. This isn't a temporary limitation waiting for better algorithms — it's fundamental to how digital hardware handles continuous dynamics.
-
-The paper proposes the "coherence gate" as a hardware primitive for neuromorphic chips: let oscillators synchronise naturally through physical coupling, then monitor the result via sparse measurement taps. Instead of simulating synchronisation, you let physics do the work and just read out the answer.`,
-    keyFindings: [
-      'Digital simulation: $O(N^2)$ operations; physical coupling: $O(K)$ operations',
-      '$86\\times$ energy advantage at 100 oscillators; $224\\times$ at 400 oscillators',
-      'Coherence gate: let oscillators synchronise naturally, monitor via sparse taps',
-      'Implementable via CMOS arrays, photonic resonators, or memristive crossbars',
-    ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
-  },
-  {
     slug: 'nonergodic-development',
     title: 'Nonergodic Development: How High-Dimensional Systems with Low-Dimensional Anchors Generate Phenotypes',
     journal: 'BioSystems (submitted)',
@@ -274,6 +250,7 @@ This explains why clinical AI that performs well in trials often fails in practi
     year: 2025,
     status: 'submitted',
     image: 'minimal-embedding.png',
+    simulation: 'dimensional-collapse',
     description: `**You need at least 3 dimensions for continuous cyclic dynamics — below that, trajectories collide and the system is forced into discrete categories.** This is a hard geometric constraint with implications for neural coding, latent spaces, and any dimensionality reduction scheme.
 
 Cyclic processes on statistical manifolds require $k \\geq 3$ to avoid self-intersection. Below this threshold, state trajectories collide — different times map to the same point — forcing categorical (discrete) representations. At $k \\geq 3$, continuous temporal dynamics become possible.
@@ -405,6 +382,29 @@ This connects to Haken's synergetics: the slaving principle is incomplete. Order
       'Synergetic slaving is incomplete: residual microstate information influences outcomes',
     ],
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+  },
+  {
+    slug: 'coherence-gate-scaling',
+    title: 'Scaling Limits of Oscillatory Graph Networks: When Physical Instantiation Outperforms Algorithmic Simulation',
+    journal: 'Journal of Physics: Complexity (target)',
+    year: 2025,
+    status: 'in_prep',
+    github: 'todd866/oscillatory-scaling-limits',
+    image: 'coherence-gate-scaling.png',
+    description: `**Digital simulation of oscillatory neural networks hits a fundamental scaling wall** — and we can now calculate exactly where physical instantiation becomes thermodynamically favorable.
+
+Recent work on oscillatory neural networks (notably Dan et al.'s HoloGraph architecture in *Nature Communications*, 2025) validates oscillatory synchronization as a powerful mechanism for graph-based computation. But a critical question remains: when does simulating these dynamics on digital hardware become prohibitively expensive?
+
+This paper derives the **Coupling Cost Migration Law** for sparse graphs: $E_{\\mathrm{digital}}/E_{\\mathrm{physical}} \\propto N d / K$, where $N$ is system size, $d$ is average graph degree, and $K$ is the number of sparse coherence monitoring taps. This defines a **phase boundary** in parameter space separating two computational regimes: one where algorithmic simulation is efficient, and one where physical instantiation of coupling dynamics becomes thermodynamically favorable.
+
+Numerical validation across three independent parameter sweeps produces data collapse onto a universal scaling curve ($R^2 = 0.97$, slope $= 0.83 \\pm 0.04$), confirming the theoretical prediction within finite-size error margins.`,
+    keyFindings: [
+      'Coupling Cost Migration Law (sparse): $E_{\\mathrm{digital}}/E_{\\mathrm{physical}} \\propto N d / K$',
+      'Phase boundary between algorithmic and physical coupling regimes',
+      'Data collapse validates scaling law ($R^2 = 0.97$, slope $= 0.83 \\pm 0.04$)',
+      'Static costs set intercept; coupling complexity sets asymptotic slope',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 2.5 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'immune-cooperation',
