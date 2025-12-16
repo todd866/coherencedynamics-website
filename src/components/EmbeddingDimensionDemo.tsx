@@ -77,9 +77,9 @@ export default function EmbeddingDimensionDemo({ className = '', compact = false
     const { x: rotX, y: rotY } = rotationRef.current;
 
     const project = (p: typeof points[0]) => {
-      let x = p.x;
-      let y = p.y;
-      let z = p.z * dimBlend;
+      const x = p.x;
+      const y = p.y;
+      const z = p.z * dimBlend;
 
       const cosY = Math.cos(rotY);
       const sinY = Math.sin(rotY);
