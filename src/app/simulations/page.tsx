@@ -11,6 +11,14 @@ interface Simulation {
 
 const simulations: Simulation[] = [
   {
+    slug: 'dimensional-collapse',
+    title: 'Minimal Embedding Dimension',
+    description: "Phase-preserving embeddings of cyclic processes require k ≥ 3 to remain temporally distinct. Toggle between k=3 (helix) and k=2 (circle) to see how dimensional collapse forces self-intersections.",
+    paper: 'Minimal Embedding Dimension for Self-Intersection-Free Processes',
+    paperSlug: 'minimal-embedding',
+    status: 'playable',
+  },
+  {
     slug: 'code-collapse',
     title: 'Code Formation',
     description: "Two coupled dynamical systems communicating through a bandwidth-limited code. System A drives System B through a Fourier bottleneck—drag the slider to reduce bandwidth and watch B's complexity collapse while A stays complex.",
@@ -38,7 +46,7 @@ const simulations: Simulation[] = [
 
 const statusLabels = {
   beta: { label: 'Beta', className: 'bg-blue-900 text-blue-300' },
-  playable: { label: 'Alpha', className: 'bg-amber-900 text-amber-300' },
+  playable: { label: 'Playable', className: 'bg-green-900 text-green-300' },
   in_development: { label: 'In Development', className: 'bg-yellow-900 text-yellow-300' },
   coming_soon: { label: 'Coming Soon', className: 'bg-gray-800 text-gray-400' },
 };
@@ -52,13 +60,6 @@ export default function SimulationsPage() {
         letting you explore the concepts hands-on.
       </p>
 
-      {/* Early Alpha notice */}
-      <div className="mb-12 p-4 border border-amber-700/50 bg-amber-900/20 rounded-lg">
-        <p className="text-amber-400 text-sm">
-          <span className="font-semibold">Early Alpha</span> — These simulations are rough works-in-progress.
-          Expect bugs, placeholder graphics, and incomplete features. We&apos;re building in public.
-        </p>
-      </div>
 
       <div className="grid gap-6">
         {simulations.map((sim) => {
