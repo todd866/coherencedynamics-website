@@ -109,7 +109,7 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
   const [isRunning, setIsRunning] = useState(true);
   const [couplingEnabled, setCouplingEnabled] = useState(true);
   const [observerBandwidth, setObserverBandwidth] = useState(4);
-  const [couplingStrength, setCouplingStrength] = useState(1.0);
+  const [couplingStrength, setCouplingStrength] = useState(0.3);
   const [stats, setStats] = useState({
     coherence: 0,
     observerConf: 0,
@@ -142,8 +142,8 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
   const initLattices = useCallback(() => {
     const N = 32;
     const K = 2.0;
-    const omegaSpread = 0.1;
-    const noiseStd = 0.15;
+    const omegaSpread = 0.2;  // Wider frequency spread slows sync
+    const noiseStd = 0.2;     // More noise for realistic dynamics
     const dt = 0.1;
 
     const A = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
@@ -516,13 +516,13 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
         {/* Coupling strength slider */}
         <div>
           <label className="block text-xs text-gray-500 uppercase tracking-wide mb-2">
-            Coupling Strength: <span className="text-white">{couplingStrength.toFixed(1)}</span>
+            Coupling Strength (ε): <span className="text-white">{couplingStrength.toFixed(2)}</span>
           </label>
           <input
             type="range"
             min={0.1}
-            max={2.0}
-            step={0.1}
+            max={0.8}
+            step={0.05}
             value={couplingStrength}
             onChange={(e) => setCouplingStrength(parseFloat(e.target.value))}
             className="w-full accent-blue-600"
