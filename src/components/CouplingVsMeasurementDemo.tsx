@@ -95,46 +95,6 @@ function crossCoherence(A: KuramotoLattice, B: KuramotoLattice): number {
   return Math.sqrt(re * re + im * im) / A.N;
 }
 
-// Compute temporal correlation of Fourier mode histories
-// This is what a bandwidth-limited observer can actually measure:
-// "Do these systems' observable features co-vary over time?"
-function modeCorrelation(histA: number[][], histB: number[][]): number {
-  if (histA.length < 10) return 0; // Need enough samples
-
-  const n = histA.length;
-  const k = histA[0]?.length || 0;
-  if (k === 0) return 0;
-
-  // Flatten to 1D time series (sum of all modes)
-  const seriesA: number[] = [];
-  const seriesB: number[] = [];
-  for (let t = 0; t < n; t++) {
-    let sumA = 0, sumB = 0;
-    for (let i = 0; i < k; i++) {
-      sumA += histA[t][i];
-      sumB += histB[t][i];
-    }
-    seriesA.push(sumA);
-    seriesB.push(sumB);
-  }
-
-  // Compute Pearson correlation
-  const meanA = seriesA.reduce((a, b) => a + b, 0) / n;
-  const meanB = seriesB.reduce((a, b) => a + b, 0) / n;
-
-  let num = 0, denA = 0, denB = 0;
-  for (let t = 0; t < n; t++) {
-    const dA = seriesA[t] - meanA;
-    const dB = seriesB[t] - meanB;
-    num += dA * dB;
-    denA += dA * dA;
-    denB += dB * dB;
-  }
-
-  const den = Math.sqrt(denA * denB);
-  if (den < 1e-10) return 0;
-  return num / den;
-}
 
 export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -159,10 +119,6 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     coherenceHistory: number[];
     observerHistory: number[];
     smoothedConf: number; // Integration lag for observer (simulates T_meas)
-    // Rolling buffers for temporal correlation (what observer actually accumulates)
-    modeHistoryA: number[][];
-    modeHistoryB: number[][];
-    modeHistoryC: number[][];
   }>({
     latticeA: null,
     latticeB: null,
@@ -171,9 +127,6 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     coherenceHistory: [],
     observerHistory: [],
     smoothedConf: 0,
-    modeHistoryA: [],
-    modeHistoryB: [],
-    modeHistoryC: [],
   });
 
   const animationRef = useRef<number>();
@@ -191,13 +144,13 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     const C = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
 
     if (similarStructure) {
-      // Paper mode: A, B, and C all share natural frequencies (structural similarity)
-      // This isolates coupling as the ONLY difference between B and C
-      // B syncs via coupling; C drifts despite identical structure
+      // Paper mode: A and B share natural frequencies (structural similarity)
+      // This enables fast synchronization via coupling
+      // C has different frequencies (gives observer a distinguishable baseline)
       B.copyOmegaFrom(A);
-      C.copyOmegaFrom(A);
+      // C keeps its own random omegas - observer can tell it's different
     }
-    // else: all have independent frequencies (tests coupling vs structural mismatch)
+    // else: all have independent frequencies (harder for everyone)
 
     stateRef.current = {
       latticeA: A,
@@ -207,9 +160,6 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       coherenceHistory: [],
       observerHistory: [],
       smoothedConf: 0,
-      modeHistoryA: [],
-      modeHistoryB: [],
-      modeHistoryC: [],
     };
   }, [similarStructure]);
 
@@ -266,34 +216,26 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
 
       // Observer: bandwidth-limited Fourier measurement (NOT the oracle)
       // The observer sees only low-k Fourier MAGNITUDES, not phases
-      // This is the "phase blindness" from the paper - they don't know what to measure
       const modesA = latticeA.getFourierModes(observerBandwidth);
       const modesB = latticeB.getFourierModes(observerBandwidth);
       const modesC = latticeC.getFourierModes(observerBandwidth);
 
-      // Accumulate mode histories (rolling buffer)
-      const historyLength = 50 + observerBandwidth * 10; // More modes = can use longer window
-      state.modeHistoryA.push([...modesA]);
-      state.modeHistoryB.push([...modesB]);
-      state.modeHistoryC.push([...modesC]);
-      if (state.modeHistoryA.length > historyLength) {
-        state.modeHistoryA.shift();
-        state.modeHistoryB.shift();
-        state.modeHistoryC.shift();
+      // Compute Fourier magnitude distances
+      let distAB = 0, distAC = 0;
+      for (let k = 0; k < observerBandwidth; k++) {
+        distAB += (modesA[k] - modesB[k]) ** 2;
+        distAC += (modesA[k] - modesC[k]) ** 2;
       }
+      distAB = Math.sqrt(distAB);
+      distAC = Math.sqrt(distAC);
 
-      // Observer computes TEMPORAL CORRELATION of mode fluctuations
-      // Coupled systems co-vary; uncoupled don't (even with same structure)
-      const corrAB = modeCorrelation(state.modeHistoryA, state.modeHistoryB);
-      const corrAC = modeCorrelation(state.modeHistoryA, state.modeHistoryC);
+      // Raw evidence: is B closer to A than C is?
+      // When coupled and synced, A-B distance shrinks
+      const rawSignal = distAC / (distAB + distAC + 0.01);
 
-      // Raw evidence: how much MORE correlated is B than C?
-      // Map [-1, 1] correlation difference to [0, 1] confidence
-      const corrDiff = corrAB - corrAC;
-      const rawSignal = Math.min(1, Math.max(0, 0.5 + corrDiff * 0.5));
-
-      // Additional smoothing for measurement lag (T_meas ~ I_struct / R)
-      const integrationRate = 0.03 + (observerBandwidth / 16) * 0.07; // 0.03 to 0.10
+      // Integration rate scales with bandwidth (more modes = faster inference)
+      // But keep it slow enough to show the lag
+      const integrationRate = 0.01 + (observerBandwidth / 16) * 0.04; // 0.01 to 0.05
       state.smoothedConf = (1 - integrationRate) * state.smoothedConf + integrationRate * rawSignal;
       const observerConf = state.smoothedConf;
 
