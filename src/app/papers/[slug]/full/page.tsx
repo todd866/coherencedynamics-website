@@ -89,13 +89,13 @@ export default async function FullPaperPage({
           <section className="my-10 p-6 bg-slate-900/50 rounded-xl border border-slate-700">
             <h3 className="text-xl font-semibold mb-3 text-white">Interactive Simulation</h3>
             <p className="text-gray-400 mb-4">
-              Explore the credit ledger interactively. Adjust bias, correlations, protocol duration, and thermodynamic length to see how they affect total work.
+              Explore the concepts from this paper interactively.
             </p>
             <Link
               href={`/simulations/${paper.simulation}`}
               className="inline-block px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded transition-colors"
             >
-              Open Credit Ledger Simulation &rarr;
+              Open Simulation &rarr;
             </Link>
           </section>
         )}
