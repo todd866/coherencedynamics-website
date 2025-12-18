@@ -435,6 +435,29 @@ Numerical validation across three independent parameter sweeps produces data col
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 2.5 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
+    slug: 'coupling-identification',
+    title: 'Coupling Outpaces Measurement: Identification Channels in High-Dimensional Dynamical Systems',
+    journal: 'Royal Society Open Science (target)',
+    year: 2025,
+    status: 'in_prep',
+    github: 'todd866/coupling-identification',
+    pdf: 'https://github.com/todd866/coupling-identification/blob/main/coupling_identification.pdf',
+    description: `**Synchronization is faster than measurement** — two structurally similar systems can establish functional equivalence via coupling before any external observer can verify it.
+
+We distinguish two identification channels: *measurement-based*, where an observer accumulates information to infer structure, and *coupling-based*, where systems recognize similarity by synchronizing onto shared manifolds. The fundamental inequality is $T_{\\text{sync}} \\sim 1/|\\lambda_c| \\ll T_{\\text{meas}} \\sim I_{\\text{struct}}/R$.
+
+Using coupled Kuramoto lattices, we demonstrate ~5× timescale separation: systems synchronize in ~70 steps while a bandwidth-limited observer requires ~320 steps to detect the coupling. An ablation experiment confirms that the "noise" (high-frequency modes invisible to the observer) carries the coordination signal — filtering it destroys synchronization while leaving observer statistics unchanged.
+
+This has implications for biological coordination (cells, neurons, organisms coordinating faster than external measurement can verify) and suggests "coherence computing" — computation via dynamical contraction rather than symbolic inference.`,
+    keyFindings: [
+      'Fundamental inequality: $T_{\\text{sync}} \\sim 1/|\\lambda_c| \\ll T_{\\text{meas}} \\sim I_{\\text{struct}}/R$',
+      '~5× timescale separation between synchronization and observer discrimination',
+      'High-frequency "noise" carries coordination signal (ablation: 3× slower when filtered)',
+      'Dimension is observer-relative, not intrinsic: property of (system × observer × channel)',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting, simulation, and ablation design. Author reviewed all content and takes full responsibility.',
+  },
+  {
     slug: 'immune-cooperation',
     title: 'The Physics of Immune Cooperation: Dimensional Surveillance and Attractor Enforcement',
     journal: 'BioSystems (target)',
