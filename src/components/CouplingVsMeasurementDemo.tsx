@@ -14,6 +14,7 @@ class KuramotoLattice {
   K: number;
   dt: number;
   noiseStd: number;
+  private _buffer: Float64Array; // Pre-allocated for performance
 
   constructor(N: number, K: number, omegaSpread: number, noiseStd: number, dt: number) {
     this.N = N;
@@ -22,6 +23,7 @@ class KuramotoLattice {
     this.noiseStd = noiseStd;
     this.theta = new Float64Array(N);
     this.omega = new Float64Array(N);
+    this._buffer = new Float64Array(N);
 
     // Random initial phases and shared frequencies
     for (let i = 0; i < N; i++) {
@@ -31,7 +33,7 @@ class KuramotoLattice {
   }
 
   step(externalCoupling?: Float64Array) {
-    const dtheta = new Float64Array(this.N);
+    const dtheta = this._buffer; // Reuse pre-allocated buffer
 
     for (let i = 0; i < this.N; i++) {
       // Natural frequency
@@ -123,6 +125,7 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     step: number;
     coherenceHistory: number[];
     observerHistory: number[];
+    smoothedConf: number; // Integration lag for observer (simulates T_meas)
   }>({
     latticeA: null,
     latticeB: null,
@@ -130,6 +133,7 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     step: 0,
     coherenceHistory: [],
     observerHistory: [],
+    smoothedConf: 0,
   });
 
   const animationRef = useRef<number>();
@@ -157,6 +161,7 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       step: 0,
       coherenceHistory: [],
       observerHistory: [],
+      smoothedConf: 0,
     };
   }, []);
 
@@ -191,16 +196,15 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       const { latticeA, latticeB, latticeC } = state;
       const epsilon = couplingStrength;
 
-      // Compute coupling
+      // Unidirectional coupling: A evolves autonomously, B is driven by A
+      // This matches the paper's conditional Lyapunov exponent framing
       if (couplingEnabled) {
         const couplingAtoB = new Float64Array(latticeA.N);
-        const couplingBtoA = new Float64Array(latticeA.N);
         for (let i = 0; i < latticeA.N; i++) {
           couplingAtoB[i] = epsilon * Math.sin(latticeA.theta[i] - latticeB.theta[i]);
-          couplingBtoA[i] = epsilon * Math.sin(latticeB.theta[i] - latticeA.theta[i]);
         }
-        latticeA.step(couplingBtoA);
-        latticeB.step(couplingAtoB);
+        latticeA.step(); // A evolves autonomously (driver)
+        latticeB.step(couplingAtoB); // B is driven by A (response)
       } else {
         latticeA.step();
         latticeB.step();
@@ -220,9 +224,13 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       const distAB = fourierDistance(modesA, modesB);
       const distAC = fourierDistance(modesA, modesC);
 
-      // Observer confidence: how different is coupled pair from uncoupled?
-      // Higher confidence if A-B looks different from A-C
-      const observerConf = Math.min(1, Math.max(0, (distAC - distAB) / (distAC + 0.01)));
+      // Observer confidence with integration lag (simulates T_meas ~ I_struct / R)
+      // Raw evidence is instantaneous; smoothed confidence accumulates over time
+      const rawEvidence = Math.min(1, Math.max(0, (distAC - distAB) / (distAC + 0.01)));
+
+      // Exponential smoothing: ~20 step memory, simulates measurement integration time
+      state.smoothedConf = 0.95 * state.smoothedConf + 0.05 * rawEvidence;
+      const observerConf = state.smoothedConf;
 
       // Store history
       state.coherenceHistory.push(coherence);
@@ -315,7 +323,7 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
 
       ctx.fillStyle = '#3b82f6';
       ctx.font = '10px monospace';
-      ctx.fillText('coupled', W / 2, ringCenterY - 8);
+      ctx.fillText('A → B', W / 2, ringCenterY - 8);
     }
 
     // Draw time series plot
@@ -385,6 +393,8 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     ctx.fillRect(plotX + plotW - 120, plotY + 25, 10, 10);
     ctx.fillStyle = '#888';
     ctx.fillText('Observer', plotX + plotW - 105, plotY + 34);
+    ctx.fillStyle = '#555';
+    ctx.fillText('(integrated)', plotX + plotW - 105, plotY + 44);
 
     // Axis labels
     ctx.fillStyle = '#666';
