@@ -294,6 +294,17 @@ export default function CreditLedgerPage() {
           </li>
         </ul>
       </div>
+
+      <div className="mt-6 text-center">
+        <a
+          href="https://github.com/todd866/coherencedynamics-website/blob/main/src/app/simulations/credit-ledger/page.tsx"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-500 hover:text-gray-400 text-sm"
+        >
+          View source
+        </a>
+      </div>
     </div>
   );
 }
