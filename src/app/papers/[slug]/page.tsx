@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { papers, getPaperBySlug, getAdjacentPapers } from '@/data/papers';
+import { hasFullPaperContent } from '@/data/full-papers';
 import Markdown from '@/components/Markdown';
 import PaperNavigation from '@/components/PaperNavigation';
 import PsychedelicGainMini from '@/components/PsychedelicGainMini';
@@ -104,6 +105,20 @@ export default async function PaperPage({
             </Link>
           )}
         </div>
+
+        {/* Read full paper link */}
+        {hasFullPaperContent(slug) && (
+          <div className="mt-4 p-4 bg-gray-900 rounded-lg border border-gray-800">
+            <Link
+              href={`/papers/${slug}/full`}
+              className="text-white hover:text-blue-300 font-medium flex items-center justify-between"
+            >
+              <span>Read full paper (HTML)</span>
+              <span>&rarr;</span>
+            </Link>
+            <p className="text-xs text-gray-500 mt-1">Mobile-friendly version with equations</p>
+          </div>
+        )}
       </div>
 
       {/* Main description - first paragraph only */}
