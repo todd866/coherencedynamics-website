@@ -76,7 +76,7 @@ This isn't a trick or an approximation. It's a fundamentally different computati
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4978594',
     github: 'todd866/intelligence-biosystems',
-    pdf: 'https://raw.githubusercontent.com/todd866/intelligence-biosystems/main/intelligence_biosystems.pdf',
+    pdf: 'https://github.com/todd866/intelligence-biosystems/blob/main/intelligence.pdf',
     image: 'high-dimensional-coherence.png',
     description: `**Intelligence emerges whenever a system maintains high-dimensional internal dynamics that collapse to coherent outputs** — and this architectural principle, not clever algorithms, explains the million-fold efficiency gap between brains and computers.
 
@@ -101,7 +101,7 @@ The same principle applies at every scale: bacteria tracking chemical gradients,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5018691',
     github: 'todd866/coherence-time-biosystems',
-    pdf: 'https://raw.githubusercontent.com/todd866/coherence-time-biosystems/main/coherence_time.pdf',
+    pdf: 'https://github.com/todd866/coherence-time-biosystems/blob/main/coherence_time.pdf',
     image: 'coherence-time.png',
     description: `**The speed of thought is limited by how quickly brain regions can synchronise their oscillations** — not by how fast neurons fire. This creates a fundamental trade-off: larger, more flexible networks process information more slowly.
 
@@ -125,6 +125,7 @@ Consciousness may depend more on these synchronised fields than on individual sp
     year: 2025,
     status: 'submitted',
     github: 'todd866/brainwavedimensionality',
+    pdf: 'https://github.com/todd866/brainwavedimensionality/blob/main/paper/slow_waves_high_D.pdf',
     image: 'cortical-oscillations.png',
     description: `**Slower brain waves are higher-dimensional, not lower** — inverting a major assumption in oscillatory neuroscience and reframing what sleep, meditation, and stress actually do to cognition.
 
@@ -152,7 +153,7 @@ The practical implications are significant. Interventions that enhance slow-wave
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5846665',
     github: 'todd866/nonergodic-development',
-    pdf: 'https://raw.githubusercontent.com/todd866/nonergodic-development/main/nonergodic_development.pdf',
+    pdf: 'https://github.com/todd866/nonergodic-development/blob/main/nonergodic_development.pdf',
     image: 'nonergodic-development.png',
     description: `**The same genome can produce wildly different phenotypes depending on developmental history** — and this explains why GWAS studies miss so much heritability, why cancer rates vary dramatically between cooperative and competitive species, and why environmental stability is a powerful intervention.
 
@@ -176,7 +177,7 @@ Cancer, in this view, is cellular bifurcation into an alternative stable state. 
     year: 2025,
     status: 'in_prep',
     github: 'todd866/dimensional-work',
-    pdf: 'https://raw.githubusercontent.com/todd866/dimensional-work/main/manuscript_pre.pdf',
+    pdf: 'https://github.com/todd866/dimensional-work/blob/main/manuscript_pre.pdf',
     simulation: 'curvature-cost',
     image: 'dimensional-landauer.png',
     description: `**Erasing a bit costs energy — but so does projecting high-dimensional dynamics onto lower-dimensional representations.** This "geometric work" is a new fundamental cost in information processing, and it explains why biological systems favour coherent, oscillatory dynamics.
@@ -202,7 +203,7 @@ Why does this matter? Because coherence naturally reduces dimensionality. As osc
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5573915',
     github: 'todd866/limits-of-falsifiability',
-    pdf: 'https://raw.githubusercontent.com/todd866/limits-of-falsifiability/main/paper2_shadow_geometry.pdf',
+    pdf: 'https://github.com/todd866/limits-of-falsifiability/blob/main/paper2_shadow_geometry.pdf',
     image: 'biological-shadows.png',
     description: `**75% of what you see in t-SNE and UMAP plots is wrong** — points that look like neighbours weren't actually close in the original high-dimensional data. This isn't a bug in the algorithms; it's a geometric inevitability.
 
@@ -226,7 +227,7 @@ This isn't an argument against visualisation — it's an argument for honesty ab
     year: 2025,
     status: 'submitted',
     github: 'todd866/clinical-validity-bounds',
-    pdf: 'https://raw.githubusercontent.com/todd866/clinical-validity-bounds/main/manuscript.pdf',
+    pdf: 'https://github.com/todd866/clinical-validity-bounds/blob/main/manuscript.pdf',
     image: 'clinical-validity-bounds.png',
     description: `**Clinical AI fails on complex patients because the validation math breaks down** — and we can now quantify exactly where. The critical threshold is around 3 comorbidities (r* ≈ 0.3), where classifier performance hits its minimum.
 
@@ -265,6 +266,7 @@ The same constraint applies to neural network latent spaces: if you compress too
       'Connects to Takens embedding theorem',
     ],
     github: 'todd866/minimalembeddingdimension',
+    pdf: 'https://github.com/todd866/minimalembeddingdimension/blob/main/dimensional_collapse.pdf',
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
@@ -299,7 +301,7 @@ Continues the analysis from the Maxwell's demon paper (BioSystems 2025) with rig
     year: 2025,
     status: 'in_prep',
     github: 'todd866/lsd-dimensionality',
-    pdf: 'https://raw.githubusercontent.com/todd866/lsd-dimensionality/main/lsd_dimensionality.pdf',
+    pdf: 'https://github.com/todd866/lsd-dimensionality/blob/main/lsd_dimensionality.pdf',
     simulation: 'lsd-landscape',
     image: 'lsd-dimensionality.png',
     description: `**Psychedelics increase fast electrophysiological dimensionality but decrease slow hemodynamic dimensionality** — implying "psychedelic entropy" is timescale- and measurement-dependent rather than a single brain-wide scalar.
@@ -326,7 +328,7 @@ This resolves an apparent contradiction: the Entropic Brain hypothesis is correc
     year: 2025,
     status: 'submitted',
     github: 'todd866/code-formation-jtb',
-    pdf: 'https://raw.githubusercontent.com/todd866/code-formation-jtb/main/code_formation_jtb.pdf',
+    pdf: 'https://github.com/todd866/code-formation-jtb/blob/main/code_formation_jtb.pdf',
     simulation: 'code-collapse',
     description: `**Biological systems exhibit persistent organization despite operating in high-dimensional, noisy, and finite-time dynamical regimes.** While order parameters and attractor dynamics explain pattern formation within single systems, they do not account for how biological organization is stabilized through low-dimensional interfaces such as genetic, regulatory, or homeostatic codes.
 
@@ -367,7 +369,7 @@ The speed-accuracy tradeoff ($\\varepsilon \\sim T_{\\text{osc}}/T_{\\text{dev}}
       'Phase transition at critical coupling corresponds to gastrulation',
     ],
     github: 'todd866/embryodimensionality',
-    pdf: 'https://raw.githubusercontent.com/todd866/embryodimensionality/main/embryo_oscillators.pdf',
+    pdf: 'https://github.com/todd866/embryodimensionality/blob/main/embryo_oscillators.pdf',
     image: 'embryo-oscillators.png',
   },
   {
@@ -392,7 +394,7 @@ The implication: stop looking for the first replicator. Look for the first coher
     year: 2025,
     status: 'in_prep',
     github: 'todd866/cross-scale-control',
-    pdf: 'https://raw.githubusercontent.com/todd866/cross-scale-control/main/manuscript.pdf',
+    pdf: 'https://github.com/todd866/cross-scale-control/blob/main/manuscript.pdf',
     description: `**The same low-dimensional code state can lead to different outcomes depending on the underlying high-dimensional microstate** — this breaks a core assumption in biological modeling and shows that "codes" are not dynamically closed.
 
 When we model biological systems using low-dimensional codes (neural population vectors, gene expression states, order parameters), we implicitly assume the code is *conditionally sufficient* for predicting future behavior. But codes are projections of high-dimensional substrates, and projection fibers contain microstates with divergent futures.
@@ -415,6 +417,7 @@ This connects to Haken's synergetics: the slaving principle is incomplete. Order
     year: 2025,
     status: 'in_prep',
     github: 'todd866/oscillatory-scaling-limits',
+    pdf: 'https://github.com/todd866/oscillatory-scaling-limits/blob/main/scaling_limits.pdf',
     image: 'coherence-gate-scaling.png',
     description: `**Digital simulation of oscillatory neural networks hits a fundamental scaling wall** — and we can now calculate exactly where physical instantiation becomes thermodynamically favorable.
 
@@ -454,7 +457,7 @@ The framework also explains T-cell exhaustion (dynamical friction from coupling 
       'Regeneration tradeoff: deep attractors → cancer aggression, no regeneration',
     ],
     github: 'todd866/immune-cooperation',
-    pdf: 'https://raw.githubusercontent.com/todd866/immune-cooperation/main/immune_cooperation.pdf',
+    pdf: 'https://github.com/todd866/immune-cooperation/blob/main/immune_cooperation.pdf',
   },
   {
     slug: 'substrate-dimensionality',
@@ -478,7 +481,7 @@ The implication is uncomfortable: we may already be approaching the ceiling of w
     ],
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
     github: 'todd866/substrate-dimensionality',
-    pdf: 'https://raw.githubusercontent.com/todd866/substrate-dimensionality/main/substrate_dimensionality.pdf',
+    pdf: 'https://github.com/todd866/substrate-dimensionality/blob/main/substrate_dimensionality.pdf',
   },
 ];
 
