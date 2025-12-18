@@ -3,6 +3,10 @@ export interface FullPaperContent {
   sections: {
     title: string;
     content: string;
+    figure?: {
+      src: string;
+      caption: string;
+    };
   }[];
   references?: string[];
 }
@@ -26,7 +30,11 @@ We distinguish two mechanisms:
 
 1. **State credit:** Bias and correlations reduce the *reversible* work bound by reducing the entropy that must be removed. This is a true thermodynamic resource—creating it costs work; consuming it recovers work.
 
-2. **Protocol efficiency:** Geometric structure in the control landscape reduces *irreversible* dissipation during finite-time operations. This is not a conserved resource but a property of the transformation path.`
+2. **Protocol efficiency:** Geometric structure in the control landscape reduces *irreversible* dissipation during finite-time operations. This is not a conserved resource but a property of the transformation path.`,
+        figure: {
+          src: '/images/papers/information-credit.png',
+          caption: 'Figure 1: The decomposition. State credit (bias + correlations) is a conserved resource that reduces reversible work; protocol optimization (geometry) reduces irreversible work but does not deplete.'
+        }
       },
       {
         title: '2. State Credit I: Bias',

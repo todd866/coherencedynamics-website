@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getPaperBySlug } from '@/data/papers';
 import { getFullPaperContent } from '@/data/full-papers';
@@ -53,8 +54,38 @@ export default async function FullPaperPage({
             <Markdown className="text-gray-300 leading-relaxed">
               {section.content}
             </Markdown>
+            {section.figure && (
+              <figure className="my-6 bg-white rounded-lg p-4">
+                <Image
+                  src={section.figure.src}
+                  alt={section.figure.caption}
+                  width={700}
+                  height={400}
+                  className="rounded w-full"
+                />
+                <figcaption className="mt-2 text-sm text-gray-600 text-center">
+                  {section.figure.caption}
+                </figcaption>
+              </figure>
+            )}
           </section>
         ))}
+
+        {/* Interactive simulation */}
+        {paper.simulation && (
+          <section className="my-10 p-6 bg-slate-900/50 rounded-xl border border-slate-700">
+            <h3 className="text-xl font-semibold mb-3 text-white">Interactive Simulation</h3>
+            <p className="text-gray-400 mb-4">
+              Explore the credit ledger interactively. Adjust bias, correlations, protocol duration, and thermodynamic length to see how they affect total work.
+            </p>
+            <Link
+              href={`/simulations/${paper.simulation}`}
+              className="inline-block px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded transition-colors"
+            >
+              Open Credit Ledger Simulation &rarr;
+            </Link>
+          </section>
+        )}
 
         {/* References */}
         {fullContent.references && (
