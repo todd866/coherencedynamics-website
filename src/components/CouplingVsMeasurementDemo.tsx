@@ -398,31 +398,65 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     const plotX = 20;
 
     // Plot background
-    ctx.fillStyle = '#1a1a1a';
+    ctx.fillStyle = '#0a0a0a';
     ctx.fillRect(plotX, plotY, plotW, plotH);
     ctx.strokeStyle = '#333';
     ctx.strokeRect(plotX, plotY, plotW, plotH);
 
+    // Find first crossing points
+    const histLen = coherenceHistory.length;
+    let tSync = -1; // First time coherence > 0.7
+    let tMeas = -1; // First time observer > 0.5
+    for (let i = 0; i < histLen; i++) {
+      if (tSync < 0 && coherenceHistory[i] > 0.7) tSync = i;
+      if (tMeas < 0 && observerHistory[i] > 0.5) tMeas = i;
+    }
+
+    // Highlight blind spot region FIRST (so lines draw on top)
+    if (tSync >= 0 && tMeas > tSync) {
+      const x1 = plotX + (tSync / 400) * plotW;
+      const x2 = plotX + (tMeas / 400) * plotW;
+      // Red gradient fill
+      const gradient = ctx.createLinearGradient(x1, plotY, x2, plotY);
+      gradient.addColorStop(0, 'rgba(239, 68, 68, 0.25)');
+      gradient.addColorStop(1, 'rgba(239, 68, 68, 0.1)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x1, plotY, x2 - x1, plotH);
+    }
+
     // Threshold lines
-    ctx.strokeStyle = '#22c55e33';
-    ctx.setLineDash([3, 3]);
-    const syncLineY = plotY + plotH * (1 - 0.7);
+    const syncThreshY = plotY + plotH * (1 - 0.7);
+    const detectThreshY = plotY + plotH * (1 - 0.5);
+
+    // Sync threshold (green, dashed)
+    ctx.strokeStyle = 'rgba(34, 197, 94, 0.4)';
+    ctx.setLineDash([4, 4]);
     ctx.beginPath();
-    ctx.moveTo(plotX, syncLineY);
-    ctx.lineTo(plotX + plotW, syncLineY);
+    ctx.moveTo(plotX, syncThreshY);
+    ctx.lineTo(plotX + plotW, syncThreshY);
+    ctx.stroke();
+
+    // Detection threshold (orange, dashed)
+    ctx.strokeStyle = 'rgba(249, 115, 22, 0.4)';
+    ctx.beginPath();
+    ctx.moveTo(plotX, detectThreshY);
+    ctx.lineTo(plotX + plotW, detectThreshY);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.fillStyle = '#22c55e';
+    // Y-axis labels
     ctx.font = '9px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText('sync threshold', plotX + 5, syncLineY - 3);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#22c55e';
+    ctx.fillText('0.7', plotX - 4, syncThreshY + 3);
+    ctx.fillStyle = '#f97316';
+    ctx.fillText('0.5', plotX - 4, detectThreshY + 3);
 
-    // Plot coherence history
+    // Plot coherence history (green line)
     if (coherenceHistory.length > 1) {
       ctx.beginPath();
       ctx.strokeStyle = '#22c55e';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
       for (let i = 0; i < coherenceHistory.length; i++) {
         const x = plotX + (i / 400) * plotW;
         const y = plotY + plotH * (1 - coherenceHistory[i]);
@@ -432,11 +466,11 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       ctx.stroke();
     }
 
-    // Plot observer confidence
+    // Plot observer confidence (orange line)
     if (observerHistory.length > 1) {
       ctx.beginPath();
       ctx.strokeStyle = '#f97316';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
       for (let i = 0; i < observerHistory.length; i++) {
         const x = plotX + (i / 400) * plotW;
         const y = plotY + plotH * (1 - observerHistory[i]);
@@ -446,50 +480,80 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       ctx.stroke();
     }
 
-    // Legend
+    // Draw T_sync marker (vertical green line)
+    if (tSync >= 0) {
+      const xSync = plotX + (tSync / 400) * plotW;
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(xSync, plotY);
+      ctx.lineTo(xSync, plotY + plotH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Label
+      ctx.fillStyle = '#22c55e';
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('T_sync', xSync, plotY + plotH + 12);
+    }
+
+    // Draw T_meas marker (vertical orange line)
+    if (tMeas >= 0) {
+      const xMeas = plotX + (tMeas / 400) * plotW;
+      ctx.strokeStyle = '#f97316';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(xMeas, plotY);
+      ctx.lineTo(xMeas, plotY + plotH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Label
+      ctx.fillStyle = '#f97316';
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('T_meas', xMeas, plotY + plotH + 12);
+    }
+
+    // Show the gap annotation
+    if (tSync >= 0 && tMeas > tSync) {
+      const xSync = plotX + (tSync / 400) * plotW;
+      const xMeas = plotX + (tMeas / 400) * plotW;
+      const midX = (xSync + xMeas) / 2;
+
+      // Bracket showing the gap
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(xSync, plotY + 15);
+      ctx.lineTo(xSync, plotY + 8);
+      ctx.lineTo(xMeas, plotY + 8);
+      ctx.lineTo(xMeas, plotY + 15);
+      ctx.stroke();
+
+      // Gap label
+      ctx.fillStyle = '#ef4444';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      const gap = tMeas - tSync;
+      ctx.fillText('BLIND: ' + gap + ' steps', midX, plotY + 28);
+    }
+
+    // Legend (top right)
     ctx.fillStyle = '#22c55e';
-    ctx.fillRect(plotX + plotW - 120, plotY + 10, 10, 10);
-    ctx.fillStyle = '#888';
-    ctx.font = '10px monospace';
+    ctx.fillRect(plotX + plotW - 95, plotY + 8, 8, 8);
+    ctx.fillStyle = '#666';
+    ctx.font = '9px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('Coherence', plotX + plotW - 105, plotY + 19);
+    ctx.fillText('Sync', plotX + plotW - 83, plotY + 15);
 
     ctx.fillStyle = '#f97316';
-    ctx.fillRect(plotX + plotW - 120, plotY + 25, 10, 10);
-    ctx.fillStyle = '#888';
-    ctx.fillText('Observer', plotX + plotW - 105, plotY + 34);
-    ctx.fillStyle = '#555';
-    ctx.fillText('(integrated)', plotX + plotW - 105, plotY + 44);
-
-    // Axis labels
+    ctx.fillRect(plotX + plotW - 95, plotY + 20, 8, 8);
     ctx.fillStyle = '#666';
-    ctx.font = '10px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('Time (steps)', plotX + plotW / 2, plotY + plotH + 15);
-
-    // Highlight blind spot region
-    const histLen = coherenceHistory.length;
-    if (histLen > 10) {
-      let blindStart = -1;
-      let blindEnd = -1;
-      for (let i = 0; i < histLen; i++) {
-        if (coherenceHistory[i] > 0.7 && observerHistory[i] < 0.5) {
-          if (blindStart < 0) blindStart = i;
-          blindEnd = i;
-        }
-      }
-      if (blindStart >= 0 && blindEnd > blindStart) {
-        const x1 = plotX + (blindStart / 400) * plotW;
-        const x2 = plotX + (blindEnd / 400) * plotW;
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
-        ctx.fillRect(x1, plotY, x2 - x1, plotH);
-        ctx.fillStyle = '#ef4444';
-        ctx.font = 'bold 10px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('SYNCED BUT', (x1 + x2) / 2, plotY + plotH / 2 - 6);
-        ctx.fillText('INVISIBLE', (x1 + x2) / 2, plotY + plotH / 2 + 6);
-      }
-    }
+    ctx.fillText('Observer', plotX + plotW - 83, plotY + 27);
 
     animationRef.current = requestAnimationFrame(render);
   }, [isRunning, couplingEnabled, observerBandwidth, couplingStrength, stats.coherence]);
