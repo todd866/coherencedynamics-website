@@ -95,10 +95,20 @@ function crossCoherence(A: KuramotoLattice, B: KuramotoLattice): number {
   return Math.sqrt(re * re + im * im) / A.N;
 }
 
+// Fourier magnitude distance (what the bandwidth-limited observer actually measures)
+function fourierDistance(modesA: number[], modesB: number[]): number {
+  let sum = 0;
+  for (let i = 0; i < modesA.length; i++) {
+    sum += (modesA[i] - modesB[i]) ** 2;
+  }
+  return Math.sqrt(sum);
+}
+
 export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isRunning, setIsRunning] = useState(true);
   const [couplingEnabled, setCouplingEnabled] = useState(true);
+  const [similarStructure, setSimilarStructure] = useState(true); // Paper mode: shared omegas
   const [observerBandwidth, setObserverBandwidth] = useState(4);
   const [couplingStrength, setCouplingStrength] = useState(0.5);
   const [stats, setStats] = useState({
@@ -133,17 +143,21 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
   const initLattices = useCallback(() => {
     const N = 32;
     const K = 2.0;
-    const omegaSpread = 0.2;  // Wider frequency spread slows sync
-    const noiseStd = 0.2;     // More noise for realistic dynamics
+    const omegaSpread = 0.1;  // Natural frequency spread
+    const noiseStd = 0.15;    // Noise level
     const dt = 0.1;
 
     const A = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
     const B = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
     const C = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
 
-    // A, B, C all have DIFFERENT natural frequencies (independent draws)
-    // Without coupling, A and B will desync due to frequency mismatch
-    // Coupling must actively fight this drift to achieve synchronization
+    if (similarStructure) {
+      // Paper mode: A and B share natural frequencies (structural similarity)
+      // This enables fast synchronization - the paper's central claim
+      B.copyOmegaFrom(A);
+      // C remains different (uncoupled control with different structure)
+    }
+    // else: all have independent frequencies (hard mode - tests coupling strength)
 
     stateRef.current = {
       latticeA: A,
@@ -154,7 +168,7 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       observerHistory: [],
       smoothedConf: 0,
     };
-  }, []);
+  }, [similarStructure]);
 
   useEffect(() => {
     initLattices();
@@ -207,21 +221,26 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       // Compute metrics
       const coherence = crossCoherence(latticeA, latticeB);
 
-      // Observer: bandwidth-limited measurement with heavy integration lag
-      // The observer eventually detects synchronization, but slowly
-      // Lower bandwidth (k) = fewer modes = slower detection
-      // This simulates T_meas ~ I_struct / R
+      // Observer: bandwidth-limited Fourier measurement (NOT the oracle)
+      // The observer sees only low-k Fourier MAGNITUDES, not phases
+      // This is the "phase blindness" from the paper - they don't know what to measure
+      const modesA = latticeA.getFourierModes(observerBandwidth);
+      const modesB = latticeB.getFourierModes(observerBandwidth);
+      const modesC = latticeC.getFourierModes(observerBandwidth);
 
-      // The observer's raw signal is cross-coherence (what they're trying to detect)
-      // But they must accumulate evidence over time with bandwidth-dependent lag
-      const rawSignal = coherence;
+      // Observer tries to discriminate: is A-B closer than A-C?
+      const distAB = fourierDistance(modesA, modesB);
+      const distAC = fourierDistance(modesA, modesC);
+
+      // Raw evidence: how much closer is B to A than the uncoupled C?
+      // This is what the Fourier observer can actually compute
+      const rawSignal = Math.min(1, Math.max(0, (distAC - distAB) / (distAC + 0.001)));
 
       // Integration rate depends on observer bandwidth
-      // k=1 is very slow, k=16 approaches instantaneous
-      // This models: more measurement dimensions = faster inference
-      const integrationRate = 0.01 + (observerBandwidth / 16) * 0.04; // 0.01 to 0.05
+      // More modes = faster inference (more measurement dimensions)
+      const integrationRate = 0.02 + (observerBandwidth / 16) * 0.08; // 0.02 to 0.10
 
-      // Heavy smoothing creates the lag
+      // Smoothing creates the measurement lag (T_meas ~ I_struct / R)
       state.smoothedConf = (1 - integrationRate) * state.smoothedConf + integrationRate * rawSignal;
       const observerConf = state.smoothedConf;
 
@@ -485,6 +504,38 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
               Uncoupled
             </button>
           </div>
+        </div>
+
+        {/* Structural similarity toggle */}
+        <div>
+          <label className="block text-xs text-gray-500 uppercase tracking-wide mb-2">
+            Structural Similarity
+          </label>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { setSimilarStructure(true); initLattices(); }}
+              className={`flex-1 px-3 py-2 rounded text-sm ${
+                similarStructure
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              Similar
+            </button>
+            <button
+              onClick={() => { setSimilarStructure(false); initLattices(); }}
+              className={`flex-1 px-3 py-2 rounded text-sm ${
+                !similarStructure
+                  ? 'bg-orange-600 text-white'
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              Mismatched
+            </button>
+          </div>
+          <p className="text-xs text-gray-600 mt-1">
+            {similarStructure ? 'A & B share ω (paper mode)' : 'A & B have different ω'}
+          </p>
         </div>
 
         {/* Observer bandwidth slider */}
