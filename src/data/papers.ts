@@ -274,7 +274,7 @@ The same constraint applies to neural network latent spaces: if you compress too
     year: 2025,
     status: 'in_prep',
     github: 'todd866/information-credit',
-    pdf: 'https://raw.githubusercontent.com/todd866/information-credit/main/information_credit.pdf',
+    pdf: 'https://github.com/todd866/information-credit/blob/main/paper/information_credit.pdf',
     image: 'information-credit.png',
     simulation: 'credit-ledger',
     description: `**Apparent sub-Landauer operation decomposes into two distinct mechanisms** — state credit (a conserved thermodynamic resource) and protocol efficiency (a geometric property that reduces waste but isn't consumed).
