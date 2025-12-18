@@ -19,6 +19,7 @@ export function generateStaticParams() {
     'dimensional-landauer',
     'biological-shadows',
     'information-credit',
+    'coupling-identification',
   ];
   return papersWithFullContent.map((slug) => ({ slug }));
 }

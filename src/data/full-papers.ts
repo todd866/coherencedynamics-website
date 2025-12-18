@@ -793,6 +793,128 @@ For information processors operating in structured environments, the question is
       'Crooks, G. E. (2007). Measuring thermodynamic length. Phys. Rev. Lett. 99, 100602.',
       'Todd, I. (2025). Timing inaccessibility and the projection bound. BioSystems 258, 105632.',
     ]
+  },
+
+  'coupling-identification': {
+    abstract: `Identifying structure in high-dimensional dynamical systems via external measurement is fundamentally limited by finite information rates and observability constraints. We show that structurally similar systems can instead identify each other through weak dynamical coupling, synchronizing onto shared low-dimensional manifolds on timescales set by contraction rates rather than information accumulation. Formally, the synchronization time $T_{\\text{sync}} \\sim 1/|\\lambda_c|$ (where $\\lambda_c$ is the conditional Lyapunov exponent) can be orders of magnitude shorter than the measurement time $T_{\\text{meas}} \\sim I_{\\text{struct}}/R$ required for an external observer with bandwidth $R$ to infer equivalent structural information. We demonstrate this separation in a minimal coupled oscillator model where synchronization succeeds under conditions where external discrimination fails.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `How do complex systems recognize each other? We distinguish two channels: **measurement-based identification**, where an external observer accumulates information to infer structure, and **coupling-based identification**, where systems recognize similarity by synchronizing onto shared dynamical manifolds.
+
+The standard scientific answer emphasizes measurement: an observer samples a system's outputs, accumulates statistics, and infers structural properties. This underlies model fitting, system identification, dimensionality estimation, and most of machine learning. Its limits are well understood: finite bandwidth, noise, and observability constraints bound what can be inferred from any measurement channel.
+
+Yet many natural systems appear to coordinate without performing anything resembling measurement-based inference. Neural populations synchronize across brain regions. Cells entrain to neighbors. Organisms coordinate behavior through brief interactions that seem insufficient for model estimation. Humans reliably discriminate real from simulated dynamics even when they cannot articulate the distinguishing features.
+
+We propose that these phenomena reflect the **coupling channel**: systems recognize structural similarity by synchronizing rather than by inferring models from observations.
+
+The key insight is that synchronization is a *contraction process*, not an *inference process*. When structurally similar systems couple, perturbations transverse to a synchronization manifold decay at a rate governed by conditional Lyapunov exponents. This contraction can occur faster than any external observer could accumulate the information needed to verify that synchronization has occurred.`
+      },
+      {
+        title: '2. The Fundamental Inequality',
+        content: `We formalize the distinction as an inequality between two characteristic timescales:
+
+$$T_{\\text{sync}} \\ll T_{\\text{meas}}$$
+
+**Measurement-based identification:** Consider a dynamical system with state $x(t) \\in \\mathbb{R}^N$ observed through a measurement function $y(t) = M(x(t)) + \\eta(t)$. An external observer seeks to identify structural properties by accumulating observations over time. Let $R$ denote the effective information rate of the measurement channel (bits per unit time). Identifying structural equivalence to tolerance $\\epsilon$ requires accumulating information $I_{\\text{struct}}(\\epsilon)$, yielding:
+
+$$T_{\\text{meas}} \\geq \\frac{I_{\\text{struct}}(\\epsilon)}{R}$$
+
+**Coupling-based identification:** Now consider two systems $A$ and $B$ weakly coupled. If they share structural similarity, coupling drives them toward a functional relationship on the synchronization manifold. The timescale for synchronization is governed by the conditional Lyapunov exponent $\\lambda_c$:
+
+$$T_{\\text{sync}} \\sim \\frac{1}{|\\lambda_c|}$$
+
+Crucially, synchronization does not require explicit reconstruction of internal state. The systems do not infer each other's microstate; identification occurs through dynamical contraction onto an invariant relation, not through model estimation.
+
+**Example scaling:** Consider systems with effective dimension $D_{\\text{eff}} \\sim 100$ requiring structural identification to precision $\\epsilon \\sim 10^{-3}$. For an observer with bandwidth $R \\sim 100$ bits/s: $T_{\\text{meas}} \\sim 10$ seconds. Meanwhile, moderate coupling can produce $|\\lambda_c| \\sim 10$ s$^{-1}$, giving $T_{\\text{sync}} \\sim 0.1$ seconds. A hundredfold separation—and this gap widens with system dimensionality.`
+      },
+      {
+        title: '3. Minimal Demonstration',
+        content: `To illustrate the synchronization-measurement separation, we construct a minimal model: two high-dimensional oscillator lattices with weak coupling, observed by a bandwidth-limited external discriminator.
+
+**Model Setup:** One-dimensional lattices of $N = 64$ locally coupled phase oscillators (Kuramoto model). Cross-system coupling operates via pairwise phase-difference coupling: $\\epsilon \\sin(\\theta_i^A - \\theta_i^B)$. This exploits all $N$ degrees of freedom in the phase field—precisely the high-dimensional structure that a low-bandwidth observer cannot access.
+
+**External Observer:** A bandwidth-limited observer receives the first $k = 4$ Fourier modes of each phase field. The observer measures *magnitudes* (energy), not phases—modeling a generic observer without foreknowledge that synchronization is fundamentally a phase-locking phenomenon.
+
+**Results:**
+- **Synchronization succeeds rapidly:** Cross-system coherence exceeds 0.7 within ~70 time steps
+- **The Fourier observer lags substantially:** Requires ~320 steps to reliably discriminate (AUC > 0.75)
+- **At $T_{\\text{sync}}$, Fourier AUC is only 0.58**—barely above chance
+- **Cross-coherence oracle is fast but requires foreknowledge:** Achieves AUC > 0.75 within ~40 steps when given direct access to $r_{AB}$
+
+The key insight: The oracle's success requires *foreknowledge* of what to measure. The coupling channel requires no such foreknowledge—it discovers relevance dynamically.`
+      },
+      {
+        title: '4. The Residual Is Structured',
+        content: `From the Fourier observer's perspective, the high-frequency phase dynamics ($k > 4$) appear as noise. We verify this with an ablation: coupling via low-pass filtered phases (keeping only $k=4$ modes) instead of full phases.
+
+**Results:**
+- Full coupling: $T_{\\text{sync}} \\approx 60$ steps, final coherence 0.99
+- Filtered coupling: $T_{\\text{sync}} \\approx 190$ steps (~3× slower), final coherence 0.85
+- Fourier features differ by only 0.06 on average
+
+The "noise" carries the coordination; removing it cripples synchronization while leaving the observer's statistics nearly unchanged.
+
+**Residual correlation analysis:** High-frequency residuals (modes $k > 4$) show $r \\approx 0.90$ correlation between coupled systems A and B, but $r \\approx 0$ between system A and an uncoupled control C. This confirms that the synchronization manifold occupies the observer's null space—the "noise" is structured coordination.`
+      },
+      {
+        title: '5. Measurement as Cross-Scale Coupling',
+        content: `The preceding analysis treats measurement and coupling as distinct. We now argue they are instances of the same phenomenon—dynamical coupling across timescales—differing only in bandwidth and structure.
+
+**The Observer as an Oscillator:** Any physical measurement apparatus is itself a dynamical system. From a dynamical systems perspective, measurement is a coupling between a slow system (the target) and a fast system (the observer/sensor).
+
+**Measurement Dimension as Coupling Rank:** Define the *measurement dimension* as the number of independent slow-system modes that can imprint distinguishable effects on the fast observer. This is the rank of the cross-scale coupling operator. Modes orthogonal to this coupling—those in the observer's null space—are *unmeasured*.
+
+**Dimension Is Observer-Relative:** A crucial implication: dimensionality is not an intrinsic property of the system. It is a property of the (system × observer) pair. The same physical system can appear low-dimensional to one observer and high-dimensional to another.
+
+**Why Coupling Beats Measurement:** Synchronization between similar systems exploits *matched coupling*—naturally engaging the relevant modes. Measurement imposes a *generic coupling* defined by the sensor, not by the target's structure. The observer must accumulate enough information to infer which modes are relevant—a process that scales with system complexity.`
+      },
+      {
+        title: '6. Coherence Computing',
+        content: `The synchronization-measurement inequality suggests a distinct computational regime, which we term **coherence computing**.
+
+**Computation by Contraction:** A conventional computer performs inference: it represents system state explicitly, updates representations based on inputs, and derives outputs through symbolic manipulation. A coherence computer performs contraction: it couples to a target system, allows dynamics to flow toward synchronized manifolds, and reads out which manifold was reached.
+
+**Architecture:** A coherence computer comprises three layers:
+1. **Oscillator substrate (slow, high-D):** A tunable field of coupled oscillators with rich internal dynamics
+2. **Coupling interface:** Adaptive connections that link the substrate to external systems
+3. **Order-parameter readout (low-D):** Sensors that extract macroscopic features without reconstructing microstate
+
+"Programming" consists of tuning coupling to match a target class of systems. "Inputs" are external dynamics that bias which synchronized manifold becomes stable. "Outputs" are order parameters of the resulting state.
+
+**Why This Works:** The coherence computer identifies structure via coupling (fast) rather than inference (slow), reads out low-dimensional order parameters (cheap) rather than reconstructing high-dimensional state (expensive), and generalizes to a class of systems rather than memorizing instances.`
+      },
+      {
+        title: '7. Conclusion',
+        content: `We have shown that coupling-based identification can outperform measurement-based identification in high-dimensional dynamical systems. The timescale separation:
+
+$$T_{\\text{sync}} \\sim \\frac{1}{|\\lambda_c|} \\ll T_{\\text{meas}} \\sim \\frac{I_{\\text{struct}}}{R}$$
+
+reflects a fundamental distinction between contraction-driven and inference-driven processes.
+
+This inequality clarifies the role of unmeasured dynamics: they are not irrelevant noise but the substrate through which rapid coordination occurs. Measurement collapses dimensional structure; coupling exploits it.
+
+The observer-as-oscillator reframing reveals dimensionality as observer-relative: the "dimension" of a system is a property of the measurement channel, not an intrinsic system invariant.
+
+Coherence computing instantiates these principles as an engineering framework, suggesting that biological coordination has long exploited what silicon is only beginning to attempt.
+
+The broader implication is epistemic: **what generic measurement captures is not all there is, and the dynamics it misses may be precisely what matters for coordination.**`
+      }
+    ],
+
+    references: [
+      'Pecora, L. M. & Carroll, T. L. (1990). Synchronization in chaotic systems. Phys. Rev. Lett. 64, 821–824.',
+      'Pikovsky, A., Rosenblum, M. & Kurths, J. (2001). Synchronization: A Universal Concept in Nonlinear Sciences. Cambridge University Press.',
+      'Rulkov, N. F. et al. (1995). Generalized synchronization of chaos in directionally coupled chaotic systems. Phys. Rev. E 51, 980–994.',
+      'Kalman, R. E. (1960). A new approach to linear filtering and prediction problems. J. Basic Eng. 82, 35–45.',
+      'Hermann, R. & Krener, A. J. (1977). Nonlinear controllability and observability. IEEE Trans. Autom. Control 22, 728–740.',
+      'Shannon, C. E. (1948). A mathematical theory of communication. Bell Syst. Tech. J. 27, 379–423.',
+      'Kuramoto, Y. (1984). Chemical Oscillations, Waves, and Turbulence. Springer.',
+      'Fries, P. (2015). Rhythms for cognition: Communication through coherence. Neuron 88, 220–235.',
+      'Winfree, A. T. (1980). The Geometry of Biological Time. Springer.',
+      'Acebrón, J. A. et al. (2005). The Kuramoto model: A simple paradigm for synchronization phenomena. Rev. Mod. Phys. 77, 137–185.',
+    ]
   }
 };
 
