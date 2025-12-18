@@ -104,21 +104,15 @@ export default async function PaperPage({
               Try Simulation &rarr;
             </Link>
           )}
-        </div>
-
-        {/* Read full paper link */}
-        {hasFullPaperContent(slug) && (
-          <div className="mt-4 p-4 bg-gray-900 rounded-lg border border-gray-800">
+          {hasFullPaperContent(slug) && (
             <Link
               href={`/papers/${slug}/full`}
-              className="text-white hover:text-blue-300 font-medium flex items-center justify-between"
+              className="text-cyan-400 hover:text-cyan-300"
             >
-              <span>Read full paper (HTML)</span>
-              <span>&rarr;</span>
+              Full Paper (HTML) &rarr;
             </Link>
-            <p className="text-xs text-gray-500 mt-1">Mobile-friendly version with equations</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Main description - first paragraph only */}

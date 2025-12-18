@@ -7,7 +7,19 @@ import Markdown from '@/components/Markdown';
 
 export function generateStaticParams() {
   // Only generate for papers that have full content
-  const papersWithFullContent = ['information-credit'];
+  const papersWithFullContent = [
+    'high-dimensional-coherence',
+    'clinical-validity-bounds',
+    'minimal-embedding',
+    'lsd-dimensionality',
+    'code-formation',
+    'coherence-time',
+    'cortical-oscillations',
+    'nonergodic-development',
+    'dimensional-landauer',
+    'biological-shadows',
+    'information-credit',
+  ];
   return papersWithFullContent.map((slug) => ({ slug }));
 }
 

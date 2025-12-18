@@ -12,6 +12,666 @@ export interface FullPaperContent {
 }
 
 const fullPapers: Record<string, FullPaperContent> = {
+  'high-dimensional-coherence': {
+    abstract: `**Intelligence must be high-dimensional.** We show that high-dimensional continuous dynamics are not merely one way to implement intelligence—they are the only thermodynamically viable solution. The core constraint is *measurement bandwidth*, not computational complexity: tracking systems with effective dimensionality $D_{\\text{target}}$ requires measurement capacity $C_{\\text{obs}} \\gtrsim D_{\\text{target}} \\cdot h_\\varepsilon^{\\text{track}} / \\tau_e$. External observers with finite bandwidth face an observational accessibility threshold beyond which the system becomes ontologically unmeasurable. This applies to *all living systems*: bacteria tracking chemical gradients ($D_{\\text{target}} \\sim 10^1$–$10^2$, $\\sim 10^{-12}$ W) and human brains tracking social/ecological complexity ($D_{\\text{target}} \\sim 10^3$–$10^5$, $\\sim$20 W) both require high-dimensional substrates ($D_{\\text{eff}} \\gg D_{\\text{target}}$), scaled to their respective behavioral bandwidths.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `Intelligence is implemented through high-dimensional continuous dynamics operating in phase space with effective dimensionality $D_{\\text{eff}} \\sim 10^3$–$10^4$. This is not one implementation among many—it is the only thermodynamically viable way to track and control complex environments in real time.
+
+What does high-dimensional continuous computation enable?
+
+1. **Simultaneous exploration of incompatible states.** In high-D phase space ($D_{\\text{eff}} \\gg 1$), orthogonal subspaces allow the system to maintain superpositions of mutually exclusive configurations without forced resolution.
+
+2. **Thermal noise as functional dimensionality expansion.** Coupling to a thermal bath enables computation through stochastic resonance and noise-assisted barrier crossing.
+
+3. **Constraint satisfaction without enumeration.** Problems intractable for discrete search become tractable when relaxed to continuous high-D dynamics.
+
+4. **Power scaling with behavioral output, not internal complexity.** Biological systems dissipate $\\sim$20 W regardless of task dimensionality.`
+      },
+      {
+        title: '2. The Observable Dimensionality Bound',
+        content: `We establish a fundamental relationship between dimensionality, measurement capacity, and temporal resolution. There exists a critical dimension:
+
+$$D_{\\text{crit}} = \\frac{C_{\\text{obs}} \\tau_e}{\\alpha h_\\varepsilon^{\\text{track}}}$$
+
+where $C_{\\text{obs}}$ is the observation channel capacity (bits/s), $\\tau_e$ is the evolution timescale, $h_\\varepsilon^{\\text{track}}$ is the minimum bits per mode per $\\tau_e$ to track geometry, and $\\alpha$ captures compressibility.
+
+When $D_{\\text{eff}} > D_{\\text{crit}}$, the system's constraint geometry reconfigures faster than behavioral measurement can track—it becomes **timing-inaccessible**. This establishes a physical boundary separating observable computation from timing-inaccessible computation.`
+      },
+      {
+        title: '3. The Measurement-Theoretic Tracking Bound',
+        content: `**Theorem 1 (Measurement-Theoretic Tracking Bound).** Consider a target system with effective dimensionality $D_{\\text{target}}$. Let an external observer with measurement bandwidth $C_{\\text{obs}}$ attempt to predict events with timing precision $\\varepsilon$ over coherence time $\\tau_e$. Then:
+
+1. If $D_{\\text{target}} \\le D_{\\text{crit}}$: The system is **observationally accessible**. External measurement can resolve enough dimensions to predict outputs.
+
+2. If $D_{\\text{target}} > D_{\\text{crit}}$: The system is **observationally inaccessible**. Insufficient measurement bandwidth to resolve the full manifold of causal influences.
+
+The brain does not face this constraint because it *is* the high-dimensional substrate. No "measurement" occurs during internal evolution—information is carried in geometric configuration.`
+      },
+      {
+        title: '4. Code Formation from Dimensional Mismatch',
+        content: `**Theorem 2 (Code Formation from Dimensional Mismatch).** When two high-dimensional systems interact through a low-dimensional communication channel, stable codes must form at the boundary.
+
+If $D_B > D_{\\text{link}}^{\\text{crit}}$, the full state is observationally inaccessible. However, if $B$'s behaviorally-relevant dynamics are confined to structured regions—recurring subspaces $\\mathcal{S}_i$—then $A$ can learn to recognize these regions as discrete *codes* $c_i$. The effective dimensionality of what must be tracked collapses from $D_B$ to $D_{\\text{code}} \\sim \\log_2(N_{\\text{codes}})$.
+
+**Implication:** This theorem provides a thermodynamic explanation for the emergence of language, gesture, and other symbolic codes in biological systems. When two agents with high internal dimensionality ($D_{\\text{brain}} \\sim 10^3$–$10^6$) coordinate through low-bandwidth channels (speech $\\sim 50$ phonemes/s), stable symbolic codes are thermodynamically *necessary*.`
+      },
+      {
+        title: '5. Worked Example: Human Cortex',
+        content: `MEG source reconstruction yields hundreds of cortical parcels ($N \\sim 10^2$–$10^3$) coupling across frequency bands ($|B| \\sim 3$–$5$). A conservative estimate of effective dimensionality:
+
+$$D_{\\text{eff}}^{\\text{MEG}} \\sim \\kappa N |B| \\approx 0.3 \\times 250 \\times 4 \\approx 300$$
+
+For mid-range parameters ($C_{\\text{obs}} \\sim 10^2$ bits/s, $\\tau_e \\sim 0.1$ s):
+
+$$D_{\\text{crit}} = \\frac{100 \\times 0.1}{1 \\times 2} = 5 \\text{ modes}$$
+
+Therefore: $D_{\\text{eff}}^{\\text{MEG}}/D_{\\text{crit}} \\approx 10^2$. Even at MEG-accessible scales, cortex operates $\\sim 10^2\\times$ above the observability threshold.`
+      },
+      {
+        title: '6. Conclusion',
+        content: `Training GPT-scale models ($\\sim 10^{11}$ parameters) requires $\\sim 10^{24}$ collision events, consuming megawatts. The human brain achieves comparable complexity at $\\sim$20 W—six orders of magnitude less. This gap reflects the fundamental thermodynamic cost of dimensional mismatch.
+
+**Irreducible complexity is irreducible.** Systems with irreducible high-D—ecosystems, vector addition systems with Ackermann-complete reachability, multi-agent dynamics—cannot be faithfully compressed without information loss.
+
+**The clocking constraint:** Digital systems enforce temporal synchronization via a global clock signal. Every register must settle to a definite state at each clock edge, forcing $D_{\\text{eff}}/D_{\\text{crit}} \\to 1$. Biological systems operate **unclocked**—oscillations emerge from coupled dynamics without external synchronization, permitting $D_{\\text{eff}} \\gg D_{\\text{crit}}$.`
+      }
+    ]
+  },
+
+  'clinical-validity-bounds': {
+    abstract: `Clinical decision support systems (CDSS) are typically evaluated using aggregate metrics like AUC, assuming the inference problem is well-posed across the patient population. We identify a structural failure mode where this assumption breaks: when patient effective dimensionality ($D_{\\text{eff}}$) exceeds the model's representational capacity by a critical ratio. We derive the "Dimensional Validity Bound" from information-theoretic principles (Fano's inequality) and validate it using simulation studies and MIMIC-IV data (425,216 ICU admissions). We observe a paradoxical U-shaped performance curve: models perform best on low-complexity (healthy) and high-complexity (stereotyped/collapsed) patients, but fail in the "moderate complexity" regime. This "Zone of Maximum Entropy" represents a systematic blind spot where aggregate AUC remains high (0.835) despite structural posterior instability.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `The remarkable success of statistical learning in healthcare has created an implicit assumption: given sufficient data, appropriate algorithms, and careful validation, clinical prediction problems are solvable in principle. We demonstrate that this assumption fails in a specific, identifiable regime.
+
+When the effective dimensionality of the system being predicted exceeds the representational capacity of the observer by a critical ratio, the inference problem becomes *structurally ill-posed*. This is not a limitation of current methods—it is an information-theoretic impossibility.
+
+Three distinct mechanisms drive failure below the validity bound:
+
+1. **Projection error.** When $D_{\\text{observer}} < D_{\\text{system}}$, the model necessarily performs lossy compression.
+
+2. **Noise amplification.** Higher-dimensional system states amplify variance when projected onto lower-dimensional models.
+
+3. **Hypothesis space explosion.** As system dimensionality grows, the number of distinguishable states scales exponentially.`
+      },
+      {
+        title: '2. The Dimensional Validity Bound',
+        content: `We adopt the participation ratio as our measure of effective dimensionality:
+
+$$D_{\\text{eff}} = \\frac{\\left(\\sum_i \\lambda_i\\right)^2}{\\sum_i \\lambda_i^2}$$
+
+where $\\lambda_i$ are eigenvalues of the covariance matrix.
+
+Let an observer operate in $D_{\\text{obs}}$ effective dimensions while the system state occupies $D_{\\text{sys}}$ dimensions. Define the dimensional ratio:
+
+$$r = \\frac{D_{\\text{obs}}}{D_{\\text{sys}}}$$
+
+**Dimensional validity principle.** Under standard assumptions, stable inference requires a dimensional ratio $r$ above a critical value $r^* \\approx 0.3$. Below this threshold, the inference problem becomes ill-posed.
+
+**Information-theoretic motivation.** The bound follows from Fano's inequality: $P(\\text{error}) \\geq \\frac{H(X) - C - 1}{\\log|\\mathcal{X}|}$`
+      },
+      {
+        title: '3. Clinical Validation: MIMIC-IV',
+        content: `We analyzed 425,216 adult hospitalizations from MIMIC-IV v3.1, stratifying by multimorbidity burden:
+
+| Multimorbidity | N | $D_{\\text{eff}}$ | Mortality | AUC |
+|----------------|-------|---------|-----------|-----|
+| Low | 159,211 | 44.3 | 0.3% | 0.867 |
+| Moderate | 128,979 | 37.5 | 1.1% | **0.835** |
+| High | 137,026 | 29.5 | 5.8% | 0.859 |
+
+Two findings confirm theoretical predictions:
+
+1. **Effective dimensionality decreases with multimorbidity.** Counter to naive intuition ("sicker patients are more complex"), $D_{\\text{eff}}$ drops from 44.3 to 29.5 as multimorbidity increases. This supports the view that illness represents loss of physiological complexity—diseased systems collapse into stereotyped attractors.
+
+2. **Classifier performance shows the predicted U-shape.** Worst AUC (0.835) occurs in the *moderate* multimorbidity stratum—the zone of maximum entropy.`
+      },
+      {
+        title: '4. The Zone of Maximum Entropy',
+        content: `The dimensional validity bound identifies a regime where standard evaluation metrics become unreliable—not because of insufficient data or poor algorithms, but because the inference problem itself is ill-posed.
+
+Consider what aggregate AUC actually measures: the probability that a randomly chosen positive instance ranks higher than a randomly chosen negative instance *within the model's representation*. When projection error is severe, many distinct system states map to the same representation. The model may achieve excellent separation among distinguishable states while systematically failing on conflated states.
+
+The zone of maximum entropy is particularly insidious. It is:
+- Invisible to aggregate metrics
+- Occurs in an intermediate regime that intuition misses
+- Represents the population where model errors may be most consequential`
+      },
+      {
+        title: '5. Recommendations',
+        content: `Three practical recommendations follow:
+
+1. **Compute $D_{\\text{eff}}$ at runtime.** Before generating predictions, estimate system complexity. When $r < 0.3$, flag that the validity bound may be exceeded.
+
+2. **Stratify validation by complexity.** Report performance separately for low, moderate, and high complexity strata. Aggregate AUC should not be the sole basis for deployment decisions.
+
+3. **Design appropriate abstention.** In regimes where the validity bound is violated, models should abstain rather than predict with false confidence.`
+      },
+      {
+        title: '6. Conclusion',
+        content: `Statistical learning has limits that are not merely practical but structural. When the effective dimensionality of the system being predicted exceeds the observer's representational capacity by more than approximately threefold, inference becomes ill-posed and standard evaluation metrics become misleading.
+
+The zone of maximum entropy represents a systematic blind spot in current evaluation practice. It is invisible to aggregate metrics, occurs in an intermediate complexity regime, and may contain the instances where model errors are most consequential.
+
+The dimensional validity bound is not a call for pessimism but for appropriate humility. In domains where the bound may be violated—biological systems, social networks, complex physical systems—we need different evaluation protocols, explicit validity checks, and appropriate abstention mechanisms.`
+      }
+    ]
+  },
+
+  'minimal-embedding': {
+    abstract: `We study the problem of embedding recurrent processes on statistical manifolds into Euclidean spaces of minimal dimension while preserving temporal distinctness. A *self-intersection* occurs when two temporally distinct points of a trajectory are mapped to the same point in the embedding space. We show that for cyclic processes with strictly monotone meta-time—including recurrent neural dynamics, biological oscillators, and symbolic state transitions—any continuous embedding into $\\mathbb{R}^2$ that preserves the cyclic structure necessarily produces self-intersections, whereas self-intersection-free embeddings into $\\mathbb{R}^3$ always exist. This establishes $k=3$ as a critical dimension threshold: $k \\leq 2$ forces categorical discretization through unavoidable state conflation, while $k \\geq 3$ preserves the continuous structure of temporal dynamics.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `Information geometry provides a natural framework for studying inference and decision-making, endowing families of probability distributions with Riemannian structure via the Fisher information metric. A fundamental question arises when we consider *dimensional collapse*: what happens when a high-dimensional statistical manifold is projected onto a lower-dimensional subspace?
+
+We focus on a specific aspect: the emergence of *self-intersections* between temporally distinct states. When a trajectory $\\gamma(t)$ on a statistical manifold $\\mathcal{M}$ is projected to a lower-dimensional space via a map $\\pi_k: \\mathcal{M} \\to \\mathbb{R}^k$, distinct times $t_1 \\neq t_2$ may be mapped to the same point. Such self-intersections destroy temporal information.
+
+Our main results establish that:
+1. For cyclic processes with monotone meta-time, self-intersections are structurally unavoidable in $\\mathbb{R}^2$
+2. Self-intersection-free embeddings into $\\mathbb{R}^3$ always exist
+3. The dimension $k = 3$ is therefore a *critical threshold*`
+      },
+      {
+        title: '2. Cyclic Processes with Monotone Meta-Time',
+        content: `A recurrent process $\\gamma$ is *cyclic with monotone meta-time* if:
+1. There exists a "phase coordinate" projection $\\theta: \\mathcal{M} \\to S^1$ such that $\\theta \\circ \\gamma$ covers the circle $n \\geq 2$ times
+2. The process encodes a strictly monotone "meta-time" variable $\\tau: [0,T] \\to \\mathbb{R}$ with $\\tau'(t) > 0$
+
+**Examples:**
+- **Biological oscillators:** Neural limit cycles, circadian rhythms, cardiac pacemakers
+- **Recurrent neural networks:** Hidden state trajectories processing sequential data
+- **Logical paradoxes:** The Liar's paradox ("This statement is false") oscillates between TRUE and FALSE, with each cycle occurring at a distinct meta-time`
+      },
+      {
+        title: '3. The Minimal Embedding Theorem',
+        content: `**Theorem (Minimal Embedding Dimension).** Let $\\gamma: [0, T] \\to \\mathcal{M}$ be a cyclic process with monotone meta-time. Then:
+
+**(i)** For any continuous $\\pi_2: \\mathcal{M} \\to \\mathbb{R}^2$ preserving the cyclic structure, the self-intersection functional satisfies $E_{\\cap}(\\pi_2, \\gamma) > 0$.
+
+**(ii)** There exists a continuous $\\pi_3: \\mathcal{M} \\to \\mathbb{R}^3$ such that $E_{\\cap}(\\pi_3, \\gamma) = 0$.
+
+**Proof of (ii).** Define $\\pi_3(\\gamma(t)) = (\\cos(2\\pi \\theta), \\sin(2\\pi \\theta), \\tau(t)/T)$. This maps the trajectory to a helix in $\\mathbb{R}^3$. Since $\\tau$ is strictly monotone, $t_1 \\neq t_2$ implies $\\tau(t_1) \\neq \\tau(t_2)$, so the third coordinates differ and the map is injective.`
+      },
+      {
+        title: '4. Information-Geometric Interpretation',
+        content: `The self-intersection phenomenon has a natural interpretation in terms of metric degeneracy.
+
+**Proposition (Fisher Metric Singularity).** Consider a statistical manifold parametrized by $(\\theta, \\tau) \\in S^1 \\times \\mathbb{R}$. Assume the Fisher information matrix $G(\\theta, \\tau)$ has full rank 2.
+
+Under a projection $\\pi_2$ that discards the $\\tau$ coordinate, the induced metric has rank at most 1. The smallest eigenvalue of the induced metric tensor vanishes.
+
+This rank drop corresponds to *non-identifiability*: distinct values of $\\tau$ produce identical sufficient statistics after projection. Self-intersections are thus equivalent to singularities in the accessible information geometry.`
+      },
+      {
+        title: '5. Categorical vs. Continuous Representations',
+        content: `Our results formalize a fundamental dichotomy in information processing:
+
+- **Categorical regime ($k \\leq 2$):** Self-intersections are structurally unavoidable for cyclic processes with meta-time, forcing the system to treat temporally distinct states as equivalent. This naturally encourages discrete categories and symbolic representations.
+
+- **Continuous regime ($k \\geq 3$):** Self-intersection-free embeddings exist, allowing the system to maintain temporal distinctness and represent processes rather than just states.
+
+This dichotomy suggests that the emergence of discrete symbols from continuous dynamics may be geometrically inevitable under dimensional constraints.`
+      },
+      {
+        title: '6. Conclusion',
+        content: `We have established that $k = 3$ is the minimal embedding dimension for self-intersection-free representation of cyclic processes with monotone meta-time on statistical manifolds.
+
+This result identifies a critical threshold in information geometry: below three dimensions, temporal information is necessarily lost when the cyclic structure is preserved, forcing categorical representations; at three dimensions and above, continuous processes can be faithfully represented.
+
+The proofs are elementary, relying on the topology of the circle and the definition of injectivity, combined with the classical Whitney embedding principle. Yet the result has implications for understanding when and why discrete structures emerge from continuous substrates.`
+      }
+    ]
+  },
+
+  'lsd-dimensionality': {
+    abstract: `The Entropic Brain hypothesis posits that psychedelics increase the richness of cortical states—in dynamical terms, an expansion of effective dimensionality. We tested this prediction across two neuroimaging modalities with distinct temporal resolutions. In MEG (136 sessions across four compounds), classical psychedelics significantly increased effective dimensionality (psilocybin: $+15\\%$, $p = 0.003$, $d = +0.78$), while ketamine showed no effect—consistent with 5-HT2A-specific mechanism. However, fMRI analysis revealed the opposite pattern: effective dimensionality *decreased* under psilocybin ($D_{\\text{eff}}$: $18.8 \\to 17.0$, $-10\\%$, $p = 0.013$). These results suggest a timescale dissociation: 5-HT2A agonism increases the independence of fast neural oscillations, but at slow hemodynamic timescales, BOLD variance concentrates in the first principal component.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `If the cortex operates as a system of coupled neural oscillators, it is inherently high-dimensional. The state space includes the phases and amplitudes of oscillators across frequencies and regions. A natural question arises: do psychedelics change this dimensionality?
+
+By "dimensionality" we mean the number of independent modes of variation—how many degrees of freedom are actively being used. A system with 1000 oscillators might have effective dimensionality of 10 (if they're all synchronized) or 500 (if they're largely independent).
+
+**The Prediction:** Classical psychedelics are 5-HT2A agonists. The 5-HT2A receptor is concentrated on layer 5 pyramidal neurons. Activation increases dendritic gain—the same input produces larger postsynaptic responses. In a coupled oscillator system, this predicts desynchronization: higher gain → neurons respond more to local inputs → this disrupts coherent oscillations → higher effective dimensionality.`
+      },
+      {
+        title: '2. Methods',
+        content: `**MEG Analysis:** We analyzed MEG data from 136 sessions across four compounds: psilocybin ($N=40$), LSD ($N=30$), ketamine ($N=36$), and tiagabine ($N=30$). We computed effective dimensionality ($D_{\\text{eff}}$) via participation ratio of sensor covariance eigenvalues.
+
+**fMRI Analysis:** We analyzed fMRI data from the Siegel psilocybin precision functional mapping study (OpenNeuro ds006072). We included 50 sessions: 36 baseline and 14 drug sessions across 7 subjects.
+
+**Effective dimensionality** via participation ratio:
+$$D_{\\text{eff}} = \\frac{\\left(\\sum_i \\lambda_i\\right)^2}{\\sum_i \\lambda_i^2}$$
+
+**Spectral centroid**—the center of mass of the eigenspectrum:
+$$C = \\frac{\\sum_i i \\cdot \\lambda_i}{\\sum_i \\lambda_i}$$`
+      },
+      {
+        title: '3. Results: MEG',
+        content: `| Compound | $D_{\\text{eff}}$ Change | $p$ | Cohen's $d$ |
+|----------|----------|-----|-------------|
+| Psilocybin | $+15.0\\%$ | 0.003 | $+0.78$ |
+| LSD | $+13.4\\%$ | 0.082 | $+0.50$ |
+| Ketamine | $-5.7\\%$ | 0.290 | $-0.26$ |
+| Tiagabine | $-10.8\\%$ | 0.307 | $-0.28$ |
+
+Classical psychedelics (5-HT2A agonists) significantly increase oscillatory dimensionality—more independent modes, less synchronization. Ketamine (NMDA antagonist) shows no such effect. This dissociation is consistent with serotonergic psychedelic effects not shared by ketamine.`
+      },
+      {
+        title: '4. Results: fMRI',
+        content: `Contrary to the entropic brain prediction, fMRI eigenspectrum analysis revealed variance *concentration* rather than dispersion under psilocybin.
+
+**Effective dimensionality:**
+- Baseline (36 sessions): $D_{\\text{eff}} = 18.8 \\pm 3.1$
+- Drug (14 sessions): $D_{\\text{eff}} = 17.0 \\pm 5.5$
+- Change: $-9.8\\%$ (LMM: $z = -2.48$, $p = 0.013$, $d = -0.61$)
+
+**Robustness to Global Signal Regression:**
+- Without GSR: $D_{\\text{eff}}$ decreased $-9.8\\%$ ($p = 0.013$)
+- With GSR: $D_{\\text{eff}}$ decreased $-8.7\\%$ ($p = 0.036$)
+
+The effect survives GSR with medium effect sizes, suggesting it reflects genuine changes in hemodynamic covariance structure rather than global signal inflation.`
+      },
+      {
+        title: '5. Discussion: A Timescale Dissociation',
+        content: `Our central finding is a dissociation between electrophysiological and hemodynamic effects, but in the opposite direction from that predicted by simple "entropy increase" accounts.
+
+At the millisecond timescale (MEG), 5-HT2A agonism produces the expected desynchronization—neural populations become more independent.
+
+However, at the slow hemodynamic timescale (fMRI), psilocybin produces variance *concentration* rather than dispersion. The first principal component captures more variance under psilocybin, not less.
+
+**Possible Mechanism:** Local neural populations can exhibit high-dimensional fast dynamics while riding on a shared slow envelope. Under psilocybin, the fast layer becomes more desynchronized (MEG: $D_{\\text{eff}} \\uparrow$) while the slow layer becomes more globally coordinated (fMRI: $D_{\\text{eff}} \\downarrow$).`
+      },
+      {
+        title: '6. Conclusion',
+        content: `We report a timescale dissociation in psychedelic effects on cortical dynamics:
+
+1. **Fast oscillations (MEG):** Serotonergic psychedelics significantly increase effective dimensionality ($+15\\%$, $p = 0.003$), indicating more independent oscillatory modes.
+
+2. **Slow hemodynamics (fMRI):** Effective dimensionality *decreases* ($-10\\%$, $p = 0.013$) and spectral centroid shifts toward lower modes. Variance concentrates in the first principal component.
+
+3. **Robustness:** The fMRI effect survives global signal regression ($p = 0.036$), with medium effect sizes ($d = -0.61$ to $-0.64$).
+
+These results suggest that the "entropic" effects of psychedelics may be confined to fast oscillatory dynamics and do not propagate to slow metabolic timescales.`
+      }
+    ]
+  },
+
+  'code-formation': {
+    abstract: `Biological systems exhibit persistent organization despite operating in high-dimensional, noisy, and finite-time dynamical regimes. We propose a minimal dynamical mechanism by which low-dimensional codes emerge as stabilizing constraints between coupled high-dimensional systems. We model two locally coupled phase fields, where interaction is restricted to a low-dimensional projection of the environmental state. Using a Fourier bottleneck to control code bandwidth, we show that reducing coupling dimensionality induces a systematic collapse in the responding system's behavioral complexity while preserving bounded tracking of the driving system. Crucially, this collapse requires structured projections that capture coherent macroscopic degrees of freedom; random k-mode projections fail to constrain complexity. These results provide a dynamical explanation for the ubiquity of low-dimensional coding structures in biology.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `Biological systems operate in high-dimensional state spaces while maintaining persistent, viable organization over time. This persistence is remarkable: high-dimensional systems cannot exhaustively explore their state space in finite time, yet organisms remain within viable regions across generations.
+
+We propose that low-dimensional codes function as *stabilizing constraints* rather than predictive representations. Formally, a code is an *interface variable*: a projection $C_k = \\mathcal{P}_k(X)$ that is causally efficacious for the responding system while being information-lossy about the driving system's microstate.
+
+Specifically:
+1. A code is a low-dimensional projection $C_k = \\mathcal{P}_k(X)$ where $\\dim(C_k) \\ll \\dim(X)$
+2. When system $B$ is coupled to system $A$ only through $C_k(A)$, the code acts as a constraint that shapes $B$'s accessible trajectories
+3. Reducing code bandwidth $k$ induces systematic collapse in $B$'s behavioral complexity while $A$'s complexity remains unchanged`
+      },
+      {
+        title: '2. Model',
+        content: `We consider two coupled high-dimensional dynamical systems: a driving system $A$ and a responding system $B$. Each consists of a one-dimensional lattice of $N$ locally coupled phase oscillators.
+
+**Driving System Dynamics (Kuramoto model):**
+$$\\dot{\\theta}^A_i = \\omega_i + K \\sum_{j \\in \\mathcal{N}(i)} \\sin(\\theta^A_j - \\theta^A_i) + \\eta^A_i(t)$$
+
+**Low-Dimensional Constraint (Fourier truncation):**
+$$C_m = \\frac{1}{N} \\sum_{i=1}^{N} z^A_i e^{-i 2\\pi m i / N}, \\quad m = 0, \\ldots, k$$
+
+**Responding System Dynamics:**
+$$\\dot{\\theta}^B_i = \\omega_i + K \\sum_{j \\in \\mathcal{N}(i)} \\sin(\\theta^B_j - \\theta^B_i) + \\lambda \\sin(\\hat{\\theta}^A_i - \\theta^B_i) + \\eta^B_i(t)$$
+
+System $B$ has no access to the full state of system $A$, only to the reconstructed field $\\hat{\\theta}^A$.`
+      },
+      {
+        title: '3. Results: Complexity Collapse',
+        content: `As code bandwidth $k$ decreases, the effective dimensionality of system $B$ decreases systematically, while system $A$'s complexity remains approximately constant.
+
+At $k = 1$ (single Fourier mode), $N_{\\text{eff}}(B) = 9.4 \\pm 0.7$, compared to $N_{\\text{eff}}(B) = 14.8 \\pm 0.7$ at $k = 32$. Meanwhile, $N_{\\text{eff}}(A) = 13.2 \\pm 0.4$ across all values of $k$.
+
+**The bottleneck constrains only the responding system; the driving system's dynamics are unaffected by how it is observed.**
+
+Mismatch between systems increases modestly as code bandwidth decreases: $\\Delta = 0.38$ at $k = 32$ versus $\\Delta = 0.46$ at $k = 1$. This modest variation ($\\sim$20%) contrasts with the dramatic complexity collapse ($\\sim$57% reduction in $N_{\\text{eff}}(B)$).`
+      },
+      {
+        title: '4. Control: Mode Structure Matters',
+        content: `To test whether complexity collapse depends on Fourier structure specifically or merely on projection dimensionality, we repeated the experiment using random $k$-mode projections.
+
+**Results differ strikingly:**
+- $N_{\\text{eff}}(B)$ remains high ($\\approx 15$–$17$) across all $k$, showing no complexity collapse
+- Mismatch is substantially higher ($\\Delta \\approx 0.47$–$0.62$) than with low-frequency coupling
+- At low $k$, random projections produce *higher* complexity in $B$ than in $A$
+
+This demonstrates that the constraining effect is not about dimensionality per se, but about the *structure* of the projection. Low-frequency Fourier modes capture spatially coherent patterns. Random modes mix high-frequency noise with low-frequency signal, preventing $B$ from locking onto $A$'s coherent structure.`
+      },
+      {
+        title: '5. Implications',
+        content: `**Codes as Stabilizing Constraints:** Low-dimensional codes act as *dimensional constraints* that restrict the accessible state space of coupled systems. The responding system's effective dimensionality collapses systematically with code bandwidth, while its mismatch with the driving system remains bounded.
+
+This is distinct from prediction: the code does not enable forecasting of future states, nor does it permit reconstruction of the full microstate. Rather, it shapes the dynamics of the responding system by limiting what trajectories remain accessible.
+
+**The Origin of Symbolic Communication:** This theorem provides a thermodynamic explanation for the emergence of language, gesture, and other symbolic codes. When two agents with high internal dimensionality ($D_{\\text{brain}} \\sim 10^3$–$10^6$) coordinate through low-bandwidth channels (speech $\\sim 50$ phonemes/s), stable symbolic codes are thermodynamically *necessary*.`
+      },
+      {
+        title: '6. Conclusion',
+        content: `We have shown that low-dimensional codes can function as dimensional constraints between coupled high-dimensional systems. When a responding system couples to a driving system through a bandwidth-limited code:
+
+1. The responding system exhibits systematic complexity collapse
+2. Its effective dimensionality scales with code bandwidth
+3. Bounded tracking error is maintained despite lost information
+4. The constraining effect requires capturing spatially coherent structure, not merely projection dimensionality
+
+These results suggest a mechanism by which biological coding structures—genetic regulatory motifs, developmental programs, homeostatic setpoints—might restrict accessible state space and thereby enable persistent organization.
+
+**The key contribution:** Demonstrating that low-dimensional coupling induces complexity collapse without commensurate tracking failure, providing a quantitative instantiation of how constraints can shape dynamics without serving as predictive representations.`
+      }
+    ]
+  },
+
+  'coherence-time': {
+    abstract: `Neuroscience has established that cognitive processing depends on coherent oscillations across neural assemblies: working memory maintenance requires sustained theta-gamma coupling, attention modulates inter-areal synchronization, and perceptual binding emerges from transient phase alignment. Yet the physical principles determining how fast these assemblies can synchronize—and thus how fast we can think—remain incompletely formalized. We derive a quantitative framework showing that coherence time in coupled oscillator networks scales exponentially with coordination depth. For $M$ semi-independent modules requiring phase alignment within tolerance $\\varepsilon$ at Kuramoto coherence $r$ and phase-exploration rate $\\Delta\\omega$:
+
+$$\\tau_{\\mathrm{coh}} = \\frac{1}{\\Delta\\omega}\\left(\\frac{2\\pi}{\\varepsilon}\\right)^{\\alpha(1-r)(M-1)}$$
+
+where circular variance $(1-r)$ governs phase dispersion and $\\alpha$ captures network topology. This produces a fundamental speed-flexibility trade-off: increasing coordination depth $M$ expands combinatorial flexibility but slows commits exponentially; tighter coherence (higher $r$) speeds synchronization but restricts dynamics to low-dimensional attractors.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `A fundamental insight from systems neuroscience is that cognition emerges from coherent oscillations across neural assemblies, not merely from individual spike rates. Working memory maintenance requires sustained theta-gamma phase-amplitude coupling. Attention selectively enhances inter-areal synchronization in gamma band. Perceptual binding depends on transient phase alignment across sensory cortices.
+
+Yet despite extensive empirical characterization, the physical principles governing *how fast* distributed assemblies can achieve coherence—and thus how quickly cognitive operations can proceed—remain incompletely formalized. Why does perceptual binding require 30–50 ms rather than 3 ms or 300 ms? Why do larger assemblies integrating more information process more slowly?
+
+We propose that neural processing speed is fundamentally limited by **coherence time**: the time required for distributed oscillators to achieve sufficient phase alignment for a collective computation to register.`
+      },
+      {
+        title: '2. The Unified Temporal Resolution Bound',
+        content: `We model biological temporal processing as a sequence of *commits*—thermodynamically irreversible events that register high-dimensional internal state as low-dimensional output. The minimum time between commits is bounded by four physical constraints:
+
+$$\\tau_{\\mathrm{eff}} = \\max\\left[\\tau_{\\mathrm{QSL}},\\; \\tau_{\\mathrm{SNR}},\\; \\tau_{\\mathrm{coh}},\\; \\tau_{\\mathrm{power}}\\right]$$
+
+where the **max** operation reflects that the slowest mechanism dominates:
+
+- **Quantum speed limits** ($\\tau_{\\mathrm{QSL}}$): ~$10^{-13}$ s, relevant only for ultrafast molecular dynamics
+- **Signal-to-noise limit** ($\\tau_{\\mathrm{SNR}}$): Time for signal integration above detection threshold
+- **Coherence time** ($\\tau_{\\mathrm{coh}}$): Time for phase alignment across $M$ modules
+- **Power limit** ($\\tau_{\\mathrm{power}}$): Metabolic constraints on commit rate`
+      },
+      {
+        title: '3. Visual Perceptual Binding Windows',
+        content: `Human visual perception exhibits temporal integration windows of 30–50 ms (flicker fusion at 20–30 Hz). We apply the bound with neural parameters:
+
+Take $M=8$ occipital modules, $r=0.7$ (attention), full tolerance $\\varepsilon=\\pi$ rad, and phase-exploration rate $\\Delta\\omega=2\\pi\\times 20$ rad/s. Using the coherence time formula with $\\alpha=0.9$:
+
+$$\\tau_{\\mathrm{coh}} \\approx \\frac{1}{125.66}\\left(\\frac{2\\pi}{\\pi}\\right)^{0.9(1-0.7)(7)} = \\frac{1}{125.66} \\cdot 2^{1.89} \\approx 30~\\mathrm{ms}$$
+
+The effective commit time is $\\tau_{\\mathrm{eff}} \\approx 30$–$50$ ms, matching human binding windows. **Coherence time dominates**.`
+      },
+      {
+        title: '4. Tachypsychia: Dual-Loop Dissociation',
+        content: `During acute stress or falls, subjects report subjective time slowing while objective reaction times remain unchanged. We propose dual commit pathways:
+
+**Perceptual loop** (cortical): High-$M$ (~10–15 modules) coherent field dynamics across sensory and associative areas. Commits sparse (5–20 Hz), expensive. Arousal increases coherence $r$ and thus information rate $\\mathcal{I}(t)$. Subjective duration scales as:
+$$T_{\\mathrm{subjective}} \\propto \\int_0^{\\Delta t} \\mathcal{I}(t)\\,dt$$
+
+**Motor loop** (cerebellar/basal ganglia): Low-$M$ (~3–5 modules) primitives executing learned policies. Commits faster (50–150 ms), cheaper. Arousal modulates decision threshold/drift rate, preserving reaction time.
+
+This dual-loop architecture explains the dissociation: perceptual commits (high $M$, modulated by arousal) proceed independently of motor commits (low $M$, threshold-compensated).`
+      },
+      {
+        title: '5. Metabolic Scaling Across Species',
+        content: `Critical flicker fusion frequency correlates with mass-specific metabolic rate across three orders of magnitude in body size:
+
+- Flies: ~240 Hz (metabolic rate ~10 mL O₂/g/hr, mass ~10 mg)
+- Humans: ~60 Hz (~0.25 mL O₂/g/hr, mass ~70 kg)
+- Leatherback turtles: ~15 Hz (~0.02 mL O₂/g/hr, mass ~500 kg)
+
+Log-log regression shows $R^2 \\approx 0.6$ across three orders of magnitude in body mass, with $f_{\\mathrm{CFF}} \\propto P_{\\mathrm{meta}}^{0.6}$.`
+      },
+      {
+        title: '6. Conclusion',
+        content: `We have established that coherence time sets the speed of thought. Key findings:
+
+1. **Speed-flexibility trade-off**: Increasing $M$ exponentially slows commits but expands combinatorial flexibility. Increasing $r$ speeds commits but restricts dynamics to low-dimensional synchronized manifolds.
+
+2. **Dual-loop architecture**: Separate perceptual (high-$M$ cortical) and motor (low-$M$ cerebellar) pathways explain tachypsychia dissociation.
+
+3. **Parameter sensitivity mechanism**: Modest $r$ or $M$ shifts (factor of 2) produce order-of-magnitude temporal changes without proportional metabolic costs.
+
+4. **Quantitative predictions**: Visual binding windows (30–50 ms), metabolic scaling ($R^2 = 0.6$), alpha entrainment linearity, dual-task dissociations under arousal.`
+      }
+    ]
+  },
+
+  'cortical-oscillations': {
+    abstract: `We propose that cortical oscillations implement a *dimensional hierarchy*: a cascade of progressively tighter information bottlenecks from slow to fast frequencies. Using graph Laplacian analysis on modular networks approximating cortical column structure, we show that slow eigenmodes engage substantially more oscillators than fast modes ($r = -0.75$), establishing the high-dimensional geometric substrate. Using encoder-decoder networks, we show that discrete symbolic codes emerge at a critical bottleneck width of $k=2$, while $k=3$ preserves continuous "compliant" dynamics capable of representing self-referential structures without trajectory collision. We propose that this hierarchy maps onto frequency bands: slow oscillations maintain the volumetric analog context; beta ($k \\approx 3$) supports manipulation and meta-cognition; gamma ($k \\approx 2$) forces categorical commitment.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `Influential work on oscillatory dynamics in prefrontal cortex suggests that different frequency bands serve distinct computational roles. Low-frequency oscillations are often characterized as "low-dimensional" coordinating signals, while gamma activity is associated with "high-dimensional" information processing.
+
+However, this framing conflates two distinct notions of dimensionality:
+
+1. **Temporal complexity**: How many independent time-varying components describe the signal at a single site.
+2. **Geometric dimensionality**: How many degrees of freedom participate coherently across space.
+
+A slow wave sweeping across cortex may appear "simple" at a single electrode but coordinates thousands of oscillators into coherent phase relationships (high geometric dimensionality). Conversely, a gamma burst may exhibit complex temporal structure but engage only a small cortical population (low geometric dimensionality).`
+      },
+      {
+        title: '2. The Hierarchy Hypothesis',
+        content: `We propose that the frequency spectrum implements a *dimensional hierarchy*—a cascade of information bottlenecks characterized by spatial participation:
+
+| Band | Bottleneck | Topology | Function |
+|------|------------|----------|----------|
+| Delta/Theta | $k \\gg 3$ | Volumetric | Raw substrate |
+| Beta | $k \\approx 3$ | Compliant manifold | Manipulation, meta-cognition |
+| Gamma | $k \\approx 2$ | Discrete clusters | Symbols, decisions |
+
+The key insight is that **different bottleneck widths support qualitatively different computations**. At $k=2$, the system is forced to discretize—continuous manifolds collapse into distinct attractor basins ("symbols"). At $k \\geq 3$, the system retains enough dimensionality to represent continuous processes, including self-referential structures that would produce trajectory collisions in lower dimensions.`
+      },
+      {
+        title: '3. Slow Modes Have Higher Participation',
+        content: `Graph Laplacian analysis shows a strong negative correlation ($r = -0.75$, $p < 0.001$): slower modes engage substantially more oscillators. The slowest 15 modes have mean PR ≈ 560 (23% of nodes); the fastest 15 modes have mean PR ≈ 175 (7% of nodes)—a 3-fold difference.
+
+Synthetic time-series validation confirms that PR correctly distinguishes global from local activity. Slow-band activity (2–8 Hz) engaged 99% of channels (PR = 63.2/64); fast-band activity (30–50 Hz) engaged only 42% (PR = 26.6/64)—a 2.4-fold difference matching the Laplacian prediction.`
+      },
+      {
+        title: '4. Self-Reference Benefits from k ≥ 3',
+        content: `The Liar's Paradox trajectory produces 1511 self-intersections when confined to 2D; in 3D, it forms a collision-free helix. A linear autoencoder trained to compress and reconstruct the 3D helix through a $k=2$ bottleneck fails catastrophically on the time dimension (MSE = 0.108), while $k=3$ achieves perfect reconstruction (MSE $< 10^{-6}$).
+
+This offers a geometric interpretation of why we can *think about* paradoxes (beta, meta-cognition) but cannot *decide* them (gamma, assertion).`
+      },
+      {
+        title: '5. Noise Shifts the Optimal Bottleneck',
+        content: `The optimal bottleneck width depends on channel noise. Quantitatively, the argmax over $k$ shifts from $k \\geq 3$ at $\\sigma \\leq 0.3$ to $k = 2$ at $\\sigma \\geq 0.7$. High-dimensional "helical" representations are fragile—they require precise coordination across many dimensions. Binary contrast ($k = 2$) is robust: it survives noise because it only needs to distinguish two categories.
+
+This provides a computational mechanism for the stress–rigidity link: degraded signal-to-noise ratio drives the system toward categorical processing not by choice but by information-theoretic necessity.`
+      },
+      {
+        title: '6. Conclusion',
+        content: `Cortical oscillations implement a dimensional hierarchy: slow waves maintain the high-dimensional analog substrate; beta provides intermediate "compliant" compression for manipulation; gamma enforces discrete symbol formation. The capacity to sustain $k \\geq 3$ dynamics—to hold paradoxes without collision—may be a geometric signature of maturity. Long-wavelength stability provides the temporal substrate for collision-free cognition; its disruption forces the mind into rigid categorical processing.
+
+**Intelligence emerges from the controlled collapse of analog into digital. The canvas is slow; the brushstrokes are fast.**`
+      }
+    ]
+  },
+
+  'nonergodic-development': {
+    abstract: `Biological development is a high-dimensional dynamical process that cannot explore its state space in finite time—it is *nonergodic*. We argue that this nonergodicity, combined with low-dimensional genetic anchors, is the fundamental reason why genotype does not algorithmically determine phenotype. The genome constrains which regions of developmental state space are reachable, but environmental history determines which attractor basin the system occupies. Using a minimal developmental network model, we demonstrate that (1) identical genotypes produce substantially different phenotypes depending on which trajectory the system follows, (2) these trapped states constitute "developmental memory" that is invisible to genetic analysis, and (3) the "dimensional gap" $\\Delta_D$ between genetic parameters and developmental degrees of freedom quantifies this non-identifiability.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `Biological development unfolds in a high-dimensional state space. Gene regulatory networks, signaling cascades, and metabolic pathways create a system with vastly more degrees of freedom than the genome that parameterizes it. This dimensionality has a fundamental consequence: the system is *nonergodic*—it cannot explore its state space in biological time.
+
+This nonergodicity is not a limitation to be overcome but a feature that enables stable phenotypes. The genome acts as a low-dimensional *anchor* that constrains which regions of state space are reachable, while environmental history determines which specific attractor the system occupies within those constraints.`
+      },
+      {
+        title: '2. The Dimensional Gap',
+        content: `We quantify the relationship between anchor dimensionality and state space dimensionality:
+
+Let $L$ be the dimension of the genotype (anchor) space and $k$ the dimension of measured phenotypic traits. Let the developmental system evolve on a manifold $\\mathcal{M}$ with effective dimension $m_{\\text{eff}}$. The **dimensional gap** is:
+
+$$\\Delta_D = m_{\\text{eff}} - (L + k)$$
+
+When $\\Delta_D \\gg 0$, the developmental system has far more degrees of freedom than can be specified by the genome or captured by phenotypic measurement. This creates a fundamental ambiguity:
+- The same genotype can produce different phenotypes (depending on which trajectory/attractor)
+- The same phenotype can arise from different mechanisms (genotype-determined vs. trajectory-determined)`
+      },
+      {
+        title: '3. Application: Cooperative Lifestyles and Cancer',
+        content: `Sierra et al. (2025) demonstrated that cooperative mammalian species exhibit lower cancer prevalence than competitive species. The same pattern admits both interpretations:
+
+- **Allele interpretation:** Cooperative lineages have accumulated cancer-suppressing alleles through selection.
+- **Trajectory interpretation:** Cooperative environmental cues enable slower, more coordinated development with fewer attractor bifurcations, yielding lower cancer mortality as an emergent property.
+
+These interpretations are *non-identifiable* from cross-species comparative data. They diverge only in predictions for intervention: the allele model predicts that changing an organism's environment will not change its cancer risk; the trajectory model predicts substantial phenotypic shifts.`
+      },
+      {
+        title: '4. Twin Worlds Experiment',
+        content: `We create two "worlds" with *identical* genotype distributions but different environmental regimes. The developmental trajectories in each world converge to different attractor basins, producing dramatically different phenotype distributions.
+
+The genetic distance between worlds is $F_{ST} \\approx 0$ (by construction), yet phenotypic distance is $P_{ST} \\gg 0$. A GWAS would find no significant variants and conclude "missing heritability"—but the heritability is not missing, it is *trajectory-based*.`
+      },
+      {
+        title: '5. Fractal Cooperation',
+        content: `Coherence is self-stabilizing: organisms that maintain high coherence maintain high coherence. The property that prevents cellular bifurcation (cancer) is the same property that stabilizes group dynamics (cooperation). Nonergodicity doesn't just trap individual trajectories—it creates nested attractors at every scale where the same coherence parameter operates.
+
+The "fractal" nature of the architecture means that solving the social dilemma (stabilizing the group) automatically solves the cellular dilemma (suppressing cancer). This is not coincidence but consequence: the same dynamical structure operates at both scales.`
+      },
+      {
+        title: '6. Conclusion',
+        content: `Biological development is nonergodic. The state space is too vast to explore; trajectories are trapped; phenotypes are attractor states, not algorithmic outputs.
+
+The genome is a low-dimensional anchor that constrains which attractor basins exist, but environmental history determines which basin is entered. This anchor-trajectory duality offers one lens on the genotype-phenotype relationship: the mapping is many-to-one not only because of noise or missing variants, but also because trajectory information that distinguishes outcomes is projected out by genotype-phenotype analysis.
+
+**Genotype does not algorithmically determine phenotype. Genotype anchors a nonergodic developmental system; environmental history traps it in an attractor; the phenotype is the trapped state.**`
+      }
+    ]
+  },
+
+  'dimensional-landauer': {
+    abstract: `Landauer's principle establishes the minimum energetic cost of erasing discrete information, linking logical irreversibility to heat dissipation. However, many physical and biological systems process information by projecting high-dimensional dynamics onto lower-dimensional continuous manifolds. Here, we extend Landauer's framework to quantify the thermodynamic cost of this dimensional reduction. Using stochastic thermodynamics, we derive a "Dimensional Landauer Bound," $W_{\\text{min}} \\ge k_B T (\\ln 2 \\cdot \\Delta I + C_\\Phi)$, where $C_\\Phi$ is a dimensionless geometric contraction cost determined by the Jacobian of the projection and the curvature of the target manifold.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `The thermodynamics of computation is anchored by Landauer's principle, which states that any logically irreversible manipulation of information, such as bit erasure, must be accompanied by a corresponding entropy increase in the non-computational degrees of freedom. This typically sets a lower bound on energy dissipation of $k_B T \\ln 2$ per bit erased.
+
+Complex physical systems—ranging from biochemical networks and neural populations to machine learning hardware—rarely operate on discrete bits. Instead, they process information by compressing high-dimensional state space trajectories into lower-dimensional representational manifolds.
+
+While the information-theoretic aspects of this compression are well-understood, the thermodynamic costs associated with the *physical process* of dimensional reduction have not been fully characterized.`
+      },
+      {
+        title: '2. The Dimensional Landauer Bound',
+        content: `Consider a projection process taking the system from an initial distribution $p_0(x)$ on $\\mathbb{R}^{D_{\\text{in}}}$ to a final projected distribution $p_\\tau(y)$ on $\\mathbb{R}^{D_{\\text{out}}}$. The thermodynamic cost is bounded by:
+
+$$W_{\\text{min}} \\ge k_B T (\\ln 2 \\cdot \\Delta I + C_\\Phi)$$
+
+where $\\Delta I$ represents the classical information-theoretic erasure (in bits), and $C_\\Phi$ is the *dimensionless geometric contraction cost*:
+
+$$C_\\Phi = -\\frac{1}{2} \\left\\langle \\ln \\det (J_\\Phi(x) J_\\Phi(x)^\\top) \\right\\rangle_{p(x)}$$`
+      },
+      {
+        title: '3. Geometric Interpretation',
+        content: `The term $C_\\Phi$ arises from the transformation of the phase space volume element under the projection map. The dimensional work is the thermodynamic cost of suppressing fluctuations in the null space of $J_\\Phi$.
+
+Crucially, $C_\\Phi$ depends on physical properties of the constraint, not just the choice of coordinates. If the target manifold is curved, the Jacobian varies with position, and the cost includes a curvature penalty: $\\sim \\sum \\kappa_i^2 \\sigma_\\perp^2$, where $\\kappa_i$ are principal curvatures.
+
+This confirms that $C_\\Phi$ represents genuine energy dissipation, not a coordinate transformation.`
+      },
+      {
+        title: '4. Coherence Reduces Geometric Work',
+        content: `In coupled Kuramoto oscillators, we observed a regime shift as coupling strength increased. In the incoherent phase ($r \\approx 0$), high effective dimensionality required substantial control work to project onto a 1D macroscopic state. However, as the system entered the coherent phase ($r \\to 1$), the effective dimensionality collapsed.
+
+This spontaneous dimensional reduction aligned the system's intrinsic manifold with the target projection, minimizing orthogonal fluctuations. Consequently, control power $P_{\\text{maint}}$ decreased sharply as coherence emerged. This result suggests that **synchronization functions thermodynamically as a "pre-computation" that lowers the geometric cost $C_\\Phi$ of downstream readout**.`
+      },
+      {
+        title: '5. Conclusion',
+        content: `We have derived the Dimensional Landauer Bound, a thermodynamic inequality that quantifies the energetic cost of projecting high-dimensional stochastic dynamics onto lower-dimensional manifolds.
+
+These findings suggest that dimensionality is a fundamental thermodynamic resource. In biological systems, the drive to minimize geometric work may explain the prevalence of coherent, oscillatory dynamics. Future work will extend this formalism to quantum systems, where state vector reduction represents the ultimate dimensional projection.`
+      }
+    ]
+  },
+
+  'biological-shadows': {
+    abstract: `In Todd (2025), we argued that Popperian falsifiability saturates in high-dimensional biological systems. Here, we provide computational tools to *measure* this loss. We distinguish **system dimensionality** ($D_{\\text{sys}}$)—intrinsic degrees of freedom—from **observation dimensionality** ($D_{\\text{obs}}$)—coordinates accessible to measurement. Using the Lorenz attractor, we demonstrate that when $D_{\\text{sys}} > D_{\\text{obs}}$, binary classification produces **topological aliasing**: **47%** of states are misclassified, with apparent "teleportations" in the shadow that do not exist in the underlying system. We validate this in real data: across four scRNA-seq datasets (n = 90,300 cells), **75.5% of apparent neighbors in t-SNE projections were not neighbors in high-dimensional space**.`,
+
+    sections: [
+      {
+        title: '1. Introduction',
+        content: `The central insight is **ontological**, not merely statistical. We distinguish between:
+
+- **$D_{\\text{sys}}$**: The intrinsic degrees of freedom of the dynamical system—the dimension of the manifold the system actually occupies in phase space
+- **$D_{\\text{obs}}$**: The number of coordinates we record—sensors, channels, features
+
+Standard falsifiability assumes we can project from system to observation via a binary cut without destroying causal structure. The simulations presented here demonstrate that when $D_{\\text{sys}} > D_{\\text{obs}}$, this assumption fails systematically: distinct causal states *alias* to the same observation, and apparent discontinuities appear in the shadow that do not exist in the underlying system.
+
+We call this phenomenon **topological aliasing**—the observation space contains "jumps" that are artifacts of projection, not features of reality.`
+      },
+      {
+        title: '2. The Shadow Box',
+        content: `Using the Lorenz attractor ($D_{\\text{sys}} \\approx 2.06$), we observe only the $(y, z)$ projection—the $x$ coordinate is hidden. We apply a classifier $\\hat{L} = \\mathbf{1}[z > 25]$ and compare to the true lobe label $L = \\mathbf{1}[x > 0]$.
+
+Key results:
+- **Aliasing rate**: 47% of states are misclassified by the shadow cut
+- **Classification accuracy**: 53% (barely above chance)
+- **Topological violations**: 199 false discontinuities—times the shadow "teleports" while the system flows continuously
+
+The binary cut that appears "clean" in the shadow is fundamentally wrong about the underlying dynamics.`
+      },
+      {
+        title: '3. Validation in Single-Cell Data',
+        content: `Across four standard scRNA-seq datasets:
+
+| Dataset | $D_{\\text{sys}}$ | Aliasing | Coverage |
+|---------|----------|----------|----------|
+| Sade-Feldman | 12.5 | 66.2% | 0.0003% |
+| PBMC 3k | 14.8 | 83.1% | 0.0001% |
+| Paul15 | 8.7 | 78.4% | 0.002% |
+| PBMC 68k | 38.7 | 74.3% | <0.0001% |
+| **Average** | **18.7** | **75.5%** | — |
+
+When researchers draw cluster boundaries on t-SNE/UMAP plots, approximately **three-quarters of the neighborhood relationships those boundaries rely upon are wrong**.`
+      },
+      {
+        title: '4. The Inference Trilemma',
+        content: `This creates a trilemma for high-dimensional biological inference:
+
+1. **Time averaging fails**: non-ergodicity means temporal samples are not equivalent to ensemble samples.
+2. **Ensemble averaging is impractical**: the curse of dimensionality demands sample sizes that scale as $k^n$—functionally infinite for biological dimensions.
+3. **Direct measurement is destructive**: energy injection sufficient to resolve sub-Landauer structure perturbs the system beyond recovery.
+
+All three classical escape routes from measurement uncertainty are blocked.`
+      },
+      {
+        title: '5. Conclusion',
+        content: `We have provided computational tools to measure the limits of falsifiability:
+
+1. **Topological aliasing is quantifiable**: In minimal models, nearly half of dynamical states are misclassified under projection.
+2. **Sub-Landauer detection scales as $\\sqrt{N}$**: Ensemble methods are thermodynamically required for weak signals.
+3. **The falsifiability boundary is mappable**: Binary tests fail systematically above ~10–20 dimensions.
+4. **The inference trilemma is structural**: Non-ergodicity, dimensional explosion, and thermodynamic fragility block all classical paths to inference.
+
+These results operationalize an epistemological argument into measurable quantities.`
+      }
+    ]
+  },
+
   'information-credit': {
     abstract: `Landauer's bound is often stated as a fixed cost per bit erased. The correct bound depends on entropy removed, which can be significantly less than the bit-count when the system or its environment carries structure. We show that apparent sub-Landauer episodes decompose into two distinct mechanisms: (i) *state credit*—bias (negentropy) and correlations (mutual information) that reduce the reversible work bound and obey a conservation law; and (ii) *protocol efficiency*—geometric structure in control space (thermodynamic length) that reduces irreversible dissipation but is not itself conserved. This decomposition yields a combined finite-time bound unifying information-theoretic and geometric contributions, and clarifies that anomalously low dissipation corresponds to spending accumulated state credit, not violating thermodynamic limits.`,
 

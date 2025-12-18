@@ -11,6 +11,14 @@ interface Simulation {
 
 const simulations: Simulation[] = [
   {
+    slug: 'coupling-sync',
+    title: 'Coupling Outpaces Measurement',
+    description: "Watch two Kuramoto lattices synchronize via coupling faster than an observer can detect. The green line (coherence) rises before the orange line (observer confidence)—the gap is the 'blind spot' where sync has occurred but cannot be verified.",
+    paper: 'Coupling Outpaces Measurement',
+    paperSlug: 'coupling-identification',
+    status: 'playable',
+  },
+  {
     slug: 'dimensional-collapse',
     title: 'Minimal Embedding Dimension',
     description: "Phase-preserving embeddings of cyclic processes require k ≥ 3 to remain temporally distinct. Toggle between k=3 (helix) and k=2 (circle) to see how dimensional collapse forces self-intersections.",

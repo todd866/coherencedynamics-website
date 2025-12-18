@@ -442,6 +442,7 @@ Numerical validation across three independent parameter sweeps produces data col
     status: 'in_prep',
     github: 'todd866/coupling-identification',
     pdf: 'https://github.com/todd866/coupling-identification/blob/main/coupling_identification.pdf',
+    simulation: 'coupling-sync',
     description: `**Synchronization is faster than measurement** — two structurally similar systems can establish functional equivalence via coupling before any external observer can verify it.
 
 We distinguish two identification channels: *measurement-based*, where an observer accumulates information to infer structure, and *coupling-based*, where systems recognize similarity by synchronizing onto shared manifolds. The fundamental inequality is $T_{\\text{sync}} \\sim 1/|\\lambda_c| \\ll T_{\\text{meas}} \\sim I_{\\text{struct}}/R$.
