@@ -290,7 +290,7 @@ Continues the analysis from the Maxwell's demon paper (BioSystems 2025) with rig
       'Combined bound: $W \\geq kT \\ln 2 [H_{\\max} - C_{\\mathrm{state}}] + kT \\mathcal{L}^2/(2\\tau)$',
       'Worked example: 0.83 bits credit → 0.23 kT total work (vs 0.69 kT naive)',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting; GPT-5 (OpenAI), Gemini (Google), and Grok (xAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; GPT-5.2 (OpenAI) and Gemini 3 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'lsd-dimensionality',
