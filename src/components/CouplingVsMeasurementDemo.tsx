@@ -152,12 +152,13 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     const C = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
 
     if (similarStructure) {
-      // Paper mode: A and B share natural frequencies (structural similarity)
-      // This enables fast synchronization - the paper's central claim
+      // Paper mode: A, B, and C all share natural frequencies (structural similarity)
+      // This isolates coupling as the ONLY difference between B and C
+      // B syncs via coupling; C drifts despite identical structure
       B.copyOmegaFrom(A);
-      // C remains different (uncoupled control with different structure)
+      C.copyOmegaFrom(A);
     }
-    // else: all have independent frequencies (hard mode - tests coupling strength)
+    // else: all have independent frequencies (tests coupling vs structural mismatch)
 
     stateRef.current = {
       latticeA: A,
@@ -431,9 +432,10 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
         ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
         ctx.fillRect(x1, plotY, x2 - x1, plotH);
         ctx.fillStyle = '#ef4444';
-        ctx.font = '9px monospace';
+        ctx.font = 'bold 10px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('BLIND SPOT', (x1 + x2) / 2, plotY + plotH / 2);
+        ctx.fillText('SYNCED BUT', (x1 + x2) / 2, plotY + plotH / 2 - 6);
+        ctx.fillText('INVISIBLE', (x1 + x2) / 2, plotY + plotH / 2 + 6);
       }
     }
 
