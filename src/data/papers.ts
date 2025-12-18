@@ -268,6 +268,31 @@ The same constraint applies to neural network latent spaces: if you compress too
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
+    slug: 'information-credit',
+    title: 'State Credit and Protocol Efficiency: A Decomposition of Sub-Landauer Dissipation',
+    journal: 'JSTAT (target)',
+    year: 2025,
+    status: 'in_prep',
+    github: 'todd866/information-credit',
+    pdf: 'https://raw.githubusercontent.com/todd866/information-credit/main/information_credit.pdf',
+    image: 'information-credit.png',
+    simulation: 'credit-ledger',
+    description: `**Apparent sub-Landauer operation decomposes into two distinct mechanisms** — state credit (a conserved thermodynamic resource) and protocol efficiency (a geometric property that reduces waste but isn't consumed).
+
+When experiments show erasure below the "$kT \\ln 2$ per bit" limit, they're not violating thermodynamics — they're spending accumulated credit. Bias (negentropy) and correlations (mutual information) reduce the reversible work bound; thermodynamic length reduces irreversible dissipation. The combined bound unifies information-theoretic and geometric contributions.
+
+This resolves a persistent confusion in the stochastic thermodynamics literature: some papers treat "beating Landauer" as surprising, others as trivial. The credit framework clarifies that state credit is a true thermodynamic resource (creating it costs work; consuming it recovers work), while protocol efficiency is always available if you know the optimal path — it doesn't deplete.
+
+Continues the analysis from the Maxwell's demon paper (BioSystems 2025) with rigorous accounting suitable for physics journals.`,
+    keyFindings: [
+      'State credit $C_{\\mathrm{state}} = [H_{\\max} - H(X)] + I(X;Y)$ is conserved: $\\Delta C \\leq W_{\\mathrm{in}}/(kT \\ln 2)$',
+      'Protocol efficiency (thermodynamic length) reduces $W_{\\mathrm{irr}}$ but is not consumed',
+      'Combined bound: $W \\geq kT \\ln 2 [H_{\\max} - C_{\\mathrm{state}}] + kT \\mathcal{L}^2/(2\\tau)$',
+      'Worked example: 0.83 bits credit → 0.23 kT total work (vs 0.69 kT naive)',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting; GPT-5 (OpenAI), Gemini (Google), and Grok (xAI) for review. Author reviewed all content and takes full responsibility.',
+  },
+  {
     slug: 'lsd-dimensionality',
     title: 'Timescale-Dependent Cortical Dynamics: Psychedelics Desynchronize Fast Oscillations While Concentrating Slow Hemodynamic Variance',
     journal: 'Frontiers in Neuroscience / Human Brain Mapping (target)',
