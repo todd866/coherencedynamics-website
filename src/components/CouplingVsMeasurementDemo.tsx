@@ -95,21 +95,12 @@ function crossCoherence(A: KuramotoLattice, B: KuramotoLattice): number {
   return Math.sqrt(re * re + im * im) / A.N;
 }
 
-// Compute feature distance for observer
-function fourierDistance(modesA: number[], modesB: number[]): number {
-  let sum = 0;
-  for (let i = 0; i < modesA.length; i++) {
-    sum += (modesA[i] - modesB[i]) ** 2;
-  }
-  return Math.sqrt(sum);
-}
-
 export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isRunning, setIsRunning] = useState(true);
   const [couplingEnabled, setCouplingEnabled] = useState(true);
   const [observerBandwidth, setObserverBandwidth] = useState(4);
-  const [couplingStrength, setCouplingStrength] = useState(0.3);
+  const [couplingStrength, setCouplingStrength] = useState(0.5);
   const [stats, setStats] = useState({
     coherence: 0,
     observerConf: 0,
@@ -216,20 +207,22 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       // Compute metrics
       const coherence = crossCoherence(latticeA, latticeB);
 
-      // Observer: compare Fourier features of A-B vs A-C
-      const modesA = latticeA.getFourierModes(observerBandwidth);
-      const modesB = latticeB.getFourierModes(observerBandwidth);
-      const modesC = latticeC.getFourierModes(observerBandwidth);
+      // Observer: bandwidth-limited measurement with heavy integration lag
+      // The observer eventually detects synchronization, but slowly
+      // Lower bandwidth (k) = fewer modes = slower detection
+      // This simulates T_meas ~ I_struct / R
 
-      const distAB = fourierDistance(modesA, modesB);
-      const distAC = fourierDistance(modesA, modesC);
+      // The observer's raw signal is cross-coherence (what they're trying to detect)
+      // But they must accumulate evidence over time with bandwidth-dependent lag
+      const rawSignal = coherence;
 
-      // Observer confidence with integration lag (simulates T_meas ~ I_struct / R)
-      // Raw evidence is instantaneous; smoothed confidence accumulates over time
-      const rawEvidence = Math.min(1, Math.max(0, (distAC - distAB) / (distAC + 0.01)));
+      // Integration rate depends on observer bandwidth
+      // k=1 is very slow, k=16 approaches instantaneous
+      // This models: more measurement dimensions = faster inference
+      const integrationRate = 0.01 + (observerBandwidth / 16) * 0.04; // 0.01 to 0.05
 
-      // Exponential smoothing: ~20 step memory, simulates measurement integration time
-      state.smoothedConf = 0.95 * state.smoothedConf + 0.05 * rawEvidence;
+      // Heavy smoothing creates the lag
+      state.smoothedConf = (1 - integrationRate) * state.smoothedConf + integrationRate * rawSignal;
       const observerConf = state.smoothedConf;
 
       // Store history
