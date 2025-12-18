@@ -144,6 +144,7 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
 
     if (paramsRef.current.similarStructure) {
       B.copyOmegaFrom(A);
+      C.copyOmegaFrom(A); // Same structure, isolates coupling as only variable
     }
 
     engineRef.current = {
@@ -208,7 +209,10 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       distAB = Math.sqrt(distAB);
       distAC = Math.sqrt(distAC);
 
-      const rawSignal = distAC / (distAB + distAC + 0.01);
+      // rawSignal should increase when B is closer to A than C is
+      // (distAC - distAB) is positive when B is closer; normalize to [0,1]
+      const diff = (distAC - distAB) / (distAC + distAB + 0.01);
+      const rawSignal = Math.max(0, Math.min(1, 0.5 + 0.5 * diff));
       const integrationRate = 0.01 + (params.observerBandwidth / 16) * 0.04;
 
       engineRef.current.smoothedConf = (1 - integrationRate) * engineRef.current.smoothedConf + integrationRate * rawSignal;
@@ -316,9 +320,9 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       ctx.fillText(`BLIND: ${tMeas - tSync} steps`, (x1 + x2) / 2, plotY + 20);
     }
 
-    // Thresholds
-    const ySync = plotY + plotH * 0.3;
-    const yDet = plotY + plotH * 0.5;
+    // Thresholds (y = plotY + plotH * (1 - threshold))
+    const ySync = plotY + plotH * (1 - 0.7); // 0.7 threshold
+    const yDet = plotY + plotH * (1 - 0.5);  // 0.5 threshold
 
     ctx.setLineDash([4, 4]);
     ctx.strokeStyle = '#22c55e44';
