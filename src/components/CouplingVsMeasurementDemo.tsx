@@ -150,9 +150,9 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     const B = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
     const C = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
 
-    // Share natural frequencies (structurally similar)
-    B.copyOmegaFrom(A);
-    C.copyOmegaFrom(A);
+    // A, B, C all have DIFFERENT natural frequencies (independent draws)
+    // Without coupling, A and B will desync due to frequency mismatch
+    // Coupling must actively fight this drift to achieve synchronization
 
     stateRef.current = {
       latticeA: A,
@@ -521,7 +521,7 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
           <input
             type="range"
             min={0.1}
-            max={0.8}
+            max={1.2}
             step={0.05}
             value={couplingStrength}
             onChange={(e) => setCouplingStrength(parseFloat(e.target.value))}
