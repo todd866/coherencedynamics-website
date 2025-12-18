@@ -25,6 +25,16 @@ export default function CouplingSyncPage() {
             </Link>
             : T<sub>sync</sub> ~ 1/|λ<sub>c</sub>| {'<<'} T<sub>meas</sub> ~ I<sub>struct</sub>/R
           </p>
+          <p className="text-gray-600 text-sm mt-2">
+            <a
+              href="https://github.com/todd866/coupling-identification"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-500 hover:text-gray-300"
+            >
+              View code on GitHub →
+            </a>
+          </p>
         </div>
 
         <CouplingVsMeasurementDemo className="max-w-4xl" />
