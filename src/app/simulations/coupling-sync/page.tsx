@@ -27,7 +27,7 @@ export default function CouplingSyncPage() {
           </p>
           <p className="text-gray-600 text-sm mt-2">
             <a
-              href="https://github.com/todd866/coupling-identification"
+              href="https://github.com/todd866/coherencedynamics-website/blob/main/src/components/CouplingVsMeasurementDemo.tsx"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-500 hover:text-gray-300"
