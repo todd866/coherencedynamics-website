@@ -55,7 +55,7 @@ This is the strongest historical ally for coherence dynamics. In *Matter and Mem
 
 **The 1890 View:** Bergson described the brain as creating a "modulated reconstructive wave" passing through a holographic field. He explicitly stated the brain's role is to *diminish* the field to a point of action, not to generate the field from scratch.
 
-**The 2025 Update:** This is structurally identical to [EPR Steering](https://en.wikipedia.org/wiki/Einstein%E2%80%93Podolsky%E2%80%93Rosen_paradox#Steering) in quantum mechanics. In EPR Steering, measuring one particle in an entangled pair "steers" the state of the distant partner---a local action constrains a nonlocal state space. Bergson's brain does the same thing: the neural firing (Low-D) creates an interference pattern that reconstructs/selects a specific slice of the high-dimensional reality (High-D). The measurement doesn't *create* the state; it *selects* from a pre-existing manifold of possibilities. Bergson anticipated the "holographic principle" 50 years before Gabor discovered holography.
+**The 2025 Update:** This dynamic is topologically homologous to [EPR Steering](https://en.wikipedia.org/wiki/Einstein%E2%80%93Podolsky%E2%80%93Rosen_paradox#Steering) in quantum mechanics. In EPR Steering, measuring one particle in an entangled pair "steers" the state of the distant partner---a local action constrains a nonlocal state space. Bergson's brain does the same thing: the neural firing (Low-D) creates an interference pattern that reconstructs/selects a specific slice of the high-dimensional reality (High-D). The measurement doesn't *create* the state; it *selects* from a pre-existing manifold of possibilities. Bergson anticipated the "holographic principle" 50 years before Gabor discovered holography.
 
 A hologram is a dimensional encoding protocol: it collapses N+1 dimensions (a 3D volume) onto N dimensions (a 2D plate) via interference patterns, and then "reconstructs" the higher dimension by steering energy (light) through that pattern. If you treat the brain as a holographic medium rather than a digital switchboard, Block's "Meat vs. Silicon" debate dissolves entirely.
 
@@ -96,7 +96,7 @@ This reframing dissolves the "hardware vs. software" dualism that Block is wrest
 
 The "meat" isn't an implementer; it is the *terrain*. The high-dimensional state space *is* the consciousness. You cannot simulate the "steering" (the low-D code) without the "territory" (the high-D meat) because the steering has no meaning without the specific dynamic landscape it navigates.
 
-A Turing machine simulating the steering commands is like turning a steering wheel in a room with no car and no road.
+**A Turing machine simulating the steering commands is like turning a steering wheel in a room with no car and no road.**
 
 ---
 
