@@ -12,15 +12,18 @@ interface Oscillator {
 export default function SoupVsSparks() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [coupling, setCoupling] = useState(0.5);
+  const [fieldCoupling, setFieldCoupling] = useState(0); // Coupling for hidden field behind grid
+  const [crossCoupling, setCrossCoupling] = useState(0); // Coupling between A and B
   const [isRunning, setIsRunning] = useState(true);
   const gridCoordinationRef = useRef(0);
   const oscSyncRef = useRef(0);
   const oscillatorsRef = useRef<Oscillator[]>([]);
   const gridRef = useRef<number[][]>([]);
+  const fieldRef = useRef<number[][]>([]); // Hidden field behind the switches
   const animationRef = useRef<number>(0);
   const timeRef = useRef(0);
 
-  // Initialize oscillators and grid
+  // Initialize oscillators, grid, and hidden field
   useEffect(() => {
     const numOscillators = 12;
     oscillatorsRef.current = Array.from({ length: numOscillators }, (_, i) => ({
@@ -32,6 +35,11 @@ export default function SoupVsSparks() {
 
     gridRef.current = Array.from({ length: 6 }, () =>
       Array.from({ length: 6 }, () => Math.random() > 0.5 ? 1 : 0)
+    );
+
+    // Initialize hidden field (continuous values 0-1)
+    fieldRef.current = Array.from({ length: 6 }, () =>
+      Array.from({ length: 6 }, () => Math.random())
     );
   }, []);
 
@@ -60,20 +68,23 @@ export default function SoupVsSparks() {
         total++;
       }
     }
-    // Coordination = how far from 50/50 (max at all 0s or all 1s)
     const ratio = ones / total;
-    return Math.abs(ratio - 0.5) * 2; // 0 = perfectly mixed, 1 = all same
+    return Math.abs(ratio - 0.5) * 2;
   }, []);
 
   // Force all grid cells to same value
   const forceGridSync = () => {
     gridRef.current = gridRef.current.map(row => row.map(() => 1));
+    fieldRef.current = fieldRef.current.map(row => row.map(() => 1));
   };
 
-  // Randomize grid
+  // Randomize grid and field
   const randomizeGrid = () => {
     gridRef.current = gridRef.current.map(row =>
       row.map(() => Math.random() > 0.5 ? 1 : 0)
+    );
+    fieldRef.current = fieldRef.current.map(row =>
+      row.map(() => Math.random())
     );
   };
 
@@ -98,7 +109,26 @@ export default function SoupVsSparks() {
       timeRef.current += dt;
       const oscillators = oscillatorsRef.current;
 
-      // Update oscillators (Kuramoto model)
+      // Calculate mean phase of oscillators (for cross-coupling)
+      let sumCosPhase = 0, sumSinPhase = 0;
+      for (const osc of oscillators) {
+        sumCosPhase += Math.cos(osc.phase);
+        sumSinPhase += Math.sin(osc.phase);
+      }
+      const meanPhase = Math.atan2(sumSinPhase, sumCosPhase);
+
+      // Calculate mean field value (for cross-coupling)
+      const field = fieldRef.current;
+      let fieldSum = 0, fieldCount = 0;
+      for (const row of field) {
+        for (const val of row) {
+          fieldSum += val;
+          fieldCount++;
+        }
+      }
+      const meanField = fieldCount > 0 ? fieldSum / fieldCount : 0.5;
+
+      // Update oscillators (Kuramoto model + cross-coupling from B)
       const N = oscillators.length;
       const newPhases = oscillators.map((osc, i) => {
         let sumSin = 0;
@@ -107,22 +137,65 @@ export default function SoupVsSparks() {
             sumSin += Math.sin(oscillators[j].phase - osc.phase);
           }
         }
-        return osc.phase + dt * (osc.naturalFreq + (coupling / N) * sumSin);
+        // Cross-coupling: field mean biases oscillator toward phase 0 or π
+        const fieldBias = crossCoupling * (meanField - 0.5) * 2 * Math.sin(-osc.phase);
+        return osc.phase + dt * (osc.naturalFreq + (coupling / N) * sumSin + fieldBias);
       });
 
       oscillators.forEach((osc, i) => {
         osc.phase = newPhases[i] % (2 * Math.PI);
       });
 
-      // Occasionally flip random grid cells (discrete, uncoupled - entropy wins)
-      if (Math.random() < 0.05) {
-        const grid = gridRef.current;
-        const row = Math.floor(Math.random() * grid.length);
-        const col = Math.floor(Math.random() * grid[0].length);
-        grid[row][col] = 1 - grid[row][col];
+      // Update hidden field with diffusion/coupling
+      const grid = gridRef.current;
+
+      // Cross-coupling from A: oscillator phase biases field toward 0 or 1
+      // Mean phase near 0 → push field toward 1; mean phase near π → push toward 0
+      const oscInfluence = crossCoupling > 0 ? (Math.cos(meanPhase) + 1) / 2 : 0.5;
+
+      if (fieldCoupling > 0 || crossCoupling > 0) {
+        // Diffusive coupling between neighbors + cross-coupling from oscillators
+        const newField = field.map((row, r) =>
+          row.map((val, c) => {
+            let neighborSum = 0;
+            let neighborCount = 0;
+            // Check 4 neighbors
+            if (r > 0) { neighborSum += field[r-1][c]; neighborCount++; }
+            if (r < 5) { neighborSum += field[r+1][c]; neighborCount++; }
+            if (c > 0) { neighborSum += field[r][c-1]; neighborCount++; }
+            if (c < 5) { neighborSum += field[r][c+1]; neighborCount++; }
+            const neighborAvg = neighborSum / neighborCount;
+            // Move toward neighbor average based on coupling strength
+            let newVal = val + fieldCoupling * dt * 2 * (neighborAvg - val);
+            // Cross-coupling: oscillator phases bias the field
+            newVal += crossCoupling * dt * (oscInfluence - val);
+            return Math.max(0, Math.min(1, newVal));
+          })
+        );
+        fieldRef.current = newField;
+
+        // Update grid based on field (threshold at 0.5)
+        gridRef.current = fieldRef.current.map(row =>
+          row.map(val => val > 0.5 ? 1 : 0)
+        );
+      } else {
+        // No field coupling - random flips (entropy)
+        if (Math.random() < 0.05) {
+          const row = Math.floor(Math.random() * grid.length);
+          const col = Math.floor(Math.random() * grid[0].length);
+          grid[row][col] = 1 - grid[row][col];
+          field[row][col] = grid[row][col]; // Keep field in sync
+        }
       }
 
-      // Update metrics for display
+      // Add small noise to field
+      if (fieldCoupling > 0) {
+        fieldRef.current = fieldRef.current.map(row =>
+          row.map(val => Math.max(0, Math.min(1, val + (Math.random() - 0.5) * 0.02)))
+        );
+      }
+
+      // Update metrics
       const orderParam = getOrderParameter();
       const gridCoord = getGridCoordination();
       oscSyncRef.current = orderParam;
@@ -132,13 +205,37 @@ export default function SoupVsSparks() {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, width, height);
 
-      // Draw dividing line
-      ctx.strokeStyle = '#444';
-      ctx.lineWidth = 2;
+      // Draw dividing line (purple if cross-coupled)
+      ctx.strokeStyle = crossCoupling > 0 ? `rgba(168, 85, 247, ${0.3 + crossCoupling * 0.2})` : '#444';
+      ctx.lineWidth = crossCoupling > 0 ? 3 : 2;
       ctx.beginPath();
       ctx.moveTo(midX, 0);
       ctx.lineTo(midX, height);
       ctx.stroke();
+
+      // Draw cross-coupling indicator arrows if active
+      if (crossCoupling > 0) {
+        const arrowY = height / 2;
+        const arrowLen = 15;
+        ctx.strokeStyle = `rgba(168, 85, 247, ${0.4 + crossCoupling * 0.15})`;
+        ctx.lineWidth = 2;
+        // Arrow pointing right (A → B)
+        ctx.beginPath();
+        ctx.moveTo(midX - 5, arrowY - 10);
+        ctx.lineTo(midX + arrowLen, arrowY - 10);
+        ctx.lineTo(midX + arrowLen - 5, arrowY - 15);
+        ctx.moveTo(midX + arrowLen, arrowY - 10);
+        ctx.lineTo(midX + arrowLen - 5, arrowY - 5);
+        ctx.stroke();
+        // Arrow pointing left (B → A)
+        ctx.beginPath();
+        ctx.moveTo(midX + 5, arrowY + 10);
+        ctx.lineTo(midX - arrowLen, arrowY + 10);
+        ctx.lineTo(midX - arrowLen + 5, arrowY + 15);
+        ctx.moveTo(midX - arrowLen, arrowY + 10);
+        ctx.lineTo(midX - arrowLen + 5, arrowY + 5);
+        ctx.stroke();
+      }
 
       // Draw big A and B labels
       ctx.font = 'bold 24px Arial';
@@ -152,7 +249,7 @@ export default function SoupVsSparks() {
       ctx.fillStyle = '#888';
       ctx.font = '12px Arial';
       ctx.fillText('Coupled Oscillators', midX / 2, 25);
-      ctx.fillText('Independent Switches', midX + midX / 2, 25);
+      ctx.fillText(fieldCoupling > 0 ? 'Switches + Hidden Field' : 'Independent Switches', midX + midX / 2, 25);
 
       // Draw connections between oscillators
       ctx.strokeStyle = `rgba(100, 200, 255, ${0.15 * coupling})`;
@@ -191,7 +288,7 @@ export default function SoupVsSparks() {
         ctx.fill();
       }
 
-      // Draw coordination bars - MATCHING STYLE for A vs B comparison
+      // Draw coordination bars
       const barY = height - 45;
       const barHeight = 20;
       const barWidth = midX - 60;
@@ -222,7 +319,6 @@ export default function SoupVsSparks() {
       ctx.fillText(`Coordination: ${(gridCoord * 100).toFixed(0)}%`, midX + 30, barY - 5);
 
       // Draw discrete grid (right side)
-      const grid = gridRef.current;
       const cellSize = 28;
       const gridWidth = grid[0].length * cellSize;
       const gridHeight = grid.length * cellSize;
@@ -234,17 +330,25 @@ export default function SoupVsSparks() {
           const x = gridStartX + col * cellSize;
           const y = gridStartY + row * cellSize;
 
-          ctx.fillStyle = grid[row][col] ? '#22c55e' : '#1a1a1a';
-          ctx.fillRect(x + 2, y + 2, cellSize - 4, cellSize - 4);
+          // If field coupling is on, show field intensity as background
+          if (fieldCoupling > 0) {
+            const fieldVal = fieldRef.current[row][col];
+            const intensity = Math.floor(fieldVal * 60);
+            ctx.fillStyle = `rgb(${intensity}, ${intensity + 20}, ${intensity + 40})`;
+            ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+          }
 
-          ctx.strokeStyle = '#333';
+          ctx.fillStyle = grid[row][col] ? '#22c55e' : '#1a1a1a';
+          ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
+
+          ctx.strokeStyle = fieldCoupling > 0 ? '#446' : '#333';
           ctx.lineWidth = 1;
-          ctx.strokeRect(x + 2, y + 2, cellSize - 4, cellSize - 4);
+          ctx.strokeRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
 
           ctx.fillStyle = grid[row][col] ? '#000' : '#444';
-          ctx.font = '11px monospace';
+          ctx.font = '10px monospace';
           ctx.textAlign = 'center';
-          ctx.fillText(grid[row][col].toString(), x + cellSize / 2, y + cellSize / 2 + 4);
+          ctx.fillText(grid[row][col].toString(), x + cellSize / 2, y + cellSize / 2 + 3);
         }
       }
 
@@ -256,7 +360,7 @@ export default function SoupVsSparks() {
     return () => {
       cancelAnimationFrame(animationRef.current);
     };
-  }, [coupling, isRunning, getOrderParameter, getGridCoordination]);
+  }, [coupling, fieldCoupling, crossCoupling, isRunning, getOrderParameter, getGridCoordination]);
 
   return (
     <div className="w-full">
@@ -303,22 +407,62 @@ export default function SoupVsSparks() {
         {/* B controls */}
         <div className="border border-green-900/50 rounded p-3 bg-green-950/20">
           <div className="text-green-400 font-medium mb-2">B: Sparks</div>
-          <button
-            onClick={forceGridSync}
-            className="w-full px-2 py-1 mb-2 border border-gray-700 rounded hover:border-gray-500 text-gray-400"
-          >
-            Force All to 1 (Sync)
-          </button>
-          <button
-            onClick={randomizeGrid}
-            className="w-full px-2 py-1 border border-gray-700 rounded hover:border-gray-500 text-gray-400"
-          >
-            Randomize
-          </button>
+          <div className="flex items-center gap-2 mb-2">
+            <label className="text-gray-400 text-xs">Hidden field:</label>
+            <input
+              type="range"
+              min="0"
+              max="2"
+              step="0.1"
+              value={fieldCoupling}
+              onChange={(e) => setFieldCoupling(parseFloat(e.target.value))}
+              className="flex-1"
+            />
+            <span className="text-gray-500 w-6">{fieldCoupling.toFixed(1)}</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={forceGridSync}
+              className="px-2 py-1 border border-gray-700 rounded hover:border-gray-500 text-gray-400 text-xs"
+            >
+              Force Sync
+            </button>
+            <button
+              onClick={randomizeGrid}
+              className="px-2 py-1 border border-gray-700 rounded hover:border-gray-500 text-gray-400 text-xs"
+            >
+              Randomize
+            </button>
+          </div>
           <p className="text-gray-600 text-xs mt-2">
-            Watch forced sync decay. No coupling = entropy wins.
+            {fieldCoupling > 0
+              ? "Field couples the switches. Watch them coordinate."
+              : "No field = entropy wins. Add a hidden field →"}
           </p>
         </div>
+      </div>
+
+      {/* Cross-coupling controls */}
+      <div className="mt-3 border border-purple-900/50 rounded p-3 bg-purple-950/20">
+        <div className="flex items-center gap-3">
+          <span className="text-purple-400 font-medium text-sm">A ↔ B</span>
+          <label className="text-gray-400 text-sm">Cross-coupling:</label>
+          <input
+            type="range"
+            min="0"
+            max="3"
+            step="0.1"
+            value={crossCoupling}
+            onChange={(e) => setCrossCoupling(parseFloat(e.target.value))}
+            className="flex-1"
+          />
+          <span className="text-gray-500 w-6 text-sm">{crossCoupling.toFixed(1)}</span>
+        </div>
+        <p className="text-gray-600 text-xs mt-2">
+          {crossCoupling > 0
+            ? "A's phase steers B's field. B's field biases A's oscillators. They coordinate through the coupling."
+            : "A and B are independent. Add cross-coupling to link them →"}
+        </p>
       </div>
 
       {/* Unified controls */}
@@ -334,8 +478,23 @@ export default function SoupVsSparks() {
       {/* Comparison insight */}
       <div className="mt-4 p-3 border border-gray-800 rounded bg-gray-900/50 text-center">
         <p className="text-gray-400 text-sm">
-          <span className="text-blue-400">A</span> self-organizes through coupling.
-          <span className="text-green-400 ml-2">B</span> requires external intervention—and immediately decays.
+          {crossCoupling > 0 ? (
+            <>
+              <span className="text-purple-400">A ↔ B</span>: Two different substrates coordinating through a shared field.
+              <span className="text-gray-500 ml-1">The oscillators steer the field; the field biases the oscillators.</span>
+            </>
+          ) : fieldCoupling > 0 ? (
+            <>
+              <span className="text-green-400">B</span> now has a hidden field—and the switches coordinate.
+              <span className="text-gray-500 ml-1">The switches are the public face; the field does the thinking.</span>
+            </>
+          ) : (
+            <>
+              <span className="text-blue-400">A</span> self-organizes through coupling.
+              <span className="text-green-400 ml-2">B</span> decays to entropy.
+              <span className="text-gray-500 ml-1">Try adding a hidden field to B →</span>
+            </>
+          )}
         </p>
       </div>
     </div>
