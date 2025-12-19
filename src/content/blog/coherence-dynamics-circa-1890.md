@@ -94,7 +94,7 @@ Evolution chose the "soup" because it provided a richer, higher-dimensional stat
 
 This principle extends far beyond neurons. A chromosome isn't just a string of genetic "bits"---it's an electrostatic high-dimensional field wrapped around low-dimensional switches. The same pattern appears in protein folding, cell signaling, and [Michael Levin's work on bioelectric fields](https://ase.tufts.edu/biology/labs/levin/) guiding morphogenesis. The "soup" is everywhere in biology.
 
-In fact, there's a strong case that the fields *preceded* the genes. The first protocells were lipid bilayers creating electrostatic boundaries---high-dimensional phase spaces that could be steered by ion gradients and chemical potentials. Genetic codes came later, as a way to *stabilize* and *transmit* successful configurations. The low-D code didn't create the high-D dynamics; it learned to ride them.
+In fact, there's a strong case that the fields *preceded* the genes. The first protocells were lipid bilayers---low-dimensional membranes that created electrostatic boundaries. But the "thinking" happened in the field: the high-dimensional phase space of ion gradients, charge distributions, and chemical potentials surrounding that membrane. The membrane steered; the field computed. Genetic codes came later, as a way to *stabilize* and *transmit* successful configurations. The low-D structure didn't create the high-D dynamics; it learned to ride them.
 
 ---
 
