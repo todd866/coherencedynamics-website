@@ -196,15 +196,14 @@ Why does this matter? Because coherence naturally reduces dimensionality. As osc
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
-    slug: 'biological-shadows',
+    slug: 'projection-discontinuities',
     title: 'Projection-Induced Discontinuities in Nonlinear Dynamical Systems: Quantifying Topological Aliasing in High-Dimensional Data',
     journal: 'Chaos, Solitons & Fractals (submitted)',
     year: 2025,
     status: 'submitted',
-    ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5573915',
-    github: 'todd866/limits-of-falsifiability',
-    pdf: 'https://github.com/todd866/limits-of-falsifiability/blob/main/paper2_shadow_geometry.pdf',
-    image: 'biological-shadows.png',
+    github: 'todd866/projection-discontinuities',
+    pdf: 'https://github.com/todd866/projection-discontinuities/blob/main/paper2_shadow_geometry.pdf',
+    image: 'projection-discontinuities.png',
     description: `**75% of what you see in t-SNE and UMAP plots is wrong** — points that look like neighbours weren't actually close in the original high-dimensional data. This isn't a bug in the algorithms; it's a geometric inevitability.
 
 When you project high-dimensional biological data (like gene expression from thousands of genes) into 2D visualisations, you're not just simplifying — you're hallucinating structure. The paper provides the mathematical toolkit for measuring exactly how much your projections lie.

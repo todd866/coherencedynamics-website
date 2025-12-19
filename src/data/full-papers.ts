@@ -608,20 +608,22 @@ These findings suggest that dimensionality is a fundamental thermodynamic resour
     ]
   },
 
-  'biological-shadows': {
-    abstract: `In Todd (2025), we argued that Popperian falsifiability saturates in high-dimensional biological systems. Here, we provide computational tools to *measure* this loss. We distinguish **system dimensionality** ($D_{\\text{sys}}$)—intrinsic degrees of freedom—from **observation dimensionality** ($D_{\\text{obs}}$)—coordinates accessible to measurement. Using the Lorenz attractor, we demonstrate that when $D_{\\text{sys}} > D_{\\text{obs}}$, binary classification produces **topological aliasing**: **47%** of states are misclassified, with apparent "teleportations" in the shadow that do not exist in the underlying system. We validate this in real data: across four scRNA-seq datasets (n = 90,300 cells), **75.5% of apparent neighbors in t-SNE projections were not neighbors in high-dimensional space**.`,
+  'projection-discontinuities': {
+    abstract: `Low-dimensional projections of high-dimensional nonlinear dynamical systems introduce spurious discontinuities that do not exist in the underlying flow. We call this phenomenon **topological aliasing**: continuous trajectories appear to "jump" between states when observed through incomplete coordinates. We distinguish **system dimensionality** ($D_{\\text{sys}}$)—intrinsic degrees of freedom—from **observation dimensionality** ($D_{\\text{obs}}$)—coordinates accessible to measurement. Using the Lorenz attractor as a minimal model, we demonstrate that when $D_{\\text{sys}} > D_{\\text{obs}}$, binary classification produces **47%** misclassification, with 199 apparent "teleportations" in the projected shadow. We validate this in biological data: across four scRNA-seq datasets (n = 90,300 cells), **75.5% of apparent neighbors in t-SNE projections were not neighbors in high-dimensional space**.`,
 
     sections: [
       {
         title: '1. Introduction',
-        content: `The central insight is **ontological**, not merely statistical. We distinguish between:
+        content: `When a high-dimensional dynamical system is observed through low-dimensional coordinates, continuous trajectories can appear discontinuous. A system flowing smoothly through phase space may seem to "jump" between states in the projection—not because it actually jumped, but because distinct regions of the attractor overlap when viewed from incomplete coordinates.
+
+We call this phenomenon **topological aliasing**. It is not noise, not measurement error, not a failure of statistical power—it is a geometric inevitability when the intrinsic dimension of the system exceeds the dimension of observation.
+
+The central insight is **geometric**, not merely statistical. We distinguish between:
 
 - **$D_{\\text{sys}}$**: The intrinsic degrees of freedom of the dynamical system—the dimension of the manifold the system actually occupies in phase space
 - **$D_{\\text{obs}}$**: The number of coordinates we record—sensors, channels, features
 
-Standard falsifiability assumes we can project from system to observation via a binary cut without destroying causal structure. The simulations presented here demonstrate that when $D_{\\text{sys}} > D_{\\text{obs}}$, this assumption fails systematically: distinct causal states *alias* to the same observation, and apparent discontinuities appear in the shadow that do not exist in the underlying system.
-
-We call this phenomenon **topological aliasing**—the observation space contains "jumps" that are artifacts of projection, not features of reality.`
+When $D_{\\text{sys}} > D_{\\text{obs}}$, projection is necessarily non-injective: distinct states in the high-dimensional system map to the same point in observation space. The resulting overlaps are the geometric origin of the aliasing we quantify here.`
       },
       {
         title: '2. The Shadow Box',
@@ -660,14 +662,14 @@ All three classical escape routes from measurement uncertainty are blocked.`
       },
       {
         title: '5. Conclusion',
-        content: `We have provided computational tools to measure the limits of falsifiability:
+        content: `We have provided computational tools to quantify projection-induced discontinuities in nonlinear dynamical systems:
 
-1. **Topological aliasing is quantifiable**: In minimal models, nearly half of dynamical states are misclassified under projection.
-2. **Sub-Landauer detection scales as $\\sqrt{N}$**: Ensemble methods are thermodynamically required for weak signals.
-3. **The falsifiability boundary is mappable**: Binary tests fail systematically above ~10–20 dimensions.
+1. **Topological aliasing is quantifiable**: In the Lorenz attractor, 47% of dynamical states are misclassified under 2D projection, with 199 false discontinuities.
+2. **The effect is pervasive in biological data**: Across four scRNA-seq datasets, 75.5% of apparent neighbors in t-SNE projections are wrong.
+3. **The regime boundary is mappable**: Binary tests fail systematically above ~10–20 dimensions for moderate effect sizes.
 4. **The inference trilemma is structural**: Non-ergodicity, dimensional explosion, and thermodynamic fragility block all classical paths to inference.
 
-These results operationalize an epistemological argument into measurable quantities.`
+Although illustrated with biological data, these results apply generally to any nonlinear dynamical system observed through incomplete coordinates.`
       }
     ]
   },
