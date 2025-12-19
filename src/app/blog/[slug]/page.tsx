@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { blogPosts, getBlogPostBySlug } from '@/data/blog';
+import { getAllBlogSlugs, getBlogPostBySlug } from '@/data/blog';
 import { getPaperBySlug } from '@/data/papers';
 import Markdown from '@/components/Markdown';
 
 export function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+  return getAllBlogSlugs().map((slug) => ({ slug }));
 }
 
 function formatDate(dateString: string): string {

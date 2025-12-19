@@ -13,6 +13,9 @@ src/
 │   ├── papers/            # Papers listing and detail pages
 │   │   ├── page.tsx       # /papers - papers index
 │   │   └── [slug]/page.tsx # /papers/[slug] - individual paper
+│   ├── blog/              # Blog posts
+│   │   ├── page.tsx       # /blog - blog index
+│   │   └── [slug]/page.tsx # /blog/[slug] - individual post
 │   ├── simulations/       # Interactive simulations
 │   ├── scenarios/         # What-if scenarios
 │   ├── fiction/           # Creative writing
@@ -21,8 +24,11 @@ src/
 │   ├── Markdown.tsx       # Markdown renderer with LaTeX
 │   ├── PaperNavigation.tsx # Prev/next navigation with keyboard shortcuts
 │   └── ...
+├── content/
+│   └── blog/              # Blog posts as markdown files
 ├── data/
-│   └── papers.ts          # Paper metadata and content
+│   ├── papers.ts          # Paper metadata and content
+│   └── blog.ts            # Blog post loader (reads from content/blog/)
 └── lib/                   # Utility functions
 
 public/
@@ -68,6 +74,54 @@ npm run dev    # http://localhost:3000
 
 3. Papers are automatically listed on `/papers` and get their own page at `/papers/{slug}`
 
+## Adding a New Blog Post
+
+Blog posts are markdown files in `src/content/blog/`.
+
+1. **Create markdown file** at `src/content/blog/{slug}.md`:
+
+```markdown
+---
+slug: my-post-slug
+title: Full Post Title
+subtitle: Optional subtitle or tagline
+date: 2025-12-19
+tags:
+  - philosophy of mind
+  - consciousness
+summary: One-sentence summary for the blog index page.
+relatedPapers:
+  - paper-slug-1
+  - paper-slug-2
+---
+
+Your markdown content here...
+
+## Section Heading
+
+Regular markdown with **bold**, *italics*, [links](https://example.com), etc.
+
+LaTeX math works: $E = mc^2$ or display math:
+
+$$
+D_{\text{eff}} = \frac{(\sum \lambda_i)^2}{\sum \lambda_i^2}
+$$
+```
+
+2. **Frontmatter fields:**
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `slug` | Yes | URL identifier (used in `/blog/{slug}`) |
+| `title` | Yes | Post title |
+| `subtitle` | No | Italic subtitle shown below title |
+| `date` | Yes | Publication date (YYYY-MM-DD) |
+| `tags` | Yes | Array of tag strings |
+| `summary` | Yes | Short description for index page |
+| `relatedPapers` | No | Array of paper slugs to link at bottom |
+
+3. Posts are automatically sorted by date (newest first) on `/blog`
+
 ## Paper Figure Guidelines
 
 Figures should:
@@ -91,6 +145,7 @@ plt.savefig('public/images/papers/paper-slug.png',
 ## Features
 
 - **Paper navigation:** Arrow key navigation between papers (←/→)
+- **Blog:** Essays as markdown files with frontmatter, automatic sorting, related papers
 - **Markdown support:** Full markdown with LaTeX math via `$...$` and `$$...$$`
 - **Status badges:** Published (green), Under Review (yellow), In Preparation (gray)
 - **External links:** DOI, SSRN preprints, GitHub repos, PDFs
@@ -104,6 +159,7 @@ Deployed automatically to Vercel on push to `main`.
 - **Framework:** Next.js 15 (App Router)
 - **Styling:** Tailwind CSS
 - **Markdown:** react-markdown with remark-math, rehype-katex
+- **Blog frontmatter:** gray-matter
 - **Hosting:** Vercel
 
 ## Interactive Simulations
