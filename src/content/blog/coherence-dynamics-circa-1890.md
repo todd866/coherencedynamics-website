@@ -92,6 +92,10 @@ Block worries that functionalism (roles) ignores the "meat". I argue that the "m
 
 Evolution chose the "soup" because it provided a richer, higher-dimensional state space for the organism to inhabit---one that rigid electrical "sparks" could never support. The "meat" isn't magic; it's just the most efficient hardware for running high-D physics.
 
+This principle extends far beyond neurons. A chromosome isn't just a string of genetic "bits"---it's an electrostatic high-dimensional field wrapped around low-dimensional switches. The same pattern appears in protein folding, cell signaling, and [Michael Levin's work on bioelectric fields](https://ase.tufts.edu/biology/labs/levin/) guiding morphogenesis. The "soup" is everywhere in biology.
+
+In fact, there's a strong case that the fields *preceded* the genes. The first protocells were lipid bilayers creating electrostatic boundaries---high-dimensional phase spaces that could be steered by ion gradients and chemical potentials. Genetic codes came later, as a way to *stabilize* and *transmit* successful configurations. The low-D code didn't create the high-D dynamics; it learned to ride them.
+
 ---
 
 ## The Steering Hypothesis
