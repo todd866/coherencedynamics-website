@@ -109,6 +109,9 @@ export default function SoupVsSparks() {
       timeRef.current += dt;
       const oscillators = oscillatorsRef.current;
 
+      // Cross-coupling implies a field exists - auto-enable minimum field coupling
+      const effectiveFieldCoupling = crossCoupling > 0 ? Math.max(fieldCoupling, 0.3) : fieldCoupling;
+
       // Calculate mean phase of oscillators (for cross-coupling)
       let sumCosPhase = 0, sumSinPhase = 0;
       for (const osc of oscillators) {
@@ -153,7 +156,7 @@ export default function SoupVsSparks() {
       // Mean phase near 0 → push field toward 1; mean phase near π → push toward 0
       const oscInfluence = crossCoupling > 0 ? (Math.cos(meanPhase) + 1) / 2 : 0.5;
 
-      if (fieldCoupling > 0 || crossCoupling > 0) {
+      if (effectiveFieldCoupling > 0 || crossCoupling > 0) {
         // Diffusive coupling between neighbors + cross-coupling from oscillators
         const newField = field.map((row, r) =>
           row.map((val, c) => {
@@ -166,7 +169,7 @@ export default function SoupVsSparks() {
             if (c < 5) { neighborSum += field[r][c+1]; neighborCount++; }
             const neighborAvg = neighborSum / neighborCount;
             // Move toward neighbor average based on coupling strength
-            let newVal = val + fieldCoupling * dt * 2 * (neighborAvg - val);
+            let newVal = val + effectiveFieldCoupling * dt * 2 * (neighborAvg - val);
             // Cross-coupling: oscillator phases bias the field
             newVal += crossCoupling * dt * (oscInfluence - val);
             return Math.max(0, Math.min(1, newVal));
@@ -189,7 +192,7 @@ export default function SoupVsSparks() {
       }
 
       // Add small noise to field
-      if (fieldCoupling > 0 || crossCoupling > 0) {
+      if (effectiveFieldCoupling > 0 || crossCoupling > 0) {
         fieldRef.current = fieldRef.current.map(row =>
           row.map(val => Math.max(0, Math.min(1, val + (Math.random() - 0.5) * 0.02)))
         );
