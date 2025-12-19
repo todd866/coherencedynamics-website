@@ -23,7 +23,7 @@ He considers inhibition, learning, and various biological factors, but finds the
 
 I want to propose a simpler answer: **dimensionality**.
 
-> **What I mean by dimensionality:** Not the number of neurons, nor the size of the state space (a digital computer's microstate count is astronomically large). I mean *effective dimensionality*: the number of independent degrees of freedom the system can reliably occupy and be steered through on timescales relevant to behavior. A transistor array has billions of states but explores them along rigid, pre-programmed paths. An electrochemical system has fewer components but a vastly richer manifold of reachable dynamical regimes. The difference isn't size---it's *navigability*.
+> **What I mean by dimensionality:** Not the number of neurons, nor the size of the state space (a digital computer's microstate count is astronomically large). I mean *effective dimensionality*: the number of independent degrees of freedom the system can reliably occupy and be steered through on timescales relevant to behavior. A transistor array has billions of *microstates*, but its macroscopic behavior is constrained to rigid, serial logic gates. An electrochemical system has fewer components but a vastly richer manifold of reachable dynamical regimes. The difference isn't size---it's *navigability*.
 
 ---
 
@@ -31,7 +31,7 @@ I want to propose a simpler answer: **dimensionality**.
 
 If we view the brain as a digital computer, the evolutionary choice makes no sense. Electrical gap junctions are faster than chemical synapses. But the brain isn't optimizing for speed; it's optimizing for dimensionality.
 
-**The Transistor (Digital/AI):** To simulate a high-dimensional vector space (like an LLM embedding) on silicon, we must force billions of low-dimensional switches (transistors) to perform matrix math. This is energetically expensive and computationally brittle. We are "faking" the manifold.
+**The Transistor (Digital/AI):** To simulate a high-dimensional vector space (like an LLM embedding) on silicon, we must force billions of low-dimensional switches (transistors) to perform matrix math. This is energetically expensive and computationally brittle. We are "faking" the manifold. Crucially, a simulation of an attractor is a discrete, step-by-step calculation; a physical attractor is a *continuous relaxation* into an energy minimum. Continuity isn't just a mathematical abstraction---it's a physical property that digital systems must approximate rather than instantiate.
 
 **The Oscillator (Analog/Biology):** An electrochemical system involves coupled oscillators (neurons in a chemical bath). Physics dictates that these oscillators settle into phase-locked states or complex attractors *naturally*. The high-dimensional dynamics are *native* to the substrate---the system explores its state space as a consequence of relaxing into its energy landscape, without needing to emulate it step-by-step.
 
