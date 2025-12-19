@@ -609,7 +609,7 @@ These findings suggest that dimensionality is a fundamental thermodynamic resour
   },
 
   'projection-discontinuities': {
-    abstract: `Low-dimensional projections of high-dimensional nonlinear dynamical systems introduce spurious discontinuities that do not exist in the underlying flow. We call this phenomenon **topological aliasing**: continuous trajectories appear to "jump" between states when observed through incomplete coordinates. We distinguish **system dimensionality** ($D_{\\text{sys}}$)—intrinsic degrees of freedom—from **observation dimensionality** ($D_{\\text{obs}}$)—coordinates accessible to measurement. Using the Lorenz attractor as a minimal model, we demonstrate that when $D_{\\text{sys}} > D_{\\text{obs}}$, binary classification produces **47%** misclassification, with 199 apparent "teleportations" in the projected shadow. We validate this in biological data: across four scRNA-seq datasets (n = 90,300 cells), **75.5% of apparent neighbors in t-SNE projections were not neighbors in high-dimensional space**.`,
+    abstract: `Low-dimensional projections of high-dimensional nonlinear dynamical systems introduce spurious discontinuities that do not exist in the underlying flow. We call this phenomenon **topological aliasing**: continuous trajectories appear to "jump" between states when observed through incomplete coordinates. We distinguish **system dimensionality** ($D_{\\text{sys}}$)—intrinsic degrees of freedom—from **observation dimensionality** ($D_{\\text{obs}}$)—coordinates accessible to measurement. Using the Lorenz, Rössler, and Hénon attractors as minimal models, we demonstrate that aliasing rates of 50-56% occur across canonical chaotic systems. We extend to time series (Mackey-Glass) and validate in biological data: across two standard scRNA-seq benchmarks, **70-80% of apparent neighbors in t-SNE/UMAP projections were not neighbors in high-dimensional space**.`,
 
     sections: [
       {
@@ -638,17 +638,17 @@ The binary cut that appears "clean" in the shadow is fundamentally wrong about t
       },
       {
         title: '3. Validation in Single-Cell Data',
-        content: `Across four standard scRNA-seq datasets:
+        content: `Across two standard scRNA-seq benchmarks:
 
-| Dataset | $D_{\\text{sys}}$ | Aliasing | Coverage |
-|---------|----------|----------|----------|
-| Sade-Feldman | 12.5 | 66.2% | 0.0003% |
-| PBMC 3k | 14.8 | 83.1% | 0.0001% |
-| Paul15 | 8.7 | 78.4% | 0.002% |
-| PBMC 68k | 38.7 | 74.3% | <0.0001% |
-| **Average** | **18.7** | **75.5%** | — |
+| Dataset | $D_{\\text{sys}}$ | t-SNE Aliasing | UMAP Aliasing |
+|---------|----------|----------------|---------------|
+| PBMC 3k | 38.8 | 73.6% ± 0.0% | 81.8% ± 0.1% |
+| Paul15 | 110.9 | 67.4% ± 0.1% | 76.8% ± 0.2% |
+| **Average** | — | **70.5%** | **79.3%** |
 
-When researchers draw cluster boundaries on t-SNE/UMAP plots, approximately **three-quarters of the neighborhood relationships those boundaries rely upon are wrong**.`
+Error bars across 5 random seeds are <0.2%, confirming this is deterministic geometry, not stochastic noise.
+
+When researchers draw cluster boundaries on t-SNE/UMAP plots, approximately **70-80% of the neighborhood relationships those boundaries rely upon are wrong with respect to the high-dimensional metric space**.`
       },
       {
         title: '4. The Inference Trilemma',
@@ -664,9 +664,9 @@ All three classical escape routes from measurement uncertainty are blocked.`
         title: '5. Conclusion',
         content: `We have provided computational tools to quantify projection-induced discontinuities in nonlinear dynamical systems:
 
-1. **Topological aliasing is quantifiable**: In the Lorenz attractor, 47% of dynamical states are misclassified under 2D projection, with 199 false discontinuities.
-2. **The effect is pervasive in biological data**: Across four scRNA-seq datasets, 75.5% of apparent neighbors in t-SNE projections are wrong.
-3. **The regime boundary is mappable**: Binary tests fail systematically above ~10–20 dimensions for moderate effect sizes.
+1. **Topological aliasing is quantifiable**: Across Lorenz, Rössler, and Hénon attractors, aliasing rates of 50-56% occur consistently.
+2. **The effect scales with system dimension**: Mackey-Glass time series show aliasing increases from 50-61% (low chaos) to 76-91% (high chaos).
+3. **The effect is pervasive in biological data**: Across scRNA-seq benchmarks, 70-80% of apparent neighbors in t-SNE/UMAP projections are wrong—and this is deterministic geometry (error bars <0.2%).
 4. **The inference trilemma is structural**: Non-ergodicity, dimensional explosion, and thermodynamic fragility block all classical paths to inference.
 
 Although illustrated with biological data, these results apply generally to any nonlinear dynamical system observed through incomplete coordinates.`

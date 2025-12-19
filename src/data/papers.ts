@@ -202,20 +202,20 @@ Why does this matter? Because coherence naturally reduces dimensionality. As osc
     year: 2025,
     status: 'submitted',
     github: 'todd866/projection-discontinuities',
-    pdf: 'https://github.com/todd866/projection-discontinuities/blob/main/paper2_shadow_geometry.pdf',
+    pdf: 'https://github.com/todd866/projection-discontinuities/blob/main/projection_discontinuities.pdf',
     image: 'projection-discontinuities.png',
-    description: `**75% of what you see in t-SNE and UMAP plots is wrong** — points that look like neighbours weren't actually close in the original high-dimensional data. This isn't a bug in the algorithms; it's a geometric inevitability.
+    description: `**70-80% of what you see in t-SNE and UMAP plots is wrong** — points that look like neighbours weren't actually close in the original high-dimensional data. This isn't a bug in the algorithms; it's a geometric inevitability.
 
 When you project high-dimensional biological data (like gene expression from thousands of genes) into 2D visualisations, you're not just simplifying — you're hallucinating structure. The paper provides the mathematical toolkit for measuring exactly how much your projections lie.
 
-The numbers are sobering: 75.5% of apparent 2D neighbours are topologically aliased (they weren't neighbours in high-D), and ~40% of cluster assignments are incorrect due to projection artifacts. Worse, typical experiments sample less than 0.001% of the available state space, so even if your projection were perfect, you'd still be making claims about a vast unobserved territory.
+The numbers are sobering: 70-80% of apparent 2D neighbours are topologically aliased (they weren't neighbours in high-D). Worse, typical experiments sample less than 0.001% of the available state space, so even if your projection were perfect, you'd still be making claims about a vast unobserved territory.
 
-This isn't an argument against visualisation — it's an argument for honesty about its limits. When a paper shows a UMAP with clear clusters and claims "we identified distinct cell types," there's a mathematical ceiling on that confidence. Validated across 4 standard scRNA-seq datasets (n = 90,300 cells), the paper gives bioinformaticians concrete tools to report aliasing rates alongside their visualisations.`,
+This isn't an argument against visualisation — it's an argument for honesty about its limits. When a paper shows a UMAP with clear clusters and claims "we identified distinct cell types," there's a mathematical ceiling on that confidence. Validated across Lorenz, Rössler, Hénon attractors, Mackey-Glass time series, and scRNA-seq benchmarks, the paper gives researchers concrete tools to report aliasing rates alongside their visualisations.`,
     keyFindings: [
-      '75.5% of apparent 2D neighbours are wrong (topological aliasing)',
-      '~40% of cluster assignments are incorrect due to projection artifacts',
+      '70-80% of apparent 2D neighbours are wrong (topological aliasing)',
+      'Effect is universal across chaotic systems (Lorenz, Rössler, Hénon, Mackey-Glass)',
       '<0.001% of state space is actually sampled in typical experiments',
-      'Validated across 4 standard scRNA-seq datasets (n = 90,300 cells)',
+      'Validated in scRNA-seq with both t-SNE (70.5%) and UMAP (79.3%), error bars <0.2%',
     ],
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
