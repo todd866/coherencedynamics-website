@@ -186,7 +186,7 @@ Landauer's principle says erasing one bit costs at least $kT \\ln 2$ of energy. 
 
 The Dimensional Landauer Bound: $W = kT \\ln 2 \\times \\text{bits} + kT \\times \\text{geometric contraction cost}$. The second term depends on manifold curvature — how much you have to "bend" the dynamics to fit them into a lower-dimensional space.
 
-Why does this matter? Because coherence naturally reduces dimensionality. As oscillators synchronise, the projection cost drops — you're not fighting the dynamics anymore, you're riding them. This explains why brains use oscillatory coupling rather than independent firing: it's thermodynamically cheaper. Deep learning autoencoders show the same effect — training effort explodes when you try to compress below the data's intrinsic dimension.`,
+Why does this matter? Because coherence naturally reduces dimensionality. As oscillators synchronise, the projection cost drops — you're not fighting the dynamics anymore, you're riding them. This explains why brains use [oscillatory coupling](https://www.sciencedirect.com/science/article/pii/S2352154624000391) rather than independent firing: it's thermodynamically cheaper. Deep learning autoencoders show the same effect — training effort explodes when you try to compress below the data's intrinsic dimension.`,
     keyFindings: [
       'Dimensional Landauer Bound: work = kT ln2 × bits + kT × geometric contraction cost',
       'Control work scales with manifold curvature',
