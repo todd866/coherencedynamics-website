@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getAllBlogSlugs, getBlogPostBySlug } from '@/data/blog';
 import { getPaperBySlug } from '@/data/papers';
 import Markdown from '@/components/Markdown';
+import SoupVsSparks from '@/components/SoupVsSparks';
 
 export function generateStaticParams() {
   return getAllBlogSlugs().map((slug) => ({ slug }));
@@ -65,9 +66,32 @@ export default async function BlogPostPage({
         </header>
 
         <div className="prose prose-invert prose-lg max-w-none">
-          <Markdown className="text-gray-300 leading-relaxed blog-content">
-            {post.content}
-          </Markdown>
+          {post.content.includes('<!-- SIMULATION: soup-vs-sparks -->') ? (
+            <>
+              <Markdown className="text-gray-300 leading-relaxed blog-content">
+                {post.content.split('<!-- SIMULATION: soup-vs-sparks -->')[0]}
+              </Markdown>
+              <div className="my-8 not-prose">
+                <div className="border border-gray-800 rounded-lg p-4 bg-black/50">
+                  <SoupVsSparks />
+                  <p className="text-gray-500 text-xs mt-3 text-center">
+                    Left: Coupled oscillators synchronize spontaneously. Right: Independent switches show no coordination.
+                    <br />
+                    <Link href="/simulations/soup-vs-sparks" className="text-gray-400 hover:text-white">
+                      Open full simulation →
+                    </Link>
+                  </p>
+                </div>
+              </div>
+              <Markdown className="text-gray-300 leading-relaxed blog-content">
+                {post.content.split('<!-- SIMULATION: soup-vs-sparks -->')[1]}
+              </Markdown>
+            </>
+          ) : (
+            <Markdown className="text-gray-300 leading-relaxed blog-content">
+              {post.content}
+            </Markdown>
+          )}
         </div>
 
         {relatedPapers && relatedPapers.length > 0 && (
