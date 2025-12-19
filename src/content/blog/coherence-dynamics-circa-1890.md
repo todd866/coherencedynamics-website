@@ -23,6 +23,8 @@ He considers inhibition, learning, and various biological factors, but finds the
 
 I want to propose a simpler answer: **dimensionality**.
 
+> **What I mean by dimensionality:** Not the number of neurons, nor the size of the state space (a digital computer's microstate count is astronomically large). I mean *effective dimensionality*: the number of independent degrees of freedom the system can reliably occupy and be steered through on timescales relevant to behavior. A transistor array has billions of states but explores them along rigid, pre-programmed paths. An electrochemical system has fewer components but a vastly richer manifold of reachable dynamical regimes. The difference isn't size---it's *navigability*.
+
 ---
 
 ## The Wrong Metric: Speed vs. Dimensionality
@@ -31,11 +33,11 @@ If we view the brain as a digital computer, the evolutionary choice makes no sen
 
 **The Transistor (Digital/AI):** To simulate a high-dimensional vector space (like an LLM embedding) on silicon, we must force billions of low-dimensional switches (transistors) to perform matrix math. This is energetically expensive and computationally brittle. We are "faking" the manifold.
 
-**The Oscillator (Analog/Biology):** An electrochemical system involves coupled oscillators (neurons in a chemical bath). Physics dictates that these oscillators settle into phase-locked states or complex attractors *naturally*. The "computation" of the high-dimensional state is free---it is simply the system relaxing into its energy landscape.
+**The Oscillator (Analog/Biology):** An electrochemical system involves coupled oscillators (neurons in a chemical bath). Physics dictates that these oscillators settle into phase-locked states or complex attractors *naturally*. The high-dimensional dynamics are *native* to the substrate---the system explores its state space as a consequence of relaxing into its energy landscape, without needing to emulate it step-by-step.
 
 The central thesis: **Oscillators render high-dimensional dynamics more efficiently than transistors.**
 
-A chemical synapse isn't just a switch; it's a high-dimensional control surface. By modulating the "soup" (neurotransmitters, ion concentrations), nature created a substrate that allows low-dimensional signals (spikes) to *steer* a massive, continuous high-dimensional manifold.
+A chemical synapse isn't just a switch; it's a high-dimensional control surface. Consider the difference: an electrical synapse (gap junction) is characterized by a handful of parameters---coupling conductance, maybe some rectification. A chemical synapse exposes a *vector* of independently tunable knobs: transmitter identity and mixture, release probability, receptor subtype distribution, metabotropic cascades, local uptake and clearance, short-term plasticity, long-term plasticity, neuromodulator context, volume transmission, multiple time constants. Chemical synapses buy *controllability* and *context-dependent reconfiguration*---a larger reachable set of dynamical regimes---at the cost of speed. By modulating the "soup," nature created a substrate that allows low-dimensional signals (spikes) to *steer* a massive, continuous high-dimensional manifold.
 
 ---
 
@@ -55,7 +57,9 @@ This is the strongest historical ally for coherence dynamics. In *Matter and Mem
 
 **The 1890 View:** Bergson described the brain as creating a "modulated reconstructive wave" passing through a holographic field. He explicitly stated the brain's role is to *diminish* the field to a point of action, not to generate the field from scratch.
 
-**The 2025 Update:** This dynamic is topologically homologous to [EPR Steering](https://en.wikipedia.org/wiki/Einstein%E2%80%93Podolsky%E2%80%93Rosen_paradox#Steering) in quantum mechanics. In EPR Steering, measuring one particle in an entangled pair "steers" the state of the distant partner---a local action constrains a nonlocal state space. Bergson's brain does the same thing: the neural firing (Low-D) creates an interference pattern that reconstructs/selects a specific slice of the high-dimensional reality (High-D). The measurement doesn't *create* the state; it *selects* from a pre-existing manifold of possibilities. Bergson anticipated the "holographic principle" 50 years before Gabor discovered holography.
+**The 2025 Update:** Bergson's "selection-for-action" picture maps surprisingly well onto the logic of holographic encoding. (This is an analogy, not a claim about optics in cortex.) A hologram stores a higher-dimensional structure in a lower-dimensional medium via interference patterns; reconstruction requires steering coherent energy through that pattern. Bergson's brain does the same thing structurally: the neural firing (Low-D) selects a specific slice of the high-dimensional reality (High-D). The measurement doesn't *create* the state; it *selects* from a pre-existing manifold of possibilities.
+
+This selection dynamic is also topologically homologous to [EPR Steering](https://en.wikipedia.org/wiki/Einstein%E2%80%93Podolsky%E2%80%93Rosen_paradox#Steering) in quantum mechanics, where measuring one particle "steers" the state of its entangled partner---a local action constrains a nonlocal state space. (To be clear: I am *not* claiming quantum entanglement in brains. The analogy is structural, not physical.)
 
 A hologram is a dimensional encoding protocol: it collapses N+1 dimensions (a 3D volume) onto N dimensions (a 2D plate) via interference patterns, and then "reconstructs" the higher dimension by steering energy (light) through that pattern. If you treat the brain as a holographic medium rather than a digital switchboard, Block's "Meat vs. Silicon" debate dissolves entirely.
 
@@ -63,11 +67,11 @@ A hologram is a dimensional encoding protocol: it collapses N+1 dimensions (a 3D
 
 ## The Great Detour (1900--2000)
 
-Why did we forget this? Because of the **Neuron Doctrine**.
+One reason we lost sight of this: the **Neuron Doctrine** gave us tractable measurement and intervention.
 
-We became obsessed with the "Spark"---the discrete, countable neuron. It was easy to draw, easy to measure, and easy to model with binary logic.
+We became obsessed with the "Spark"---the discrete, countable neuron. It was easy to draw, easy to measure, and easy to model with binary logic. This was scientifically productive---we learned enormous amounts about synaptic transmission, circuits, and coding.
 
-We dismissed the "Soup" (the field dynamics, the coherence, the oscillation) as noise.
+But we also dismissed the "Soup" (the field dynamics, the coherence, the oscillation) as noise, or at best, epiphenomenal.
 
 We spent 100 years building "Spark Machines" (Computers) that are incredibly fast but topologically flat.
 
@@ -109,6 +113,18 @@ The test for consciousness should not be "is it meat?" nor "does it compute?", b
 This reframes Block's "meat condition" as a *dimensionality condition*. Biological substrates satisfy it because electrochemical dynamics naturally generate high-dimensional manifolds. Silicon *could* satisfy it---but only if we abandon the transistor paradigm and build neuromorphic systems that support genuine high-dimensional attractors, not just fast matrix multiplication.
 
 This approach validates the potential consciousness of simple electrochemical animals (they have the manifold) while setting a rigorous, quantifiable bar for future AI---moving the goalpost from software emulation to substrate topology.
+
+---
+
+## What Would Prove Me Wrong?
+
+If dimensionality is the right metric, we should see:
+
+- **Anesthesia/sedation:** Systematic reductions in effective dimensionality that correlate with loss of reportable consciousness, *even when* basic spiking activity continues. (Early evidence from complexity measures like PCI is consistent with this.)
+- **Neuromorphic systems:** Hardware that implements genuine high-dimensional attractor dynamics should behave qualitatively differently from fast digital emulations of the same dynamics---not just faster or more efficient, but exhibiting different failure modes and generalization properties.
+- **Electrical vs. chemical networks:** Purely gap-junction-coupled networks should show measurable limits in context-dependent reconfiguration compared to chemically modulatable ones, controlling for network size.
+
+If consciousness tracks effective dimensionality, these patterns should hold across species, brain states, and eventually, engineered systems.
 
 ---
 
