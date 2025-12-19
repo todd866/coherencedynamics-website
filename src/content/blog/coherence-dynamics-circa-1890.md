@@ -35,7 +35,7 @@ If we view the brain as a digital computer, the evolutionary choice makes no sen
 
 **The Oscillator (Analog/Biology):** An electrochemical system involves coupled oscillators (neurons in a chemical bath). Physics dictates that these oscillators settle into phase-locked states or complex attractors *naturally*. The high-dimensional dynamics are *native* to the substrate---the system explores its state space as a consequence of relaxing into its energy landscape, without needing to emulate it step-by-step.
 
-The central thesis: **Oscillators render high-dimensional dynamics more efficiently than transistors.**
+The central thesis: **Oscillators render high-dimensional dynamics more efficiently than transistors.** (See the [interactive simulation](/simulations/soup-vs-sparks) for a hands-on comparison.)
 
 A chemical synapse isn't just a switch; it's a high-dimensional control surface. Consider the difference: an electrical synapse (gap junction) is characterized by a handful of parameters---coupling conductance, maybe some rectification. A chemical synapse exposes a *vector* of independently tunable knobs: transmitter identity and mixture, release probability, receptor subtype distribution, metabotropic cascades, local uptake and clearance, short-term plasticity, long-term plasticity, neuromodulator context, volume transmission, multiple time constants. Chemical synapses buy *controllability* and *context-dependent reconfiguration*---a larger reachable set of dynamical regimes---at the cost of speed. By modulating the "soup," nature created a substrate that allows low-dimensional signals (spikes) to *steer* a massive, continuous high-dimensional manifold.
 

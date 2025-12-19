@@ -11,6 +11,14 @@ interface Simulation {
 
 const simulations: Simulation[] = [
   {
+    slug: 'soup-vs-sparks',
+    title: 'Soup vs Sparks',
+    description: "Coupled oscillators (left) spontaneously synchronize through physics. Independent switches (right) can only coordinate through explicit programming. This is why evolution chose the slow 'soup' over fast 'sparks'.",
+    paper: 'Coherence Dynamics Circa 1890',
+    paperSlug: 'blog/coherence-dynamics-circa-1890',
+    status: 'playable',
+  },
+  {
     slug: 'coupling-sync',
     title: 'Coupling Outpaces Measurement',
     description: "Watch two Kuramoto lattices synchronize via coupling faster than an observer can detect. The green line (coherence) rises before the orange line (observer confidence)—the gap is the 'blind spot' where sync has occurred but cannot be verified.",
