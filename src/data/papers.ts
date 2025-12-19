@@ -91,7 +91,7 @@ The same principle applies at every scale: bacteria tracking chemical gradients,
       'Collision-free computation: biology evolves reversibly until output',
       'Code formation emerges from dimensional mismatch between high-D thought and low-D communication',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'coherence-time',
@@ -116,7 +116,7 @@ Consciousness may depend more on these synchronised fields than on individual sp
       'Explains 1000-fold range of flicker fusion frequency across species',
       'Under stress, perception slows while reaction time stays constant (dual pathway prediction)',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'cortical-oscillations',
@@ -143,7 +143,7 @@ The practical implications are significant. Interventions that enhance slow-wave
       'Flexible thinking requires $\\geq 3$ dimensions; paradox tolerance is a signature of maturity',
       'Noise forces categorical collapse as information-theoretic necessity',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'nonergodic-development',
@@ -168,7 +168,7 @@ Cancer, in this view, is cellular bifurcation into an alternative stable state. 
       'Cancer as cellular bifurcation into alternative stable states',
       'Fractal coherence: same mechanism prevents cancer and enables social cooperation',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'dimensional-landauer',
@@ -193,7 +193,7 @@ Why does this matter? Because coherence naturally reduces dimensionality. As osc
       'Coherence reduces work: as oscillators synchronise, projection cost drops',
       'Deep learning autoencoders show effort explosion below intrinsic data dimension',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'projection-discontinuities',
@@ -217,7 +217,7 @@ This isn't an argument against visualisation — it's an argument for honesty ab
       '<0.001% of state space is actually sampled in typical experiments',
       'Validated in scRNA-seq with both t-SNE (70.5%) and UMAP (79.3%), error bars <0.2%',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'clinical-validity-bounds',
@@ -241,7 +241,7 @@ This explains why clinical AI that performs well in trials often fails in practi
       'MIMIC-IV validation across 425,216 admissions',
       'Proposes Dimensional Validity Audits for clinical AI governance',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and analysis code; GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and analysis code; GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'minimal-embedding',
@@ -266,7 +266,7 @@ The same constraint applies to neural network latent spaces: if you compress too
     ],
     github: 'todd866/minimalembeddingdimension',
     pdf: 'https://github.com/todd866/minimalembeddingdimension/blob/main/dimensional_collapse.pdf',
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'information-credit',
@@ -431,7 +431,7 @@ Numerical validation across three independent parameter sweeps produces data col
       'Data collapse validates scaling law ($R^2 = 0.97$, slope $= 0.83 \\pm 0.04$)',
       'Static costs set intercept; coupling complexity sets asymptotic slope',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 2.5 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 2.5 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'coupling-identification',
@@ -502,7 +502,7 @@ The implication is uncomfortable: we may already be approaching the ceiling of w
       'Three substrate classes with distinct capability ceilings',
       'Consciousness may require volumetric field coupling, not just graph connectivity',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.1 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
     github: 'todd866/substrate-dimensionality',
     pdf: 'https://github.com/todd866/substrate-dimensionality/blob/main/substrate_dimensionality.pdf',
   },
