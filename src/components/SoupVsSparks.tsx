@@ -189,7 +189,7 @@ export default function SoupVsSparks() {
       }
 
       // Add small noise to field
-      if (fieldCoupling > 0) {
+      if (fieldCoupling > 0 || crossCoupling > 0) {
         fieldRef.current = fieldRef.current.map(row =>
           row.map(val => Math.max(0, Math.min(1, val + (Math.random() - 0.5) * 0.02)))
         );
@@ -249,7 +249,8 @@ export default function SoupVsSparks() {
       ctx.fillStyle = '#888';
       ctx.font = '12px Arial';
       ctx.fillText('Coupled Oscillators', midX / 2, 25);
-      ctx.fillText(fieldCoupling > 0 ? 'Switches + Hidden Field' : 'Independent Switches', midX + midX / 2, 25);
+      const bLabel = crossCoupling > 0 ? 'Cross-Coupled Field' : (fieldCoupling > 0 ? 'Switches + Hidden Field' : 'Independent Switches');
+      ctx.fillText(bLabel, midX + midX / 2, 25);
 
       // Draw connections between oscillators
       ctx.strokeStyle = `rgba(100, 200, 255, ${0.15 * coupling})`;
@@ -330,18 +331,24 @@ export default function SoupVsSparks() {
           const x = gridStartX + col * cellSize;
           const y = gridStartY + row * cellSize;
 
-          // If field coupling is on, show field intensity as background
-          if (fieldCoupling > 0) {
+          // If field coupling or cross-coupling is on, show field intensity as background
+          const showField = fieldCoupling > 0 || crossCoupling > 0;
+          if (showField) {
             const fieldVal = fieldRef.current[row][col];
             const intensity = Math.floor(fieldVal * 60);
-            ctx.fillStyle = `rgb(${intensity}, ${intensity + 20}, ${intensity + 40})`;
+            // Purple tint if cross-coupled, blue if just field-coupled
+            if (crossCoupling > 0) {
+              ctx.fillStyle = `rgb(${intensity + 20}, ${intensity}, ${intensity + 40})`;
+            } else {
+              ctx.fillStyle = `rgb(${intensity}, ${intensity + 20}, ${intensity + 40})`;
+            }
             ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
           }
 
           ctx.fillStyle = grid[row][col] ? '#22c55e' : '#1a1a1a';
           ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
 
-          ctx.strokeStyle = fieldCoupling > 0 ? '#446' : '#333';
+          ctx.strokeStyle = showField ? (crossCoupling > 0 ? '#648' : '#446') : '#333';
           ctx.lineWidth = 1;
           ctx.strokeRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
 
