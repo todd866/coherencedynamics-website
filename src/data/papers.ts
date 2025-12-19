@@ -197,7 +197,7 @@ Why does this matter? Because coherence naturally reduces dimensionality. As osc
   },
   {
     slug: 'biological-shadows',
-    title: 'The Geometry of Biological Shadows: Quantifying Topological Aliasing in High-Dimensional Systems',
+    title: 'Projection-Induced Discontinuities in Nonlinear Dynamical Systems: Quantifying Topological Aliasing in High-Dimensional Data',
     journal: 'Chaos, Solitons & Fractals (submitted)',
     year: 2025,
     status: 'submitted',
