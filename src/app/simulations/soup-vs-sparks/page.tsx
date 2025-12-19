@@ -71,6 +71,17 @@ export default function SoupVsSparksPage() {
           rich control surface for navigating dynamical regimes.
         </p>
       </div>
+
+      <div className="mt-6 text-center">
+        <a
+          href="https://raw.githubusercontent.com/todd866/coherencedynamics-website/main/src/components/SoupVsSparks.tsx"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-gray-500 hover:text-gray-300 text-xs"
+        >
+          View source code (AI-parseable) →
+        </a>
+      </div>
     </div>
   );
 }
