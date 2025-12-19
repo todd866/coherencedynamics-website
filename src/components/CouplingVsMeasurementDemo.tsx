@@ -142,7 +142,9 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     const B = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
     const C = new KuramotoLattice(N, K, omegaSpread, noiseStd, dt);
 
-    if (paramsRef.current.similarStructure) {
+    // Only share omegas when COUPLED + similar structure
+    // When uncoupled, systems must have different omegas to prevent spurious sync
+    if (paramsRef.current.couplingEnabled && paramsRef.current.similarStructure) {
       B.copyOmegaFrom(A);
       C.copyOmegaFrom(A); // Same structure, isolates coupling as only variable
     }
@@ -213,7 +215,8 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
       // (distAC - distAB) is positive when B is closer; normalize to [0,1]
       const diff = (distAC - distAB) / (distAC + distAB + 0.01);
       const rawSignal = Math.max(0, Math.min(1, 0.5 + 0.5 * diff));
-      const integrationRate = 0.01 + (params.observerBandwidth / 16) * 0.04;
+      // Slower integration to make blind spot more visible
+      const integrationRate = 0.005 + (params.observerBandwidth / 16) * 0.02;
 
       engineRef.current.smoothedConf = (1 - integrationRate) * engineRef.current.smoothedConf + integrationRate * rawSignal;
       const observerConf = engineRef.current.smoothedConf;
@@ -383,6 +386,11 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
     setTimeout(handleReset, 0);
   };
 
+  const handleCouplingToggle = (val: boolean) => {
+    setCouplingEnabled(val);
+    setTimeout(handleReset, 0); // Reinit to get proper omegas
+  };
+
   return (
     <div className={`flex flex-col lg:flex-row gap-4 ${className}`}>
       <canvas ref={canvasRef} width={500} height={340} className="bg-gray-900 rounded-lg" />
@@ -399,11 +407,11 @@ export default function CouplingVsMeasurementDemo({ className = '' }: Props) {
         </div>
 
         <div className="flex gap-2">
-          <button onClick={() => setCouplingEnabled(true)}
+          <button onClick={() => handleCouplingToggle(true)}
             className={`flex-1 px-3 py-2 rounded text-sm ${couplingEnabled ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
             Coupled
           </button>
-          <button onClick={() => setCouplingEnabled(false)}
+          <button onClick={() => handleCouplingToggle(false)}
             className={`flex-1 px-3 py-2 rounded text-sm ${!couplingEnabled ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400'}`}>
             Uncoupled
           </button>
