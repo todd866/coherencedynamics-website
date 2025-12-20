@@ -306,31 +306,64 @@ These results suggest that the "entropic" effects of psychedelics may be confine
   },
 
   'code-formation': {
-    abstract: `Biological codes function as dimensional valves, not information channels—they constrain what responding systems can do, rather than transmitting data about the environment. Using coupled Kuramoto oscillators and gene regulatory networks, we demonstrate a signature of this constraint mechanism: **complexity collapse**. When a high-dimensional system couples to another through a bandwidth-limited interface, the responding system's effective dimensionality decreases systematically with interface bandwidth—while tracking error remains bounded. Crucially, this collapse requires *structured* projections; random projections produce the opposite effect (whitening). The paper generalizes across system types (N=64 to N=1024 oscillators; gene regulatory networks) and complexity metrics (spectral entropy, PCA participation ratio, gradient energy), confirming the constraint mechanism is not an artifact of the model or measurement basis.`,
+    abstract: `A recurring problem spans biophysics, systems biology, and neuroscience: high-dimensional systems (protein ensembles, gene networks, neural populations) are characterized through low-dimensional descriptions (order parameters, principal components, expression markers), yet the relationship between interface and underlying dynamics remains poorly understood. When is dimensional reduction faithful compression versus systematic distortion? Why do some low-dimensional codes work while others fail?
+
+This review proposes a unifying interpretation: low-dimensional interfaces between coupled systems function as **stabilizing constraints** rather than information channels. We synthesize evidence from dynamical systems theory, statistical mechanics, and information theory to argue that the recurring interpretive problems arise from a common source—the assumption that dimensional reduction preserves information rather than imposing constraints.
+
+Using coupled oscillator simulations as a minimal physical exemplar, we demonstrate a characteristic signature of constraint: bandwidth-limited coupling induces systematic complexity collapse in responding systems while maintaining bounded tracking. Critically, this requires structured projections that capture coherent collective variables; random projections of the same dimensionality produce the opposite effect (whitening, not collapse). The same signature appears in gene regulatory network dynamics, confirming generality beyond oscillatory systems.`,
 
     sections: [
       {
-        title: '1. Introduction',
-        content: `Biological systems operate in high-dimensional state spaces while maintaining persistent, viable organization over time. This persistence is remarkable: high-dimensional systems cannot exhaustively explore their state space in finite time, yet organisms remain within viable regions across generations.
+        title: '1. A Common Problem Across Fields',
+        content: `Across biophysics, systems biology, and neuroscience, a recurring tension appears: the systems we study operate in high-dimensional state spaces, yet we characterize them through low-dimensional descriptions. This dimensional mismatch generates systematic interpretive problems that recur across domains.
 
-We propose that low-dimensional codes function as *stabilizing constraints* rather than predictive representations. DNA doesn't tell cells "the temperature is 37°C"—it restricts cellular behavior to temperature-compatible trajectories. Neural population codes don't represent task variables—they constrain downstream processing.
+**In protein biophysics**, conformational ensembles explore thousands of degrees of freedom, yet function is characterized by a handful of order parameters. Reaction coordinates that appear to govern folding kinetics may hide multiple parallel pathways. Parameter estimation is generically "sloppy"—many parameter combinations produce indistinguishable low-dimensional outputs.
 
-Formally, a code is an *interface variable*: a projection $C_k = \\mathcal{P}_k(X)$ that is causally efficacious for the responding system while being information-lossy about the driving system's microstate. The key insight is that this information loss is not a bug but a feature: it enables constraint without requiring reconstruction.`
+**In single-cell genomics**, RNA sequencing reveals that cell states occupy low-dimensional manifolds embedded in ~20,000-dimensional gene expression space. Yet dimensionality reduction techniques can create spurious clusters, collapse distinct states, and distort neighborhood relationships.
+
+**In developmental biology**, tissues coordinate through field-like gradients—morphogen concentrations, bioelectric potentials, mechanical stresses. These fields may possess rich, high-dimensional dynamics at molecular and ionic scales, yet individual cells respond through bandwidth-limited interfaces (ion channels, receptors).
+
+**In neuroscience**, neural populations fire in high-dimensional pattern spaces, yet must coordinate across distant brain regions through apparent low-dimensional codes. Order parameters that appear to govern dynamics may be shadows of higher-dimensional processes.
+
+These problems share a common structure: high-dimensional systems coupled through low-dimensional interfaces, where the relationship between interface and underlying dynamics is poorly understood.`
       },
       {
-        title: '2. Model',
-        content: `We consider two coupled high-dimensional dynamical systems: a driving system $A$ and a responding system $B$. Each consists of a one-dimensional lattice of $N$ locally coupled phase oscillators.
+        title: '2. This Review: Codes as Constraints',
+        content: `This review proposes a unifying interpretation of these phenomena, rather than a new biological mechanism. We synthesize insights from dynamical systems theory, statistical mechanics, and information theory to argue that the recurring problems above arise from a common source: the assumption that dimensional reduction preserves information rather than imposing constraints.
+
+The core reframing is that low-dimensional interfaces between coupled systems function as *stabilizing constraints* rather than information channels.
+
+Consider any biological interface: a cell membrane transducing environmental signals, a morphogenetic gradient coordinating tissue development, a neural code coupling sensory input to motor output. In each case, a high-dimensional "driving" system couples to a high-dimensional "responding" system through a low-dimensional bottleneck.
+
+The standard information-theoretic framing asks how much information about the driving system's state is preserved or lost. We propose a different question: how does the bottleneck *shape the dynamics* of the responding system?
+
+Using a minimal model of coupled oscillator lattices, we demonstrate that bandwidth-limited coupling produces a distinctive signature:
+1. **Complexity collapse**: The responding system's effective dimensionality decreases systematically with code bandwidth
+2. **Bounded tracking**: Alignment between systems remains stable despite information loss
+3. **Structure dependence**: The effect requires projections onto coherent collective variables; random projections fail`
+      },
+      {
+        title: '3. Biophysical Contexts',
+        content: `**Protein Conformational Ensembles:** Proteins exist as dynamic ensembles exploring rugged energy landscapes. The full conformational state space has thousands of dimensions, yet function is often characterized by a handful of order parameters. Our framework suggests a reinterpretation: rather than asking whether order parameters *represent* the ensemble, we ask whether they *constrain* accessible trajectories.
+
+**Single-Cell State Manifolds:** Single-cell RNA sequencing reveals that cell states occupy low-dimensional manifolds. Yet recent critiques highlight systematic artifacts. The constraint perspective offers a different question: which expression programs *constrain* cell fate transitions? A gene regulatory motif that restricts accessible trajectories functions differently from one that merely correlates with cell state.
+
+**Morphogenetic Fields:** Developmental biology increasingly recognizes that tissues coordinate through field-like gradients. The key insight is not that bioelectric fields are simple, but that cellular responses are constrained to low-dimensional projections of field dynamics.
+
+**Neural Population Codes:** Low-frequency oscillations can coordinate activity across spatially distributed populations, while high-frequency activity carries precise local information but couples only locally. The "bandwidth" of inter-regional coupling is set by oscillatory frequency, not by the intrinsic complexity of local circuits.`
+      },
+      {
+        title: '4. A Minimal Physical Exemplar',
+        content: `To make the constraint interpretation concrete, we demonstrate its signature in a minimal model: two coupled lattices of phase oscillators where interaction is restricted to a bandwidth-limited projection. This is not intended as a model of any specific biological system, but as a *didactic exemplar*.
 
 **Driving System Dynamics (Kuramoto model):**
 $$\\dot{\\theta}^A_i = \\omega_i + K \\sum_{j \\in \\mathcal{N}(i)} \\sin(\\theta^A_j - \\theta^A_i) + \\eta^A_i(t)$$
 
 **Low-Dimensional Constraint (Fourier truncation):**
-$$C_m = \\frac{1}{N} \\sum_{i=1}^{N} z^A_i e^{-i 2\\pi m i / N}, \\quad m = 0, \\ldots, k$$
+$$C_m = \\frac{1}{N} \\sum_{i=1}^{N} e^{i\\theta^A_i} e^{-i 2\\pi m i / N}, \\quad m = 0, \\ldots, k$$
 
 The bandwidth-limited reconstruction:
 $$\\hat{\\theta}^A_i = \\arg\\left(\\sum_{m=0}^{k} C_m e^{i 2\\pi m i / N}\\right)$$
-
-We define bandwidth $k$ as the maximum retained mode index (including DC), so the code contains $k+1$ complex coefficients.
 
 **Responding System Dynamics:**
 $$\\dot{\\theta}^B_i = \\omega_i + K \\sum_{j \\in \\mathcal{N}(i)} \\sin(\\theta^B_j - \\theta^B_i) + \\lambda \\sin(\\hat{\\theta}^A_i - \\theta^B_i) + \\eta^B_i(t)$$
@@ -338,70 +371,57 @@ $$\\dot{\\theta}^B_i = \\omega_i + K \\sum_{j \\in \\mathcal{N}(i)} \\sin(\\thet
 System $B$ has no access to the full state of system $A$, only to the reconstructed field $\\hat{\\theta}^A$.`
       },
       {
-        title: '3. Results: Complexity Collapse',
-        content: `As code bandwidth $k$ decreases, the effective dimensionality of system $B$ decreases systematically, while system $A$'s complexity remains approximately constant.
+        title: '5. Results: The Constraint Signature',
+        content: `As code bandwidth $k$ decreases, the effective dimensionality of system $B$ decreases systematically ($N_{\\text{eff}} = 16.7 \\to 10.9$), while system $A$'s complexity remains constant ($N_{\\text{eff}} \\approx 17.0$).
 
-| Bandwidth $k$ | $N_{\\text{eff}}(A)$ | $N_{\\text{eff}}(B)$ | Mismatch $\\Delta$ |
-|---------------|---------------------|---------------------|-------------------|
-| 1             | 17.0 ± 0.5          | 11.8 ± 1.3          | 0.43              |
-| 8             | 16.7 ± 0.4          | 11.6 ± 0.6          | 0.26              |
-| 32            | 17.5 ± 0.4          | 13.9 ± 0.5          | 0.27              |
+**The bottleneck constrains only the responding system; the driving system's dynamics are unaffected by how it is observed.** This asymmetry is the hallmark of constraint rather than mutual information loss.
 
-**The bottleneck constrains only the responding system; the driving system's dynamics are unaffected by how it is observed.**
+Mismatch between systems increases only modestly as bandwidth decreases ($\\Delta = 0.38 \\to 0.50$), a ~32% change compared to ~35% reduction in $N_{\\text{eff}}(B)$. If the code merely lost information, we would expect commensurate tracking failure. Instead, $B$ tracks *the code* faithfully—it aligns with $A$'s coarse-grained representation.
 
-Mismatch between systems increases modestly as code bandwidth decreases. This modest variation ($\\sim$20%) contrasts with the dramatic complexity collapse in $N_{\\text{eff}}(B)$.`
-      },
-      {
-        title: '4. Control: Mode Structure Matters',
-        content: `To test whether complexity collapse depends on Fourier structure specifically or merely on projection dimensionality, we repeated the experiment using random $k$-mode projections.
-
-**Results differ strikingly:**
-- $N_{\\text{eff}}(B)$ remains high ($\\approx 15$–$17$) across all $k$, showing no complexity collapse
-- Mismatch is substantially higher ($\\Delta \\approx 0.47$–$0.62$) than with low-frequency coupling
+**Random projections fail:** Results differ strikingly when using random $k$-mode projections:
+- $N_{\\text{eff}}(B)$ remains high (~15–17), showing no complexity collapse
 - At low $k$, random projections produce *higher* complexity in $B$ than in $A$
 
-This "whitening" effect occurs because sparse random projections destroy local spatial correlations in the driving signal, effectively acting as a noise source rather than a constraint. The system loses coherent structure to track.
-
-This demonstrates that the constraining effect is not about dimensionality per se, but about the *structure* of the projection. Low-frequency Fourier modes capture spatially coherent patterns. Random modes mix high-frequency noise with low-frequency signal, preventing $B$ from locking onto $A$'s coherent structure.`
+This "whitening" effect occurs because sparse random projections destroy local spatial correlations, effectively acting as a noise source rather than a constraint. The constraining effect is not about dimensionality per se, but about *structure*.`
       },
       {
-        title: '5. Generality: Gene Regulatory Networks',
-        content: `To verify the constraint signature is not specific to phase oscillators, we implemented a gene regulatory network (GRN) model with fundamentally different dynamics.
+        title: '6. Generality: Gene Regulatory Networks',
+        content: `To verify the constraint signature is not specific to phase oscillators, we implemented a gene regulatory network (GRN) model with Hill-function activation:
 
-**GRN Dynamics:**
-$$\\frac{dx_i}{dt} = -\\frac{x_i}{\\tau} + \\sigma\\left(\\sum_j W_{ij} x_j\\right) + \\lambda(\\hat{x}^A_i - x^B_i) + \\eta_i(t)$$
+$$\\dot{x}_i = -\\frac{x_i}{\\tau} + \\sigma\\left(\\sum_j W_{ij} x_j\\right) + \\eta_i(t)$$
 
-where $\\sigma(\\cdot)$ is a sigmoid activation (Hill function analog), $W$ is a sparse random connectivity matrix, and $\\hat{x}^A$ is the DCT-reconstructed driving signal.
+where $\\sigma(\\cdot)$ is a sigmoid activation function, $W$ is a sparse random connectivity matrix, and $\\tau$ is the decay timescale.
 
 **Results ($N = 256$ genes):**
 - $N_{\\text{eff}}(A)$ remains constant at $\\approx 193$
 - $N_{\\text{eff}}(B)$ collapses from $192$ at $k = 1$ to $121$ at $k = 32$ (37% reduction)
 - Mismatch increases modestly (0.22 to 0.37) as bandwidth decreases
 
-The same qualitative signature—complexity collapse with bounded tracking—emerges in a fundamentally different dynamical system.`
+The same qualitative signature—complexity collapse with bounded tracking—emerges in a fundamentally different dynamical system. The constraint mechanism is not specific to Kuramoto dynamics.
+
+**Alternative complexity metrics** (PCA participation ratio, spatial gradient energy, Kuramoto order parameter) all show the same pattern, confirming that complexity collapse is a genuine dynamical phenomenon, not an artifact of the measurement basis.`
       },
       {
-        title: '6. Alternative Complexity Metrics',
-        content: `A reviewer might argue that measuring complexity via spectral entropy is tautological since the code is Fourier-based. We replicated the analysis using three independent metrics:
+        title: '7. Implications for Practice',
+        content: `The constraint interpretation suggests practical changes to how researchers approach low-dimensional descriptions:
 
-1. **PCA participation ratio** (covariance eigenvalue-based, not Fourier)
-2. **Spatial gradient energy** (phase smoothness measure)
-3. **Kuramoto order parameter** (global synchrony)
+**Choosing reaction coordinates in molecular dynamics:** The standard criterion is that a good reaction coordinate captures the slowest relaxation timescale. The constraint perspective suggests an additional criterion: does the coordinate *restrict accessible conformational dynamics* in the bound or functional state? The signature would be complexity collapse in conformational fluctuations when the coordinate is held fixed.
 
-All three metrics show the same qualitative pattern: System $B$'s complexity decreases with code bandwidth while System $A$ remains constant. This confirms that complexity collapse is a genuine dynamical phenomenon, not an artifact of the measurement basis.`
+**Interpreting single-cell manifolds:** When UMAP or diffusion maps reveal low-dimensional structure, the standard interpretation is underlying regulatory simplicity. The constraint perspective suggests an alternative: low-dimensional structure may reflect bandwidth limitations of inter-cellular coupling. Testing this would involve comparing manifold dimensionality in tissues with different coupling architectures.
+
+**Designing interfaces between models:** Multi-scale modeling often couples coarse and fine scales through ad hoc "handshaking" variables. The constraint framework suggests a principled criterion: the interface should select coherent collective variables that induce complexity collapse in the fine-scale system without unbounded tracking error.
+
+**Distinguishing constraint from information:** Mutual information measures how much an observer can learn about one system from another. But a thermostat and a thermometer have the same mutual information with temperature—only one constrains it. When evaluating biological codes, ask: does reducing bandwidth produce complexity collapse (constraint) or tracking failure (information loss)?`
       },
       {
-        title: '7. Conclusion',
-        content: `We have shown that low-dimensional codes can function as dimensional constraints between coupled high-dimensional systems. When a responding system couples to a driving system through a bandwidth-limited code:
+        title: '8. Conclusion',
+        content: `This review has argued that the recurring interpretive problems surrounding dimensional mismatch in biology—sloppiness in protein modeling, artifacts in single-cell manifolds, shadows in neural codes—arise from a common source: the assumption that dimensional reduction preserves information rather than imposing constraints.
 
-1. **Complexity collapse:** The responding system's effective dimensionality decreases systematically
-2. **Bounded tracking:** Alignment is maintained despite information loss
-3. **Structure dependence:** Coherent projections constrain; random projections fail (whitening)
-4. **Generality:** Same signature in Kuramoto oscillators (N=64–1024) and gene regulatory networks
+We proposed a unifying interpretation: low-dimensional interfaces between coupled high-dimensional systems function as stabilizing constraints rather than information channels. The signature of effective constraint is complexity collapse with bounded tracking. Critically, this requires structured projections onto coherent collective variables; random projections fail.
 
-These results suggest a mechanism by which biological coding structures—genetic regulatory motifs, developmental programs, homeostatic setpoints—might restrict accessible state space and thereby enable persistent organization.
+The framework offers practical guidance across fields: criteria for choosing reaction coordinates, for interpreting manifold structure, for designing multi-scale interfaces, and for distinguishing constraint from information. The key question is not "how much information does the code preserve?" but "does the code constrain downstream dynamics onto viable trajectories?"
 
-**The key reframing:** Biological codes function as dimensional valves, not information channels. A thermostat and a thermometer have the same mutual information with temperature, but only one constrains it.`
+**The deeper insight:** Biological codes are not optimized for information transmission at all. They are dimensional valves that enable persistent organization by constraining what responding systems can do. Constraint and representation are distinct functions, and conflating them has systematically misled our understanding of biological organization.`
       }
     ]
   },

@@ -328,24 +328,22 @@ This resolves an apparent contradiction: the Entropic Brain hypothesis is correc
     status: 'in_prep',
     simulation: 'code-collapse',
     image: 'code-formation.png',
-    description: `**Biological codes function as dimensional valves, not information channels** — they constrain what responding systems can do, rather than transmitting data about the environment.
+    description: `**A recurring problem spans biophysics, systems biology, and neuroscience:** high-dimensional systems (protein ensembles, gene networks, neural populations) are characterized through low-dimensional descriptions (order parameters, principal components, expression markers) — yet the relationship between interface and underlying dynamics remains poorly understood. When is dimensional reduction faithful compression versus systematic distortion? Why do some low-dimensional codes work while others fail?
 
-DNA doesn't tell cells "the temperature is 37°C" — it restricts cellular behavior to temperature-compatible trajectories. Neural population codes don't represent task variables — they constrain downstream processing. Morphogenetic gradients don't transmit spatial coordinates — they enforce positional identity by restricting developmental paths.
+This review proposes a unifying interpretation: **low-dimensional interfaces function as stabilizing constraints rather than information channels.** The recurring interpretive problems — sloppiness in protein modeling, artifacts in single-cell manifolds, shadows in neural codes — arise from a common source: the assumption that dimensional reduction preserves information rather than imposing constraints.
 
-Using coupled Kuramoto oscillators and gene regulatory networks, we demonstrate a signature of this constraint mechanism: **complexity collapse**. When a high-dimensional system (e.g., cellular dynamics) couples to another (e.g., tissue environment) through a bandwidth-limited interface, the responding system's effective dimensionality decreases systematically with interface bandwidth — while tracking error remains bounded.
+Using coupled oscillator simulations as a minimal physical exemplar, we demonstrate a characteristic signature: bandwidth-limited coupling induces systematic **complexity collapse** in responding systems while maintaining bounded tracking. Critically, this requires structured projections that capture coherent collective variables; random projections produce the opposite effect (whitening, not collapse). The same signature appears in gene regulatory network dynamics, confirming generality.
 
-Crucially, this collapse requires *structured* projections. Random projections of the same dimensionality produce the opposite effect: complexity *increases* (whitening). Biology isn't just compressing information — it's selecting specific coherent modes that enable constraint.
+The review offers practical criteria for researchers: how to choose reaction coordinates, interpret manifold structure, design multi-scale interfaces, and distinguish constraint from information. The framework suggests that biological codes function primarily as dimensional valves enabling persistent organization, rather than as channels optimized for information transmission.`,
+    whyItMatters: `This reframes "biological information" from Shannon's transmission paradigm to a constraint paradigm. The key question shifts from "how much information does the code preserve?" to "does the code constrain downstream dynamics onto viable trajectories?"
 
-The paper generalizes across system types (N=64 to N=1024 oscillators; gene regulatory networks with Hill-function activation) and complexity metrics (spectral entropy, PCA participation ratio, gradient energy, Kuramoto order parameter), confirming the constraint mechanism is not an artifact of the model or measurement basis.`,
-    whyItMatters: `This reframes "biological information" from Shannon's transmission paradigm to a constraint paradigm. Codes don't need to transmit enough bits to reconstruct the environment — they need to constrain dynamics onto viable trajectories.
-
-The distinction matters practically: measuring how much information a code "carries" (mutual information) may systematically mislead if the code's function is constraint rather than representation. A thermostat and a thermometer have the same mutual information with temperature, but only one constrains it.`,
+The distinction matters practically: a thermostat and a thermometer have the same mutual information with temperature, but only one constrains it. Measuring mutual information may systematically mislead if a code's function is constraint rather than representation.`,
     keyFindings: [
       'Complexity collapse: responding system dimensionality decreases with code bandwidth',
       'Bounded tracking: alignment maintained despite information loss',
       'Structure dependence: coherent projections constrain; random projections fail (whitening)',
       'Generality: same signature in Kuramoto oscillators (N=64-1024) and gene regulatory networks',
-      'Multiple metrics confirm effect is not measurement-basis artifact',
+      'Practical criteria for choosing reaction coordinates, interpreting manifolds, and designing interfaces',
     ],
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; GPT-5.2 (OpenAI) and Gemini 2.5 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
   },
