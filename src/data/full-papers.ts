@@ -305,7 +305,7 @@ These results suggest that the "entropic" effects of psychedelics may be confine
     ]
   },
 
-  'code-formation': {
+  'code-constraint': {
     abstract: `A recurring problem spans biophysics, systems biology, and neuroscience: high-dimensional systems (protein ensembles, gene networks, neural populations) are characterized through low-dimensional descriptions (order parameters, principal components, expression markers), yet the relationship between interface and underlying dynamics remains poorly understood. When is dimensional reduction faithful compression versus systematic distortion? Why do some low-dimensional codes work while others fail?
 
 This review proposes a unifying interpretation: low-dimensional interfaces between coupled systems function as **stabilizing constraints** rather than information channels. We synthesize evidence from dynamical systems theory, statistical mechanics, and information theory to argue that the recurring interpretive problems arise from a common source—the assumption that dimensional reduction preserves information rather than imposing constraints.

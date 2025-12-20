@@ -39,7 +39,7 @@ const simulations: Simulation[] = [
     title: 'Code Constraint',
     description: "Two coupled oscillator lattices communicating through a bandwidth bottleneck. Toggle between Fourier (structured) and random projection to see why structure matters: Fourier causes N_eff collapse, random causes whitening. This is the core insight of the code-constraint problem.",
     paper: 'The Code-Constraint Problem in Biological Systems',
-    paperSlug: 'code-formation',
+    paperSlug: 'code-constraint',
     status: 'playable',
   },
   {

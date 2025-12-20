@@ -321,13 +321,13 @@ This resolves an apparent contradiction: the Entropic Brain hypothesis is correc
 
   // === IN PREPARATION ===
   {
-    slug: 'code-formation',
+    slug: 'code-constraint',
     title: 'The Code-Constraint Problem in Biological Systems: How Low-Dimensional Interfaces Shape High-Dimensional Dynamics',
     journal: 'Progress in Biophysics & Molecular Biology (ready to submit)',
     year: 2025,
     status: 'in_prep',
     simulation: 'code-collapse',
-    image: 'code-formation.png',
+    image: 'code-constraint.png',
     description: `**A recurring problem spans biophysics, systems biology, and neuroscience:** high-dimensional systems (protein ensembles, gene networks, neural populations) are characterized through low-dimensional descriptions (order parameters, principal components, expression markers) — yet the relationship between interface and underlying dynamics remains poorly understood. When is dimensional reduction faithful compression versus systematic distortion? Why do some low-dimensional codes work while others fail?
 
 This review proposes a unifying interpretation: **low-dimensional interfaces function as stabilizing constraints rather than information channels.** The recurring interpretive problems — sloppiness in protein modeling, artifacts in single-cell manifolds, shadows in neural codes — arise from a common source: the assumption that dimensional reduction preserves information rather than imposing constraints.

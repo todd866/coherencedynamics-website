@@ -12,7 +12,7 @@ export function generateStaticParams() {
     'clinical-validity-bounds',
     'minimal-embedding',
     'lsd-dimensionality',
-    'code-formation',
+    'code-constraint',
     'coherence-time',
     'cortical-oscillations',
     'nonergodic-development',

@@ -160,12 +160,12 @@ export default function Home() {
             </p>
           </Link>
 
-          <Link href="/papers/code-formation" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
+          <Link href="/papers/code-constraint" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-xs font-medium px-2 py-1 bg-yellow-900 text-yellow-300 rounded">
-                Under Review
+                Ready to Submit
               </span>
-              <span className="text-sm text-gray-500">J Theoretical Biology</span>
+              <span className="text-sm text-gray-500">Prog Biophys Mol Biol</span>
             </div>
             <h3 className="text-lg font-semibold mb-2 text-white">
               Low-Dimensional Codes Constrain High-D Dynamics

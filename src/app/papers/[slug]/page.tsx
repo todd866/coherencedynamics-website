@@ -155,7 +155,7 @@ export default async function PaperPage({
         </section>
       )}
 
-      {/* Inline simulation for code-formation */}
+      {/* Inline simulation for code-constraint */}
       {paper.simulation === 'code-collapse' && (
         <section className="mb-8 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
           <h3 className="text-lg font-semibold mb-3 text-white">Interactive: Fourier Bandwidth Bottleneck</h3>

@@ -16,13 +16,13 @@ export default function CodeCollapsePage() {
       {/* Links to paper resources */}
       <div className="flex flex-wrap gap-3 mb-6 text-sm">
         <Link
-          href="/papers/code-formation"
+          href="/papers/code-constraint"
           className="px-3 py-1.5 border border-gray-700 rounded-lg text-gray-300 hover:text-white hover:border-gray-500 transition-colors"
         >
           Paper Overview
         </Link>
         <Link
-          href="/papers/code-formation/full"
+          href="/papers/code-constraint/full"
           className="px-3 py-1.5 border border-gray-700 rounded-lg text-gray-300 hover:text-white hover:border-gray-500 transition-colors"
         >
           Full HTML Version
