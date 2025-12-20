@@ -38,7 +38,7 @@ That's the empirical correction. Now for the speculative extension.
 
 ## The Cyborg Hypothesis
 
-Here's where it gets interesting. Intertidal shellfish can be gathered with bare hands or simple stones, but expanding into offshore niches---pelagic fish, marine mammals, distant islands---pressures the development of boats, nets, hooks, harpoons, fish traps. Direct archaeological traces of early watercraft rarely preserve, but we infer seafaring capability from island colonization (humans reached Sahul by ~65,000 years ago, requiring open-water crossings).
+Here's where it gets interesting. Intertidal shellfish can be gathered with bare hands or simple stones, but expanding into offshore niches---pelagic fish, marine mammals, distant islands---pressures the development of boats, nets, hooks, harpoons, fish traps. Direct archaeological traces of early watercraft rarely preserve, but we infer seafaring capability from island colonization. Humans reached Sahul by ~65,000 years ago, requiring open-water crossings. More strikingly, [stone tools on Sulawesi date to at least 1 million years ago](https://doi.org/10.1038/s41586-025-08645-6)---meaning *Homo erectus* was crossing ocean barriers long before *sapiens* even existed. If our ancestors were seafaring a million years ago, who knows what they were capable of by 160,000 years ago.
 
 This creates a feedback loop:
 
