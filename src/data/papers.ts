@@ -71,7 +71,7 @@ This isn't a trick or an approximation. It's a fundamentally different computati
   {
     slug: 'high-dimensional-coherence',
     title: 'High-Dimensional Coherence in Biological Systems',
-    journal: 'BioSystems (R1 revision)',
+    journal: 'BioSystems (R2 minor revision)',
     year: 2025,
     status: 'submitted',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4978594',
