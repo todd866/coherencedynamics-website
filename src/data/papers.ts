@@ -198,7 +198,7 @@ Why does this matter? Because coherence naturally reduces dimensionality. As osc
   {
     slug: 'projection-discontinuities',
     title: 'Projection-Induced Discontinuities in Nonlinear Dynamical Systems: Quantifying Topological Aliasing in High-Dimensional Data',
-    journal: 'Chaos, Solitons & Fractals (submitted)',
+    journal: 'Physica D (transferred from CSF)',
     year: 2025,
     status: 'submitted',
     github: 'todd866/projection-discontinuities',
