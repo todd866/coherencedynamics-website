@@ -323,9 +323,9 @@ This resolves an apparent contradiction: the Entropic Brain hypothesis is correc
   {
     slug: 'code-formation',
     title: 'Low-Dimensional Codes Constrain High-Dimensional Biological Dynamics',
-    journal: 'Journal of Theoretical Biology (submitted)',
+    journal: 'Progress in Biophysics & Molecular Biology (target)',
     year: 2025,
-    status: 'submitted',
+    status: 'in_prep',
     github: 'todd866/code-formation-jtb',
     pdf: 'https://github.com/todd866/code-formation-jtb/blob/main/code_formation_jtb.pdf',
     simulation: 'code-collapse',
