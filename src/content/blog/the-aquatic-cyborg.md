@@ -103,6 +103,8 @@ There's also a taphonomic bias to consider: during glacial periods, sea levels w
 
 ![Sea level over the past 24,000 years. Current levels are near the maximum of the entire post-glacial period.](/images/sea-level-pleistocene.png)
 
+![800,000 years of sea level data. We are currently at a global maximum—the highest point in the entire record.](/images/blog/graph_twitter_sealevels.png)
+
 The archaeological record *should* be sparse for exactly the environments where the Aquatic Cyborg hypothesis predicts the most action. Absence of evidence isn't evidence of absence---it's what we'd expect if the interesting stuff happened at the water's edge, and the water's edge has since moved kilometers inland.
 
 There's another factor: **megafauna**. For most of the Pleistocene, inland environments were dominated by large, dangerous predators. Coastal peoples had little reason to venture into that terrain---the resources were poorer and the risks were higher. But between 50,000 and 12,000 years ago, megafauna went extinct across most continents. Suddenly, inland expansion became viable. Complex coastal societies---which may have existed for hundreds of thousands of years---finally moved into environments where their sites would be preserved and discovered.
