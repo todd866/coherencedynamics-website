@@ -322,31 +322,32 @@ This resolves an apparent contradiction: the Entropic Brain hypothesis is correc
   // === IN PREPARATION ===
   {
     slug: 'code-formation',
-    title: 'Low-Dimensional Codes Constrain High-Dimensional Biological Dynamics',
-    journal: 'Progress in Biophysics & Molecular Biology (target)',
+    title: 'The Code-Constraint Problem in Biological Systems: How Low-Dimensional Interfaces Shape High-Dimensional Dynamics',
+    journal: 'Progress in Biophysics & Molecular Biology (ready to submit)',
     year: 2025,
     status: 'in_prep',
-    github: 'todd866/code-formation-jtb',
-    pdf: 'https://github.com/todd866/code-formation-jtb/blob/main/code_formation_jtb.pdf',
     simulation: 'code-collapse',
-    description: `**Biological systems exhibit persistent organization despite operating in high-dimensional, noisy, and finite-time dynamical regimes.** While order parameters and attractor dynamics explain pattern formation within single systems, they do not account for how biological organization is stabilized through low-dimensional interfaces such as genetic, regulatory, or homeostatic codes.
+    image: 'code-formation.png',
+    description: `**Biological codes function as dimensional valves, not information channels** — they constrain what responding systems can do, rather than transmitting data about the environment.
 
-We propose a minimal dynamical mechanism by which low-dimensional codes emerge as stabilizing constraints between coupled high-dimensional systems. We model two locally coupled phase fields — an environment and a responding system — where interaction is restricted to a low-dimensional projection of the environmental state.
+DNA doesn't tell cells "the temperature is 37°C" — it restricts cellular behavior to temperature-compatible trajectories. Neural population codes don't represent task variables — they constrain downstream processing. Morphogenetic gradients don't transmit spatial coordinates — they enforce positional identity by restricting developmental paths.
 
-Using a Fourier bottleneck to control code bandwidth, we show that reducing coupling dimensionality induces a systematic collapse in the responding system's behavioral complexity while preserving bounded tracking of the driving system. Crucially, this collapse requires *structured* projections that capture coherent macroscopic degrees of freedom; random k-mode projections of the same dimensionality fail to constrain complexity.
+Using coupled Kuramoto oscillators and gene regulatory networks, we demonstrate a signature of this constraint mechanism: **complexity collapse**. When a high-dimensional system (e.g., cellular dynamics) couples to another (e.g., tissue environment) through a bandwidth-limited interface, the responding system's effective dimensionality decreases systematically with interface bandwidth — while tracking error remains bounded.
 
-Parameter sweeps suggest a trade-off between stability and behavioral richness: intermediate code dimensionality maintains bounded tracking under noise, while excessive compression produces rigid, low-complexity behavior.`,
-    whyItMatters: `This provides a dynamical explanation for the ubiquity of low-dimensional coding structures in biology — DNA, neural codes, hormonal signals — as *constraint-forming devices* that preserve viability in high-dimensional systems, rather than as predictive representations.
+Crucially, this collapse requires *structured* projections. Random projections of the same dimensionality produce the opposite effect: complexity *increases* (whitening). Biology isn't just compressing information — it's selecting specific coherent modes that enable constraint.
 
-The code constrains dynamics without enabling prediction or reconstruction of the full environmental microstate. This is fundamentally different from how we typically think about biological "information" — it's not about transmitting data, it's about enforcing coherence.`,
+The paper generalizes across system types (N=64 to N=1024 oscillators; gene regulatory networks with Hill-function activation) and complexity metrics (spectral entropy, PCA participation ratio, gradient energy, Kuramoto order parameter), confirming the constraint mechanism is not an artifact of the model or measurement basis.`,
+    whyItMatters: `This reframes "biological information" from Shannon's transmission paradigm to a constraint paradigm. Codes don't need to transmit enough bits to reconstruct the environment — they need to constrain dynamics onto viable trajectories.
+
+The distinction matters practically: measuring how much information a code "carries" (mutual information) may systematically mislead if the code's function is constraint rather than representation. A thermostat and a thermometer have the same mutual information with temperature, but only one constrains it.`,
     keyFindings: [
-      'Low-dimensional codes emerge as stabilizing constraints between coupled high-D systems',
-      'Fourier bandwidth bottleneck induces systematic complexity collapse in responding system',
-      'Structured projections (low-frequency Fourier modes) constrain; random projections fail',
-      'Trade-off between stability and behavioral richness at intermediate code dimensionality',
-      'Codes constrain dynamics without enabling prediction of full environmental microstate',
+      'Complexity collapse: responding system dimensionality decreases with code bandwidth',
+      'Bounded tracking: alignment maintained despite information loss',
+      'Structure dependence: coherent projections constrain; random projections fail (whitening)',
+      'Generality: same signature in Kuramoto oscillators (N=64-1024) and gene regulatory networks',
+      'Multiple metrics confirm effect is not measurement-basis artifact',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Author reviewed all content and takes full responsibility.',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; GPT-5.2 (OpenAI) and Gemini 2.5 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'embryo-oscillators',
