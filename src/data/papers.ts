@@ -326,6 +326,8 @@ This resolves an apparent contradiction: the Entropic Brain hypothesis is correc
     journal: 'Progress in Biophysics & Molecular Biology (ready to submit)',
     year: 2025,
     status: 'in_prep',
+    github: 'todd866/code-constraint',
+    pdf: 'https://github.com/todd866/code-constraint/blob/main/code_formation.pdf',
     simulation: 'code-collapse',
     image: 'code-constraint.png',
     description: `**A recurring problem spans biophysics, systems biology, and neuroscience:** high-dimensional systems (protein ensembles, gene networks, neural populations) are characterized through low-dimensional descriptions (order parameters, principal components, expression markers) — yet the relationship between interface and underlying dynamics remains poorly understood. When is dimensional reduction faithful compression versus systematic distortion? Why do some low-dimensional codes work while others fail?
