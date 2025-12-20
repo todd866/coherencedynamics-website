@@ -24,7 +24,7 @@ A [2022 paper by Singh and Glowacki](https://doi.org/10.1016/j.evolhumbehav.2022
 
 ## The Evidence: Barnacles, Middens, and Deep-Sea Fish
 
-At Pinnacle Point Cave 13B in South Africa (~164,000 years ago), people weren't just dabbling at the shoreline: marine foods show up systematically, and even a fragment of a whale barnacle---an organism that lives attached to whales---suggests that whale tissue entered the human food chain. The conservative reading is scavenging a stranded whale, but even that implies planning, transport, and social coordination around a rare, massive resource pulse.
+At Pinnacle Point Cave 13B in South Africa (~164,000 years ago), people weren't just dabbling at the shoreline: marine foods show up systematically, and even a fragment of a whale barnacle---an organism that lives attached to whales---suggests that whale tissue entered the human food chain. The conservative reading is scavenging a stranded whale, but even that implies planning, transport, and social coordination around a rare, massive resource pulse. (You don't make use of a whale carcass at scale without a plan and a rope.)
 
 Pinnacle Point is unusually early; later, similar patterns become widespread. By 130,000 years ago, shell middens (accumulated piles of shellfish remains) appear across multiple African coastlines. These aren't the traces of opportunistic beachcombers. They're the signatures of *sedentary* populations systematically exploiting marine resources.
 
@@ -99,7 +99,9 @@ But maybe the revolution wasn't in the brain. Maybe it was in the *extended syst
 
 If maritime technology had been accumulating for 100,000+ years, gradually expanding the accessible state space, then the "revolution" might simply be the point where the system crossed a threshold---where the accumulated dimensional expansion became archaeologically visible as "complexity."
 
-The brain didn't suddenly become capable of art. The brain + tools + social structure + ecological niche finally reached a configuration where art became *selectable*.
+There's also a taphonomic bias to consider: coastal sites are systematically destroyed by rising sea levels. The archaeological record *should* be sparse for exactly the environments where the Aquatic Cyborg hypothesis predicts the most action. Absence of evidence isn't evidence of absence---it's what we'd expect if the interesting stuff happened at the water's edge.
+
+The brain didn't suddenly become capable of art. The **coupled system**---brain + boat + tribe---finally reached a configuration where art became *selectable*.
 
 ---
 
@@ -129,4 +131,4 @@ If maritime technology was incidental to human evolution, we shouldn't see these
 
 ---
 
-*This post draws on Singh and Glowacki's ["Human social organization during the Late Pleistocene"](https://doi.org/10.1016/j.evolhumbehav.2022.07.003) in Evolution and Human Behavior (2022). The connection to dimensionality is developed in my papers on [High-Dimensional Coherence](/papers/high-dimensional-coherence) and [Substrate Dimensionality](/papers/substrate-dimensionality).*
+*This post draws on Singh and Glowacki's ["Human social organization during the Late Pleistocene"](https://doi.org/10.1016/j.evolhumbehav.2022.07.003) in Evolution and Human Behavior (2022). For a broader argument against the "nomadic-egalitarian" baseline, see Graeber and Wengrow's [The Dawn of Everything](https://en.wikipedia.org/wiki/The_Dawn_of_Everything) (2021). The connection to dimensionality is developed in my papers on [High-Dimensional Coherence](/papers/high-dimensional-coherence) and [Substrate Dimensionality](/papers/substrate-dimensionality).*
