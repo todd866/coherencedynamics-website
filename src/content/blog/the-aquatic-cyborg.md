@@ -99,7 +99,7 @@ But maybe the revolution wasn't in the brain. Maybe it was in the *extended syst
 
 If maritime technology had been accumulating for 100,000+ years, gradually expanding the accessible state space, then the "revolution" might simply be the point where the system crossed a threshold---where the accumulated dimensional expansion became archaeologically visible as "complexity."
 
-There's also a taphonomic bias to consider: coastal sites are systematically destroyed by rising sea levels. The archaeological record *should* be sparse for exactly the environments where the Aquatic Cyborg hypothesis predicts the most action. Absence of evidence isn't evidence of absence---it's what we'd expect if the interesting stuff happened at the water's edge.
+There's also a taphonomic bias to consider: during glacial periods, [sea levels were 100-130 meters *lower* than today](https://en.wikipedia.org/wiki/Past_sea_level#/media/File:Sea_level_during_the_last_130,000_years.png). Any coastal settlement from the Late Pleistocene would now be far out on the continental shelf, underwater. The archaeological record *should* be sparse for exactly the environments where the Aquatic Cyborg hypothesis predicts the most action. Absence of evidence isn't evidence of absence---it's what we'd expect if the interesting stuff happened at the water's edge, and the water's edge has since moved kilometers inland.
 
 The brain didn't suddenly become capable of art. The **coupled system**---brain + boat + tribe---finally reached a configuration where art became *selectable*.
 
