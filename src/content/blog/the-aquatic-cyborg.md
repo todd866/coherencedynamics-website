@@ -18,25 +18,27 @@ The standard textbook story of human social evolution goes something like this: 
 
 It's a clean narrative. It's also probably wrong.
 
-A [2022 paper by Singh and Glowacki](https://doi.org/10.1016/j.evolhumbehav.2022.07.003) in *Evolution and Human Behavior* systematically dismantles this "nomadic-egalitarian model" using comparative ethnography and a growing archaeological record. Their conclusion: **social complexity didn't require agriculture. It required predictable resources.** And the most predictable resources in the Late Pleistocene weren't on land---they were in the water.
+A [2022 paper by Singh and Glowacki](https://doi.org/10.1016/j.evolhumbehav.2022.07.003) in *Evolution and Human Behavior* makes a strong case against this "nomadic-egalitarian model" using comparative ethnography and a growing archaeological record. Their conclusion: **social complexity didn't require agriculture. It required predictable resources.** And the most predictable resources in the Late Pleistocene weren't on land---they were in the water.
 
 ---
 
 ## The Evidence: Barnacles, Middens, and Deep-Sea Fish
 
-Consider what archaeologists have found at Pinnacle Point, South Africa, dated to around 160,000 years ago: whale barnacles. These are parasites that only attach to living whales. Their presence at a coastal site means early humans were processing whale carcasses---and possibly hunting them, or at least towing them. You don't get a whale to the beach without a plan and a rope.
+At Pinnacle Point Cave 13B in South Africa (~164,000 years ago), people weren't just dabbling at the shoreline: marine foods show up systematically, and even a fragment of a whale barnacle---an organism that lives attached to whales---suggests that whale tissue entered the human food chain. The conservative reading is scavenging a stranded whale, but even that implies planning, transport, and social coordination around a rare, massive resource pulse.
 
-By 130,000 years ago, shell middens (accumulated piles of shellfish remains) appear across multiple African coastlines. These aren't the traces of opportunistic beachcombers. They're the signatures of *sedentary* populations systematically exploiting marine resources.
+Pinnacle Point is unusually early; later, similar patterns become widespread. By 130,000 years ago, shell middens (accumulated piles of shellfish remains) appear across multiple African coastlines. These aren't the traces of opportunistic beachcombers. They're the signatures of *sedentary* populations systematically exploiting marine resources.
 
 The pattern repeats globally. Wherever we find "dense, rich, and predictable" aquatic resources---salmon runs in the Pacific Northwest, maritime environments in Tierra del Fuego, coastal shell beds---we find low-mobility foragers with complex social organization: food storage, wealth inequality, hereditary leadership, and elaborate ritual.
 
 Singh and Glowacki call this the "diverse histories model." The Late Pleistocene wasn't a uniform sea of wandering egalitarians. It was a mosaic---with some groups living the classic nomadic lifestyle, and others already building proto-complex societies around coastal and riverine resource bases.
 
+That's the empirical correction. Now for the speculative extension.
+
 ---
 
 ## The Cyborg Hypothesis
 
-Here's where it gets interesting. Exploiting marine resources requires *technology*: boats, nets, hooks, harpoons, fish traps. You can't wade out to harvest pelagic fish or process a whale carcass with your bare hands.
+Here's where it gets interesting. Intertidal shellfish can be gathered without tools, but expanding into offshore niches---pelagic fish, marine mammals, distant islands---pressures the development of boats, nets, hooks, harpoons, fish traps. Direct archaeological traces of early watercraft rarely preserve, but we infer seafaring capability from island colonization (humans reached Sahul by ~65,000 years ago, requiring open-water crossings).
 
 This creates a feedback loop:
 
@@ -49,7 +51,7 @@ But this isn't just a chicken-and-egg story about tools. It's a claim about *wha
 
 **The Aquatic Cyborg Hypothesis:** Early *Homo sapiens* didn't just *use* maritime technology; we *co-evolved* with it. The boat wasn't a tool we invented after becoming cognitively modern. The boat---and the maritime adaptation it enabled---may have been part of what *made* us cognitively modern.
 
-Think of the boat as an **exosomatic organelle**: an extension of the body that isn't genetically encoded, but is just as essential to the organism's phenotype as any organ. The relationship isn't organism → tool. It's organism + tool = functional unit. (This is why current "tool-use" AI benchmarks miss the point: they test the tool, not the coupling.)
+Think of the boat as an **exosomatic organelle**: an extension of the body that isn't genetically encoded, but is just as essential to the organism's phenotype as any organ. The relationship isn't organism → tool. It's organism + tool = functional unit.
 
 ---
 
@@ -69,7 +71,7 @@ Suddenly, the accessible state space *expands dramatically*. New resources (pela
 
 The technology doesn't just *add* options. It *transforms the topology* of the organism's behavioral manifold.
 
-Consider the difference between **terrestrial steering** and **marine steering**. On land, you steer against *friction*---gravity, terrain, static obstacles. At sea, you steer against *flow*---currents, wind, waves. Steering against flow requires a higher-dimensional internal model. You must predict vectors, not just positions. You must anticipate how the environment will move, not just where it is.
+Consider the difference between **terrestrial steering** and **marine steering**. On land, you steer against *friction*---gravity, terrain, static obstacles. At sea, you steer against *flow*---currents, wind, waves. Steering against flow requires a higher-dimensional internal model. You must predict vectors, not just positions. You must anticipate how the environment will move, not just where it is. (If you aim a boat at a point, current and wind will drift you off course; you must model a moving field, not a static path.)
 
 The boat didn't just expand *where* our ancestors could go. It forced a cognitive upgrade in *how* they modeled the world---from static obstacle-avoidance to dynamic flow-prediction. New dimensions of freedom, new dimensions of cognition.
 
@@ -105,9 +107,9 @@ The brain didn't suddenly become capable of art. The brain + tools + social stru
 
 This reframes the political implications of human evolution.
 
-If the "natural" human state were egalitarian nomadism, then hierarchy is a deviation---an imposition, a fall from grace. Many political philosophies (left and right) implicitly rely on this assumption.
+If the "natural" human state were egalitarian nomadism, then hierarchy is a deviation---an imposition, a fall from grace. A lot of popular discourse about "human nature" implicitly relies on this assumption.
 
-But if Singh and Glowacki are right, there was never a single "natural" state. Our ancestors were diverse. Some were mobile and egalitarian. Some were sedentary and hierarchical. The difference wasn't cognitive or moral---it was *ecological*.
+But if Singh and Glowacki are right, there was never a single "natural" state. Our ancestors were diverse. Some were mobile and egalitarian. Some were sedentary and hierarchical. The difference wasn't cognitive or moral---it was *ecological*. And the pattern wasn't unique to coastlines: any "dense, rich, and predictable" resource base---salmon runs, nut groves, oases---could support similar trajectories.
 
 Hierarchy isn't a corruption of human nature. Egalitarianism isn't our default. Both are solutions to different environmental and technological configurations.
 
