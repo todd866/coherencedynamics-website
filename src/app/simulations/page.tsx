@@ -36,9 +36,9 @@ const simulations: Simulation[] = [
   },
   {
     slug: 'code-collapse',
-    title: 'Code Formation',
-    description: "Two coupled dynamical systems communicating through a bandwidth-limited code. System A drives System B through a Fourier bottleneck—drag the slider to reduce bandwidth and watch B's complexity collapse while A stays complex.",
-    paper: 'Low-Dimensional Codes Constrain High-D Dynamics',
+    title: 'Code Constraint',
+    description: "Two coupled oscillator lattices communicating through a bandwidth bottleneck. Toggle between Fourier (structured) and random projection to see why structure matters: Fourier causes N_eff collapse, random causes whitening. This is the core insight of the code-constraint problem.",
+    paper: 'The Code-Constraint Problem in Biological Systems',
     paperSlug: 'code-formation',
     status: 'playable',
   },

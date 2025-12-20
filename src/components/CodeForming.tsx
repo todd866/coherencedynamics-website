@@ -2,22 +2,24 @@
 
 /**
  * =============================================================================
- * CodeForming - Two-System Code Formation Visualization
+ * CodeConstraint - Two-System Code Constraint Visualization
  * =============================================================================
  *
- * Based on the paper "Code formation in bandwidth-limited communication"
+ * Based on the paper "The Code-Constraint Problem in Biological Systems"
  *
  * VISUAL DESIGN:
  * - TOP: System A as a complex wave (high-frequency + low-frequency components)
  * - MIDDLE: The CODE - truncated Fourier representation (only k modes)
  * - BOTTOM: System B tracking through code (wave smooths out at low k)
  * - SLIDER: Bandwidth k
+ * - TOGGLE: Fourier (structured) vs Random (unstructured) projection
  *
  * THE KEY INSIGHT:
  * As bandwidth k decreases:
- * - System A keeps all its complexity (jagged wave)
- * - System B's wave becomes smoother (only sees low-frequency modes)
+ * - System A keeps all its complexity (high N_eff)
+ * - System B's N_eff collapses (only sees low-frequency modes)
  * - B tracks A but with "blurred vision"
+ * - Random projections cause WHITENING (N_eff increases), not collapse
  *
  * =============================================================================
  */
@@ -35,6 +37,8 @@ const NOISE_B = 0.02;      // Lower noise in B
 const TRACK_STRENGTH = 1.2; // How strongly B tracks code(A)
 
 const SCALE = 2;
+
+type ProjectionMode = 'fourier' | 'random';
 
 interface CodeFormingProps {
   fullPage?: boolean;
@@ -119,6 +123,84 @@ function reconstructFromCode(code: Float64Array): Float64Array {
     for (let m = 0; m < k; m++) {
       const angle = (2 * Math.PI * m * i) / N;
       val += code[m * 2] * Math.cos(angle) - code[m * 2 + 1] * Math.sin(angle);
+    }
+    reconstructed[i] = val;
+  }
+
+  return reconstructed;
+}
+
+// =============================================================================
+// RANDOM PROJECTION (UNSTRUCTURED)
+// =============================================================================
+
+// Seeded PRNG for reproducible random projections
+function createSeededRandom(seed: number) {
+  let s = seed;
+  return () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
+}
+
+// Generate a fixed random projection matrix (cached)
+let randomProjectionMatrix: Float64Array[] | null = null;
+let randomProjectionK = 0;
+
+function getRandomProjectionMatrix(k: number): Float64Array[] {
+  if (randomProjectionMatrix && randomProjectionK === k) {
+    return randomProjectionMatrix;
+  }
+
+  const rand = createSeededRandom(12345); // Fixed seed for reproducibility
+  const matrix: Float64Array[] = [];
+
+  for (let m = 0; m < k; m++) {
+    const row = new Float64Array(N);
+    // Random unit vector
+    let norm = 0;
+    for (let i = 0; i < N; i++) {
+      row[i] = rand() * 2 - 1;
+      norm += row[i] * row[i];
+    }
+    norm = Math.sqrt(norm);
+    for (let i = 0; i < N; i++) {
+      row[i] /= norm;
+    }
+    matrix.push(row);
+  }
+
+  randomProjectionMatrix = matrix;
+  randomProjectionK = k;
+  return matrix;
+}
+
+function computeRandomCode(theta: Float64Array, bandwidth: number): Float64Array {
+  const k = Math.max(1, Math.min(Math.floor(N / 2), bandwidth));
+  const code = new Float64Array(k);
+  const matrix = getRandomProjectionMatrix(k);
+
+  for (let m = 0; m < k; m++) {
+    let val = 0;
+    for (let i = 0; i < N; i++) {
+      val += Math.sin(theta[i]) * matrix[m][i];
+    }
+    code[m] = val;
+  }
+
+  return code;
+}
+
+function reconstructFromRandomCode(code: Float64Array): Float64Array {
+  const k = code.length;
+  const reconstructed = new Float64Array(N);
+  const matrix = getRandomProjectionMatrix(k);
+
+  // Pseudo-inverse reconstruction (transpose for orthogonal-ish matrix)
+  for (let i = 0; i < N; i++) {
+    let val = 0;
+    for (let m = 0; m < k; m++) {
+      val += code[m] * matrix[m][i];
     }
     reconstructed[i] = val;
   }
@@ -215,6 +297,7 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
   const maxBandwidth = Math.floor(N / 2);
   const defaultBandwidth = Math.floor(N / 4); // Start with visible constraint
   const [bandwidth, setBandwidth] = useState(defaultBandwidth);
+  const [projectionMode, setProjectionMode] = useState<ProjectionMode>('fourier');
   const systemA = useRef<KuramotoState>(initKuramoto(42));
   const systemB = useRef<KuramotoState>(initKuramoto(137));
 
@@ -342,9 +425,10 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
+    mode: ProjectionMode
   ) => {
-    const k = code.length / 2;
+    const k = mode === 'fourier' ? code.length / 2 : code.length;
     const barWidth = (width - 20 * SCALE) / maxBandwidth;
 
     // Background
@@ -354,10 +438,13 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     ctx.fill();
 
     // Label
-    ctx.fillStyle = '#888';
+    ctx.fillStyle = mode === 'fourier' ? '#888' : '#f97316';
     ctx.font = `bold ${9 * SCALE}px system-ui`;
     ctx.textAlign = 'center';
-    ctx.fillText(`CODE: ${bandwidth} Fourier modes`, x + width / 2, y + 14 * SCALE);
+    const codeLabel = mode === 'fourier'
+      ? `CODE: ${bandwidth} Fourier modes`
+      : `CODE: ${bandwidth} random projections`;
+    ctx.fillText(codeLabel, x + width / 2, y + 14 * SCALE);
 
     // Draw frequency bars
     const barAreaY = y + 22 * SCALE;
@@ -404,9 +491,15 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     ctx.fillStyle = '#444';
     ctx.font = `${7 * SCALE}px system-ui`;
     ctx.textAlign = 'left';
-    ctx.fillText('low freq', x + 10 * SCALE, y + height - 3 * SCALE);
-    ctx.textAlign = 'right';
-    ctx.fillText('high freq', x + width - 10 * SCALE, y + height - 3 * SCALE);
+    if (mode === 'fourier') {
+      ctx.fillText('low freq', x + 10 * SCALE, y + height - 3 * SCALE);
+      ctx.textAlign = 'right';
+      ctx.fillText('high freq', x + width - 10 * SCALE, y + height - 3 * SCALE);
+    } else {
+      ctx.fillText('dim 1', x + 10 * SCALE, y + height - 3 * SCALE);
+      ctx.textAlign = 'right';
+      ctx.fillText(`dim ${bandwidth}`, x + width - 10 * SCALE, y + height - 3 * SCALE);
+    }
   }, [maxBandwidth]);
 
   // ---------------------------------------------------------------------------
@@ -432,8 +525,17 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
 
       stepKuramoto(systemA.current, dt, NOISE_A);
 
-      const code = computeFourierCode(systemA.current.theta, bandwidth);
-      const codeTarget = reconstructFromCode(code);
+      // Compute code based on projection mode
+      let code: Float64Array;
+      let codeTarget: Float64Array;
+
+      if (projectionMode === 'fourier') {
+        code = computeFourierCode(systemA.current.theta, bandwidth);
+        codeTarget = reconstructFromCode(code);
+      } else {
+        code = computeRandomCode(systemA.current.theta, bandwidth);
+        codeTarget = reconstructFromRandomCode(code);
+      }
 
       stepSystemB(systemB.current, codeTarget, dt, NOISE_B);
 
@@ -464,7 +566,13 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       ctx.fillStyle = '#3b82f6';
       ctx.font = `bold ${16 * SCALE}px system-ui`;
       ctx.textAlign = 'left';
-      ctx.fillText('CODE FORMATION', 20 * SCALE, 28 * SCALE);
+      ctx.fillText('CODE CONSTRAINT', 20 * SCALE, 28 * SCALE);
+
+      // Projection mode indicator
+      ctx.fillStyle = projectionMode === 'fourier' ? '#22c55e' : '#f97316';
+      ctx.font = `${10 * SCALE}px system-ui`;
+      const modeText = projectionMode === 'fourier' ? 'Fourier (structured)' : 'Random (unstructured)';
+      ctx.fillText(modeText, 165 * SCALE, 28 * SCALE);
 
       ctx.fillStyle = '#666';
       ctx.font = `${11 * SCALE}px system-ui`;
@@ -494,11 +602,11 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
 
       // System A wave
       drawWave(ctx, waveA, padding, contentTop, waveWidth, waveHeight,
-        '#3b82f6', 'SYSTEM A (Driving)', metricsRef.current.complexityA, 'Complexity');
+        '#3b82f6', 'SYSTEM A (Driving)', metricsRef.current.neffA, 'N_eff');
 
       // Code spectrum
       const specY = contentTop + waveHeight + gap;
-      drawSpectrumBar(ctx, code, bandwidth, padding, specY, waveWidth, spectrumHeight);
+      drawSpectrumBar(ctx, code, bandwidth, padding, specY, waveWidth, spectrumHeight, projectionMode);
 
       // Arrow indicating information flow
       const arrowX = padding + waveWidth / 2;
@@ -521,7 +629,7 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
       // System B wave (reconstructed from code)
       const bWaveY = specY + spectrumHeight + gap;
       drawWave(ctx, waveB, padding, bWaveY, waveWidth, waveHeight,
-        '#22c55e', 'SYSTEM B (Responding)', metricsRef.current.complexityB, 'Complexity');
+        '#22c55e', 'SYSTEM B (Responding)', metricsRef.current.neffB, 'N_eff');
 
       // Arrow from spectrum to B
       const arrowY3 = specY + spectrumHeight + 3 * SCALE;
@@ -546,17 +654,30 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
 
       const textY = bWaveY + waveHeight + 15 * SCALE;
 
-      const insight = bandwidth >= maxBandwidth - 2
-        ? 'Full bandwidth: B perfectly tracks A\'s complex dynamics'
-        : bandwidth > maxBandwidth / 2
-        ? 'High bandwidth: B captures most of A\'s structure'
-        : bandwidth > 4
-        ? 'Medium bandwidth: B loses fine details, keeps overall pattern'
-        : bandwidth > 2
-        ? 'Low bandwidth: B only sees slow oscillations'
-        : 'Minimal bandwidth: B collapses to single mode';
+      let insight: string;
+      if (projectionMode === 'fourier') {
+        insight = bandwidth >= maxBandwidth - 2
+          ? 'Full bandwidth: B perfectly tracks A\'s complex dynamics'
+          : bandwidth > maxBandwidth / 2
+          ? 'High bandwidth: B captures most of A\'s structure'
+          : bandwidth > 4
+          ? 'Medium bandwidth: B loses fine details, keeps overall pattern'
+          : bandwidth > 2
+          ? 'Low bandwidth: B\'s N_eff collapses—only sees slow modes'
+          : 'Minimal bandwidth: B collapses to single mode';
+      } else {
+        insight = bandwidth >= maxBandwidth - 2
+          ? 'Random projection: B whitens—high N_eff, no structure'
+          : bandwidth > maxBandwidth / 2
+          ? 'Random projection: B stays complex but uncorrelated with A'
+          : bandwidth > 4
+          ? 'Random projection: N_eff stays high (unlike Fourier!)'
+          : bandwidth > 2
+          ? 'Random projection: whitening, not collapse'
+          : 'Random projection: even 1D preserves variance, not structure';
+      }
 
-      ctx.fillStyle = '#888';
+      ctx.fillStyle = projectionMode === 'fourier' ? '#888' : '#f97316';
       ctx.font = `${10 * SCALE}px system-ui`;
       ctx.textAlign = 'center';
       ctx.fillText(insight, W / 2, textY);
@@ -642,16 +763,19 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
         ctx.fillStyle = '#666';
         ctx.font = `${9 * SCALE}px system-ui`;
         ctx.textAlign = 'center';
-        ctx.fillText('COMPLEXITY COMPARISON', W / 2, barY - 10 * SCALE);
+        ctx.fillText('N_eff COMPARISON (effective dimensionality)', W / 2, barY - 10 * SCALE);
 
-        // A bar
+        // A bar - N_eff ranges from 1 to ~maxBandwidth
+        const neffA = metricsRef.current.neffA;
+        const neffB = metricsRef.current.neffB;
+
         ctx.fillStyle = '#1a3a5c';
         ctx.beginPath();
         ctx.roundRect(barX, barY, barW, barH, 4 * SCALE);
         ctx.fill();
 
         ctx.fillStyle = '#3b82f6';
-        const aW = Math.min(1, complexityA / 2) * barW;
+        const aW = Math.min(1, neffA / maxBandwidth) * barW;
         ctx.beginPath();
         ctx.roundRect(barX, barY, aW, barH, 4 * SCALE);
         ctx.fill();
@@ -659,7 +783,7 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
         ctx.fillStyle = '#fff';
         ctx.font = `${9 * SCALE}px system-ui`;
         ctx.textAlign = 'right';
-        ctx.fillText('A:', barX - 8 * SCALE, barY + 12 * SCALE);
+        ctx.fillText(`A: ${neffA.toFixed(1)}`, barX - 8 * SCALE, barY + 12 * SCALE);
 
         // B bar
         const barY2 = barY + barH + 6 * SCALE;
@@ -669,14 +793,14 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
         ctx.fill();
 
         ctx.fillStyle = '#22c55e';
-        const bW = Math.min(1, complexityB / 2) * barW;
+        const bW = Math.min(1, neffB / maxBandwidth) * barW;
         ctx.beginPath();
         ctx.roundRect(barX, barY2, bW, barH, 4 * SCALE);
         ctx.fill();
 
         ctx.fillStyle = '#fff';
         ctx.textAlign = 'right';
-        ctx.fillText('B:', barX - 8 * SCALE, barY2 + 12 * SCALE);
+        ctx.fillText(`B: ${neffB.toFixed(1)}`, barX - 8 * SCALE, barY2 + 12 * SCALE);
       }
 
       animationRef.current = requestAnimationFrame(loop);
@@ -686,7 +810,7 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [bandwidth, W, H, fullPage, drawWave, drawSpectrumBar, maxBandwidth]);
+  }, [bandwidth, W, H, fullPage, drawWave, drawSpectrumBar, maxBandwidth, projectionMode]);
 
   // ---------------------------------------------------------------------------
   // INPUT HANDLING
@@ -751,25 +875,43 @@ export default function CodeForming({ fullPage = false }: CodeFormingProps) {
     dragState.current.activeControl = null;
   }, []);
 
+  const toggleProjectionMode = useCallback(() => {
+    setProjectionMode(m => m === 'fourier' ? 'random' : 'fourier');
+  }, []);
+
   return (
-    <canvas
-      ref={canvasRef}
-      width={W}
-      height={H}
-      style={{
-        width: '100%',
-        maxWidth: BASE_W,
-        aspectRatio: `${W} / ${H}`,
-        touchAction: 'none',
-      }}
-      className="rounded-xl cursor-pointer bg-black shadow-2xl"
-      onMouseDown={handleStart}
-      onMouseMove={handleMove}
-      onMouseUp={handleEnd}
-      onMouseLeave={handleEnd}
-      onTouchStart={handleStart}
-      onTouchMove={handleMove}
-      onTouchEnd={handleEnd}
-    />
+    <div className="flex flex-col gap-3">
+      <canvas
+        ref={canvasRef}
+        width={W}
+        height={H}
+        style={{
+          width: '100%',
+          maxWidth: BASE_W,
+          aspectRatio: `${W} / ${H}`,
+          touchAction: 'none',
+        }}
+        className="rounded-xl cursor-pointer bg-black shadow-2xl"
+        onMouseDown={handleStart}
+        onMouseMove={handleMove}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchStart={handleStart}
+        onTouchMove={handleMove}
+        onTouchEnd={handleEnd}
+      />
+      <div className="flex justify-center gap-2">
+        <button
+          onClick={toggleProjectionMode}
+          className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+            projectionMode === 'fourier'
+              ? 'bg-green-900 text-green-300 hover:bg-green-800'
+              : 'bg-orange-900 text-orange-300 hover:bg-orange-800'
+          }`}
+        >
+          {projectionMode === 'fourier' ? '→ Switch to Random Projection' : '→ Switch to Fourier (Structured)'}
+        </button>
+      </div>
+    </div>
   );
 }
