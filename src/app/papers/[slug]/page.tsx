@@ -109,7 +109,7 @@ export default async function PaperPage({
               href={`/papers/${slug}/full`}
               className="text-cyan-400 hover:text-cyan-300"
             >
-              Full Paper (HTML) &rarr;
+              Paper Summary (HTML) &rarr;
             </Link>
           )}
         </div>
