@@ -74,7 +74,6 @@ This isn't a trick or an approximation. It's a fundamentally different computati
     journal: 'BioSystems (R2 minor revision)',
     year: 2025,
     status: 'submitted',
-    ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4978594',
     github: 'todd866/intelligence-biosystems',
     pdf: 'https://github.com/todd866/intelligence-biosystems/blob/main/intelligence.pdf',
     image: 'high-dimensional-coherence.png',
