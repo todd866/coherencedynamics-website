@@ -104,8 +104,8 @@ export default function Home() {
         <Link href="/papers" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
           <h2 className="text-lg font-semibold mb-3 text-white">Research Papers</h2>
           <p className="text-gray-400 mb-4">
-            18 papers spanning biological physics, information theory, and computational limits.
-            2 published, 9 under review.
+            Research spanning biological physics, information theory, and computational limits.
+            2 published, 6 under review.
           </p>
           <span className="text-sm font-medium text-gray-300">
             View all papers &rarr;
