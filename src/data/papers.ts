@@ -184,6 +184,7 @@ Cyclic processes on statistical manifolds require $k \\geq 3$ to avoid self-inte
 The key application is the brain. High-dimensional ephaptic field dynamics must compress into low-dimensional cortical representations. When that compression goes below $k=3$, the system can no longer maintain continuous dynamics — it snaps into discrete categories. This may explain why certain cognitive operations feel "digital" (discrete decisions, yes/no judgments) while others feel "analog" (continuous perception, fluid reasoning).
 
 The same constraint applies to neural network latent spaces: if you compress too far, you lose the ability to represent continuous dynamics. The paper derives this from the Fisher information metric, connecting to Takens embedding theorem from dynamical systems.`,
+    whyItMatters: `This explains why brains and AI systems sometimes snap into discrete categories instead of maintaining fluid, continuous processing. The threshold isn't arbitrary—it's geometric necessity. Compress a cyclic process (like oscillating between possibilities) into too few dimensions, and you literally cannot tell "when" something happened, only "what" state you're in. This is why sleep deprivation, stress, and cognitive overload produce rigid either/or thinking: you're being forced below the dimensional threshold where nuance is geometrically possible.`,
     keyFindings: [
       '$k=3$ is minimal embedding dimension for self-intersection-free cycles',
       '$k \\leq 2$ forces categorical representations through state conflation',
@@ -238,6 +239,7 @@ The Fisher metric descends to the quotient **if and only if** it's bundle-like (
 The covering number bounds quantify what's lost: $N(\\varepsilon) \\sim \\varepsilon^{-r}$ where $r$ is the projection rank. Lower-rank projections yield coarser quotients—fewer distinguishable classes at any resolution. The $k=3$ threshold from the companion paper emerges as a special case: below $k=3$, phase-preserving projections drop from $r=2$ to $r=1$ scaling.
 
 This forms a two-paper program with the minimal embedding result: Paper 1 gives the crisp threshold; Paper 2 provides the geometric machinery.`,
+    whyItMatters: `Every time you compress information—whether it's a neural network bottleneck, a summary statistic, or your brain creating a memory—you're performing dimensional collapse. This paper answers: what survives? The answer isn't "it depends on the details." There are hard geometric constraints. Some information is genuinely lost (parameters become indistinguishable). Some structure survives (when the geometry is "nice" in a precise sense). And the amount you can distinguish at any resolution follows predictable scaling laws. This matters for AI interpretability (why we can't always reconstruct what a network "knows"), for neuroscience (why high-D brain states produce low-D behavior), and for any science that uses dimensionality reduction.`,
     keyFindings: [
       'Fiber Structure Theorem: collapse maps foliate M into observationally non-identifiable fibers',
       'Quotient Metric Theorem: Fisher metric descends iff bundle-like; totally geodesic is sufficient',
