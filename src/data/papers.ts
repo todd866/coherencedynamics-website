@@ -218,6 +218,34 @@ The implication is uncomfortable: we may already be approaching the ceiling of w
     github: 'todd866/substrate-dimensionality',
     pdf: 'https://github.com/todd866/substrate-dimensionality/blob/main/substrate_dimensionality.pdf',
   },
+
+  // === IN PREPARATION ===
+  {
+    slug: 'quotient-geometry',
+    title: 'Quotient Geometry of Statistical Manifolds Under Dimensional Collapse',
+    journal: 'Information Geometry (in preparation)',
+    year: 2025,
+    status: 'in_prep',
+    github: 'todd866/code-emergence',
+    pdf: 'https://github.com/todd866/code-emergence/blob/main/code_emergence.pdf',
+    image: 'quotient-geometry.png',
+    description: `**When a statistical manifold is observed through a lower-dimensional map, what geometric structure survives?** This paper provides the general quotient-geometric framework that makes the minimal embedding threshold inevitable.
+
+The key insight: collapse maps foliate the manifold into fibers along which the *observed* Fisher metric degenerates. Parameters on the same fiber produce identical observed distributions—they're observationally indistinguishable, even if the full distributions differ.
+
+The Fisher metric descends to the quotient **if and only if** it's bundle-like (constant along fibers on horizontal vectors). Totally geodesic fibers provide a sufficient condition. This settles when dimensional reduction preserves statistical structure versus when it destroys it.
+
+The covering number bounds quantify what's lost: $N(\\varepsilon) \\sim \\varepsilon^{-r}$ where $r$ is the projection rank. Lower-rank projections yield coarser quotients—fewer distinguishable classes at any resolution. The $k=3$ threshold from the companion paper emerges as a special case: below $k=3$, phase-preserving projections drop from $r=2$ to $r=1$ scaling.
+
+This forms a two-paper program with the minimal embedding result: Paper 1 gives the crisp threshold; Paper 2 provides the geometric machinery.`,
+    keyFindings: [
+      'Fiber Structure Theorem: collapse maps foliate M into observationally non-identifiable fibers',
+      'Quotient Metric Theorem: Fisher metric descends iff bundle-like; totally geodesic is sufficient',
+      'Covering bounds: $N(\\varepsilon) \\sim \\varepsilon^{-r}$ quantifies distinguishability at finite resolution',
+      'Minimal embedding ($k=3$) emerges as dimension drop from $r=2$ to $r=1$',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting; GPT-5.2 (OpenAI) and Gemini 3 Pro (Google) for cross-paper consistency review. Author reviewed all content and takes full responsibility.',
+  },
 ];
 
 export const getPaperBySlug = (slug: string): Paper | undefined => {
