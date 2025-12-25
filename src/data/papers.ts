@@ -124,23 +124,23 @@ Consciousness may depend more on these synchronised fields than on individual sp
     year: 2025,
     status: 'submitted',
     github: 'todd866/brainwavedimensionality',
-    pdf: 'https://github.com/todd866/brainwavedimensionality/blob/main/paper/slow_waves_high_D.pdf',
+    pdf: 'https://raw.githubusercontent.com/todd866/brainwavedimensionality/main/paper/slow_waves_high_D.pdf',
     image: 'cortical-oscillations.png',
-    description: `**Slower brain waves are higher-dimensional, not lower** — inverting a major assumption in oscillatory neuroscience and reframing what sleep, meditation, and stress actually do to cognition.
+    description: `**The field conflates three distinct notions of dimensionality that can systematically come apart** — and this category error inverts our understanding of what slow brain waves actually do.
 
-[Earl Miller's lab at MIT](https://ekmillerlab.mit.edu/) has argued that gamma oscillations carry working memory content while beta provides top-down control. Their framework treats dimensionality as something that *increases* with faster oscillations. This paper argues the opposite.
+We distinguish: (1) *substrate dimensionality* — how many oscillators participate coherently; (2) *interface dimensionality* — how many degrees of freedom a readout exposes; and (3) *expressed structure* — the complexity of downstream patterns. Slow waves are high-dimensional *substrates* (many neurons in concert) that appear smooth through low-dimensional *interfaces* (electrode arrays). The smoothness is concentration of measure, not simplicity.
 
-Brain waves operate as a cascade of dimensional filters. Slower waves maintain a high-dimensional "canvas" with thousands of neurons in concert ($\\sim 3\\times$ more than fast oscillations); faster waves compress information more tightly. At the tightest compression (gamma), the brain commits to clear categories. At moderate compression (beta), it retains flexibility to hold multiple ideas simultaneously.
+New empirical support: [Chen et al. (2026, Current Biology)](https://doi.org/10.1016/j.cub.2025.11.072) from Miller's lab show that alpha/beta oscillations form spatial "inhibitory stencils" that gate *where* spiking can occur — exactly the interface/substrate distinction we propose. Their "spatial computing" framework validates our theoretical architecture.
 
-Why does this matter? Because slow waves don't appear "simple" because they're low-dimensional — they appear simple because they coordinate so many neurons that *concentration of measure* (Lévy's lemma) makes the readout smooth. Miller measures the projection and mistakes it for the substrate.
+The paper introduces *cycle aliasing*: when interface rank drops below $k=3$, distinct timepoints in recurring processes become observationally identical under linear readout. At $k=2$, the brain is forced into discrete categories. At $k \\geq 3$, it can represent self-referential dynamics (holding paradoxes without resolution). We propose emotion operates as a rank-1 readout that "diffracts" through coupling matrices to produce system-wide effects — explaining why anger feels like the whole brain agrees.
 
-The practical implications are significant. Interventions that enhance slow-wave activity — sleep, meditation, reduced stress — aren't just "calming." They're expanding computational capacity. Conversely, stress, sleep deprivation, and immaturity produce rigid thinking because noisy signals force the brain to collapse toward categorical processing. Flexible thinking requires $\\geq 3$ dimensions; paradox tolerance is a signature of maturity.`,
+Cognitive maturity may be the capacity to sustain $k \\geq 3$ dynamics despite ongoing rank-1 affective pressure. Stress and noise force collapse toward categorical processing — not irrationality, but adaptive response when channel capacity is compromised.`,
     keyFindings: [
-      'Slow oscillations recruit $\\sim 3\\times$ more neurons in coordinated patterns than fast oscillations',
-      'Concentration of measure explains why high-D coordination appears "simple" to external observers',
-      'Discrete symbols emerge predictably around 2:1 compression ratio',
-      'Flexible thinking requires $\\geq 3$ dimensions; paradox tolerance is a signature of maturity',
-      'Noise forces categorical collapse as information-theoretic necessity',
+      'Tri-level distinction: substrate vs interface vs expressed structure resolves the "dimensionality confusion"',
+      'Slow modes engage $\\sim 3\\times$ more oscillators (high participation ratio) than fast modes',
+      'Cycle aliasing: $k < 3$ forces categorical representation; $k \\geq 3$ preserves continuous dynamics',
+      'Emotion as rank-1 readout + diffraction explains global affective recruitment',
+      'Maturity = sustaining high-rank interfaces under affective pressure; stress forces collapse',
     ],
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
