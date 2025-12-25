@@ -8,6 +8,7 @@ import PaperNavigation from '@/components/PaperNavigation';
 import PsychedelicGainMini from '@/components/PsychedelicGainMini';
 import CodeForming from '@/components/CodeForming';
 import EmbeddingDimensionMini from '@/components/EmbeddingDimensionMini';
+import CorticalApertureMini from '@/components/CorticalApertureMini';
 
 export function generateStaticParams() {
   // Exclude papers with custom pages
@@ -190,6 +191,20 @@ export default async function PaperPage({
               Open full simulation &rarr;
             </Link>
           </p>
+        </section>
+      )}
+
+      {/* Inline simulation for cortical-oscillations */}
+      {slug === 'cortical-oscillations' && (
+        <section className="mb-8 p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+          <h3 className="text-lg font-semibold mb-3 text-white">Interactive: The Aperture Demo</h3>
+          <p className="text-sm text-gray-400 mb-4">
+            High-PR substrate (left) flows through a k-dimensional interface (center) to produce
+            expressed structure (right). Toggle k to see how low-rank interfaces force cycle aliasing.
+          </p>
+          <div className="flex justify-center">
+            <CorticalApertureMini />
+          </div>
         </section>
       )}
 
