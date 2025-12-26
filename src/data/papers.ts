@@ -93,6 +93,32 @@ The same principle applies at every scale: bacteria tracking chemical gradients,
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
+    slug: 'minimal-embedding',
+    title: 'Minimal Embedding Dimension for Self-Intersection-Free Recurrent Processes',
+    journal: 'Information Geometry (submitted)',
+    year: 2025,
+    status: 'submitted',
+    image: 'minimal-embedding.png',
+    simulation: 'dimensional-collapse',
+    description: `**You need at least 3 dimensions for continuous cyclic dynamics — below that, trajectories collide and the system is forced into discrete categories.** This is a hard geometric constraint with implications for neural coding, latent spaces, and any dimensionality reduction scheme.
+
+Cyclic processes on statistical manifolds require $k \\geq 3$ to avoid self-intersection. Below this threshold, state trajectories collide — different times map to the same point — forcing categorical (discrete) representations. At $k \\geq 3$, continuous temporal dynamics become possible.
+
+The key application is the brain. High-dimensional ephaptic field dynamics must compress into low-dimensional cortical representations. When that compression goes below $k=3$, the system can no longer maintain continuous dynamics — it snaps into discrete categories. This may explain why certain cognitive operations feel "digital" (discrete decisions, yes/no judgments) while others feel "analog" (continuous perception, fluid reasoning).
+
+The same constraint applies to neural network latent spaces: if you compress too far, you lose the ability to represent continuous dynamics. The paper derives this from the Fisher information metric, connecting to Takens embedding theorem from dynamical systems.`,
+    whyItMatters: `This explains why brains and AI systems sometimes snap into discrete categories instead of maintaining fluid, continuous processing. The threshold isn't arbitrary—it's geometric necessity. Compress a cyclic process (like oscillating between possibilities) into too few dimensions, and you literally cannot tell "when" something happened, only "what" state you're in. This is why sleep deprivation, stress, and cognitive overload produce rigid either/or thinking: you're being forced below the dimensional threshold where nuance is geometrically possible.`,
+    keyFindings: [
+      '$k=3$ is minimal embedding dimension for self-intersection-free cycles',
+      '$k \\leq 2$ forces categorical representations through state conflation',
+      'Information-geometric derivation from Fisher metric',
+      'Connects to Takens embedding theorem',
+    ],
+    github: 'todd866/minimalembeddingdimension',
+    pdf: 'https://github.com/todd866/minimalembeddingdimension/blob/main/dimensional_collapse.pdf',
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+  },
+  {
     slug: 'coherence-time',
     title: 'Coherence Time in Neural Oscillator Assemblies Sets the Speed of Thought',
     journal: 'BioSystems (submitted)',
@@ -167,32 +193,6 @@ Cancer, in this view, is cellular bifurcation into an alternative stable state. 
       'Cancer as cellular bifurcation into alternative stable states',
       'Fractal coherence: same mechanism prevents cancer and enables social cooperation',
     ],
-    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
-  },
-  {
-    slug: 'minimal-embedding',
-    title: 'Minimal Embedding Dimension for Self-Intersection-Free Recurrent Processes',
-    journal: 'Information Geometry (submitted)',
-    year: 2025,
-    status: 'submitted',
-    image: 'minimal-embedding.png',
-    simulation: 'dimensional-collapse',
-    description: `**You need at least 3 dimensions for continuous cyclic dynamics — below that, trajectories collide and the system is forced into discrete categories.** This is a hard geometric constraint with implications for neural coding, latent spaces, and any dimensionality reduction scheme.
-
-Cyclic processes on statistical manifolds require $k \\geq 3$ to avoid self-intersection. Below this threshold, state trajectories collide — different times map to the same point — forcing categorical (discrete) representations. At $k \\geq 3$, continuous temporal dynamics become possible.
-
-The key application is the brain. High-dimensional ephaptic field dynamics must compress into low-dimensional cortical representations. When that compression goes below $k=3$, the system can no longer maintain continuous dynamics — it snaps into discrete categories. This may explain why certain cognitive operations feel "digital" (discrete decisions, yes/no judgments) while others feel "analog" (continuous perception, fluid reasoning).
-
-The same constraint applies to neural network latent spaces: if you compress too far, you lose the ability to represent continuous dynamics. The paper derives this from the Fisher information metric, connecting to Takens embedding theorem from dynamical systems.`,
-    whyItMatters: `This explains why brains and AI systems sometimes snap into discrete categories instead of maintaining fluid, continuous processing. The threshold isn't arbitrary—it's geometric necessity. Compress a cyclic process (like oscillating between possibilities) into too few dimensions, and you literally cannot tell "when" something happened, only "what" state you're in. This is why sleep deprivation, stress, and cognitive overload produce rigid either/or thinking: you're being forced below the dimensional threshold where nuance is geometrically possible.`,
-    keyFindings: [
-      '$k=3$ is minimal embedding dimension for self-intersection-free cycles',
-      '$k \\leq 2$ forces categorical representations through state conflation',
-      'Information-geometric derivation from Fisher metric',
-      'Connects to Takens embedding theorem',
-    ],
-    github: 'todd866/minimalembeddingdimension',
-    pdf: 'https://github.com/todd866/minimalembeddingdimension/blob/main/dimensional_collapse.pdf',
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; Gemini 3 Pro (Google) and GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
   {
