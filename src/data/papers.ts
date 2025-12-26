@@ -248,6 +248,28 @@ This forms a two-paper program with the minimal embedding result: Paper 1 gives 
     ],
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting; GPT-5.2 (OpenAI) and Gemini 3 Pro (Google) for cross-paper consistency review. Author reviewed all content and takes full responsibility.',
   },
+  {
+    slug: 'spectral-decoupling',
+    title: 'Spectral Decoupling of Capacity and Entropy in Network Dynamics',
+    journal: 'Journal of Complex Networks (in preparation)',
+    year: 2025,
+    status: 'in_prep',
+    github: 'todd866/spectral-decoupling',
+    description: `**Network complexity is two-dimensional: capacity (how many slow modes topology supports) and entropy (how spread the dynamics are).** These axes are orthogonal — you can match entropy while having completely different capacities, or vary entropy while capacity stays fixed.
+
+The key insight: the Laplacian spectrum determines spectral capacity $C(\\lambda^*)$ — the count of slow modes below a threshold. This is purely topological. State entropy, by contrast, decomposes as $H = 2\\log\\sigma + B(G;\\alpha)$ where noise contributes an additive shift and topology sets the baseline. Noise moves you along the entropy axis; topology determines your capacity.
+
+This resolves a common conflation in network science. When people say a network is "complex," do they mean it supports many persistent patterns (high capacity) or that its dynamics are unpredictable (high entropy)? These are independent. A ring lattice has high capacity but can have low entropy (coherent slow modes). A random graph has zero capacity but can have high entropy (noisy fast dynamics).
+
+The $(C, H)$ phase portrait provides a diagnostic: where does your network sit, and what controls each axis?`,
+    keyFindings: [
+      'Spectral capacity $C(\\lambda^*)$ counts slow Laplacian modes — purely topological',
+      'State entropy decomposes: $H = 2\\log\\sigma + B(G;\\alpha)$ — noise vs topology contributions',
+      'Iso-entropy networks can have vastly different capacities',
+      'Fixed topology means fixed capacity regardless of noise level',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+  },
 ];
 
 export const getPaperBySlug = (slug: string): Paper | undefined => {

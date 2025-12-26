@@ -160,18 +160,18 @@ export default function Home() {
             </p>
           </Link>
 
-          <Link href="/papers/code-constraint" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
+          <Link href="/papers/minimal-embedding" className="block p-6 border border-gray-800 rounded-xl hover:border-gray-600 hover:bg-gray-900/50 transition-colors">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-medium px-2 py-1 bg-yellow-900 text-yellow-300 rounded">
-                Ready to Submit
+              <span className="text-xs font-medium px-2 py-1 bg-blue-900 text-blue-300 rounded">
+                Under Review
               </span>
-              <span className="text-sm text-gray-500">Prog Biophys Mol Biol</span>
+              <span className="text-sm text-gray-500">Information Geometry</span>
             </div>
             <h3 className="text-lg font-semibold mb-2 text-white">
-              Low-Dimensional Codes Constrain High-D Dynamics
+              Minimal Embedding Dimension for Recurrent Processes
             </h3>
             <p className="text-gray-400">
-              Fourier bandwidth bottleneck shows how biology stabilizes organization through low-D interfaces.
+              Why you need at least 3 dimensions for continuous cyclic dynamics—below that, trajectories collide.
             </p>
           </Link>
         </div>

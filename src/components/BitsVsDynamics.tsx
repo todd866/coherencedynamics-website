@@ -252,7 +252,7 @@ export default function BitsVsDynamics() {
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const dpr = Math.min(3, window.devicePixelRatio || 1);
       dprRef.current = dpr;
 
       const cssW = rect.width || CSS_W;
