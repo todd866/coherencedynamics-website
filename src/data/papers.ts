@@ -70,7 +70,7 @@ This isn't a trick or an approximation. It's a fundamentally different computati
   // === UNDER REVIEW ===
   {
     slug: 'high-dimensional-coherence',
-    title: 'High-Dimensional Coherence in Biological Systems',
+    title: 'Intelligence as High-Dimensional Coherence: The Observable Dimensionality Bound and Computational Tractability',
     journal: 'BioSystems (R2 minor revision)',
     year: 2025,
     status: 'submitted',
