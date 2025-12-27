@@ -79,8 +79,11 @@ interface Props {
 export default function QuantumEraserDemo({ className = '' }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('all');
   const [showExplanation, setShowExplanation] = useState(true);
+  const [seed, setSeed] = useState(0);
 
-  const photonData = useMemo(() => generatePhotonData(2500), []);
+  const photonData = useMemo(() => generatePhotonData(2500), [seed]);
+
+  const handleResample = () => setSeed(s => s + 1);
 
   const { histogramLayers } = useMemo(() => {
     const bins = 60;
@@ -243,12 +246,18 @@ export default function QuantumEraserDemo({ className = '' }: Props) {
         </div>
       )}
 
-      <div className="mt-2 text-center">
+      <div className="mt-2 text-center flex justify-center gap-4">
         <button
           onClick={() => setShowExplanation(!showExplanation)}
           className="text-xs text-gray-500 hover:text-gray-300"
         >
           {showExplanation ? 'Hide' : 'Show'} explanation
+        </button>
+        <button
+          onClick={handleResample}
+          className="text-xs text-gray-500 hover:text-gray-300"
+        >
+          ↻ New sample
         </button>
       </div>
 

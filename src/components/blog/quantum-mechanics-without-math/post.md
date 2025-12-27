@@ -154,6 +154,8 @@ There can be multiple valid stories about what happened, each internally consist
 
 It's not that "many worlds" exist. It's that no single classical description survives all possible measurements.
 
+The rule is simple: you're allowed to tell a story only when alternative stories can't interfere with each other.
+
 This is what physicists call the "consistent histories" interpretation. A "history" is just a story you try to tell: "the photon went through the left slit, then hit position x." Quantum mechanics allows you to tell such stories only when they don't interfere with each other—only when the 2D shadows happen to be consistent.
 
 When alternative stories *do* interfere, the question "which one really happened?" isn't mysterious or unanswerable. It's **undefined**—like asking for the "true" 2D shape of a 3D object.
@@ -182,7 +184,7 @@ Importantly: **you cannot send signals backward in time this way**. The unsorted
 
 But there's a suggestive lesson here. The Schrödinger equation evolves the quantum state smoothly and reversibly. The arrow of time—the sense that the past is fixed and the future is open—comes not from the equation itself, but from **thermodynamics, decoherence, and the irreversibility of records**. Measurement is one way that irreversibility enters the picture.
 
-The consistent histories framework formalizes this: a "history" is a time-ordered sequence of projections. You choose the projections. The quantum state doesn't come with timestamps built in.
+The consistent histories framework formalizes this: a "history" is a time-ordered sequence of projections. You choose the projections. The formalism doesn't privilege a *single* classical time-ordered narrative unless you choose one.
 
 Whether this means time is "emergent" or merely that our *descriptions* of time require choosing a basis—that's a deeper question. But the delayed-choice experiment is a vivid reminder that temporal ordering and causal ordering are not as simple as they seem.
 
@@ -202,7 +204,7 @@ where $\mathcal{H}$ is a Hilbert space—typically enormous in dimension.
 
 This state does not encode definite values of observables. It encodes amplitudes for correlations.
 
-### Observables are projections
+### Projective measurements are projections
 
 A measurement corresponds to a set of projection operators $\{P_i\}$ satisfying:
 
@@ -292,7 +294,7 @@ In recent work, we formalize this by treating intelligence as active coherence m
 
 This framework reproduces the phenomena that motivate "quantum cognition" models—contextuality, order effects, non-commutativity—without requiring microscopic quantum effects in the brain. The resemblance to quantum mechanics is not coincidence. It's a consequence of operating in the same geometric regime.
 
-There's even a [minimal embedding threshold](/papers/minimal-embedding): below 3 dimensions, chaotic and self-avoiding dynamics become impossible, and trajectories are forced to cross themselves or collapse into fixed points. This may explain why stress and cognitive overload produce rigid either/or thinking—when effective dimensionality drops, nuance becomes geometrically impossible.
+There's even a [minimal embedding threshold](/papers/minimal-embedding): below ~3 effective dimensions, rich dynamics (chaos, self-avoiding trajectories) become geometrically constrained—trajectories are forced to cross themselves or collapse into simpler attractors. This may explain why stress and cognitive overload produce rigid either/or thinking—when effective dimensionality drops, nuance becomes geometrically impossible.
 
 ### What I'm claiming (and not claiming)
 
