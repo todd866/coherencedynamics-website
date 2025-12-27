@@ -17,11 +17,11 @@ relatedPapers:
 draft: false
 ---
 
-## Part I: Without the Math
+## The Setup
 
-*This is Part 4 of a series. [Part 1](/blog/quantum-mechanics-without-math) introduced projection. [Part 2](/blog/quantum-gravity-without-the-paradox) dissolved the QG paradox. [Part 3](/blog/time-from-dimensions) connected aperture to time.*
+*This post extends the ideas from [Time From Dimensions](/blog/time-from-dimensions). If you haven't read that, the short version: time = correlation accumulation rate through a dimensional aperture. Squeeze the aperture, slow the clock.*
 
-> **Dimension glossary** (used throughout this series):
+> **Dimension glossary**:
 > - **D** (Hilbert/state dimension): size of the full state space
 > - **d** (spacetime dimension): 3+1 in our classical description
 > - **k** (aperture): effective degrees of freedom accessible to a given observer+interface
@@ -203,6 +203,4 @@ The math is substrate-agnostic. If it works here, it works anywhere observers ha
 
 ---
 
-*This is Part 4 of a series. See [Part 1](/blog/quantum-mechanics-without-math), [Part 2](/blog/quantum-gravity-without-the-paradox), and [Part 3](/blog/time-from-dimensions).*
-
-*The simulation code is available at [GitHub link TBD].*
+*The full simulation code and paper are available at [github.com/todd866/black-hole-aperture](https://github.com/todd866/black-hole-aperture).*

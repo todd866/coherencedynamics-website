@@ -320,7 +320,7 @@ When the aperture squeezes—whether from gravity, velocity, or neural synchroni
 
 This reframes several classic puzzles:
 - **Twin paradox:** The traveling twin's dimensional aperture is contracted; they accumulate fewer correlations; they age less.
-- **Black hole information:** The external observer's aperture closes at the horizon; they can't see further correlations; time freezes.
+- **Black hole information:** The external observer's aperture closes at the horizon; they can't see further correlations; time freezes. (See [the simulation](/blog/black-hole-aperture).)
 - **Subjective time distortion:** Neural aperture varies with brain state; subjective time varies accordingly.
 
 The math is not complete. But the pattern is clear:
@@ -363,3 +363,7 @@ This isn't avoidance—it's sequencing. You don't need to prove quantum gravity 
 The next step is simulation. Black holes are the obvious target: same underlying dynamics, different observer apertures, different effective clocks. If even a toy model shows the external observer's time freezing while the infalling observer's flows—without invoking GR—then the conceptual bridge is built.
 
 Feed this into the right simulation and it stops being philosophy overnight.
+
+---
+
+**Update:** We built that simulation. See [Black Hole as Aperture](/blog/black-hole-aperture) for the demo and [the GitHub repo](https://github.com/todd866/black-hole-aperture) for the full code.
