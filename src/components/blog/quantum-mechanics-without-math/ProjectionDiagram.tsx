@@ -9,6 +9,51 @@ interface Props {
 export default function ProjectionDiagram({ className = '' }: Props) {
   const [angle, setAngle] = useState<'front' | 'side' | 'top'>('front');
 
+  // Isometric mug component - cleaner 3D representation
+  const IsometricMug = () => (
+    <g transform="translate(80, 100)">
+      <text x="0" y="-75" textAnchor="middle" fill="#6b7280" fontSize="10">The 3D object</text>
+
+      {/* Shadow/base ellipse */}
+      <ellipse cx="0" cy="30" rx="30" ry="10" fill="#1f2937" opacity="0.5" />
+
+      {/* Mug body - back wall */}
+      <path
+        d="M -28 -40 L -28 20 A 28 10 0 0 0 28 20 L 28 -40"
+        fill="#4b5563"
+        stroke="#6b7280"
+        strokeWidth="1"
+      />
+
+      {/* Mug body - front face */}
+      <ellipse cx="0" cy="20" rx="28" ry="10" fill="#374151" stroke="#6b7280" strokeWidth="1" />
+
+      {/* Mug interior - top opening */}
+      <ellipse cx="0" cy="-40" rx="28" ry="10" fill="#1f2937" stroke="#6b7280" strokeWidth="1" />
+
+      {/* Mug rim highlight */}
+      <ellipse cx="0" cy="-40" rx="24" ry="8" fill="none" stroke="#9ca3af" strokeWidth="0.5" />
+
+      {/* Handle - clean arc on right side */}
+      <path
+        d="M 28 -30
+           C 55 -30, 55 10, 28 10"
+        fill="none"
+        stroke="#6b7280"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M 28 -30
+           C 50 -30, 50 10, 28 10"
+        fill="none"
+        stroke="#4b5563"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+    </g>
+  );
+
   return (
     <div className={`bg-gray-900 rounded-lg p-4 ${className}`}>
       <div className="text-center mb-4">
@@ -46,23 +91,8 @@ export default function ProjectionDiagram({ className = '' }: Props) {
         {/* Background */}
         <rect width="400" height="200" fill="#111" />
 
-        {/* 3D coffee mug (always shown, faded) */}
-        <g transform="translate(80, 100)">
-          <text x="0" y="-70" textAnchor="middle" fill="#6b7280" fontSize="10">The 3D object</text>
-
-          {/* Mug body - cylinder */}
-          <ellipse cx="0" cy="-35" rx="25" ry="8" fill="#374151" stroke="#6b7280" strokeWidth="1" />
-          <rect x="-25" y="-35" width="50" height="50" fill="#374151" />
-          <ellipse cx="0" cy="15" rx="25" ry="8" fill="#4b5563" stroke="#6b7280" strokeWidth="1" />
-          <line x1="-25" y1="-35" x2="-25" y2="15" stroke="#6b7280" strokeWidth="1" />
-          <line x1="25" y1="-35" x2="25" y2="15" stroke="#6b7280" strokeWidth="1" />
-
-          {/* Handle - on the right side */}
-          <ellipse cx="38" cy="-10" rx="12" ry="20" fill="none" stroke="#6b7280" strokeWidth="4" />
-          <ellipse cx="38" cy="-10" rx="12" ry="20" fill="#111" stroke="#111" strokeWidth="2"
-            clipPath="polygon(0 0, 50% 0, 50% 100%, 0 100%)" />
-          <path d="M 25 -25 Q 50 -25 50 -10 Q 50 5 25 5" fill="none" stroke="#6b7280" strokeWidth="3" />
-        </g>
+        {/* 3D coffee mug (always shown) */}
+        <IsometricMug />
 
         {/* Arrow */}
         <path d="M150 100 L200 100" stroke="#9ca3af" strokeWidth="2" markerEnd="url(#arrowhead)" />
@@ -75,34 +105,45 @@ export default function ProjectionDiagram({ className = '' }: Props) {
 
         {/* 2D projection */}
         <g transform="translate(300, 100)">
-          <text x="0" y="-70" textAnchor="middle" fill="#6b7280" fontSize="10">What you see</text>
+          <text x="0" y="-75" textAnchor="middle" fill="#6b7280" fontSize="10">What you see</text>
 
           {angle === 'front' && (
             <>
-              {/* Rectangle (mug body from front, no handle visible) */}
-              <rect x="-25" y="-35" width="50" height="50" fill="#06b6d4" opacity="0.8" rx="2" />
-              <text x="0" y="35" textAnchor="middle" fill="#06b6d4" fontSize="11">Rectangle</text>
+              {/* Rectangle (mug body from front, handle hidden behind) */}
+              <rect x="-30" y="-45" width="60" height="65" fill="#06b6d4" opacity="0.8" rx="3" />
+              {/* Slight rim indication */}
+              <rect x="-26" y="-45" width="52" height="4" fill="#0891b2" opacity="0.6" rx="1" />
+              <text x="0" y="40" textAnchor="middle" fill="#06b6d4" fontSize="11">Rectangle</text>
             </>
           )}
 
           {angle === 'side' && (
             <>
-              {/* Rectangle with handle bump */}
-              <rect x="-25" y="-35" width="50" height="50" fill="#f97316" opacity="0.8" rx="2" />
-              {/* Handle as a bump on the side */}
-              <ellipse cx="35" cy="-10" rx="10" ry="18" fill="#f97316" opacity="0.8" />
-              <text x="0" y="35" textAnchor="middle" fill="#f97316" fontSize="11">Rectangle + handle</text>
+              {/* Mug body from side */}
+              <rect x="-25" y="-45" width="50" height="65" fill="#f97316" opacity="0.8" rx="3" />
+              {/* Handle clearly visible */}
+              <path
+                d="M 25 -35 C 50 -35, 50 10, 25 10"
+                fill="none"
+                stroke="#f97316"
+                strokeWidth="8"
+                strokeLinecap="round"
+                opacity="0.8"
+              />
+              <text x="5" y="40" textAnchor="middle" fill="#f97316" fontSize="11">Rectangle + handle</text>
             </>
           )}
 
           {angle === 'top' && (
             <>
-              {/* Circle with handle */}
-              <circle cx="0" cy="0" r="28" fill="#22c55e" opacity="0.8" />
-              {/* Inner circle (the opening) */}
-              <circle cx="0" cy="0" r="20" fill="#111" opacity="0.8" />
-              {/* Handle from top */}
-              <ellipse cx="38" cy="0" rx="10" ry="6" fill="#22c55e" opacity="0.8" />
+              {/* Outer rim */}
+              <circle cx="0" cy="-5" r="32" fill="#22c55e" opacity="0.8" />
+              {/* Inner opening */}
+              <circle cx="0" cy="-5" r="24" fill="#111" opacity="0.9" />
+              {/* Handle from top - extends to the right */}
+              <ellipse cx="42" cy="-5" rx="12" ry="8" fill="#22c55e" opacity="0.8" />
+              {/* Connection to mug body */}
+              <rect x="30" y="-11" width="12" height="12" fill="#22c55e" opacity="0.8" />
               <text x="0" y="50" textAnchor="middle" fill="#22c55e" fontSize="11">Circle with hole</text>
             </>
           )}
@@ -110,9 +151,9 @@ export default function ProjectionDiagram({ className = '' }: Props) {
       </svg>
 
       <div className="mt-4 p-3 bg-gray-800 rounded text-sm text-gray-300 text-center">
-        {angle === 'front' && "From the front: a simple rectangle. Where's the handle?"}
-        {angle === 'side' && "From the side: rectangle with a handle. Now it looks like a mug."}
-        {angle === 'top' && "From above: a circle with a hole! Completely different shape."}
+        {angle === 'front' && "From the front: a simple rectangle. The handle is hidden behind."}
+        {angle === 'side' && "From the side: now you see the handle. Same mug, different projection."}
+        {angle === 'top' && "From above: a ring with a bump. You'd never guess it was a mug."}
       </div>
 
       <p className="mt-3 text-xs text-gray-500 text-center">

@@ -55,17 +55,16 @@ export default function DoubleSlitDiagram({ className = '' }: Props) {
           Barrier
         </text>
 
-        {/* Slit labels - positioned in the gaps */}
-        <text x="145" y="75" fill="#9ca3af" fontSize="9">Slit A</text>
-        <text x="145" y="128" fill="#9ca3af" fontSize="9">Slit B</text>
+        {/* Slit labels - positioned to the left of the slits */}
+        <text x="110" y="75" textAnchor="end" fill="#9ca3af" fontSize="9">Slit A</text>
+        <text x="110" y="128" textAnchor="end" fill="#9ca3af" fontSize="9">Slit B</text>
 
         {/* Which-path detector (conditional) */}
         {mode === 'which-path' && (
           <>
-            <rect x="135" y="68" width="20" height="10" fill="#f97316" rx="2" />
-            <rect x="135" y="122" width="20" height="10" fill="#f97316" rx="2" />
-            <text x="175" y="70" fill="#f97316" fontSize="9">Detectors</text>
-            <text x="175" y="80" fill="#f97316" fontSize="8">(which slit?)</text>
+            <rect x="135" y="68" width="20" height="14" fill="#f97316" rx="2" />
+            <rect x="135" y="118" width="20" height="14" fill="#f97316" rx="2" />
+            <text x="180" y="80" fill="#f97316" fontSize="9">Detectors</text>
           </>
         )}
 

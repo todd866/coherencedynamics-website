@@ -170,6 +170,24 @@ This is the same insight that drives our work on [the limits of falsifiability](
 
 ---
 
+### Time is also a projection
+
+Here's the deepest implication, and it's often missed: **time itself emerges from measurement.**
+
+The Schrödinger equation evolves the quantum state smoothly and reversibly. There is no "before" and "after" built into unitary evolution—the state at any moment contains the state at every other moment, related by a simple rotation in Hilbert space.
+
+So where does the arrow of time come from?
+
+From measurement. From the act of making a record that cannot be undone.
+
+The delayed-choice experiment shows this vividly. The signal photon is detected *before* the idler—and yet sorting by idler outcome reveals patterns in the signal data. If time were fundamental, this should be impossible. The "earlier" event can't depend on the "later" one.
+
+But if time is what you get when you project an atemporal state into a sequence of irreversible records, then the paradox dissolves. The entangled state has no temporal ordering. It's only when we make records—when we collapse the wave function—that we create the *appearance* of time flowing from past to future.
+
+The consistent histories framework formalizes this: a "history" is a time-ordered sequence of projections. Time isn't the stage on which quantum mechanics plays out. It's what you get when you choose to tell a story with a beginning, middle, and end.
+
+---
+
 ## Part II: Putting the Definitions Back In
 
 Everything above can be said precisely—the math just formalizes the same projection logic. To describe the coffee mug mathematically, we can't just use x and y coordinates. We need a representation that captures all possible views. In physics, we call this a vector in a high-dimensional state space.
