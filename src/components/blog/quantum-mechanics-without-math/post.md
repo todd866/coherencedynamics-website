@@ -35,7 +35,13 @@ That's not what's happening. The mug is a 3D object. The "paradox" comes from tr
 
 **Quantum mechanics is what happens when reality is high-dimensional, but our measurements are low-dimensional projections.**
 
-The dimensions here aren't spatial—they're degrees of freedom. But they're no less real for that. A photon's polarization state lives in a 2D space. Two entangled photons live in a 4D space. A hundred atoms? Exponentially many dimensions. The mug analogy isn't a metaphor—it's the actual geometry.
+The dimensions here aren't spatial—they're degrees of freedom. But they're no less real for that. A photon's polarization state lives in a 2D space. Two entangled photons live in a 4D space (for two polarization qubits). A hundred atoms? Exponentially many dimensions. The mug is an analogy for the geometry quantum mechanics actually uses: Hilbert space. Different measurement choices are literally different projections (in the linear-algebra sense), even though the "dimensions" are degrees of freedom, not spatial axes.
+
+A quick translation:
+- **Object:** state vector (or density matrix)
+- **View/projection:** choice of measurement basis
+- **Shadow:** outcome distribution
+- **Handle you lose:** phase relations between alternatives (destroyed by decoherence)
 
 Keep this in mind. It's the whole story.
 
@@ -55,7 +61,7 @@ Here's what happens:
 
 **With detectors at the slits:** The interference vanishes. You just get two blobs—exactly what you'd expect if each photon went through one slit or the other, like a bullet.
 
-This is already strange. Somehow, the act of *looking* changes the outcome.
+This is already strange. The availability of which-path information—typically via entanglement with a detector or environment—changes the outcome statistics.
 
 But it gets stranger.
 
@@ -111,6 +117,8 @@ Here's the key: **the pattern on the screen never changes.**
 Look at all the signal photon detections, without sorting by idler outcome. What do you see?
 
 No interference fringes. Just a smooth envelope—the sum of all the hidden patterns, washing each other out.
+
+Even if the experimenter changes the idler measurement setting at the last moment, the marginal distribution at the signal screen is unchanged. No signaling. No paradox.
 
 The fringes only appear **after** you sort the data into coincidence-matched subsets—after you look at just the photons whose idlers went to D1, or just the ones whose idlers went to D2.
 
@@ -168,7 +176,7 @@ Quantum mechanics is not about particles behaving strangely.
 
 It's about the fact that reality has more dimensions than our descriptions. Measurement is an act of dimensional reduction that destroys some truths to create others.
 
-We don't observe reality. We collapse it into a story.
+We don't passively observe reality. Interaction and record-formation compress it into a story.
 
 This is the same insight that drives our work on [the limits of falsifiability](/papers/falsifiability): when you project a high-dimensional system through a low-dimensional measurement, you lose almost everything. A single binary readout of a 100-dimensional continuous state necessarily discards almost all of the available information.
 
@@ -234,7 +242,7 @@ then their projection operators define incompatible decompositions of the same s
 
 There is no single noncontextual joint probability distribution—no classical assignment of definite values that reproduces the observed statistics across all measurement contexts.
 
-This is not epistemic. It's structural. The point isn't that we *don't know* both values; it's that no single underlying reality can simultaneously refine both incompatible slices.
+This is not epistemic ignorance. It's structural: you can't assign pre-existing values to all observables *in a noncontextual way* and still match quantum statistics. Hidden variables are possible, but they must be contextual—and in Bell-type settings, nonlocal.
 
 Try it:
 
@@ -250,9 +258,9 @@ Probabilities can be assigned only if the decoherence functional satisfies:
 
 $$D(\alpha, \beta) = \text{Tr}(C_\alpha \rho C_\beta^\dagger) \approx 0 \text{ for } \alpha \neq \beta$$
 
-Intuitively, $D(\alpha, \beta)$ measures whether two alternative stories can interfere with each other. If they can, you can't assign classical probabilities to them—the question "which really happened?" has no answer.
+Intuitively, $D(\alpha, \beta)$ measures whether two alternative stories can interfere with each other. If they can, you can't treat them as exclusive classical alternatives with ordinary probabilities—the question "which really happened?" presupposes a classical framework that doesn't apply.
 
-If histories *do* interfere, probabilities are undefined—not unknown, *undefined*.
+If histories interfere, you can't assign them classical probabilities. The formalism still gives amplitudes, but the probability interpretation fails.
 
 ### Why multiple histories can be "true"
 
@@ -278,6 +286,8 @@ The underlying dynamics never change. Only your view of them does.
 
 ## Why the Mind Looks Quantum
 
+*Everything above is standard quantum mechanics. What follows is an analogy about information geometry and readout constraints.*
+
 Everything we've said about quantum mechanics has been structural, not mystical. Nothing required particles to be conscious or brains to be quantum computers. The only ingredient was this:
 
 > A high-dimensional coherent system observed through low-dimensional projections will exhibit contextuality, incompatibility, and collapse.
@@ -294,7 +304,7 @@ This is why:
 - Preferences appear inconsistent under interrogation
 - Decisions seem to crystallize only at the moment of report
 
-These are not failures of rationality. They are signatures of dimensional reduction.
+These effects can also arise in classical contextual models; the point is structural similarity, not proof of quantum substrate. They are signatures of dimensional reduction, not failures of rationality.
 
 ### Intelligence as coherence maintenance
 

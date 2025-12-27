@@ -41,7 +41,7 @@ const simulationEmbeds: Record<string, {
   },
   'quantum-eraser': {
     component: <QuantumEraserDemo />,
-    caption: 'Click to postselect on different detector outcomes. The data never changes — only which subset you examine.',
+    caption: 'Toy simulation of postselection. Click to filter by detector outcome — the data never changes, only which subset you highlight.',
     link: '/simulations/quantum-eraser',
   },
   'dimensional-collapse': {
@@ -66,12 +66,12 @@ const simulationEmbeds: Record<string, {
   },
   'hilbert-projection': {
     component: <HilbertProjectionDemo />,
-    caption: 'Measurement is projection. The probability is the squared length of the projected vector.',
+    caption: 'Toy model of a 2D Hilbert space. Measurement is projection; probability is the squared length of the projected vector.',
     link: '',
   },
   'noncommutation': {
     component: <NoncommutationDemo />,
-    caption: 'Try measuring Z then X, vs X then Z. The order determines the outcomes.',
+    caption: 'Toy qubit model. Try measuring Z then X, vs X then Z — the order determines the outcomes.',
     link: '',
   },
 };

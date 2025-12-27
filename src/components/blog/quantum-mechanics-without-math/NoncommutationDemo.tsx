@@ -24,7 +24,9 @@ const states: Record<string, State> = {
 
 export default function NoncommutationDemo({ className = '' }: Props) {
   const [currentState, setCurrentState] = useState<string>('z+');
-  const [history, setHistory] = useState<Array<{ action: string; result: string }>>([]);
+  const [history, setHistory] = useState<Array<{ action: string; result: string }>>([
+    { action: 'Initialize', result: '|0⟩ (spin up)' }
+  ]);
   const [lastMeasurement, setLastMeasurement] = useState<string | null>(null);
 
   const reset = useCallback(() => {
