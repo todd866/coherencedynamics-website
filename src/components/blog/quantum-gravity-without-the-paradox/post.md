@@ -191,7 +191,7 @@ Let's be honest about limits:
 
 **We don't have the emergence dynamics.** Saying "gravity couples to the quantum state" doesn't derive how classical geometry emerges from entanglement structure. The projection framing identifies the conceptual target—but we still need the dynamics that recovers Einstein's equations as a coarse-grained limit.
 
-**We can't test the deepest regime directly (yet).** Planck scales, black hole interiors, the early universe remain out of reach. But there may be nearer-term experimental windows—tabletop tests of gravity-mediated entanglement, for instance—on whether gravity can preserve or transmit quantum information.
+**We can't test the deepest regime directly (yet).** Planck scales, black hole interiors, the early universe remain out of reach. But there may be nearer-term experimental windows—tabletop tests of gravity-mediated entanglement, for instance—on whether gravity preserves high-dimensional correlations or collapses them.
 
 **"Emergent spacetime" is a slogan, not a derivation.** Active research, not settled science.
 
