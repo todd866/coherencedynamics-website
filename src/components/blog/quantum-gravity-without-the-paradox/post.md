@@ -342,6 +342,20 @@ Tensor network models (MERA, etc.) construct spacetime-like structures from patt
 
 This is active research, not settled physics. But it points toward the same conclusion: spacetime is derived, not fundamental.
 
+### Thermodynamic emergence
+
+Jacobson (1995) showed that Einstein's field equations can be derived from thermodynamic assumptions applied to local causal horizons. If you assume the Clausius relation (δQ = TdS) holds at horizons and that entropy scales with area, general relativity emerges as an equation of state.
+
+This suggests gravity isn't a fundamental force—it's what thermodynamics looks like when you coarse-grain over microscopic degrees of freedom.
+
+The connection to information geometry and dimensional thermodynamics is less well understood but potentially deep. If the "cost" of maintaining correlations across a dimensional projection has thermodynamic structure, then:
+
+- Bekenstein-Hawking entropy (area scaling) reflects the dimensional bottleneck at horizons
+- The Landauer bound on computation connects to the cost of dimensional reduction
+- Spacetime geometry might literally be the shape of thermodynamic gradients in a high-D state space
+
+This is speculative territory—but it's where the projection framing naturally leads.
+
 ---
 
 ## The Punchline
