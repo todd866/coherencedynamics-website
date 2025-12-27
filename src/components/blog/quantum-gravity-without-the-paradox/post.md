@@ -244,7 +244,7 @@ Here's a more radical possibility: what if 3+1D spacetime isn't where physics ha
 
 <!-- SIMULATION: dimensional-bottleneck -->
 
-The analogy comes from neural dynamics. During slow-wave sleep, cortical activity gets pinned through a low-dimensional constriction—a kind of dimensional bottleneck. Then it diffracts back out into high-dimensional states. The constriction isn't where the interesting dynamics live; it's where they become temporarily visible to coarse observation.
+The analogy comes from neural dynamics. Cortical activity routinely gets pinned through low-dimensional constrictions—synchronized oscillatory states where effective dimensionality collapses. Then it diffracts back out into high-dimensional desynchronized states. The constriction isn't where the interesting dynamics live; it's where they become temporarily visible to coarse observation. (See [the cortical oscillations paper](/papers/cortical-oscillations) for the formal treatment.)
 
 If this picture is right:
 
