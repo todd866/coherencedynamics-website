@@ -14,6 +14,11 @@ import {
   HilbertProjectionDemo,
   NoncommutationDemo,
 } from '@/components/blog/quantum-mechanics-without-math';
+// Quantum gravity blog post components
+import {
+  GravityWellDemo,
+  DimensionalBottleneckDemo,
+} from '@/components/blog/quantum-gravity-without-the-paradox';
 
 export function generateStaticParams() {
   return getAllBlogSlugs().map((slug) => ({ slug }));
@@ -72,6 +77,17 @@ const simulationEmbeds: Record<string, {
   'noncommutation': {
     component: <NoncommutationDemo />,
     caption: 'Toy qubit model. Try measuring Z then X, vs X then Z — the order determines the outcomes.',
+    link: '',
+  },
+  // Quantum gravity blog post
+  'gravity-well': {
+    component: <GravityWellDemo />,
+    caption: 'Two views: gravity couples to classical particle positions (paradox) or to the quantum mass-energy distribution (stable).',
+    link: '',
+  },
+  'dimensional-bottleneck': {
+    component: <DimensionalBottleneckDemo />,
+    caption: 'High-dimensional dynamics squeezed through a 3D aperture, then diffracting into entanglement.',
     link: '',
   },
 };

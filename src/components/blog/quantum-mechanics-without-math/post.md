@@ -353,3 +353,9 @@ Just as Bergson argued that time is a continuous flow that we artificially slice
 ---
 
 *The formal version of this argument appears in our paper on [high-dimensional coherence as the basis of biological intelligence](/papers/high-dimensional-coherence).*
+
+---
+
+**This is Part 1 of a two-part series.**
+
+In [Part 2: Quantum Gravity Without the Paradox](/blog/quantum-gravity-without-the-paradox), we apply the same projection framework to dissolve the apparent conflict between quantum mechanics and general relativity. If classical spacetime is a low-dimensional projection of a high-dimensional substrate, the "paradox" of quantum gravity becomes a category error.
