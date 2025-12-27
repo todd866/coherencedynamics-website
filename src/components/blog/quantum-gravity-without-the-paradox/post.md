@@ -356,6 +356,13 @@ The connection to information geometry and dimensional thermodynamics is less we
 
 This is speculative territory—but it's where the projection framing naturally leads.
 
+Some of our own work explores these connections:
+
+- **The Dimensional Landauer Bound** (in preparation): Erasing degrees of freedom has thermodynamic cost. Dimensional reduction isn't free—it dissipates.
+- [**Minimal Embedding Dimension**](/papers/minimal-embedding): What's the minimum dimensionality needed to faithfully represent a system's dynamics? This is the aperture width question formalized.
+- **Projection Discontinuities** (under review): When you project high-D dynamics onto low-D observables, discontinuities can emerge—apparent singularities that don't exist in the full space.
+- [**Limits of Falsifiability**](/papers/falsifiability): What's knowable is observer-relative. The projection determines the epistemic horizon.
+
 ---
 
 ## The Punchline
