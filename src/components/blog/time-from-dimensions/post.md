@@ -80,9 +80,9 @@ The dimensional aperture k determines how many degrees of freedom are accessible
 | Black hole (external) | k→2 (low) | Freezes | Surface-confined access |
 | High velocity | k compresses (low) | Dilates | Channel narrows |
 | Normal spacetime | k = 3 (optimal) | Normal flow | Full access, integrable |
-| Quantum lab (coherent) | k > 3 (high) | Undefined/superposed | Too many branches to sequence |
+| Quantum lab (coherent) | k > 3 (high) | No classical sequence | Unitary evolution, no scalar "now" |
 | Sleep (slow waves) | k pinches (low) | Subjective time stops | Dimensional bottleneck |
-| Flow states | k narrows (low) | Time dilates | High sampling, fewer dimensions |
+| Flow states | k narrows (low) | Duration shrinks (retrospective) | Fewer peripheral correlations recorded |
 | Psychedelics | k expands (high) | Time fragments/dissolves | Too many DoF to integrate |
 
 The claim: **k=3 is the optimal aperture for time flow.** Deviations in *either* direction—squeezing toward k=2 or expanding toward k>3—disrupt the correlation rate. Time flows fastest when the aperture matches the system's natural bandwidth.
@@ -105,7 +105,7 @@ All of these require access to degrees of freedom. If your dimensional aperture 
 This is why:
 - The external observer sees the infalling astronaut freeze—they've lost access to the degrees of freedom that would let them see further evolution
 - The astronaut experiences normal time—their aperture is unchanged, they're still correlating with their local environment
-- You lose time during deep sleep—your neural dimensionality collapses, correlations aren't being formed
+- You lose the *record* of time during deep sleep—your neural dimensionality collapses, correlations aren't being formed
 - Flow states distort time—narrowed attention means fewer peripheral correlations
 
 ---
@@ -239,9 +239,9 @@ $$ds^2 = g_{ij}(\theta)d\theta^i d\theta^j$$
 
 The volume element √(det g) determines how much "space" is available for states to differ.
 
-The **Cramér-Rao bound** sets a limit on how fast we can distinguish states based on available information. If the Fisher information drops (fewer accessible dimensions), the speed limit of distinguishability drops. The system *cannot* evolve quickly because it cannot statistically distinguish adjacent states quickly.
+The **Cramér-Rao bound** sets a fundamental limit: the precision with which you can distinguish state $\theta$ from state $\theta + d\theta$ is bounded by the Fisher information. If the geometry of state space contracts (lower Fisher volume), the "speed limit" for distinguishing adjacent states drops. This isn't a practical limitation—it's a mathematical necessity.
 
-Conjecture: **time flow ∝ distinguishability rate**, which depends on Fisher volume.
+The mechanism becomes inevitable: **if you can't tell states apart quickly, you can't evolve through them quickly.** Time flow ∝ distinguishability rate ∝ Fisher volume.
 
 In a toy model where updates follow natural-gradient dynamics, the rate of distinguishable state change scales with the Fisher metric. Shrinking Fisher volume → fewer distinguishable updates per unit parameter-time → time slows.
 
