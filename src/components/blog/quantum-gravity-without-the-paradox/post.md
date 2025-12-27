@@ -292,7 +292,7 @@ The state of the universe is:
 
 $$|\Psi\rangle \in \mathcal{H}_{\text{universe}}$$
 
-This state encodes all physical information. It does not contain definite classical facts—it contains amplitudes for correlations.
+This state is the complete physical description. It does not contain definite classical facts—it contains amplitudes for correlations.
 
 ### Subsystem descriptions
 
