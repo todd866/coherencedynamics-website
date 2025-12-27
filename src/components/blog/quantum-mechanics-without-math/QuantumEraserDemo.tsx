@@ -81,6 +81,7 @@ export default function QuantumEraserDemo({ className = '' }: Props) {
   const [showExplanation, setShowExplanation] = useState(true);
   const [seed, setSeed] = useState(0);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- seed change triggers resample intentionally
   const photonData = useMemo(() => generatePhotonData(2500), [seed]);
 
   const handleResample = () => setSeed(s => s + 1);

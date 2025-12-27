@@ -4,13 +4,13 @@ import { getAllBlogSlugs, getBlogPostBySlug } from '@/data/blog';
 import { getPaperBySlug } from '@/data/papers';
 import Markdown from '@/components/Markdown';
 import SoupVsSparks from '@/components/SoupVsSparks';
-import EmbeddingDimensionDemo from '@/components/EmbeddingDimensionDemo';
 // Quantum mechanics blog post components
 import {
   QuantumEraserDemo,
   DoubleSlitDiagram,
   DelayedChoiceDiagram,
   ProjectionDiagram,
+  DimensionalCollapse,
 } from '@/components/blog/quantum-mechanics-without-math';
 
 export function generateStaticParams() {
@@ -43,8 +43,8 @@ const simulationEmbeds: Record<string, {
     link: '/simulations/quantum-eraser',
   },
   'dimensional-collapse': {
-    component: <EmbeddingDimensionDemo />,
-    caption: 'Toggle between k=3 (helix) and k=2 (circle) to see how dimensional collapse forces self-intersections.',
+    component: <DimensionalCollapse />,
+    caption: 'A 3D helix projects to a circle (top) or sine wave (side). The crossings are projection artifacts.',
     link: '/simulations/dimensional-collapse',
   },
   'double-slit': {

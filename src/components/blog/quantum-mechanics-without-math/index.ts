@@ -5,3 +5,4 @@ export { default as QuantumEraserDemo } from './QuantumEraserDemo';
 export { default as DoubleSlitDiagram } from './DoubleSlitDiagram';
 export { default as DelayedChoiceDiagram } from './DelayedChoiceDiagram';
 export { default as ProjectionDiagram } from './ProjectionDiagram';
+export { default as DimensionalCollapse } from './DimensionalCollapse';
