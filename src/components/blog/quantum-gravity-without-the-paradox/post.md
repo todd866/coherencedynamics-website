@@ -284,6 +284,10 @@ But k=3 isn't universal. The dimensional aperture can vary:
 
 Notice that k is observer-relative. The external observer sees a 2D bottleneck; the infalling observer sees continuous 3D space. Same physics, different effective dimensionality depending on your embedding. This is black hole complementarity—and it's exactly what the projection framing predicts.
 
+And here's the connection to time: the external observer also sees time freeze at the horizon. The infalling observer experiences normal time flow. The dimensional collapse and the time dilation are the same phenomenon. When k drops, you lose access to degrees of freedom you could previously correlate with—and time emerges from correlations (the Wheeler-DeWitt point). At k=2, the external observer can only see the surface; the interior dynamics are frozen *for them*, not frozen in themselves.
+
+The same happens at high velocity: length contracts in the direction of travel (that spatial dimension gets squashed), and time dilates proportionally. Lorentz contraction and gravitational time dilation are both cases of the same relationship—reduce the accessible dimensional aperture, and time slows. Whether it's a black hole or a spaceship, squashing k dilates time.
+
 **In minds:**
 - Normal waking: k = moderate (balanced attention bandwidth)
 - Focused attention: k contracts (tunnel vision, flow states, reduced peripheral awareness)
