@@ -23,6 +23,11 @@ draft: false
 
 *This is Part 3 of a three-part series. [Part 1](/blog/quantum-mechanics-without-math) introduced the projection framework for quantum mechanics. [Part 2](/blog/quantum-gravity-without-the-paradox) applied it to quantum gravity.*
 
+> **Dimension glossary** (used throughout this series):
+> - **D** (Hilbert/state dimension): size of the full state space
+> - **d** (spacetime dimension): 3+1 in our classical description
+> - **k** (aperture): effective degrees of freedom accessible to a given observer+interface
+
 Now we ask: what about time?
 
 > **Disambiguation:** In this post, "time" can mean (i) **proper time** measured by a physical clock, (ii) **coordinate time** used to describe a system from afar, or (iii) **subjective time** in experience. The first two are established physics with precise definitions. The third is an analogy—a structural claim about shared geometry, not an identity.
@@ -85,7 +90,7 @@ The dimensional aperture k determines how many degrees of freedom are accessible
 | Flow states | k narrows (low) | Duration shrinks (retrospective) | Fewer peripheral correlations recorded |
 | Psychedelics | k expands (high) | Time fragments/dissolves | Too many DoF to integrate |
 
-The claim: **k=3 is the optimal aperture for time flow.** Deviations in *either* direction—squeezing toward k=2 or expanding toward k>3—disrupt the correlation rate. Time flows fastest when the aperture matches the system's natural bandwidth.
+The hypothesis: **k=3 may be a Goldilocks aperture for stable classical time.** Deviations in *either* direction—squeezing toward k=2 or expanding toward k>3—seem to disrupt the correlation rate. This framing *suggests* that time flows most coherently when the aperture matches the system's natural bandwidth.
 
 Time = rate of correlation accumulation through the dimensional aperture
 
@@ -139,7 +144,7 @@ This connects to time in a striking way:
 - **$k = 3$ (optimal):** Full classical dynamics. Maximal correlation rate. Time flows.
 - **$k > 3$:** Too many degrees of freedom to integrate. Time fragments.
 
-The claim: **our universe operates at $k=3$ because that's the Goldilocks aperture**—large enough for complexity, small enough for coherent time flow.
+One hypothesis: **stable observers like us may require $k \approx 3$**—large enough for complexity, small enough for coherent time flow. This doesn't explain *why* 3; it suggests the question might be selection-flavored.
 
 ---
 
@@ -211,6 +216,28 @@ Conjecture (heuristic): **the same factor that shrinks local volume elements als
 This isn't claiming √(-g) *is* the aperture (that conflates coordinates with physics). It's noting that the mathematical structure of time dilation mirrors the structure of volume contraction. Both might be downstream of the same underlying constraint on accessible degrees of freedom.
 
 For Lorentz contraction, the spatial volume contracts by 1/γ in the direction of motion. The accessible variation in that direction decreases—and time dilates by the same factor γ.
+
+### Toy example: k_eff tracks the Lorentz factor
+
+This doesn't *derive* SR—but it shows the aperture proxy tracks the same contraction.
+
+Consider a 3D spatial metric at rest: $g_{ij} = \text{diag}(1, 1, 1)$. The eigenvalues are $\lambda = (1, 1, 1)$.
+
+Participation ratio: $k_{eff} = \frac{(1+1+1)^2}{1^2+1^2+1^2} = \frac{9}{3} = 3$
+
+Now boost to velocity $v$ along the x-axis. In the moving frame, the x-direction contracts by $1/\gamma$. The effective metric eigenvalues become $\lambda = (1/\gamma^2, 1, 1)$.
+
+$$k_{eff}(v) = \frac{(1/\gamma^2 + 1 + 1)^2}{1/\gamma^4 + 1 + 1}$$
+
+At $v = 0$: $k_{eff} = 3$ (full access).
+
+At $v \to c$: $\gamma \to \infty$, so $1/\gamma^2 \to 0$, and:
+
+$$k_{eff} \to \frac{(0 + 1 + 1)^2}{0 + 1 + 1} = \frac{4}{2} = 2$$
+
+The aperture drops from 3 to 2 as velocity approaches c—and time dilation goes to infinity. The k_eff proxy is monotone with $\gamma$.
+
+**This is not a derivation.** It's a sanity check: if you model "accessible dimensions" via participation ratio of metric eigenvalues, the contraction factor tracks the relativistic one.
 
 ### Neural dimensional time (speculative)
 

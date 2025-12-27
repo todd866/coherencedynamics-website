@@ -19,6 +19,11 @@ relatedPapers:
 
 *This is Part 1 of a three-part series. [Part 2](/blog/quantum-gravity-without-the-paradox) applies the projection framework to quantum gravity. [Part 3](/blog/time-from-dimensions) connects dimensional apertures to time dilation.*
 
+> **Dimension glossary** (used throughout this series):
+> - **D** (Hilbert/state dimension): size of the full state space
+> - **d** (spacetime dimension): 3+1 in our classical description
+> - **k** (aperture): effective degrees of freedom accessible to a given observer+interface
+
 ### Before we start: the projection problem
 
 Here's a simple puzzle that contains the whole mystery of quantum mechanics.

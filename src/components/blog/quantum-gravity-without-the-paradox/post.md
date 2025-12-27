@@ -19,6 +19,11 @@ draft: false
 
 *This is Part 2 of a three-part series. [Part 1](/blog/quantum-mechanics-without-math) introduced the projection framework for quantum mechanics. [Part 3](/blog/time-from-dimensions) connects dimensional apertures to time dilation.*
 
+> **Dimension glossary** (used throughout this series):
+> - **D** (Hilbert/state dimension): size of the full state space
+> - **d** (spacetime dimension): 3+1 in our classical description
+> - **k** (aperture): effective degrees of freedom accessible to a given observer+interface
+
 > **TL;DR:** Quantum gravity looks paradoxical if you demand a single classical spacetime before measurement. In a unitary + decoherence picture, "classical spacetime" is an emergent description, not the fundamental substrate. So gravity needn't "wait for collapse"—because the thing that "collapses" is our low-dimensional description, not reality. The hard problem shifts from "how does gravity pick A or B?" to "how does classical geometry emerge so robustly from quantum correlations?"
 
 ### The problem everyone agrees on
@@ -203,13 +208,13 @@ Let's be honest about limits:
 
 ---
 
-### Why this matters for the mind
+### Optional coda: why this matters for the mind
+
+*This section is an analogy, not a physics claim. Skip it if you want physics only.*
 
 I'm pushing this framing hard because it's a general mistake: confusing a measurement interface for the underlying dynamics. Gravity is one case; minds may be another.
 
-Why is a website about biological coherence writing about quantum gravity?
-
-Because the error physicists make with gravity is the same error neuroscientists make with the brain.
+Why is a website about biological coherence writing about quantum gravity? Because the error physicists make with gravity is the same error neuroscientists make with the brain.
 
 (I'm not claiming brains are quantum computers. I'm claiming the *mistake*—confusing readout variables for the underlying dynamics—generalizes across domains.)
 
@@ -217,9 +222,7 @@ We look for the "neural correlate of consciousness" in the firing of specific ne
 
 But the mind, like gravity, likely operates on the coherent high-dimensional manifold—the "wave"—not the discrete spikes we measure with electrodes. Spikes are a sparse, low-dimensional readout of richer dynamics (oscillatory coherence, population states, phase-locking). The coherence is the object.
 
-If gravity can handle a superposition without breaking, maybe the brain can too.
-
-Same geometry. Different substrate.
+If gravity can handle a superposition without breaking, maybe the brain can too. Same geometry. Different substrate.
 
 ---
 
