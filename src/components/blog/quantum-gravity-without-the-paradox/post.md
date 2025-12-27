@@ -101,7 +101,7 @@ In the **Substrate View**, gravity couples to the quantum mass-energy distributi
 
 I'm not picking one here. The point is that all three dissolve the paradox by rejecting the demand for a *pre-decoherence classical metric*.
 
-The superposition isn't a problem. It's just a mass distribution.
+The superposition isn't a problem *in principle*—it's a well-defined quantum stress-energy distribution.
 
 ---
 
@@ -115,7 +115,7 @@ Gravity doesn't force the object through an aperture. Gravity *is* the shape of 
 
 If this is right:
 
-1. **Spacetime is continuous.** It curves smoothly around the quantum state |ψ⟩
+1. **An effective spacetime description can remain smooth.** It curves around the quantum state |ψ⟩ without needing to "pick" a classical outcome
 2. **Measurement is local.** When we measure, *we* update our description
 3. **No paradox.** The gravity well was always determined by the wave, not the classical outcome we later extract
 
@@ -209,6 +209,8 @@ Why is a website about biological coherence writing about quantum gravity?
 
 Because the error physicists make with gravity is the same error neuroscientists make with the brain.
 
+(I'm not claiming brains are quantum computers. I'm claiming the *mistake*—confusing readout variables for the underlying dynamics—generalizes across domains.)
+
 We look for the "neural correlate of consciousness" in the firing of specific neurons (the particles). We ask: "When does the brain decide? When does the thought collapse into a definite state?"
 
 But the mind, like gravity, likely operates on the coherent high-dimensional manifold—the "wave"—not the discrete spikes we measure with electrodes. Spikes are a sparse, low-dimensional readout of richer dynamics (oscillatory coherence, population states, phase-locking). The coherence is the object.
@@ -223,7 +225,7 @@ Same geometry. Different substrate.
 
 Digital computers aren't too slow—they're too flat.
 
-A classical bit string is a 1D tape. Matrix multiplication is still low-dimensional linear algebra. When we simulate quantum systems, costs explode exponentially (2^N amplitudes for N qubits). When we simulate brains, we discretize oscillatory manifolds into spike counts and wonder why the model feels hollow.
+Digital computers *represent* high-dimensional structure, but their native state is a discrete register configuration. High-dimensional dynamics are emulated, not lived. Matrix multiplication is still low-dimensional linear algebra applied sequentially. When we simulate quantum systems, costs explode exponentially (2^N amplitudes for N qubits). When we simulate brains, we discretize oscillatory manifolds into spike counts and wonder why the model feels hollow.
 
 The problem isn't processing power. It's dimensional mismatch.
 

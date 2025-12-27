@@ -223,15 +223,15 @@ export default function DimensionalBottleneckDemo({ className = '' }: Props) {
         ctx.fillText('correlations spread', w * 0.85, 40);
         ctx.fillText('into environment', w * 0.85, 53);
 
-        // Dimension count indicator
+        // Visible degrees of freedom indicator
         ctx.font = '9px monospace';
         ctx.fillStyle = '#666';
         ctx.textAlign = 'left';
-        ctx.fillText('D_eff ≈ 8', 10, h - 10);
+        ctx.fillText('Visible DoF: high', 10, h - 10);
         ctx.textAlign = 'center';
-        ctx.fillText('D_eff ≈ 3', w * 0.5, h - 10);
+        ctx.fillText('Visible DoF: 3', w * 0.5, h - 10);
         ctx.textAlign = 'right';
-        ctx.fillText('D_eff → ∞', w - 10, h - 10);
+        ctx.fillText('Visible DoF: spreading', w - 10, h - 10);
       }
 
       animationFrameId = requestAnimationFrame(render);
