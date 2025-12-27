@@ -90,7 +90,7 @@ The dimensional aperture k determines how many degrees of freedom are accessible
 | Flow states | k narrows (low) | Duration shrinks (retrospective) | Fewer peripheral correlations recorded |
 | Psychedelics | k expands (high) | Time fragments/dissolves | Too many DoF to integrate |
 
-The hypothesis: **k=3 may be a Goldilocks aperture for stable classical time.** Deviations in *either* direction—squeezing toward k=2 or expanding toward k>3—seem to disrupt the correlation rate. This framing *suggests* that time flows most coherently when the aperture matches the system's natural bandwidth.
+The pattern: **k=3 is the classical aperture.** That's not a hypothesis—it's the dimensionality of space. What's new is the claim that deviations from k=3 in *either* direction disrupt correlation rate, and that this is what time dilation *is*.
 
 Time = rate of correlation accumulation through the dimensional aperture
 
@@ -144,7 +144,7 @@ This connects to time in a striking way:
 - **$k = 3$ (optimal):** Full classical dynamics. Maximal correlation rate. Time flows.
 - **$k > 3$:** Too many degrees of freedom to integrate. Time fragments.
 
-One hypothesis: **stable observers like us may require $k \approx 3$**—large enough for complexity, small enough for coherent time flow. This doesn't explain *why* 3; it suggests the question might be selection-flavored.
+The implication: **classical observers operate at $k = 3$ because that's what "classical" means in our universe.** The question isn't whether k=3 is special—it is. The question is whether this aperture framework correctly describes *why* deviations produce time effects.
 
 ---
 
