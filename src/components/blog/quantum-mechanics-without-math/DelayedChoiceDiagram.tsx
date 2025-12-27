@@ -200,7 +200,7 @@ export default function DelayedChoiceDiagram({ className = '' }: Props) {
           </circle>
           <text x="15" y="153" fill="#f97316" fontSize="8">Idler detected</text>
           {step >= 3 && (
-            <text x="15" y="163" fill="#9ca3af" fontSize="7">t = +8 ns (later!)</text>
+            <text x="15" y="163" fill="#9ca3af" fontSize="7">t = later</text>
           )}
 
           {/* Key insight */}

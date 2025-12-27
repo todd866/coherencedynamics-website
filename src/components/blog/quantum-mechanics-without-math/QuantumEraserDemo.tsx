@@ -139,7 +139,7 @@ export default function QuantumEraserDemo({ className = '' }: Props) {
   };
 
   const explanations: Record<ViewMode, string> = {
-    all: "All photons. No pattern visible — just noise. This is the sum of all subsets.",
+    all: "All photons. No interference fringes — the hidden patterns cancel each other out.",
     D1: "Detector D1 only (erased). Interference fringes appear!",
     D2: "Detector D2 only (erased). Anti-fringes — shifted to fill the gaps of D1.",
     D3: "Detector D3 (preserved). No interference — just two blobs.",

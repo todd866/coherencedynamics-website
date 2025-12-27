@@ -35,6 +35,8 @@ That's not what's happening. The mug is a 3D object. The "paradox" comes from tr
 
 **Quantum mechanics is what happens when reality is high-dimensional, but our measurements are low-dimensional projections.**
 
+(To be clear: the "high-dimensional object" in quantum mechanics is the **state in Hilbert space**—a mathematical space of possibilities—not an extra spatial dimension. The mug is an analogy for how incompatible views arise from projecting something complex onto something simple.)
+
 Keep this in mind. It's the whole story.
 
 ---
@@ -96,9 +98,9 @@ The natural reaction:
 
 This is how the experiment is often presented—as evidence that quantum mechanics allows retrocausation, or that observation creates reality, or that the universe is fundamentally weird in a way that defies all intuition.
 
-But this interpretation is **wrong**.
+But this interpretation is **misleading**.
 
-And seeing why it's wrong reveals something profound about what quantum mechanics actually is.
+And seeing why reveals something profound about what quantum mechanics actually is.
 
 ---
 
@@ -108,13 +110,13 @@ Here's the key: **the pattern on the screen never changes.**
 
 Look at all the signal photon detections, without sorting by idler outcome. What do you see?
 
-Just noise. A washed-out blur. No fringes, no blobs, no pattern at all.
+No interference fringes. Just a smooth envelope—the sum of all the hidden patterns, washing each other out.
 
-The interference only appears **after** you sort the data—after you look at just the photons whose idlers went to D1, or just the ones whose idlers went to D2.
+The fringes only appear **after** you sort the data into coincidence-matched subsets—after you look at just the photons whose idlers went to D1, or just the ones whose idlers went to D2.
 
 You're not changing the past. You're not even changing the data.
 
-You're choosing **how to slice a correlated dataset**.
+You're choosing **how to slice a correlated dataset**. Nothing is rewritten—your grouping reveals correlations that were already there.
 
 <!-- SIMULATION: quantum-eraser -->
 
@@ -170,21 +172,19 @@ This is the same insight that drives our work on [the limits of falsifiability](
 
 ---
 
-### Time is also a projection
+### A note on time
 
-Here's the deepest implication, and it's often missed: **time itself emerges from measurement.**
+Here's one way to extend the projection idea—though this is more interpretive than the core argument above.
 
-The Schrödinger equation evolves the quantum state smoothly and reversibly. There is no "before" and "after" built into unitary evolution—the state at any moment contains the state at every other moment, related by a simple rotation in Hilbert space.
+The delayed-choice experiment feels like time travel only if you assume the signal photon must already "have" a definite classical story—interfered or didn't—independent of how the entangled partner is later measured. Quantum theory instead treats the pair as one joint state, and different measurements reveal different, incompatible slices of its correlations.
 
-So where does the arrow of time come from?
+Importantly: **you cannot send signals backward in time this way**. The unsorted signal data shows no trace of the idler measurement choice. The correlations only appear when you have access to *both* records and can sort them together. No retrocausation, no paradox—just entanglement doing what entanglement does.
 
-From measurement. From the act of making a record that cannot be undone.
+But there's a suggestive lesson here. The Schrödinger equation evolves the quantum state smoothly and reversibly. The arrow of time—the sense that the past is fixed and the future is open—comes not from the equation itself, but from **thermodynamics, decoherence, and the irreversibility of records**. Measurement is one way that irreversibility enters the picture.
 
-The delayed-choice experiment shows this vividly. The signal photon is detected *before* the idler—and yet sorting by idler outcome reveals patterns in the signal data. If time were fundamental, this should be impossible. The "earlier" event can't depend on the "later" one.
+The consistent histories framework formalizes this: a "history" is a time-ordered sequence of projections. You choose the projections. The quantum state doesn't come with timestamps built in.
 
-But if time is what you get when you project an atemporal state into a sequence of irreversible records, then the paradox dissolves. The entangled state has no temporal ordering. It's only when we make records—when we collapse the wave function—that we create the *appearance* of time flowing from past to future.
-
-The consistent histories framework formalizes this: a "history" is a time-ordered sequence of projections. Time isn't the stage on which quantum mechanics plays out. It's what you get when you choose to tell a story with a beginning, middle, and end.
+Whether this means time is "emergent" or merely that our *descriptions* of time require choosing a basis—that's a deeper question. But the delayed-choice experiment is a vivid reminder that temporal ordering and causal ordering are not as simple as they seem.
 
 ---
 
@@ -216,6 +216,8 @@ $$|\psi\rangle \rightarrow \frac{P_i |\psi\rangle}{\|P_i |\psi\rangle\|}$$
 
 That is symmetry breaking by projection.
 
+(This describes ideal *projective* measurements. More generally, measurements are described by POVMs—but the projection picture captures the essential geometry.)
+
 ### Noncommutation = incompatible slices
 
 If two observables $A$ and $B$ satisfy:
@@ -224,9 +226,9 @@ $$[A, B] \neq 0$$
 
 then their projection operators define incompatible decompositions of the same state.
 
-There is no joint probability distribution because no single low-D narrative exists that refines both slices simultaneously.
+There is no single noncontextual joint probability distribution—no classical assignment of definite values that reproduces the observed statistics across all measurement contexts.
 
-This is not epistemic. It's structural. The point isn't that we *don't know* both values; it's that the theory does not permit a single joint assignment consistent with observed statistics across measurement contexts.
+This is not epistemic. It's structural. The point isn't that we *don't know* both values; it's that no single underlying reality can simultaneously refine both incompatible slices.
 
 ### Histories and decoherence
 
@@ -238,9 +240,9 @@ Probabilities can be assigned only if the decoherence functional satisfies:
 
 $$D(\alpha, \beta) = \text{Tr}(C_\alpha \rho C_\beta^\dagger) \approx 0 \text{ for } \alpha \neq \beta$$
 
-This condition means: alternative histories do not interfere.
+Intuitively, $D(\alpha, \beta)$ measures whether two alternative stories can interfere with each other. If they can, you can't assign classical probabilities to them—the question "which really happened?" has no answer.
 
-If they do interfere, probabilities are undefined—not unknown, *undefined*.
+If histories *do* interfere, probabilities are undefined—not unknown, *undefined*.
 
 ### Why multiple histories can be "true"
 
@@ -290,13 +292,17 @@ In recent work, we formalize this by treating intelligence as active coherence m
 
 This framework reproduces the phenomena that motivate "quantum cognition" models—contextuality, order effects, non-commutativity—without requiring microscopic quantum effects in the brain. The resemblance to quantum mechanics is not coincidence. It's a consequence of operating in the same geometric regime.
 
-There's even a [minimal embedding threshold](/papers/minimal-embedding): below 3 dimensions, cyclic dynamics become impossible and systems are forced into discrete categories. This may explain why stress and cognitive overload produce rigid either/or thinking—you're being pushed below the dimensional threshold where nuance is geometrically possible.
+There's even a [minimal embedding threshold](/papers/minimal-embedding): below 3 dimensions, chaotic and self-avoiding dynamics become impossible, and trajectories are forced to cross themselves or collapse into fixed points. This may explain why stress and cognitive overload produce rigid either/or thinking—when effective dimensionality drops, nuance becomes geometrically impossible.
 
-### A note on Penrose-Hameroff
+### What I'm claiming (and not claiming)
+
+**Not claiming:** neurons are quantum computers; microtubule coherence explains consciousness; literal wavefunction collapse happens in brains.
+
+**Claiming:** many "quantum cognition" signatures—contextuality, order effects, apparent irrationality—arise from **context-dependent readout of a high-dimensional dynamical system**. The math is similar because the geometry is similar.
 
 This is *not* the Penrose-Hameroff "Orch-OR" hypothesis. That theory claims consciousness arises from literal quantum coherence in microtubules—a claim that faces serious objections regarding decoherence timescales in warm, wet biological tissue.
 
-The present argument is different: the mind exhibits quantum-like structure not because neurons are quantum computers, but because any high-dimensional coherent system observed through low-dimensional channels will show these features. You don't need quantum mechanics in the brain. You need dimensionality mismatch between internal states and external readouts.
+The present argument requires no such thing. The mind exhibits quantum-like structure not because neurons are quantum computers, but because any high-dimensional coherent system observed through low-dimensional channels will show these features.
 
 The substrate is classical. The geometry is the same.
 
