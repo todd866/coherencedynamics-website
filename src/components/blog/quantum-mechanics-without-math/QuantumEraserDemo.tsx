@@ -259,8 +259,8 @@ export default function QuantumEraserDemo({ className = '' }: Props) {
             <rect x={margin.left + 5} y={margin.top + 5} width="90" height="28" fill="#000" opacity="0.7" rx="3" />
             <circle cx={margin.left + 15} cy={margin.top + 15} r="4" fill="#06b6d4" />
             <text x={margin.left + 23} y={margin.top + 18} fill="#06b6d4" fontSize="9">D1 (fringes)</text>
-            <circle cx={margin.left + 15} cy={margin.top + 27} r="4" fill="#d946ef" />
-            <text x={margin.left + 23} y={margin.top + 30} fill="#d946ef" fontSize="9">D2 (anti-fringes)</text>
+            <circle cx={margin.left + 15} cy={margin.top + 27} r="4" fill="#e879f9" />
+            <text x={margin.left + 23} y={margin.top + 30} fill="#e879f9" fontSize="9">D2 (anti-fringes)</text>
           </g>
         )}
 
