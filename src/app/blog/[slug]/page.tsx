@@ -21,6 +21,8 @@ import {
 } from '@/components/blog/quantum-gravity-without-the-paradox';
 // Time from dimensions blog post components
 import { TimeApertureDemo } from '@/components/blog/time-from-dimensions';
+// Series keyboard navigation
+import SeriesNavigation from '@/components/blog/SeriesNavigation';
 
 export function generateStaticParams() {
   return getAllBlogSlugs().map((slug) => ({ slug }));
@@ -177,6 +179,7 @@ export default async function BlogPostPage({
 
   return (
     <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <SeriesNavigation />
       <Link
         href="/blog"
         className="text-gray-400 hover:text-white mb-8 inline-block"
