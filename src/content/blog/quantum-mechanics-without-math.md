@@ -92,6 +92,14 @@ Delayed-choice experiments don't show that the present changes the past.
 
 They show that **the past was never a classical object to begin with.**
 
+### See It For Yourself
+
+The simulation below generates 2000 synthetic "photon detections." Click the buttons to postselect on different idler detector outcomes:
+
+<!-- SIMULATION: quantum-eraser -->
+
+The data points never move. You're just choosing which subset to examine.
+
 ### Consistent histories, intuitively
 
 A "history" is just a story you try to tell about events at different times.

@@ -11,6 +11,14 @@ interface Simulation {
 
 const simulations: Simulation[] = [
   {
+    slug: 'quantum-eraser',
+    title: 'Delayed-Choice Quantum Eraser',
+    description: "2000 photon detections. Click to postselect on different idler detector outcomes. The data never changes — only which subset you examine. Watch interference fringes appear and disappear.",
+    paper: 'Quantum Mechanics Without the Math',
+    paperSlug: 'blog/quantum-mechanics-without-math',
+    status: 'playable',
+  },
+  {
     slug: 'soup-vs-sparks',
     title: 'Soup vs Sparks',
     description: "Coupled oscillators (left) spontaneously synchronize through physics. Independent switches (right) can only coordinate through explicit programming. This is why evolution chose the slow 'soup' over fast 'sparks'.",

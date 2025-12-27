@@ -4,6 +4,8 @@ import { getAllBlogSlugs, getBlogPostBySlug } from '@/data/blog';
 import { getPaperBySlug } from '@/data/papers';
 import Markdown from '@/components/Markdown';
 import SoupVsSparks from '@/components/SoupVsSparks';
+import QuantumEraserDemo from '@/components/QuantumEraserDemo';
+import EmbeddingDimensionDemo from '@/components/EmbeddingDimensionDemo';
 
 export function generateStaticParams() {
   return getAllBlogSlugs().map((slug) => ({ slug }));
@@ -16,6 +18,84 @@ function formatDate(dateString: string): string {
     month: 'long',
     day: 'numeric',
   });
+}
+
+// Simulation embed configurations
+const simulationEmbeds: Record<string, {
+  component: React.ReactNode;
+  caption: string;
+  link: string;
+}> = {
+  'soup-vs-sparks': {
+    component: <SoupVsSparks />,
+    caption: 'Left: Coupled oscillators synchronize spontaneously. Right: Independent switches show no coordination.',
+    link: '/simulations/soup-vs-sparks',
+  },
+  'quantum-eraser': {
+    component: <QuantumEraserDemo />,
+    caption: 'Click to postselect on different detector outcomes. The data never changes — only which subset you examine.',
+    link: '/simulations/quantum-eraser',
+  },
+  'dimensional-collapse': {
+    component: <EmbeddingDimensionDemo />,
+    caption: 'Toggle between k=3 (helix) and k=2 (circle) to see how dimensional collapse forces self-intersections.',
+    link: '/simulations/dimensional-collapse',
+  },
+};
+
+function BlogContent({ content }: { content: string }) {
+  // Find all simulation embeds
+  const simRegex = /<!-- SIMULATION: ([\w-]+) -->/g;
+  const parts: (string | { sim: string })[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = simRegex.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(content.slice(lastIndex, match.index));
+    }
+    parts.push({ sim: match[1] });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < content.length) {
+    parts.push(content.slice(lastIndex));
+  }
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (typeof part === 'string') {
+          return (
+            <Markdown key={i} className="text-gray-300 leading-relaxed blog-content">
+              {part}
+            </Markdown>
+          );
+        }
+        const embed = simulationEmbeds[part.sim];
+        if (!embed) {
+          return (
+            <div key={i} className="my-8 p-4 bg-gray-900 border border-gray-700 rounded text-gray-500 text-center">
+              Simulation &quot;{part.sim}&quot; not found
+            </div>
+          );
+        }
+        return (
+          <div key={i} className="my-8 not-prose">
+            <div className="border border-gray-800 rounded-lg p-4 bg-black/50">
+              {embed.component}
+              <p className="text-gray-500 text-xs mt-3 text-center">
+                {embed.caption}
+                <br />
+                <Link href={embed.link} className="text-gray-400 hover:text-white">
+                  Open full simulation →
+                </Link>
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
 }
 
 export default async function BlogPostPage({
@@ -66,32 +146,7 @@ export default async function BlogPostPage({
         </header>
 
         <div className="prose prose-invert prose-lg max-w-none">
-          {post.content.includes('<!-- SIMULATION: soup-vs-sparks -->') ? (
-            <>
-              <Markdown className="text-gray-300 leading-relaxed blog-content">
-                {post.content.split('<!-- SIMULATION: soup-vs-sparks -->')[0]}
-              </Markdown>
-              <div className="my-8 not-prose">
-                <div className="border border-gray-800 rounded-lg p-4 bg-black/50">
-                  <SoupVsSparks />
-                  <p className="text-gray-500 text-xs mt-3 text-center">
-                    Left: Coupled oscillators synchronize spontaneously. Right: Independent switches show no coordination.
-                    <br />
-                    <Link href="/simulations/soup-vs-sparks" className="text-gray-400 hover:text-white">
-                      Open full simulation →
-                    </Link>
-                  </p>
-                </div>
-              </div>
-              <Markdown className="text-gray-300 leading-relaxed blog-content">
-                {post.content.split('<!-- SIMULATION: soup-vs-sparks -->')[1]}
-              </Markdown>
-            </>
-          ) : (
-            <Markdown className="text-gray-300 leading-relaxed blog-content">
-              {post.content}
-            </Markdown>
-          )}
+          <BlogContent content={post.content} />
         </div>
 
         {relatedPapers && relatedPapers.length > 0 && (
