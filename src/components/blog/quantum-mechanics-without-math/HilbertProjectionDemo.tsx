@@ -49,7 +49,6 @@ export default function HilbertProjectionDemo({ className = '' }: Props) {
 
   const stateEnd = toSvg(stateVec);
   const basisEnd = toSvg(basisVec);
-  const orthoBasisEnd = toSvg(orthoBasisVec);
   const projEnd = toSvg(projectedVec);
 
   return (
