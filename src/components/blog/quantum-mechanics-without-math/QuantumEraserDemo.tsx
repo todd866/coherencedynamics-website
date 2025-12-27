@@ -3,17 +3,15 @@
 import React, { useState, useMemo } from 'react';
 
 interface PhotonData {
-  x: number;           // Signal photon position on screen
-  idlerOutcome: 'D1' | 'D2' | 'D3' | 'D4';  // Which idler detector fired
-  whichPath: 'erased' | 'preserved';         // Whether which-path info is available
+  x: number;
+  idlerOutcome: 'D1' | 'D2' | 'D3' | 'D4';
+  whichPath: 'erased' | 'preserved';
 }
 
-// Generate synthetic quantum eraser data
 function generatePhotonData(n: number): PhotonData[] {
   const data: PhotonData[] = [];
 
   for (let i = 0; i < n; i++) {
-    // Randomly assign idler detector (determines if which-path is erased or preserved)
     const detectorRoll = Math.random();
     let idlerOutcome: 'D1' | 'D2' | 'D3' | 'D4';
     let whichPath: 'erased' | 'preserved';
@@ -35,16 +33,12 @@ function generatePhotonData(n: number): PhotonData[] {
     let x = 0;
 
     if (whichPath === 'preserved') {
-      // Which-path preserved: two gaussian blobs (no interference)
       const slit = Math.random() < 0.5 ? -1 : 1;
       x = slit * 0.3 + (Math.random() - 0.5) * 0.4;
     } else {
-      // Which-path erased: interference pattern
-      // Use rejection sampling to create interference fringes
       let accepted = false;
       while (!accepted) {
         x = (Math.random() - 0.5) * 2;
-        // Interference pattern: cos^2 with some envelope
         const envelope = Math.exp(-x * x * 2);
         const fringes = Math.cos(x * 12) ** 2;
         const probability = envelope * fringes;
@@ -52,9 +46,8 @@ function generatePhotonData(n: number): PhotonData[] {
           accepted = true;
         }
       }
-      // D1 and D2 have opposite phase
       if (idlerOutcome === 'D2') {
-        x = x + 0.13; // Phase shift for anti-fringes
+        x = x + 0.13;
       }
     }
 
@@ -64,7 +57,20 @@ function generatePhotonData(n: number): PhotonData[] {
   return data;
 }
 
-type ViewMode = 'all' | 'D1' | 'D2' | 'D3' | 'D4' | 'erased' | 'preserved';
+function getHistogramCounts(data: PhotonData[], bins: number): number[] {
+  const counts = new Array(bins).fill(0);
+  const binWidth = 2 / bins;
+
+  data.forEach(p => {
+    const binIndex = Math.floor((p.x + 1) / binWidth);
+    if (binIndex >= 0 && binIndex < bins) {
+      counts[binIndex]++;
+    }
+  });
+  return counts;
+}
+
+type ViewMode = 'all' | 'D1' | 'D2' | 'D3' | 'D4' | 'erased' | 'preserved' | 'compare';
 
 interface Props {
   className?: string;
@@ -74,53 +80,57 @@ export default function QuantumEraserDemo({ className = '' }: Props) {
   const [viewMode, setViewMode] = useState<ViewMode>('all');
   const [showExplanation, setShowExplanation] = useState(true);
 
-  // Generate data once
-  const photonData = useMemo(() => generatePhotonData(2000), []);
+  const photonData = useMemo(() => generatePhotonData(2500), []);
 
-  // Filter data based on view mode
-  const visibleData = useMemo(() => {
-    switch (viewMode) {
-      case 'all':
-        return photonData;
-      case 'D1':
-        return photonData.filter(p => p.idlerOutcome === 'D1');
-      case 'D2':
-        return photonData.filter(p => p.idlerOutcome === 'D2');
-      case 'D3':
-        return photonData.filter(p => p.idlerOutcome === 'D3');
-      case 'D4':
-        return photonData.filter(p => p.idlerOutcome === 'D4');
-      case 'erased':
-        return photonData.filter(p => p.whichPath === 'erased');
-      case 'preserved':
-        return photonData.filter(p => p.whichPath === 'preserved');
-      default:
-        return photonData;
+  const { histogramLayers } = useMemo(() => {
+    const bins = 60;
+    const normalize = (counts: number[], max: number) => counts.map(c => c / max);
+
+    if (viewMode === 'compare') {
+      const d1Data = photonData.filter(p => p.idlerOutcome === 'D1');
+      const d2Data = photonData.filter(p => p.idlerOutcome === 'D2');
+
+      const counts1 = getHistogramCounts(d1Data, bins);
+      const counts2 = getHistogramCounts(d2Data, bins);
+
+      const localMax = Math.max(...counts1, ...counts2, 1);
+
+      return {
+        histogramLayers: {
+          primary: normalize(counts1, localMax),
+          secondary: normalize(counts2, localMax)
+        }
+      };
+    } else {
+      let subset = photonData;
+      switch (viewMode) {
+        case 'D1': subset = photonData.filter(p => p.idlerOutcome === 'D1'); break;
+        case 'D2': subset = photonData.filter(p => p.idlerOutcome === 'D2'); break;
+        case 'D3': subset = photonData.filter(p => p.idlerOutcome === 'D3'); break;
+        case 'D4': subset = photonData.filter(p => p.idlerOutcome === 'D4'); break;
+        case 'erased': subset = photonData.filter(p => p.whichPath === 'erased'); break;
+        case 'preserved': subset = photonData.filter(p => p.whichPath === 'preserved'); break;
+        default: subset = photonData;
+      }
+
+      const counts = getHistogramCounts(subset, bins);
+      const localMax = Math.max(...counts, 1);
+
+      return {
+        histogramLayers: {
+          primary: normalize(counts, localMax),
+          secondary: null
+        }
+      };
     }
   }, [photonData, viewMode]);
 
-  // Create histogram for visualization
-  const histogram = useMemo(() => {
-    const bins = 60;
-    const counts = new Array(bins).fill(0);
-    const binWidth = 2 / bins;
-
-    visibleData.forEach(p => {
-      const binIndex = Math.floor((p.x + 1) / binWidth);
-      if (binIndex >= 0 && binIndex < bins) {
-        counts[binIndex]++;
-      }
-    });
-
-    const maxCount = Math.max(...counts, 1);
-    return counts.map(c => c / maxCount);
-  }, [visibleData]);
-
   const getButtonClass = (mode: ViewMode) => {
     const isActive = viewMode === mode;
-    const baseClass = "px-3 py-1.5 text-xs rounded transition-all ";
+    const baseClass = "px-3 py-1.5 text-xs rounded transition-all border border-transparent ";
 
     if (isActive) {
+      if (mode === 'compare') return baseClass + "bg-indigo-900 border-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]";
       if (mode === 'all') return baseClass + "bg-gray-600 text-white";
       if (mode === 'erased' || mode === 'D1' || mode === 'D2') return baseClass + "bg-cyan-600 text-white";
       return baseClass + "bg-orange-600 text-white";
@@ -129,44 +139,63 @@ export default function QuantumEraserDemo({ className = '' }: Props) {
   };
 
   const explanations: Record<ViewMode, string> = {
-    all: "All 2000 photon detections. No pattern visible — just noise. This is what you see before postselection.",
-    D1: "Postselected on detector D1 (which-path erased). Interference fringes appear!",
-    D2: "Postselected on detector D2 (which-path erased). Anti-fringes — shifted by half a wavelength from D1.",
-    D3: "Postselected on detector D3 (which-path preserved). No interference — just two blobs from the two slits.",
-    D4: "Postselected on detector D4 (which-path preserved). Same as D3 — no interference.",
-    erased: "All 'which-path erased' detections (D1 + D2). Fringes and anti-fringes cancel — back to no pattern!",
-    preserved: "All 'which-path preserved' detections (D3 + D4). Two-slit pattern without interference.",
+    all: "All photons. No pattern visible — just noise. This is the sum of all subsets.",
+    D1: "Detector D1 only (erased). Interference fringes appear!",
+    D2: "Detector D2 only (erased). Anti-fringes — shifted to fill the gaps of D1.",
+    D3: "Detector D3 (preserved). No interference — just two blobs.",
+    D4: "Detector D4 (preserved). Same as D3 — no interference.",
+    erased: "All erased (D1 + D2). The fringes and anti-fringes add up to a flat line.",
+    preserved: "All preserved (D3 + D4). Two-slit pattern without interference.",
+    compare: "Comparing D1 (Cyan) vs D2 (Fuchsia). See how the peaks of one fit the troughs of the other? When you add them, the pattern disappears.",
   };
 
   return (
     <div className={`bg-gray-900 rounded-lg p-6 ${className}`}>
       <div className="text-center mb-4">
         <h3 className="text-lg font-semibold text-white mb-1">Delayed-Choice Quantum Eraser</h3>
-        <p className="text-gray-400 text-sm">Same data. Different slices. Different patterns.</p>
+        <p className="text-gray-400 text-sm">Sorting the noise reveals the signal.</p>
       </div>
 
       {/* Histogram display */}
-      <div className="relative h-48 mb-4 bg-black rounded overflow-hidden">
+      <div className="relative h-48 mb-4 bg-black rounded overflow-hidden border border-gray-800">
         <div className="absolute inset-0 flex items-end justify-center gap-px px-2">
-          {histogram.map((height, i) => (
-            <div
-              key={i}
-              className="flex-1 transition-all duration-300"
-              style={{
-                height: `${height * 100}%`,
-                backgroundColor: viewMode === 'all' ? '#6b7280' :
-                  (viewMode === 'erased' || viewMode === 'D1' || viewMode === 'D2') ? '#06b6d4' : '#f97316',
-                opacity: 0.8,
-              }}
-            />
-          ))}
+          {histogramLayers.primary.map((h1, i) => {
+             const h2 = histogramLayers.secondary ? histogramLayers.secondary[i] : 0;
+             return (
+              <div key={i} className="flex-1 h-full flex items-end relative">
+                {/* Secondary Bar (D2 in compare mode) */}
+                {histogramLayers.secondary && (
+                  <div
+                    className="absolute bottom-0 w-full bg-fuchsia-500 transition-all duration-300 opacity-80"
+                    style={{ height: `${h2 * 90}%` }}
+                  />
+                )}
+
+                {/* Primary Bar */}
+                <div
+                  className="w-full relative z-10 transition-all duration-300"
+                  style={{
+                    height: `${h1 * 90}%`,
+                    backgroundColor: viewMode === 'all' ? '#6b7280' :
+                      viewMode === 'compare' ? '#06b6d4' :
+                      (viewMode === 'erased' || viewMode === 'D1' || viewMode === 'D2') ? '#06b6d4' : '#f97316',
+                    opacity: viewMode === 'compare' ? 0.7 : 0.8,
+                    mixBlendMode: viewMode === 'compare' ? 'screen' : 'normal',
+                  }}
+                />
+              </div>
+            );
+          })}
         </div>
 
-        {/* Screen label */}
-        <div className="absolute bottom-1 left-2 text-xs text-gray-600">Detection Screen</div>
-        <div className="absolute top-2 right-2 text-xs text-gray-500">
-          {visibleData.length} / {photonData.length} photons
-        </div>
+        {/* Labels */}
+        <div className="absolute bottom-1 left-2 text-xs text-gray-600">Screen Position</div>
+        {viewMode === 'compare' && (
+          <div className="absolute top-2 left-2 text-xs flex gap-3 bg-black/50 p-1 rounded">
+            <span className="text-cyan-400 font-bold">● D1 (Fringes)</span>
+            <span className="text-fuchsia-500 font-bold">● D2 (Anti-fringes)</span>
+          </div>
+        )}
       </div>
 
       {/* Controls */}
@@ -175,40 +204,46 @@ export default function QuantumEraserDemo({ className = '' }: Props) {
           <button onClick={() => setViewMode('all')} className={getButtonClass('all')}>
             All Data
           </button>
-          <span className="text-gray-600 self-center">|</span>
+          <span className="text-gray-700 self-center">|</span>
           <button onClick={() => setViewMode('D1')} className={getButtonClass('D1')}>
-            D1 (erased)
+            D1
           </button>
           <button onClick={() => setViewMode('D2')} className={getButtonClass('D2')}>
-            D2 (erased)
+            D2
           </button>
+          <span className="text-gray-700 self-center">|</span>
           <button onClick={() => setViewMode('D3')} className={getButtonClass('D3')}>
-            D3 (preserved)
+            D3
           </button>
           <button onClick={() => setViewMode('D4')} className={getButtonClass('D4')}>
-            D4 (preserved)
+            D4
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-2 justify-center">
+        <div className="flex flex-wrap gap-2 justify-center items-center">
+           <button onClick={() => setViewMode('compare')} className={getButtonClass('compare')}>
+            ⚡ Compare D1 vs D2
+          </button>
+          <span className="text-gray-700 self-center text-sm">or view sums:</span>
           <button onClick={() => setViewMode('erased')} className={getButtonClass('erased')}>
-            All Erased (D1+D2)
+            D1 + D2
           </button>
           <button onClick={() => setViewMode('preserved')} className={getButtonClass('preserved')}>
-            All Preserved (D3+D4)
+            D3 + D4
           </button>
         </div>
       </div>
 
-      {/* Explanation */}
+      {/* Explanation Box */}
       {showExplanation && (
-        <div className="mt-4 p-3 bg-gray-800 rounded text-sm text-gray-300 text-center">
+        <div className={`mt-4 p-3 rounded text-sm text-center transition-colors ${
+          viewMode === 'compare' ? 'bg-indigo-900/30 text-indigo-200 border border-indigo-900' : 'bg-gray-800 text-gray-300'
+        }`}>
           {explanations[viewMode]}
         </div>
       )}
 
-      {/* Key insight */}
-      <div className="mt-4 text-center">
+      <div className="mt-2 text-center">
         <button
           onClick={() => setShowExplanation(!showExplanation)}
           className="text-xs text-gray-500 hover:text-gray-300"
@@ -219,9 +254,8 @@ export default function QuantumEraserDemo({ className = '' }: Props) {
 
       <div className="mt-4 border-t border-gray-800 pt-4">
         <p className="text-xs text-gray-500 text-center">
-          <strong className="text-gray-400">The trick:</strong> The dots never move.
-          You&apos;re just choosing which subset to look at.
-          The correlations were always there — in the joint high-dimensional state.
+          <strong className="text-gray-400">The punchline:</strong> The dots never move.
+          You&apos;re choosing which subset to examine. The correlations were always there.
         </p>
       </div>
     </div>

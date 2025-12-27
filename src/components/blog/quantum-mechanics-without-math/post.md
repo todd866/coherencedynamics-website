@@ -166,13 +166,13 @@ It's about the fact that reality has more dimensions than our descriptions. Meas
 
 We don't observe reality. We collapse it into a story.
 
-This is the same insight that drives our work on [the limits of falsifiability](/papers/falsifiability): when you project a high-dimensional system through a low-dimensional measurement, you lose almost everything. A single binary readout of a 100-dimensional state discards nearly all the information.
+This is the same insight that drives our work on [the limits of falsifiability](/papers/falsifiability): when you project a high-dimensional system through a low-dimensional measurement, you lose almost everything. A single binary readout of a 100-dimensional continuous state necessarily discards almost all of the available information.
 
 ---
 
 ## Part II: Putting the Definitions Back In
 
-Now let's say the same thing precisely.
+Everything above can be said precisely—the math just formalizes the same projection logic. To describe the coffee mug mathematically, we can't just use x and y coordinates. We need a representation that captures all possible views. In physics, we call this a vector in a high-dimensional state space.
 
 ### The quantum state
 
@@ -291,6 +291,8 @@ Quantum mechanics looks strange because it is the first physical theory that for
 The mind looks quantum for the same reason: it sustains coherence in a space too large to be fully observed, then collapses it into usable action.
 
 The mind doesn't use quantum mechanics. It lives in the same structural regime.
+
+Just as Bergson argued that time is a continuous flow that we artificially slice into discrete moments, quantum mechanics shows that physical reality is a continuous high-dimensional flow that we artificially slice into discrete measurements. The slicing is real. The discreteness is not.
 
 ---
 
