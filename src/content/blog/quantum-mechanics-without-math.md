@@ -23,7 +23,7 @@ Quantum mechanics feels spooky because we keep asking it to behave like a low-di
 
 We assume there is a single, stable narrative of "what happened," and that measurements merely reveal parts of it. QM says: no—"what happened" is not a stored classical fact until you decide how to ask.
 
-This is the same insight that drives our work on [the limits of falsifiability](/papers/falsifiability): when you project a high-dimensional system through a low-dimensional measurement, you lose almost everything. A binary test on a 100-dimensional system preserves about $10^{-30}$ of the information. That's not approximately zero—it's functionally indistinguishable from zero.
+This is the same insight that drives our work on [the limits of falsifiability](/papers/falsifiability): when you project a high-dimensional system through a low-dimensional measurement, you lose almost everything. A binary readout of a 100-dimensional continuous state discards essentially all of the state information—by construction it can carry at most 1 bit, no matter how rich the underlying dynamics are.
 
 ### The quantum state is not a history
 
@@ -34,15 +34,63 @@ When you measure:
 - you select a slice of the coherence structure,
 - and that slice defines which questions even have answers.
 
-### Why delayed choice feels like retrocausality
+### Why delayed choice feels like time travel
 
-In delayed-choice or quantum eraser experiments:
-- the raw data never changes,
-- only how you partition it does.
+Imagine you fire a photon at a double slit.
 
-Different ways of slicing the same joint data expose different correlations. The illusion of "changing the past" comes from assuming there was a unique low-D past independent of the slicing.
+If you detect which slit it went through, you see two clean blobs on the screen. If you don't, you see an interference pattern.
 
-There wasn't.
+So far, so familiar.
+
+Now here's the twist: you let the photon hit the screen **first**, and only afterward do you decide whether to record which-path information about its entangled partner.
+
+When you later sort the data, something strange happens.
+
+- Sort one way, and the earlier photon *appears* to have gone through a single slit.
+- Sort another way, and the same earlier photon *appears* to have interfered with itself.
+
+It looks like a choice made in the present changed the behavior of a particle in the past.
+
+Cue ominous music.
+
+### The apparent paradox
+
+The natural conclusion is:
+
+> "Measurement reaches backward in time and rewrites history."
+
+That's not just a casual misunderstanding—it's exactly how the experiment is often presented, even by physicists trying to convey how strange quantum mechanics is.
+
+But it's wrong.
+
+### What actually happens
+
+Nothing about the earlier detection ever changes.
+
+The pattern on the screen—taken by itself—is always the same washed-out distribution. No interference. No which-path structure. Just noise.
+
+The "retroactive change" appears **only after** you:
+
+1. consider the joint signal–idler system, and
+2. partition the already-collected data based on how the idler was later measured.
+
+You are not changing the past. You are choosing **how to slice a correlated dataset**.
+
+Different slices reveal different correlations that were always present in the joint high-dimensional state.
+
+### The real mistake
+
+The paradox arises because we smuggle in a classical assumption:
+
+> *There must have been a single, definite low-dimensional history all along.*
+
+Quantum mechanics refuses this assumption.
+
+There is no unique "what the photon did" independent of how you interrogate the system. There is only a high-dimensional coherence structure, from which different classical-looking stories can be extracted—but not simultaneously.
+
+Delayed-choice experiments don't show that the present changes the past.
+
+They show that **the past was never a classical object to begin with.**
 
 ### Consistent histories, intuitively
 
@@ -60,11 +108,13 @@ Quantum mechanics is not about particles behaving strangely.
 
 It's about the fact that coherence exists at higher dimensionality than classical explanation, and that measurement is an act of dimensional reduction that destroys some truths to create others.
 
-We don't observe reality. We collapse it into a story.
+We don't observe reality.
+
+We collapse it into a story.
 
 ---
 
-## Part II: Putting the Math Back In
+## Part II: Putting the Definitions Back In
 
 Now let's say the same thing precisely.
 
@@ -102,7 +152,7 @@ then their projection operators define incompatible decompositions of the same s
 
 There is no joint probability distribution because no single low-D narrative exists that refines both slices simultaneously.
 
-This is not epistemic. It is structural.
+This is not epistemic. It is structural. The point isn't that we *don't know* both values; it's that the theory does not permit a single joint assignment consistent with observed statistics across measurement contexts.
 
 ### Histories and decoherence
 
@@ -164,7 +214,7 @@ Once you see that, it becomes obvious why cognition keeps getting compared to qu
 
 Human minds are not directly observable systems. They maintain distributed, multi-scale dynamical states—neural, bodily, affective, and semantic—that cannot be simultaneously accessed without disturbing one another. Introspection, attention, and verbal report are not passive readouts; they are measurement operations that reshape the underlying dynamics.
 
-This connects to what we've called [substrate dimensionality](/papers/substrate-dimensionality): the brain operates with $10^{14}$–$10^{18}$ continuous degrees of freedom, while any external measurement (or internal report) compresses this to a handful of dimensions. The mismatch is astronomical.
+This connects to what we've called [substrate dimensionality](/papers/substrate-dimensionality): the brain's internal state is effectively astronomically high-dimensional (neurons, synapses, ion channels, fields), while any external measurement—or internal report—compresses it to a handful of variables. The mismatch is vast.
 
 This is why:
 - the order of questions matters,
@@ -210,4 +260,4 @@ The mind doesn't use quantum mechanics. It lives in the same structural regime.
 
 ---
 
-*The formal version of this argument appears in our paper on [high-dimensional coherence as the basis of biological intelligence](/papers/high-dimensional-coherence). The manuscript is currently at the minor revisions stage, and we expect the version available in the [accompanying repository](https://github.com/todd866/intelligence-biosystems) to be accepted without further substantive changes.*
+*The formal version of this argument appears in our paper on [high-dimensional coherence as the basis of biological intelligence](/papers/high-dimensional-coherence). The manuscript is currently at minor revisions, and the version in the [repository](https://github.com/todd866/intelligence-biosystems) reflects the current revision.*
