@@ -65,9 +65,9 @@ Now for the experiment that makes physicists reach for phrases like "spooky" and
 
 The setup is more complicated, but the key idea is simple:
 
-1. A photon enters a special crystal that splits it into two entangled photons
-2. One photon (the "signal") heads toward a double slit and a detection screen
-3. The other photon (the "idler") heads through a maze of beam splitters to one of four detectors
+1. A photon enters a special crystal that splits it into two entangled photons—twins that share a quantum connection
+2. One photon (the "signal") heads toward a double slit and a detection screen—this is the one we care about
+3. The other photon (the "idler") takes a longer path through a maze of beam splitters to one of four detectors—it's called the idler because it seems to just tag along, but it holds the key to the whole puzzle
 
 The crucial part: **the signal photon hits the screen *before* the idler photon reaches its detector.**
 
@@ -75,10 +75,12 @@ Step through the experiment:
 
 <!-- SIMULATION: delayed-choice -->
 
-Here's what you find when you analyze the data:
+Here's the trick with the detectors: the beam splitters are arranged so that some detectors (D1 and D2) can be reached by idlers from *either* slit—the paths merge, so you can't tell which slit the signal went through. Other detectors (D3 and D4) can only be reached by idlers from one specific slit—the which-path information is preserved.
 
-- If the idler hit detector D1 or D2 (which "erases" the which-path information), the corresponding signal photons show interference fringes
-- If the idler hit detector D3 or D4 (which "preserves" the which-path information), the corresponding signal photons show two blobs—no interference
+Now here's what you find when you analyze the data:
+
+- If the idler hit D1 or D2 (which-path **erased**), the corresponding signal photons show interference fringes
+- If the idler hit D3 or D4 (which-path **preserved**), the corresponding signal photons show two blobs—no interference
 
 But wait. The signal photon was already detected. Its position was already recorded. How can a *later* measurement of the idler change whether the *earlier* signal shows interference?
 
