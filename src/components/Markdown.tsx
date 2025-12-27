@@ -18,17 +18,20 @@ export default function Markdown({ children, className = '' }: MarkdownProps) {
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
-          // Style links
-          a: ({ href, children }) => (
-            <a
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:text-blue-300 underline"
-            >
-              {children}
-            </a>
-          ),
+          // Style links - internal links stay in same tab, external open new tab
+          a: ({ href, children }) => {
+            const isInternal = href?.startsWith('/') || href?.startsWith('#');
+            return (
+              <a
+                href={href}
+                target={isInternal ? undefined : "_blank"}
+                rel={isInternal ? undefined : "noopener noreferrer"}
+                className="text-blue-400 hover:text-blue-300 underline"
+              >
+                {children}
+              </a>
+            );
+          },
           // Preserve paragraph spacing - inherit font from parent
           p: ({ children }) => (
             <p className="mb-4 last:mb-0" style={{ fontSize: 'inherit' }}>{children}</p>
