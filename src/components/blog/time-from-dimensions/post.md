@@ -21,7 +21,7 @@ draft: false
 
 > **TL;DR:** Time emerges from correlations through a dimensional aperture. When the aperture contracts—whether from gravity, velocity, or neural synchronization—time dilates. This isn't three separate phenomena. It's one phenomenon in three regimes.
 
-This is Part 3 of a series. [Part 1](/blog/quantum-mechanics-without-math) reframed quantum mechanics as projection from high-dimensional states. [Part 2](/blog/quantum-gravity-without-the-paradox) applied that to gravity, arguing that classical spacetime is the map, not the territory.
+*This is Part 3 of a three-part series. [Part 1](/blog/quantum-mechanics-without-math) introduced the projection framework for quantum mechanics. [Part 2](/blog/quantum-gravity-without-the-paradox) applied it to quantum gravity.*
 
 Now we ask: what about time?
 

@@ -17,6 +17,8 @@ draft: false
 
 ## Part I: Without the Math
 
+*This is Part 2 of a three-part series. [Part 1](/blog/quantum-mechanics-without-math) introduced the projection framework for quantum mechanics. [Part 3](/blog/time-from-dimensions) connects dimensional apertures to time dilation.*
+
 > **TL;DR:** Quantum gravity looks paradoxical if you demand a single classical spacetime before measurement. In a unitary + decoherence picture, "classical spacetime" is an emergent description, not the fundamental substrate. So gravity needn't "wait for collapse"—because the thing that "collapses" is our low-dimensional description, not reality. The hard problem shifts from "how does gravity pick A or B?" to "how does classical geometry emerge so robustly from quantum correlations?"
 
 ### The problem everyone agrees on

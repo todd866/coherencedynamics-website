@@ -17,6 +17,8 @@ relatedPapers:
 
 ## Part I: Without the Math
 
+*This is Part 1 of a three-part series. [Part 2](/blog/quantum-gravity-without-the-paradox) applies the projection framework to quantum gravity. [Part 3](/blog/time-from-dimensions) connects dimensional apertures to time dilation.*
+
 ### Before we start: the projection problem
 
 Here's a simple puzzle that contains the whole mystery of quantum mechanics.
