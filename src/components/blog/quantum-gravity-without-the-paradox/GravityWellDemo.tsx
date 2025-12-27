@@ -207,7 +207,7 @@ export default function GravityWellDemo({ className = '' }: Props) {
       <div className="text-center mb-3">
         <h3 className="text-base font-semibold text-white">Gravity & Superposition</h3>
         <p className="text-xs text-gray-500">How does spacetime curve when mass is in two places?</p>
-        <p className="text-xs text-gray-600 mt-1">Toggle modes. Watch whether the grid has a single stable geometry.</p>
+        <p className="text-xs text-gray-600 mt-1">Toggle modes. Watch whether the grid has a single stable geometry. (Stylized—illustrates the conceptual demand, not a literal prediction.)</p>
       </div>
 
       <div className="border border-gray-800 rounded bg-black mb-4">

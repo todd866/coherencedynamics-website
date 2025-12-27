@@ -17,6 +17,8 @@ draft: false
 
 ## Part I: Without the Math
 
+> **TL;DR:** Quantum gravity looks paradoxical if you demand a single classical spacetime before measurement. In a unitary + decoherence picture, "classical spacetime" is an emergent description, not the fundamental substrate. So gravity needn't "wait for collapse"—because the thing that "collapses" is our low-dimensional description, not reality. The hard problem shifts from "how does gravity pick A or B?" to "how does classical geometry emerge so robustly from quantum correlations?"
+
 ### The problem everyone agrees on
 
 Here's the puzzle that's haunted physics for 90 years:
@@ -74,7 +76,7 @@ If collapse is an artifact of subsystem description (as in unitary-only interpre
 |:--|:--|:--|
 | **What it is** | Quantum state | Measurement outcome |
 | **Dimensionality** | High-dimensional, relational | Low-dimensional, classical |
-| **Status** | Physically real | Projection artifact |
+| **Status** | Fundamental description | Effective description for decohered subsystems |
 | **Gravity couples to** | ✓ This | ✗ Not this |
 
 When we ask "does spacetime curve toward A or B?", we're demanding gravity respect a classical distinction that only exists after projection. That's a category error.
@@ -90,6 +92,14 @@ In the **Paradox View**, you demand a single classical metric sourced by a defin
 In the **Substrate View**, gravity couples to the quantum mass-energy distribution. The well doesn't flicker. It forms a stable, smooth curve shaped by the energy distribution—which happens to have two lobes. To gravity, that's no stranger than a dumbbell.
 
 (A complete story likely requires the gravitational field itself to participate quantum-mechanically. The point here is that the *conceptual demand for a single classical metric* is what generates the paradox.)
+
+**Three versions of "gravity sees the quantum state":**
+
+1. **Semiclassical approximation:** Keep geometry classical, source it with ⟨T̂⟩. Useful but breaks down when fluctuations matter.
+2. **Branch-relative classicality:** After decoherence, each quasi-classical branch has its own effective geometry. No single global classical metric, but local classical descriptions within branches.
+3. **Fully quantum gravity:** The gravitational field becomes entangled with matter. Geometry is not classical at the fundamental level.
+
+I'm not picking one here. The point is that all three dissolve the paradox by rejecting the demand for a *pre-decoherence classical metric*.
 
 The superposition isn't a problem. It's just a mass distribution.
 
@@ -240,6 +250,8 @@ The quantum gravity "paradox" and the hard problem of consciousness share the sa
 
 ### Is spacetime the bottleneck?
 
+*Everything above is a reframing of existing unitary + decoherence intuitions. What follows is more speculative.*
+
 Here's a more radical possibility: what if 3+1D spacetime isn't where physics happens, but the *aperture* through which high-dimensional dynamics get squeezed?
 
 <!-- SIMULATION: dimensional-bottleneck -->
@@ -314,11 +326,13 @@ This is not a full quantum-gravity theory, and it can't be the final word in reg
 
 ### The Wheeler-DeWitt equation
 
-For the full universe:
+In canonical approaches to quantum gravity, the universe satisfies:
 
 $$\hat{H}|\Psi\rangle = 0$$
 
 The Hamiltonian annihilates the state. No time evolution. The universe is "frozen."
+
+(This "timelessness" depends on the canonical quantization context and choice of variables—it's not the settled interpretation across all quantum gravity approaches. But it illustrates the general puzzle.)
 
 Time reappears relationally: when a subsystem $S$ is entangled with a "clock" subsystem $C$, the correlations between $S$ and $C$ look like time evolution from $S$'s perspective.
 
@@ -334,7 +348,7 @@ $$S_A = \frac{\text{Area}(\gamma_A)}{4G_N}$$
 
 The entanglement entropy of a boundary region $A$ equals the area of the minimal surface $\gamma_A$ in the bulk (divided by Newton's constant).
 
-Geometry *is* entanglement, quantitatively. The spatial structure we call "spacetime" may literally be built from the pattern of quantum correlations.
+In holographic setups, geometry *is* entanglement, quantitatively. The spatial structure we call "spacetime" may literally be built from the pattern of quantum correlations.
 
 ### Tensor networks
 
