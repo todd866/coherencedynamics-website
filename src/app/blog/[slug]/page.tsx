@@ -6,6 +6,9 @@ import Markdown from '@/components/Markdown';
 import SoupVsSparks from '@/components/SoupVsSparks';
 import QuantumEraserDemo from '@/components/QuantumEraserDemo';
 import EmbeddingDimensionDemo from '@/components/EmbeddingDimensionDemo';
+import DoubleSlitDiagram from '@/components/DoubleSlitDiagram';
+import DelayedChoiceDiagram from '@/components/DelayedChoiceDiagram';
+import ProjectionDiagram from '@/components/ProjectionDiagram';
 
 export function generateStaticParams() {
   return getAllBlogSlugs().map((slug) => ({ slug }));
@@ -40,6 +43,21 @@ const simulationEmbeds: Record<string, {
     component: <EmbeddingDimensionDemo />,
     caption: 'Toggle between k=3 (helix) and k=2 (circle) to see how dimensional collapse forces self-intersections.',
     link: '/simulations/dimensional-collapse',
+  },
+  'double-slit': {
+    component: <DoubleSlitDiagram />,
+    caption: 'The classic double-slit experiment. Click to add or remove which-path detectors.',
+    link: '',
+  },
+  'delayed-choice': {
+    component: <DelayedChoiceDiagram />,
+    caption: 'Step through the delayed-choice quantum eraser experiment.',
+    link: '',
+  },
+  'projection': {
+    component: <ProjectionDiagram />,
+    caption: 'The same 3D object looks completely different from different angles.',
+    link: '',
   },
 };
 
@@ -85,10 +103,14 @@ function BlogContent({ content }: { content: string }) {
               {embed.component}
               <p className="text-gray-500 text-xs mt-3 text-center">
                 {embed.caption}
-                <br />
-                <Link href={embed.link} className="text-gray-400 hover:text-white">
-                  Open full simulation →
-                </Link>
+                {embed.link && (
+                  <>
+                    <br />
+                    <Link href={embed.link} className="text-gray-400 hover:text-white">
+                      Open full simulation →
+                    </Link>
+                  </>
+                )}
               </p>
             </div>
           </div>
