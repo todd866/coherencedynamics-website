@@ -35,7 +35,7 @@ That's not what's happening. The mug is a 3D object. The "paradox" comes from tr
 
 **Quantum mechanics is what happens when reality is high-dimensional, but our measurements are low-dimensional projections.**
 
-(To be clear: the "high-dimensional object" in quantum mechanics is the **state in Hilbert space**—a mathematical space of possibilities—not an extra spatial dimension. The mug is an analogy for how incompatible views arise from projecting something complex onto something simple.)
+The dimensions here aren't spatial—they're degrees of freedom. But they're no less real for that. A photon's polarization state lives in a 2D space. Two entangled photons live in a 4D space. A hundred atoms? Exponentially many dimensions. The mug analogy isn't a metaphor—it's the actual geometry.
 
 Keep this in mind. It's the whole story.
 
