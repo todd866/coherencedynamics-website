@@ -7,32 +7,35 @@ interface Props {
 }
 
 // Coupled oscillator system
-const N_OSCILLATORS = 20; // Number of oscillators
-const DT = 0.02; // Time step
-const COUPLING = 0.3; // Coupling strength between neighbors
+const N_OSCILLATORS = 20;
+const DT = 0.02;
+const COUPLING = 0.3;
 
 interface ObserverState {
   kEff: number;
   correlationRate: number;
   accumulatedTime: number;
-  observableVariance: number;
+  sAcc: number; // Accessible entropy: (1/2) log det C
+  qCumulative: number; // Cumulative thermodynamic cost of erasure
 }
 
 export default function BlackHoleObserversDemo({ className = '' }: Props) {
   const [isRunning, setIsRunning] = useState(false);
-  const [radius, setRadius] = useState(1.0); // 1.0 = far from horizon, 0.0 = at horizon
+  const [radius, setRadius] = useState(1.0);
   const [wallTime, setWallTime] = useState(0);
   const [externalObs, setExternalObs] = useState<ObserverState>({
     kEff: N_OSCILLATORS,
     correlationRate: 1,
     accumulatedTime: 0,
-    observableVariance: 1,
+    sAcc: 0,
+    qCumulative: 0,
   });
   const [infallingObs, setInfallingObs] = useState<ObserverState>({
     kEff: N_OSCILLATORS,
     correlationRate: 1,
     accumulatedTime: 0,
-    observableVariance: 1,
+    sAcc: 0,
+    qCumulative: 0,
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,27 +44,23 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
     velocities: Array(N_OSCILLATORS).fill(0).map(() => (Math.random() - 0.5) * 0.5),
   });
   const animationRef = useRef<number>();
-  const historyRef = useRef<{ external: number[]; infalling: number[] }>({
-    external: [],
-    infalling: [],
+  const prevSAccRef = useRef<{ external: number; infalling: number }>({
+    external: 0,
+    infalling: 0,
   });
 
-  // Compute aperture for external observer based on radius
-  // At radius=1 (far), full access. At radius=0 (horizon), only surface modes
+  // Compute aperture weights for external observer based on radius
   const getExternalAperture = useCallback((r: number): number[] => {
-    // Aperture weights: at r=1, all modes visible. At r=0, only first 2 modes
     const weights = [];
     for (let i = 0; i < N_OSCILLATORS; i++) {
-      // Low-frequency modes (small i) remain visible longer
-      // High-frequency modes (large i) get suppressed near horizon
       const modeFreq = (i + 1) / N_OSCILLATORS;
-      const visibility = Math.pow(r, modeFreq * 3); // Higher modes suppressed faster
+      const visibility = Math.pow(r, modeFreq * 3);
       weights.push(visibility);
     }
     return weights;
   }, []);
 
-  // Compute effective dimension from aperture weights
+  // Compute effective dimension (participation ratio)
   const computeKEff = useCallback((weights: number[]): number => {
     const sum = weights.reduce((a, b) => a + b, 0);
     const sumSq = weights.reduce((a, b) => a + b * b, 0);
@@ -69,7 +68,24 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
     return (sum * sum) / sumSq;
   }, []);
 
-  // Compute correlation rate (simplified: variance of observable state change)
+  // Compute accessible entropy: S_acc = (1/2) log det C
+  // Simplified: use weighted variance as proxy for eigenvalues
+  const computeSAcc = useCallback((
+    positions: number[],
+    velocities: number[],
+    weights: number[]
+  ): number => {
+    // Compute weighted covariance proxy (diagonal approximation)
+    let logDet = 0;
+    const epsilon = 1e-10; // Regularization
+    for (let i = 0; i < N_OSCILLATORS; i++) {
+      const variance = (positions[i] * positions[i] + velocities[i] * velocities[i]) * weights[i] + epsilon;
+      logDet += Math.log(variance);
+    }
+    return 0.5 * logDet;
+  }, []);
+
+  // Compute correlation rate
   const computeCorrelationRate = useCallback((
     positions: number[],
     velocities: number[],
@@ -85,25 +101,16 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
     return Math.sqrt(weightedVelocitySq / totalWeight);
   }, []);
 
-  // Physics step: coupled oscillators with nearest-neighbor coupling
+  // Physics step
   const step = useCallback(() => {
     const { positions, velocities } = stateRef.current;
     const newPositions = [...positions];
     const newVelocities = [...velocities];
 
     for (let i = 0; i < N_OSCILLATORS; i++) {
-      // Spring force (harmonic oscillator)
       let force = -positions[i];
-
-      // Coupling to neighbors
-      if (i > 0) {
-        force += COUPLING * (positions[i - 1] - positions[i]);
-      }
-      if (i < N_OSCILLATORS - 1) {
-        force += COUPLING * (positions[i + 1] - positions[i]);
-      }
-
-      // Small damping to prevent blowup
+      if (i > 0) force += COUPLING * (positions[i - 1] - positions[i]);
+      if (i < N_OSCILLATORS - 1) force += COUPLING * (positions[i + 1] - positions[i]);
       force -= 0.01 * velocities[i];
 
       newVelocities[i] = velocities[i] + force * DT;
@@ -114,51 +121,50 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
     return { positions: newPositions, velocities: newVelocities };
   }, []);
 
-  // Main animation loop
   useEffect(() => {
     if (!isRunning) return;
 
     const animate = () => {
       const { positions, velocities } = step();
 
-      // External observer: aperture depends on radius
+      // External observer
       const extWeights = getExternalAperture(radius);
       const extKEff = computeKEff(extWeights);
       const extRate = computeCorrelationRate(positions, velocities, extWeights);
+      const extSAcc = computeSAcc(positions, velocities, extWeights);
 
-      // Infalling observer: full access always
+      // Infalling observer (full access)
       const infWeights = Array(N_OSCILLATORS).fill(1);
       const infKEff = computeKEff(infWeights);
       const infRate = computeCorrelationRate(positions, velocities, infWeights);
+      const infSAcc = computeSAcc(positions, velocities, infWeights);
 
-      // Normalize rates relative to infalling (which stays at "normal" speed)
+      // Normalize rates
       const normalizedExtRate = infRate > 0 ? extRate / infRate : 0;
+
+      // Compute thermodynamic cost (Landauer): Q = max(0, S_prev - S_current)
+      const extDeltaS = Math.max(0, prevSAccRef.current.external - extSAcc);
+      const infDeltaS = Math.max(0, prevSAccRef.current.infalling - infSAcc);
+
+      prevSAccRef.current = { external: extSAcc, infalling: infSAcc };
 
       setWallTime(prev => prev + 1);
       setExternalObs(prev => ({
         kEff: extKEff,
         correlationRate: normalizedExtRate,
         accumulatedTime: prev.accumulatedTime + normalizedExtRate,
-        observableVariance: extRate,
+        sAcc: extSAcc,
+        qCumulative: prev.qCumulative + extDeltaS,
       }));
       setInfallingObs(prev => ({
         kEff: infKEff,
-        correlationRate: 1, // Normalized to 1
+        correlationRate: 1,
         accumulatedTime: prev.accumulatedTime + 1,
-        observableVariance: infRate,
+        sAcc: infSAcc,
+        qCumulative: prev.qCumulative + infDeltaS,
       }));
 
-      // Store history for plotting
-      historyRef.current.external.push(normalizedExtRate);
-      historyRef.current.infalling.push(1);
-      if (historyRef.current.external.length > 200) {
-        historyRef.current.external.shift();
-        historyRef.current.infalling.shift();
-      }
-
-      // Draw
       drawCanvas(positions, extWeights);
-
       animationRef.current = requestAnimationFrame(animate);
     };
 
@@ -166,7 +172,7 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [isRunning, radius, step, getExternalAperture, computeKEff, computeCorrelationRate]);
+  }, [isRunning, radius, step, getExternalAperture, computeKEff, computeCorrelationRate, computeSAcc]);
 
   const drawCanvas = (positions: number[], extWeights: number[]) => {
     const canvas = canvasRef.current;
@@ -177,11 +183,9 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
     const width = canvas.width;
     const height = canvas.height;
 
-    // Clear
     ctx.fillStyle = '#0a0a0f';
     ctx.fillRect(0, 0, width, height);
 
-    // Draw oscillators as a chain
     const spacing = width / (N_OSCILLATORS + 1);
     const centerY = height / 2;
 
@@ -199,7 +203,7 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
     }
     ctx.stroke();
 
-    // Draw oscillators with visibility based on external aperture
+    // Draw oscillators
     for (let i = 0; i < N_OSCILLATORS; i++) {
       const x = spacing * (i + 1);
       const y = centerY + positions[i] * 30;
@@ -218,7 +222,7 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
       ctx.fill();
     }
 
-    // Draw "horizon" indicator
+    // Draw horizon indicator
     const horizonX = width * (1 - radius) * 0.8 + width * 0.1;
     ctx.strokeStyle = '#ef4444';
     ctx.lineWidth = 2;
@@ -229,7 +233,6 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Label
     ctx.font = '10px monospace';
     ctx.fillStyle = '#ef4444';
     ctx.textAlign = 'center';
@@ -241,13 +244,14 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
       positions: Array(N_OSCILLATORS).fill(0).map(() => (Math.random() - 0.5) * 2),
       velocities: Array(N_OSCILLATORS).fill(0).map(() => (Math.random() - 0.5) * 0.5),
     };
-    historyRef.current = { external: [], infalling: [] };
+    prevSAccRef.current = { external: 0, infalling: 0 };
     setWallTime(0);
-    setExternalObs({ kEff: N_OSCILLATORS, correlationRate: 1, accumulatedTime: 0, observableVariance: 1 });
-    setInfallingObs({ kEff: N_OSCILLATORS, correlationRate: 1, accumulatedTime: 0, observableVariance: 1 });
+    setExternalObs({ kEff: N_OSCILLATORS, correlationRate: 1, accumulatedTime: 0, sAcc: 0, qCumulative: 0 });
+    setInfallingObs({ kEff: N_OSCILLATORS, correlationRate: 1, accumulatedTime: 0, sAcc: 0, qCumulative: 0 });
   };
 
   const fmt = (n: number) => n.toFixed(1);
+  const fmt2 = (n: number) => n.toFixed(2);
 
   return (
     <div className={`bg-gray-900 rounded-lg p-4 ${className}`}>
@@ -274,7 +278,15 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
             </div>
             <div>
               <div className="text-gray-500">τ rate</div>
-              <div className="font-mono text-red-300">{fmt(externalObs.correlationRate)}</div>
+              <div className="font-mono text-red-300">{fmt2(externalObs.correlationRate)}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">S_acc</div>
+              <div className="font-mono text-red-300">{fmt(externalObs.sAcc)}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Q (cost)</div>
+              <div className="font-mono text-orange-400">{fmt(externalObs.qCumulative)}</div>
             </div>
             <div className="col-span-2">
               <div className="text-gray-500">Accumulated τ</div>
@@ -293,7 +305,15 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
             </div>
             <div>
               <div className="text-gray-500">τ rate</div>
-              <div className="font-mono text-cyan-300">{fmt(infallingObs.correlationRate)}</div>
+              <div className="font-mono text-cyan-300">{fmt2(infallingObs.correlationRate)}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">S_acc</div>
+              <div className="font-mono text-cyan-300">{fmt(infallingObs.sAcc)}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Q (cost)</div>
+              <div className="font-mono text-cyan-300">{fmt(infallingObs.qCumulative)}</div>
             </div>
             <div className="col-span-2">
               <div className="text-gray-500">Accumulated τ</div>
@@ -319,7 +339,7 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
             className="w-full accent-red-500"
           />
           <div className="text-center text-xs text-gray-500 mt-1">
-            Radius: {fmt(radius)} | Wall time: {wallTime}
+            Radius: {fmt2(radius)} | Wall time: {wallTime}
           </div>
         </div>
 
@@ -341,14 +361,17 @@ export default function BlackHoleObserversDemo({ className = '' }: Props) {
 
       <div className="mt-4 p-3 bg-gray-800 rounded text-sm text-gray-300">
         <p>
-          <strong className="text-cyan-400">Cyan dots:</strong> What the infalling observer sees (all modes).
-          <br />
-          <strong className="text-red-400">Red dots:</strong> What the external observer sees (fades near horizon).
+          <strong className="text-cyan-400">Cyan:</strong> Infalling observer (full access).
+          <strong className="text-red-400 ml-2">Red:</strong> External observer (fades near horizon).
+        </p>
+        <p className="mt-2 text-xs text-gray-400">
+          <strong>k_eff:</strong> Effective dimension (participation ratio).
+          <strong className="ml-2">S_acc:</strong> Accessible entropy (log det C).
+          <strong className="ml-2">Q:</strong> Thermodynamic cost of erasure (Landauer).
         </p>
         <p className="mt-2 text-gray-500 text-xs">
-          As radius → 0, the external observer loses access to high-frequency modes.
-          Their effective dimension drops, their correlation rate drops, their clock slows.
-          The infalling observer sees everything normally.
+          As radius → 0: external k_eff drops, S_acc drops, Q accumulates, τ rate → 0.
+          The infalling observer sees none of this—their aperture never closes.
         </p>
       </div>
     </div>

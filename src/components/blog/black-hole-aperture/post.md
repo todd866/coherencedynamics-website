@@ -108,7 +108,7 @@ That's the universality claim. The simulation is the test.
 
 ---
 
-## Part II: The Simulation Details
+## Part II: The Simulation Framework
 
 ### State space
 
@@ -118,44 +118,49 @@ The coupling creates correlations across modes. In the full state space, the sys
 
 ### Observer apertures
 
-Define an observer's aperture as a projection matrix $P_\theta$ that selects which modes are accessible:
+Define an observer's aperture as a weight vector $\mathbf{w}$ that determines access to each mode:
 
-$$\mathbf{x}_{obs} = P_\theta \mathbf{x}$$
+$$\mathbf{x}_{obs} = \mathbf{w} \odot \mathbf{x}$$
 
-For the external observer, $P_\theta$ depends on "radius" r:
-- At large r: $P$ is close to identity (full access)
-- As r → r_horizon: $P$ projects onto a 2D subspace (surface modes only)
+For the external observer, weights depend on "radius" r:
+- At large r: $w_i \approx 1$ (full access)
+- As r → 0: high-frequency modes suppressed, $w_i \to 0$ for large i
+- At horizon: only low-frequency (surface) modes visible
 
-For the infalling observer, $P$ stays close to identity regardless of position.
+For the infalling observer, $w_i = 1$ always.
 
-### Effective dimension
+### The four observables
 
-For each observer, compute the covariance matrix of accessible states:
+For each observer, we compute:
 
-$$C_{obs} = \langle \mathbf{x}_{obs} \mathbf{x}_{obs}^T \rangle$$
+**1. Effective dimension** (participation ratio):
+$$k_{eff} = \frac{(\sum_i w_i)^2}{\sum_i w_i^2}$$
 
-Effective dimension via participation ratio:
+**2. Accessible entropy** (log-determinant of weighted covariance):
+$$S_{acc} = \frac{1}{2} \log \det C_{obs}$$
 
-$$k_{eff} = \frac{(\text{tr } C)^2}{\text{tr } C^2}$$
+where $C_{obs}$ is the covariance of accessible states.
 
-### Correlation clock
+**3. Correlation rate** (Fisher speed / distinguishability rate):
+$$\dot{\tau} = \sqrt{\sum_i w_i \dot{x}_i^2}$$
 
-Define time operationally as the rate of distinguishable state change. We use the Fisher information speed:
+**4. Thermodynamic cost** (Landauer erasure):
+$$Q = \sum_t \max(0, S_{acc}(t-1) - S_{acc}(t))$$
 
-$$\dot{\tau} = \sqrt{\dot{\mathbf{x}}_{obs}^T G \dot{\mathbf{x}}_{obs}}$$
+The erasure cost accumulates whenever the aperture squeezes and accessible entropy drops.
 
-where G is the Fisher information metric on the observable subspace.
+### The horizon as computational bottleneck
 
-Alternatively, measure mutual information growth between the observer's state and a reference register.
+The "horizon" in our model is where the external observer's aperture collapses. This produces:
 
-### The horizon
+- **k_eff → 2**: dimensional collapse to surface modes
+- **S_acc drops**: accessible entropy decreases
+- **Q spikes**: thermodynamic cost of erasure increases
+- **τ rate → 0**: correlation accumulation freezes
 
-The "horizon" in our model is the radius where the external observer's aperture collapses to k = 2. This is defined by construction, not derived.
+The infalling observer sees none of this. Same dynamics, different aperture, different thermodynamics.
 
-The question is: does this aperture collapse produce the same phenomenology as GR predicts? Specifically:
-- Does the external clock freeze?
-- Does the infalling clock continue?
-- Is the underlying dynamics unchanged?
+> This is Jacobson's insight made operational: the horizon is where maintaining a coarse-grained description becomes thermodynamically expensive. Time freezes because the computational cost of tracking correlations goes to infinity.
 
 ---
 

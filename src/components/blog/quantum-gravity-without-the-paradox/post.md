@@ -306,6 +306,39 @@ Both gravity and consciousness might be stories about variable-k flows through d
 
 ---
 
+### Thermodynamic emergence: horizons as computational bottlenecks
+
+Here's where this connects to something deeper.
+
+Ted Jacobson showed in 1995 that if you assume:
+1. Local thermodynamic equilibrium at causal horizons
+2. The Bekenstein-Hawking entropy-area relation
+3. Energy conservation
+
+...then Einstein's field equations *follow*. Gravity isn't a force that needs quantizing—it's an equation of state, like the ideal gas law. It describes how thermodynamic consistency constrains the geometry of horizons.
+
+In our language: **a horizon is a computational bottleneck.**
+
+When you squeeze an aperture—when you reduce k—you're not just limiting what an observer can see. You're *erasing information*. The degrees of freedom that become inaccessible don't vanish; they get traced out, compressed, forgotten by that observer's description.
+
+This erasure has a thermodynamic cost. Landauer's principle: erasing one bit costs at least $k_B T \ln 2$ of heat. Shrinking your aperture means compressing your description of the world, and compression is irreversible.
+
+So the thermodynamic story becomes:
+- **Aperture squeeze** = coarse-graining = information erasure
+- **Information erasure** has minimum thermodynamic cost (Landauer)
+- **Horizons** are surfaces where aperture → minimal (k→2)
+- **Jacobson's derivation** says: thermodynamic consistency at horizons → Einstein equations
+
+The implication: *spacetime geometry is the shape of the compression gradients induced by dimensional apertures.*
+
+This isn't claiming to derive GR. It's pointing at why the thermodynamic connection exists. When you ask "how must geometry behave if observers at different apertures are to have consistent thermodynamics?"—you get Einstein.
+
+The black hole horizon isn't just a geometric surface. It's where the computational cost of maintaining a decohered, low-dimensional description becomes extreme. Time freezes because correlation rate → 0. Entropy is proportional to area because that's the channel capacity of the bottleneck. The holographic principle is a statement about compression limits.
+
+> *Gravity might be what thermodynamically consistent dimensional compression looks like from the inside.*
+
+---
+
 ## Part II: With the Math
 
 Everything above can be stated precisely. The math just formalizes the same projection logic.

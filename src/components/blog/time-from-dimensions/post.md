@@ -286,15 +286,29 @@ This connects to the [minimal embedding dimension paper](/papers/minimal-embeddi
 
 ### Thermodynamic angle
 
-Entropy production rate:
+This is where time, aperture, and thermodynamics converge.
 
-$$\dot{S} = \frac{dS}{dt}$$
+Define the **accessible entropy** for an observer with covariance $C$ over their observable subspace:
 
-In non-equilibrium thermodynamics, systems produce entropy as they evolve. When dimensional access is reduced, entropy production channels are cut off.
+$$S_{acc} = \frac{1}{2} \log \det C + \text{const}$$
 
-Conjecture: **time flow ∝ entropy production capacity**, which scales with accessible dimensions.
+When the aperture squeezes, eigenvalues of $C$ collapse, $\det C$ shrinks, and $S_{acc}$ drops.
 
-This connects to the [dimensional Landauer bound](in preparation)—the thermodynamic cost of dimensional reduction.
+But here's the key: **squeezing the aperture is information erasure.** The degrees of freedom you lose access to don't vanish—they get traced out. And Landauer's principle says erasure has a minimum thermodynamic cost:
+
+$$Q \geq k_B T \cdot \Delta S_{erased}$$
+
+So the thermodynamic story becomes:
+- **Time** = correlation accumulation rate through aperture
+- **Aperture squeeze** = dimensional reduction = information erasure
+- **Information erasure** has thermodynamic cost (Landauer)
+- **Time dilation is the operational symptom of a computational bottleneck**
+
+This is why [Part 2](/blog/quantum-gravity-without-the-paradox) connected to Jacobson's derivation. Horizons are where apertures close. The thermodynamic cost of maintaining a decohered description at a horizon becomes extreme. Einstein's equations emerge from requiring thermodynamic consistency across observers with different apertures.
+
+> *Time dilation isn't just about geometry. It's about the thermodynamic cost of compression.*
+
+This connects to the [dimensional Landauer bound](in preparation)—the formal treatment of thermodynamic costs under dimensional reduction.
 
 ---
 
