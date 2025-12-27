@@ -2,6 +2,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
+import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
@@ -14,7 +15,7 @@ export default function Markdown({ children, className = '' }: MarkdownProps) {
   return (
     <div className={className} style={{ fontSize: 'inherit' }}>
       <ReactMarkdown
-        remarkPlugins={[remarkMath]}
+        remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
           // Style links

@@ -70,8 +70,8 @@ If collapse is an artifact of subsystem description (as in unitary-only interpre
 
 **The quantum state is the territory. Classical spacetime is the map.**
 
-| | Substrate | Description |
-|---|---|---|
+|  | Substrate | Description |
+|:--|:--|:--|
 | **What it is** | Quantum state | Measurement outcome |
 | **Dimensionality** | High-dimensional, relational | Low-dimensional, classical |
 | **Status** | Physically real | Projection artifact |
