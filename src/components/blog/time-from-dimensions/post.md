@@ -324,3 +324,28 @@ The math is not complete. But the pattern is clear:
 *This is Part 3 of a series. See [Part 1: Quantum Mechanics Without the Math](/blog/quantum-mechanics-without-math) and [Part 2: Quantum Gravity Without the Paradox](/blog/quantum-gravity-without-the-paradox).*
 
 *The formal connections to information geometry appear in our paper on [minimal embedding dimension](/papers/minimal-embedding). The thermodynamic angle will appear in the forthcoming paper on the dimensional Landauer bound.*
+
+---
+
+## Epilogue: Where This Goes
+
+This trilogy makes a structural claim: projection through a dimensional aperture produces QM weirdness, dissolves the QG paradox, and reframes time as correlation rate. The math is information-geometric. The physics interpretation is... optional.
+
+Here's the quiet truth: physics journals aren't the right adoption path for this. Not because the ideas are wrong, but because they're upstream of where physics knows how to referee. The question isn't "does this contradict GR/QM?"—it doesn't. The question is "what literature bucket does this go in?" And there isn't one yet.
+
+So the research program runs differently:
+
+| Layer | Venue | What gets established |
+|-------|-------|----------------------|
+| **Intuition** | Blog (here) | The conceptual frame: projection, aperture, observer-relative k |
+| **Foundation** | Information Geometry | The math: manifolds, metrics, participation ratios, distinguishability clocks |
+| **Validation** | AI / robotics / simulation | The proof: variable-dimensional controllers, adaptive bottlenecks, emergent internal time |
+| **Physics** | Later | The reinterpretation: "oh, this is what GR was doing all along" |
+
+The key insight: **the math is substrate-agnostic.** A variable-dimensional system with an observer-dependent metric produces the same clock behavior whether it's a robot, a cell, a brain, or spacetime. If the framework survives scrutiny in information geometry and improves engineered systems, the physics interpretation becomes retrospectively obvious.
+
+This isn't avoidance—it's sequencing. You don't need to prove quantum gravity to show that aperture contraction slows distinguishability rate. You just need to define the manifold, the metric, and the clock. Then run it.
+
+The next step is simulation. Black holes are the obvious target: same underlying dynamics, different observer apertures, different effective clocks. If even a toy model shows the external observer's time freezing while the infalling observer's flows—without invoking GR—then the conceptual bridge is built.
+
+Feed this into the right simulation and it stops being philosophy overnight.
