@@ -129,17 +129,17 @@ Different observers can have different k for the same underlying physics.
 
 There's another piece to this puzzle: the [minimal embedding dimension](/papers/minimal-embedding).
 
-Any dynamical system has a minimum dimensionality k_min needed to faithfully represent its behavior. Below k_min, trajectories cross that shouldn't—the dynamics become ill-defined. This is Takens' embedding theorem applied to state space.
+Any dynamical system has a minimum dimensionality $k_{min}$ needed to faithfully represent its behavior. Below $k_{min}$, trajectories cross that shouldn't—the dynamics become ill-defined. This is Takens' embedding theorem applied to state space.
 
 So k has a floor. Below it, complexity itself cannot exist.
 
 This connects to time in a striking way:
-- **k < k_min:** Dynamics are undefined. No correlations possible. No time.
-- **k = k_min:** Minimal complexity. Time exists but is constrained.
-- **k = 3 (optimal):** Full classical dynamics. Maximal correlation rate. Time flows.
-- **k > 3:** Too many degrees of freedom to integrate. Time fragments.
+- **$k < k_{min}$:** Dynamics are undefined. No correlations possible. No time.
+- **$k = k_{min}$:** Minimal complexity. Time exists but is constrained.
+- **$k = 3$ (optimal):** Full classical dynamics. Maximal correlation rate. Time flows.
+- **$k > 3$:** Too many degrees of freedom to integrate. Time fragments.
 
-The claim: **our universe operates at k=3 because that's the Goldilocks aperture**—large enough for complexity, small enough for coherent time flow.
+The claim: **our universe operates at $k=3$ because that's the Goldilocks aperture**—large enough for complexity, small enough for coherent time flow.
 
 ---
 
