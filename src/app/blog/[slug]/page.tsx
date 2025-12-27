@@ -19,6 +19,8 @@ import {
   GravityWellDemo,
   DimensionalBottleneckDemo,
 } from '@/components/blog/quantum-gravity-without-the-paradox';
+// Time from dimensions blog post components
+import { TimeApertureDemo } from '@/components/blog/time-from-dimensions';
 
 export function generateStaticParams() {
   return getAllBlogSlugs().map((slug) => ({ slug }));
@@ -88,6 +90,12 @@ const simulationEmbeds: Record<string, {
   'dimensional-bottleneck': {
     component: <DimensionalBottleneckDemo />,
     caption: 'High-dimensional dynamics squeezed through a 3D aperture, then diffracting into entanglement.',
+    link: '',
+  },
+  // Time from dimensions blog post
+  'time-aperture': {
+    component: <TimeApertureDemo />,
+    caption: 'Squeeze the aperture → reduce state-space exploration → slow the system clock relative to external time.',
     link: '',
   },
 };

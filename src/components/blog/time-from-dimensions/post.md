@@ -14,7 +14,7 @@ relatedPapers:
   - high-dimensional-coherence
   - falsifiability
   - minimal-embedding
-draft: true
+draft: false
 ---
 
 ## Part I: Without the Math
@@ -25,6 +25,8 @@ This is Part 3 of a series. [Part 1](/blog/quantum-mechanics-without-math) refra
 
 Now we ask: what about time?
 
+> **Disambiguation:** In this post, "time" can mean (i) **proper time** measured by a physical clock, (ii) **coordinate time** used to describe a system from afar, or (iii) **subjective time** in experience. The first two are established physics with precise definitions. The third is an analogy—a structural claim about shared geometry, not an identity.
+
 ---
 
 ### The pattern
@@ -32,18 +34,22 @@ Now we ask: what about time?
 In the [previous post](/blog/quantum-gravity-without-the-paradox), we noticed something:
 
 **Black holes:**
-- External observer sees the horizon as a 2D surface (k=2)
+- External observer's accessible description becomes surface-confined (k→2, area scaling)
 - External observer sees infalling objects freeze in time
-- Infalling observer sees smooth 3D space (k=3)
+- Infalling observer maintains full 3D access (k=3)
 - Infalling observer experiences normal time flow
 
 **High velocity:**
-- Length contracts in the direction of travel (spatial dimension squashes)
+- Accessible variation along travel direction is compressed (effective k reduction)
 - Time dilates proportionally
-- Co-moving observer sees normal space
+- Co-moving observer maintains full access
 - Co-moving observer experiences normal time
 
-The pattern: **when k drops, time slows.**
+Nothing "loses a dimension" ontologically. The claim is that the **accessible channel** for correlations narrows, reducing effective degrees of freedom.
+
+The pattern: **when k deviates from its optimal value, time slows.**
+
+<!-- SIMULATION: time-aperture -->
 
 This isn't a coincidence. It's a relationship.
 
@@ -69,16 +75,17 @@ The dimensional aperture k determines how many degrees of freedom are accessible
 
 ### The unified picture
 
-| Regime | What happens to k | What happens to time | Why |
-|--------|------------------|---------------------|-----|
-| Black hole (external) | k: 3→2 at horizon | Freezes | Can only see the surface |
-| High velocity | k contracts in travel direction | Dilates | One dimension squashed |
-| Infalling / co-moving | k unchanged | Normal flow | Full access maintained |
-| Sleep (slow waves) | k pinches (neural sync) | Subjective time stops | Dimensional bottleneck |
-| Flow states | k narrows (focused attention) | Time distortion | Reduced peripheral access |
-| Psychedelics | k expands | Time stretches/fragments | Too many degrees of freedom |
+| Regime | k | What happens to time | Why |
+|--------|---|---------------------|-----|
+| Black hole (external) | k→2 (low) | Freezes | Surface-confined access |
+| High velocity | k compresses (low) | Dilates | Channel narrows |
+| Normal spacetime | k = 3 (optimal) | Normal flow | Full access, integrable |
+| Quantum lab (coherent) | k > 3 (high) | Undefined/superposed | Too many branches to sequence |
+| Sleep (slow waves) | k pinches (low) | Subjective time stops | Dimensional bottleneck |
+| Flow states | k narrows (low) | Time dilates | High sampling, fewer dimensions |
+| Psychedelics | k expands (high) | Time fragments/dissolves | Too many DoF to integrate |
 
-The claim: **these are all instances of the same relationship.**
+The claim: **k=3 is the optimal aperture for time flow.** Deviations in *either* direction—squeezing toward k=2 or expanding toward k>3—disrupt the correlation rate. Time flows fastest when the aperture matches the system's natural bandwidth.
 
 Time = rate of correlation accumulation through the dimensional aperture
 
@@ -118,6 +125,24 @@ Different observers can have different k for the same underlying physics.
 
 ---
 
+### The minimum k for complexity
+
+There's another piece to this puzzle: the [minimal embedding dimension](/papers/minimal-embedding).
+
+Any dynamical system has a minimum dimensionality k_min needed to faithfully represent its behavior. Below k_min, trajectories cross that shouldn't—the dynamics become ill-defined. This is Takens' embedding theorem applied to state space.
+
+So k has a floor. Below it, complexity itself cannot exist.
+
+This connects to time in a striking way:
+- **k < k_min:** Dynamics are undefined. No correlations possible. No time.
+- **k = k_min:** Minimal complexity. Time exists but is constrained.
+- **k = 3 (optimal):** Full classical dynamics. Maximal correlation rate. Time flows.
+- **k > 3:** Too many degrees of freedom to integrate. Time fragments.
+
+The claim: **our universe operates at k=3 because that's the Goldilocks aperture**—large enough for complexity, small enough for coherent time flow.
+
+---
+
 ### What this doesn't explain
 
 Let me be clear about limits:
@@ -134,7 +159,7 @@ Let me be clear about limits:
 
 ## Part II: With the Math
 
-### Relativistic time dilation (established)
+### GR/SR: time dilation as a metric factor
 
 In general relativity, proper time τ relates to coordinate time t via the metric:
 
@@ -154,13 +179,16 @@ gives both length contraction (L = L₀/γ) and time dilation (Δt = γΔt₀).
 
 The question is: can we express these as dimensional aperture effects?
 
-### Dimensional aperture (proposed)
+### Aperture: participation ratio k_eff
 
 Define the effective dimensionality k_eff via a participation ratio over accessible degrees of freedom:
 
 $$k_{eff} = \frac{(\sum_i \lambda_i)^2}{\sum_i \lambda_i^2}$$
 
-where λᵢ are the eigenvalues of some relevant operator (metric eigenvalues for spacetime, covariance eigenvalues for neural states).
+where λᵢ are eigenvalues of:
+- **Spacetime:** spatial metric eigenvalues (or measurement operator tied to observer coupling)
+- **Neural:** covariance matrix of activity
+- **Information geometry:** Fisher metric eigenvalues
 
 The conjecture:
 
@@ -168,7 +196,7 @@ $$\frac{d\tau}{dt} \propto \left(\frac{k_{eff}}{k_{max}}\right)^\alpha$$
 
 for some exponent α.
 
-### Connecting to the metric
+### Connecting to the metric (heuristic)
 
 The spacetime volume element is √(-g)d⁴x, where g is the metric determinant.
 
@@ -178,9 +206,11 @@ $$\sqrt{-g} = r^2 \sin\theta \sqrt{1 - \frac{2GM}{rc^2}}$$
 
 The radial factor √(1 - 2GM/rc²) appears in both the volume element and the time dilation factor.
 
-Conjecture: **the metric determinant encodes the dimensional aperture.** When √(-g) → 0, dimensions are "squeezing" and time freezes.
+Conjecture (heuristic): **the same factor that shrinks local volume elements also shrinks the accessible correlation bandwidth.** When √(-g) → 0, the "room for events" vanishes—and time freezes.
 
-For Lorentz contraction, the spatial volume contracts by 1/γ in the direction of motion. The "accessible spatial volume" decreases, and time dilates by the same factor γ.
+This isn't claiming √(-g) *is* the aperture (that conflates coordinates with physics). It's noting that the mathematical structure of time dilation mirrors the structure of volume contraction. Both might be downstream of the same underlying constraint on accessible degrees of freedom.
+
+For Lorentz contraction, the spatial volume contracts by 1/γ in the direction of motion. The accessible variation in that direction decreases—and time dilates by the same factor γ.
 
 ### Neural dimensional time (speculative)
 
@@ -201,7 +231,7 @@ Testable predictions:
 - During psychedelic states (high D_eff), subjective time should stretch or fragment
 - During focused attention (reduced D_eff), time distortion should occur
 
-### Information geometry connection
+### Info geometry: Fisher volume and Cramér-Rao
 
 The Fisher information metric on a statistical manifold defines a natural notion of "distance" between states:
 
@@ -209,7 +239,11 @@ $$ds^2 = g_{ij}(\theta)d\theta^i d\theta^j$$
 
 The volume element √(det g) determines how much "space" is available for states to differ.
 
-Conjecture: **time flow ∝ geodesic velocity through Fisher space**, which depends on √(det g).
+The **Cramér-Rao bound** sets a limit on how fast we can distinguish states based on available information. If the Fisher information drops (fewer accessible dimensions), the speed limit of distinguishability drops. The system *cannot* evolve quickly because it cannot statistically distinguish adjacent states quickly.
+
+Conjecture: **time flow ∝ distinguishability rate**, which depends on Fisher volume.
+
+In a toy model where updates follow natural-gradient dynamics, the rate of distinguishable state change scales with the Fisher metric. Shrinking Fisher volume → fewer distinguishable updates per unit parameter-time → time slows.
 
 When the Fisher volume contracts (dimensional collapse), geodesic motion slows. Time emerges from motion through state space; when the space itself contracts, motion slows.
 

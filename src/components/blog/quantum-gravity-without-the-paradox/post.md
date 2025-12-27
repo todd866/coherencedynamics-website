@@ -410,6 +410,6 @@ The territory doesn't need to wait for the map to be drawn.
 
 *This post is speculative. I'm not claiming to have solved quantum gravity. But the conceptual reframing matters: the hard part might not be "quantizing gravity" but understanding why classicality emerges so robustly that we ever thought gravity was classical in the first place.*
 
-*This is Part 2 of a series. See [Part 1: Quantum Mechanics Without the Math](/blog/quantum-mechanics-without-math) for the projection picture applied to standard QM. Part 3 (coming soon) explores the connection between dimensional apertures and time dilation.*
+*This is Part 2 of a series. See [Part 1: Quantum Mechanics Without the Math](/blog/quantum-mechanics-without-math) for the projection picture applied to standard QM. [Part 3: Time From Dimensions](/blog/time-from-dimensions) explores the connection between dimensional apertures and time dilation.*
 
 *For the mathematical framework on observation limits, see our paper on [the limits of falsifiability](/papers/falsifiability).*

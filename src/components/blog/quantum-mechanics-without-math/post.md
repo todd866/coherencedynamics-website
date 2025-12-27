@@ -356,6 +356,6 @@ Just as Bergson argued that time is a continuous flow that we artificially slice
 
 ---
 
-**This is Part 1 of a two-part series.**
+**This is Part 1 of a three-part series.**
 
-In [Part 2: Quantum Gravity Without the Paradox](/blog/quantum-gravity-without-the-paradox), we apply the same projection framework to dissolve the apparent conflict between quantum mechanics and general relativity. If classical spacetime is a low-dimensional projection of a high-dimensional substrate, the "paradox" of quantum gravity becomes a category error.
+In [Part 2: Quantum Gravity Without the Paradox](/blog/quantum-gravity-without-the-paradox), we apply the same projection framework to dissolve the apparent conflict between quantum mechanics and general relativity. In [Part 3: Time From Dimensions](/blog/time-from-dimensions), we explore how time dilation and dimensional contraction are the same phenomenon—squeeze the aperture, slow the clock.
