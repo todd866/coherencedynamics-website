@@ -278,10 +278,11 @@ But k=3 isn't universal. The dimensional aperture can vary:
 
 **In spacetime:**
 - Far from mass: k=3 (normal spatial geometry)
-- Black hole horizon: k=2 (holographic surface—the Bekenstein-Hawking entropy scales with area, not volume)
+- Black hole horizon (external observer): k=2 (holographic surface—the Bekenstein-Hawking entropy scales with area, not volume)
+- Black hole horizon (infalling observer): k=3 (smooth space, nothing special at the crossing)
 - Singularity: k→1? k→0? (dimensional collapse, breakdown of classical description)
 
-The holographic principle already encodes this: a 3D region's information content is bounded by its 2D boundary. The interior flows through a lower-dimensional surface.
+Notice that k is observer-relative. The external observer sees a 2D bottleneck; the infalling observer sees continuous 3D space. Same physics, different effective dimensionality depending on your embedding. This is black hole complementarity—and it's exactly what the projection framing predicts.
 
 **In minds:**
 - Normal waking: k = moderate (balanced attention bandwidth)
