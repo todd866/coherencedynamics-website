@@ -258,6 +258,9 @@ export default function HilbertProjectionDemo({ className = '' }: Props) {
         <p className="mt-2 text-gray-400 text-xs">
           This is all that Born&apos;s rule says. The &ldquo;collapse&rdquo; is just: after measurement, the state becomes the projection.
         </p>
+        <p className="mt-1 text-gray-500 text-xs">
+          (Probabilities depend on relative angle; rotating by 180° flips the sign but not |⟨m|ψ⟩|².)
+        </p>
       </div>
     </div>
   );

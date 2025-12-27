@@ -63,6 +63,8 @@ Here's what happens:
 
 This is already strange. The availability of which-path information—typically via entanglement with a detector or environment—changes the outcome statistics.
 
+Formally: the which-path detector entangles with the photon; when you ignore (trace out) the detector, the phase coherence between the two paths disappears, so the interference term vanishes.
+
 But it gets stranger.
 
 ---
@@ -118,13 +120,15 @@ Look at all the signal photon detections, without sorting by idler outcome. What
 
 No interference fringes. Just a smooth envelope—the sum of all the hidden patterns, washing each other out.
 
-Even if the experimenter changes the idler measurement setting at the last moment, the marginal distribution at the signal screen is unchanged. No signaling. No paradox.
+Even if the experimenter changes the idler measurement setting at the last moment, the marginal distribution at the signal screen is unchanged. (This is the **no-signaling theorem** in action.) No paradox.
 
 The fringes only appear **after** you sort the data into coincidence-matched subsets—after you look at just the photons whose idlers went to D1, or just the ones whose idlers went to D2.
 
 You're not changing the past. You're not even changing the data.
 
 You're choosing **how to slice a correlated dataset**. Nothing is rewritten—your grouping reveals correlations that were already there.
+
+In quantum language: the signal alone is described by a reduced density matrix. The interference lives in off-diagonal terms that vanish when you trace out (ignore) the idler. Conditioning on an idler outcome is not changing the signal's past—it's selecting a sub-ensemble where a particular phase relation becomes visible.
 
 <!-- SIMULATION: quantum-eraser -->
 
@@ -166,7 +170,7 @@ The rule is simple: you're allowed to tell a story only when alternative stories
 
 This is what physicists call the "consistent histories" interpretation. A "history" is just a story you try to tell: "the photon went through the left slit, then hit position x." Quantum mechanics allows you to tell such stories only when they don't interfere with each other—only when the 2D shadows happen to be consistent.
 
-When alternative stories *do* interfere, the question "which one really happened?" isn't mysterious or unanswerable. It's **undefined**—like asking for the "true" 2D shape of a 3D object.
+When alternative stories *do* interfere, the question "which one really happened?" isn't mysterious or unanswerable. It's **not a well-posed classical question**—like asking for the "true" 2D shape of a 3D object.
 
 ---
 
@@ -174,7 +178,7 @@ When alternative stories *do* interfere, the question "which one really happened
 
 Quantum mechanics is not about particles behaving strangely.
 
-It's about the fact that reality has more dimensions than our descriptions. Measurement is an act of dimensional reduction that destroys some truths to create others.
+It's about the fact that reality has more dimensions than our descriptions. Measurement creates a stable record in one basis by destroying coherence between alternatives in that basis.
 
 We don't passively observe reality. Interaction and record-formation compress it into a story.
 
@@ -210,7 +214,7 @@ $$|\psi\rangle \in \mathcal{H}$$
 
 where $\mathcal{H}$ is a Hilbert space—typically enormous in dimension.
 
-This state does not encode definite values of observables. It encodes amplitudes for correlations.
+This state does not encode definite values of observables. It's a compact object that encodes **amplitudes for correlations**—and those amplitudes can't all be made simultaneously classical.
 
 ### Projective measurements are projections
 
@@ -291,6 +295,8 @@ The underlying dynamics never change. Only your view of them does.
 Everything we've said about quantum mechanics has been structural, not mystical. Nothing required particles to be conscious or brains to be quantum computers. The only ingredient was this:
 
 > A high-dimensional coherent system observed through low-dimensional projections will exhibit contextuality, incompatibility, and collapse.
+
+These signatures don't uniquely identify quantum physics; they also appear in classical contextual systems. The claim here is about **geometry of readout**, not microtubules or long-lived quantum coherence.
 
 Once you see that, it becomes obvious why cognition keeps getting compared to quantum mechanics.
 
