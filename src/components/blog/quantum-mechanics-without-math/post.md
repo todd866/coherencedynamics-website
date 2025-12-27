@@ -218,6 +218,10 @@ $$|\psi\rangle \rightarrow \frac{P_i |\psi\rangle}{\|P_i |\psi\rangle\|}$$
 
 That is symmetry breaking by projection.
 
+Play with it yourself:
+
+<!-- SIMULATION: hilbert-projection -->
+
 (This describes ideal *projective* measurements. More generally, measurements are described by POVMs—but the projection picture captures the essential geometry.)
 
 ### Noncommutation = incompatible slices
@@ -231,6 +235,10 @@ then their projection operators define incompatible decompositions of the same s
 There is no single noncontextual joint probability distribution—no classical assignment of definite values that reproduces the observed statistics across all measurement contexts.
 
 This is not epistemic. It's structural. The point isn't that we *don't know* both values; it's that no single underlying reality can simultaneously refine both incompatible slices.
+
+Try it:
+
+<!-- SIMULATION: noncommutation -->
 
 ### Histories and decoherence
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface Props {
   className?: string;
@@ -8,301 +8,322 @@ interface Props {
 
 export default function DelayedChoiceDiagram({ className = '' }: Props) {
   const [step, setStep] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const steps = [
-    { label: 'Start', description: 'A photon hits a crystal and splits into two entangled twins: the signal (cyan) and the idler (orange).' },
-    { label: 'Signal detected', description: 'The signal photon hits the screen and its position is recorded. Which slit did it go through? We don\'t know yet.' },
-    { label: 'Idler traveling', description: 'The idler photon is still traveling through beam splitters toward four possible detectors.' },
-    { label: 'Idler detected', description: 'The idler finally hits a detector. D1/D2 erase path info. D3/D4 preserve it.' },
-    { label: 'Sort the data', description: 'Sorting signal data by idler outcome reveals hidden patterns—fringes or blobs—that were invisible before.' },
+    {
+      title: 'Photon enters crystal',
+      desc: 'A single photon hits a special crystal and splits into two entangled twins.',
+    },
+    {
+      title: 'Signal reaches screen FIRST',
+      desc: 'The signal photon travels fast. It hits the screen. Position recorded. Done.',
+    },
+    {
+      title: 'Idler still traveling...',
+      desc: 'Meanwhile, the idler photon is still bouncing through beam splitters.',
+    },
+    {
+      title: 'Idler reaches detector LATER',
+      desc: 'Finally the idler hits D1, D2, D3, or D4. D1/D2 erase path info. D3/D4 preserve it.',
+    },
+    {
+      title: 'Sort the data → Patterns!',
+      desc: 'Go back to the SAVED signal data. Sort by idler outcome. Interference appears!',
+    },
   ];
-
-  useEffect(() => {
-    if (isPlaying && step < steps.length - 1) {
-      const timer = setTimeout(() => setStep(s => s + 1), 2500);
-      return () => clearTimeout(timer);
-    } else if (isPlaying && step === steps.length - 1) {
-      setIsPlaying(false);
-    }
-  }, [isPlaying, step, steps.length]);
-
-  const handlePlay = () => {
-    if (step === steps.length - 1) setStep(0);
-    setIsPlaying(true);
-  };
-
-  // Animation timing
-  const showSignalTraveling = step === 0;
-  const showSignalDetected = step >= 1;
-  const showIdlerTraveling = step >= 0 && step <= 2;
-  const showIdlerDetected = step >= 3;
-  const showSorting = step === 4;
 
   return (
     <div className={`bg-gray-900 rounded-lg p-4 ${className}`}>
-      <svg viewBox="0 0 480 280" className="w-full max-w-2xl mx-auto">
-        {/* Background */}
-        <rect width="480" height="280" fill="#111" />
+      {/* Header */}
+      <div className="text-center mb-4">
+        <h3 className="text-lg font-semibold text-white">Delayed-Choice Quantum Eraser</h3>
+        <p className="text-xs text-gray-500">The idler measurement happens AFTER the signal is recorded</p>
+      </div>
 
-        {/* Title for each section */}
-        <text x="100" y="25" textAnchor="middle" fill="#06b6d4" fontSize="10" fontWeight="bold">
-          Signal path (fast)
-        </text>
-        <text x="100" y="175" textAnchor="middle" fill="#f97316" fontSize="10" fontWeight="bold">
-          Idler path (slow)
-        </text>
+      {/* Main visualization - taller for clarity */}
+      <svg viewBox="0 0 500 280" className="w-full bg-black rounded border border-gray-800">
+        {/* ===== ROW 1: SIGNAL PATH (y=20-80) ===== */}
+        <g>
+          <text x="20" y="15" fill="#06b6d4" fontSize="11" fontWeight="bold">
+            SIGNAL PHOTON (fast path)
+          </text>
 
-        {/* ===== SIGNAL PATH (TOP) ===== */}
-        <g transform="translate(0, 40)">
           {/* Source */}
-          <circle cx="25" cy="50" r="10" fill="#fbbf24">
-            {step === 0 && <animate attributeName="r" values="8;12;8" dur="1s" repeatCount="indefinite" />}
+          <circle cx="40" cy="55" r="12" fill="#fbbf24" opacity={step >= 0 ? 1 : 0.3}>
+            {step === 0 && <animate attributeName="r" values="10;14;10" dur="1s" repeatCount="indefinite" />}
           </circle>
-          <text x="25" y="75" textAnchor="middle" fill="#9ca3af" fontSize="8">Source</text>
+          <text x="40" y="80" textAnchor="middle" fill="#9ca3af" fontSize="9">source</text>
+
+          {/* Arrow */}
+          <path d="M55 55 L75 55" stroke="#fbbf24" strokeWidth="2" markerEnd="url(#arrow)" opacity={step >= 0 ? 0.8 : 0.3} />
 
           {/* Crystal */}
-          <polygon points="55,42 75,50 55,58" fill="#8b5cf6" />
-          <text x="65" y="35" textAnchor="middle" fill="#8b5cf6" fontSize="8">Crystal</text>
+          <polygon points="80,45 100,55 80,65" fill="#8b5cf6" />
+          <text x="90" y="80" textAnchor="middle" fill="#8b5cf6" fontSize="9">crystal</text>
 
-          {/* Signal traveling */}
-          {showSignalTraveling && (
-            <g>
-              <circle cx="90" cy="50" r="4" fill="#06b6d4">
-                <animate attributeName="cx" values="75;145" dur="1s" repeatCount="indefinite" />
-              </circle>
-            </g>
-          )}
+          {/* Arrow to slits */}
+          <path d="M102 55 L130 55" stroke="#06b6d4" strokeWidth="2" markerEnd="url(#arrowCyan)" opacity={step >= 0 ? 0.8 : 0.3} />
 
-          {/* Double slit */}
-          <rect x="100" y="30" width="5" height="15" fill="#4b5563" />
-          <rect x="100" y="50" width="5" height="20" fill="#4b5563" />
-          <rect x="100" y="75" width="5" height="15" fill="#4b5563" />
-          <text x="93" y="50" textAnchor="end" fill="#6b7280" fontSize="7">A</text>
-          <text x="93" y="73" textAnchor="end" fill="#6b7280" fontSize="7">B</text>
+          {/* Double slit representation */}
+          <rect x="135" y="35" width="6" height="12" fill="#4b5563" />
+          <rect x="135" y="52" width="6" height="6" fill="transparent" stroke="#4b5563" strokeWidth="1" />
+          <rect x="135" y="63" width="6" height="12" fill="#4b5563" />
+          <text x="138" y="95" textAnchor="middle" fill="#6b7280" fontSize="8">slits</text>
 
-          {/* Path lines (always shown, faded) */}
-          <path d="M105 47 Q130 40 150 50" stroke="#06b6d4" strokeWidth="1" fill="none" opacity="0.2" />
-          <path d="M105 73 Q130 80 150 50" stroke="#06b6d4" strokeWidth="1" fill="none" opacity="0.2" />
+          {/* Paths through both slits */}
+          <path d="M141 47 Q160 45 180 55" stroke="#06b6d4" strokeWidth="1" fill="none" opacity="0.4" strokeDasharray="3,2" />
+          <path d="M141 68 Q160 70 180 55" stroke="#06b6d4" strokeWidth="1" fill="none" opacity="0.4" strokeDasharray="3,2" />
 
           {/* Detection screen */}
-          <rect x="150" y="30" width="6" height="60" fill="#374151" />
-          <text x="153" y="25" textAnchor="middle" fill="#9ca3af" fontSize="8">Screen</text>
+          <rect x="185" y="30" width="8" height="55" fill="#374151" rx="2" />
 
-          {/* Signal detection */}
-          {showSignalDetected && (
+          {/* Detection flash */}
+          {step >= 1 && (
             <g>
-              <circle cx="153" cy="55" r="6" fill="#06b6d4">
-                {step === 1 && <animate attributeName="r" values="4;10;6" dur="0.4s" fill="freeze" />}
+              <circle cx="189" cy="55" r="8" fill="#06b6d4">
+                {step === 1 && <animate attributeName="opacity" values="1;0.5;1" dur="0.5s" repeatCount="3" />}
               </circle>
-              <text x="153" y="100" textAnchor="middle" fill="#22c55e" fontSize="9" fontWeight="bold">
-                ✓ RECORDED
+              <text x="189" y="58" textAnchor="middle" fill="black" fontSize="8" fontWeight="bold">!</text>
+            </g>
+          )}
+        </g>
+
+        {/* ===== "SAVED" BOX (appears at step 1) ===== */}
+        {step >= 1 && (
+          <g>
+            <rect x="205" y="35" width="75" height="40" fill="#166534" rx="4" stroke="#22c55e" strokeWidth="1" />
+            <text x="242" y="52" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">DATA SAVED</text>
+            <text x="242" y="65" textAnchor="middle" fill="#86efac" fontSize="8">position recorded</text>
+          </g>
+        )}
+
+        {/* Divider line */}
+        <line x1="20" y1="105" x2="295" y2="105" stroke="#374151" strokeWidth="1" />
+
+        {/* ===== ROW 2: IDLER PATH (y=110-180) ===== */}
+        <g>
+          <text x="20" y="120" fill="#f97316" fontSize="11" fontWeight="bold">
+            IDLER PHOTON (slow path)
+          </text>
+
+          {/* From crystal - arrow down */}
+          <path d="M90 65 L90 140" stroke="#f97316" strokeWidth="1.5" strokeDasharray="4,3" opacity="0.5" />
+
+          {/* Traveling photon indicator */}
+          {step >= 0 && step <= 2 && (
+            <circle cx="90" r="5" fill="#f97316">
+              <animate attributeName="cy" values="75;140" dur="2s" repeatCount="indefinite" />
+            </circle>
+          )}
+
+          {/* Beam splitter maze (simplified) */}
+          <rect x="85" y="145" width="10" height="10" fill="#6366f1" transform="rotate(45 90 150)" />
+          <text x="90" y="175" textAnchor="middle" fill="#6b7280" fontSize="8">BS</text>
+
+          {/* Branching paths */}
+          <path d="M95 155 L140 140" stroke="#f97316" strokeWidth="1" opacity="0.5" />
+          <path d="M95 155 L140 170" stroke="#f97316" strokeWidth="1" opacity="0.5" />
+
+          {/* Second layer beam splitters */}
+          <rect x="140" y="135" width="8" height="8" fill="#6366f1" transform="rotate(45 144 139)" />
+          <rect x="140" y="165" width="8" height="8" fill="#6366f1" transform="rotate(45 144 169)" />
+
+          {/* Final paths to detectors */}
+          <path d="M150 137 L185 130" stroke="#f97316" strokeWidth="1" opacity="0.4" />
+          <path d="M150 142 L185 148" stroke="#f97316" strokeWidth="1" opacity="0.4" />
+          <path d="M150 167 L185 162" stroke="#f97316" strokeWidth="1" opacity="0.4" />
+          <path d="M150 172 L185 180" stroke="#f97316" strokeWidth="1" opacity="0.4" />
+
+          {/* Four detectors */}
+          <g>
+            {/* D1, D2 - path erased */}
+            <rect x="188" y="122" width="30" height="16" rx="3"
+              fill={step >= 3 ? "#06b6d4" : "#1e3a4a"}
+              stroke={step >= 3 ? "#06b6d4" : "#374151"} strokeWidth="1" />
+            <text x="203" y="133" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">D1</text>
+
+            <rect x="188" y="142" width="30" height="16" rx="3"
+              fill={step >= 3 ? "#06b6d4" : "#1e3a4a"}
+              stroke={step >= 3 ? "#06b6d4" : "#374151"} strokeWidth="1" />
+            <text x="203" y="153" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">D2</text>
+
+            {/* D3, D4 - path preserved */}
+            <rect x="188" y="162" width="30" height="16" rx="3"
+              fill={step >= 3 ? "#f97316" : "#3d2314"}
+              stroke={step >= 3 ? "#f97316" : "#374151"} strokeWidth="1" />
+            <text x="203" y="173" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">D3</text>
+
+            <rect x="188" y="182" width="30" height="16" rx="3"
+              fill={step >= 3 ? "#f97316" : "#3d2314"}
+              stroke={step >= 3 ? "#f97316" : "#374151"} strokeWidth="1" />
+            <text x="203" y="193" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">D4</text>
+
+            {/* Labels */}
+            <text x="225" y="145" fill="#06b6d4" fontSize="8">← erased</text>
+            <text x="225" y="183" fill="#f97316" fontSize="8">← preserved</text>
+          </g>
+
+          {/* Detection flash for idler */}
+          {step === 3 && (
+            <circle cx="203" cy="155" r="25" fill="#f97316" opacity="0.3">
+              <animate attributeName="r" values="15;35;15" dur="0.6s" fill="freeze" />
+              <animate attributeName="opacity" values="0.4;0;0" dur="0.6s" fill="freeze" />
+            </circle>
+          )}
+        </g>
+
+        {/* ===== RIGHT SIDE: TIMELINE (x=310-380) ===== */}
+        <g transform="translate(315, 20)">
+          <text x="50" y="0" textAnchor="middle" fill="#9ca3af" fontSize="10" fontWeight="bold">
+            TIME →
+          </text>
+
+          {/* Timeline bar */}
+          <rect x="48" y="15" width="4" height="140" fill="#374151" rx="2" />
+
+          {/* t=0: Signal detected */}
+          <g transform={`translate(0, ${step >= 1 ? 45 : 30})`}>
+            <circle cx="50" cy="0" r="10" fill="#06b6d4" stroke="#0a0a0a" strokeWidth="2">
+              {step === 1 && <animate attributeName="cy" values="-15;0" dur="0.3s" fill="freeze" />}
+            </circle>
+            <text x="65" y="3" fill="#06b6d4" fontSize="9">Signal detected</text>
+            {step >= 1 && <text x="65" y="14" fill="#22c55e" fontSize="8" fontWeight="bold">t = 0 (FIRST)</text>}
+          </g>
+
+          {/* t=later: Idler detected */}
+          <g transform={`translate(0, ${step >= 3 ? 115 : (step >= 1 ? 85 : 60)})`}>
+            <circle cx="50" cy="0" r="10" fill="#f97316" stroke="#0a0a0a" strokeWidth="2">
+              {step === 3 && <animate attributeName="cy" values="-20;0" dur="0.3s" fill="freeze" />}
+            </circle>
+            <text x="65" y="3" fill="#f97316" fontSize="9">Idler detected</text>
+            {step >= 3 && <text x="65" y="14" fill="#9ca3af" fontSize="8">t = later (SECOND)</text>}
+          </g>
+
+          {/* The paradox callout */}
+          {step >= 1 && step < 4 && (
+            <g transform="translate(-10, 160)">
+              <rect x="0" y="0" width="115" height="35" fill="#422006" rx="4" stroke="#f97316" strokeWidth="1" />
+              <text x="57" y="15" textAnchor="middle" fill="#fbbf24" fontSize="8" fontWeight="bold">
+                Signal ALREADY recorded!
+              </text>
+              <text x="57" y="27" textAnchor="middle" fill="#fbbf24" fontSize="7">
+                Idler choice comes LATER
               </text>
             </g>
           )}
         </g>
 
-        {/* ===== IDLER PATH (BOTTOM) ===== */}
-        <g transform="translate(0, 140)">
-          {/* Path from crystal area */}
-          <path d="M65 -50 L65 30" stroke="#f97316" strokeWidth="1" strokeDasharray="3,3" opacity="0.3" />
-
-          {/* Idler traveling */}
-          {showIdlerTraveling && (
-            <circle cx="65" cy="30" r="4" fill="#f97316">
-              <animate
-                attributeName="cx"
-                values={step <= 1 ? "65;100" : "100;190"}
-                dur={step <= 1 ? "1.5s" : "2s"}
-                repeatCount="indefinite"
-              />
-              {step >= 1 && (
-                <animate
-                  attributeName="cy"
-                  values="30;30;45;45"
-                  dur="2s"
-                  repeatCount="indefinite"
-                />
-              )}
-            </circle>
-          )}
-
-          {/* Beam splitter */}
-          <rect x="95" y="25" width="10" height="10" fill="#6366f1" transform="rotate(45 100 30)" />
-          <text x="100" y="50" textAnchor="middle" fill="#6b7280" fontSize="7">BS</text>
-
-          {/* Paths to detectors */}
-          <path d="M105 30 L150 15" stroke="#f97316" strokeWidth="1" opacity="0.3" />
-          <path d="M105 30 L150 45" stroke="#f97316" strokeWidth="1" opacity="0.3" />
-          <path d="M150 15 L190 10" stroke="#f97316" strokeWidth="1" opacity="0.3" />
-          <path d="M150 15 L190 25" stroke="#f97316" strokeWidth="1" opacity="0.3" />
-          <path d="M150 45 L190 50" stroke="#f97316" strokeWidth="1" opacity="0.3" />
-          <path d="M150 45 L190 65" stroke="#f97316" strokeWidth="1" opacity="0.3" />
-
-          {/* Additional beam splitters */}
-          <rect x="147" y="12" width="6" height="6" fill="#6366f1" transform="rotate(45 150 15)" />
-          <rect x="147" y="42" width="6" height="6" fill="#6366f1" transform="rotate(45 150 45)" />
-
-          {/* Detectors */}
-          <g>
-            {/* D1 */}
-            <rect x="190" y="2" width="25" height="14" rx="2"
-              fill={showIdlerDetected ? "#06b6d4" : "#1e3a4a"} />
-            <text x="202" y="12" textAnchor="middle" fill="white" fontSize="8">D1</text>
-
-            {/* D2 */}
-            <rect x="190" y="18" width="25" height="14" rx="2"
-              fill={showIdlerDetected ? "#06b6d4" : "#1e3a4a"} />
-            <text x="202" y="28" textAnchor="middle" fill="white" fontSize="8">D2</text>
-
-            {/* D3 */}
-            <rect x="190" y="42" width="25" height="14" rx="2"
-              fill={showIdlerDetected ? "#f97316" : "#4a2a1a"} />
-            <text x="202" y="52" textAnchor="middle" fill="white" fontSize="8">D3</text>
-
-            {/* D4 */}
-            <rect x="190" y="58" width="25" height="14" rx="2"
-              fill={showIdlerDetected ? "#f97316" : "#4a2a1a"} />
-            <text x="202" y="68" textAnchor="middle" fill="white" fontSize="8">D4</text>
-
-            {/* Labels */}
-            <text x="225" y="20" fill="#06b6d4" fontSize="7">path erased</text>
-            <text x="225" y="55" fill="#f97316" fontSize="7">path known</text>
-
-            {/* Detection flash */}
-            {step === 3 && (
-              <circle cx="202" cy="35" r="15" fill="#f97316" opacity="0.4">
-                <animate attributeName="r" values="5;25;5" dur="0.6s" fill="freeze" />
-                <animate attributeName="opacity" values="0.6;0;0" dur="0.6s" fill="freeze" />
-              </circle>
-            )}
-          </g>
-        </g>
-
-        {/* ===== TIMELINE ANNOTATION ===== */}
-        <g transform="translate(260, 0)">
-          {/* Timeline bar */}
-          <rect x="0" y="40" width="4" height="180" fill="#374151" rx="2" />
-
-          {/* Signal marker */}
-          <circle cx="2" cy={step >= 1 ? "70" : "50"} r="6" fill="#06b6d4">
-            {step === 1 && <animate attributeName="cy" values="50;70" dur="0.3s" fill="freeze" />}
-          </circle>
-          <text x="15" y="73" fill="#06b6d4" fontSize="8">Signal detected</text>
-          {step >= 1 && (
-            <text x="15" y="83" fill="#22c55e" fontSize="7">t = 0</text>
-          )}
-
-          {/* Idler marker */}
-          <circle cx="2" cy={step >= 3 ? "150" : (step >= 1 ? "120" : "100")} r="6" fill="#f97316">
-            {step === 1 && <animate attributeName="cy" values="100;120" dur="0.5s" fill="freeze" />}
-            {step === 3 && <animate attributeName="cy" values="120;150" dur="0.3s" fill="freeze" />}
-          </circle>
-          <text x="15" y="153" fill="#f97316" fontSize="8">Idler detected</text>
-          {step >= 3 && (
-            <text x="15" y="163" fill="#9ca3af" fontSize="7">t = later</text>
-          )}
-
-          {/* Key insight */}
-          {step >= 1 && step < 4 && (
-            <g>
-              <rect x="10" y="185" width="90" height="30" fill="#1f2937" rx="3" />
-              <text x="55" y="200" textAnchor="middle" fill="#fbbf24" fontSize="8">Signal recorded</text>
-              <text x="55" y="210" textAnchor="middle" fill="#fbbf24" fontSize="8">BEFORE idler!</text>
-            </g>
-          )}
-        </g>
-
-        {/* ===== SORTED DATA (STEP 5) ===== */}
-        {showSorting && (
-          <g transform="translate(355, 40)">
-            <rect x="0" y="0" width="120" height="200" fill="#1f2937" rx="5" />
-            <text x="60" y="20" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">
-              Signal Data
-            </text>
-            <text x="60" y="32" textAnchor="middle" fill="#6b7280" fontSize="8">
-              (sorted by idler)
+        {/* ===== STEP 5: SORTED DATA RESULTS ===== */}
+        {step === 4 && (
+          <g transform="translate(305, 25)">
+            <rect x="0" y="0" width="185" height="180" fill="#1f2937" rx="4" stroke="#4b5563" strokeWidth="1" />
+            <text x="92" y="18" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">
+              Sort saved data by idler:
             </text>
 
             {/* D1 - fringes */}
-            <text x="10" y="55" fill="#06b6d4" fontSize="9">D1:</text>
-            {[0,1,2,3,4,5].map(i => (
-              <rect key={i} x={35 + i*12} y="45" width={i%2===0 ? 8 : 3} height="14"
-                fill="#06b6d4" opacity={i%2===0 ? 0.9 : 0.3} rx="1" />
-            ))}
+            <g transform="translate(10, 30)">
+              <text x="0" y="10" fill="#06b6d4" fontSize="10">D1:</text>
+              <g transform="translate(30, 0)">
+                {[0,1,2,3,4,5,6,7].map(i => (
+                  <rect key={i} x={i * 15} y="0" width={i % 2 === 0 ? 12 : 3} height="14"
+                    fill="#06b6d4" opacity={i % 2 === 0 ? 0.9 : 0.2} rx="1" />
+                ))}
+              </g>
+              <text x="165" y="10" textAnchor="end" fill="#22c55e" fontSize="9">fringes!</text>
+            </g>
 
             {/* D2 - anti-fringes */}
-            <text x="10" y="80" fill="#06b6d4" fontSize="9">D2:</text>
-            {[0,1,2,3,4,5].map(i => (
-              <rect key={i} x={35 + i*12} y="70" width={i%2===1 ? 8 : 3} height="14"
-                fill="#06b6d4" opacity={i%2===1 ? 0.9 : 0.3} rx="1" />
-            ))}
+            <g transform="translate(10, 52)">
+              <text x="0" y="10" fill="#06b6d4" fontSize="10">D2:</text>
+              <g transform="translate(30, 0)">
+                {[0,1,2,3,4,5,6,7].map(i => (
+                  <rect key={i} x={i * 15} y="0" width={i % 2 === 1 ? 12 : 3} height="14"
+                    fill="#06b6d4" opacity={i % 2 === 1 ? 0.9 : 0.2} rx="1" />
+                ))}
+              </g>
+              <text x="165" y="10" textAnchor="end" fill="#22c55e" fontSize="9">anti-fringes</text>
+            </g>
 
-            <line x1="10" y1="95" x2="110" y2="95" stroke="#374151" strokeWidth="1" />
+            <line x1="10" y1="72" x2="175" y2="72" stroke="#4b5563" strokeWidth="1" />
 
-            {/* D3 - blobs */}
-            <text x="10" y="115" fill="#f97316" fontSize="9">D3:</text>
-            <ellipse cx="50" cy="112" rx="12" ry="8" fill="#f97316" opacity="0.7" />
-            <ellipse cx="85" cy="112" rx="12" ry="8" fill="#f97316" opacity="0.7" />
+            {/* D3 - two blobs */}
+            <g transform="translate(10, 80)">
+              <text x="0" y="10" fill="#f97316" fontSize="10">D3:</text>
+              <ellipse cx="60" cy="8" rx="18" ry="10" fill="#f97316" opacity="0.7" />
+              <ellipse cx="120" cy="8" rx="18" ry="10" fill="#f97316" opacity="0.7" />
+              <text x="165" y="10" textAnchor="end" fill="#9ca3af" fontSize="9">two blobs</text>
+            </g>
 
-            {/* D4 - blobs */}
-            <text x="10" y="140" fill="#f97316" fontSize="9">D4:</text>
-            <ellipse cx="50" cy="137" rx="12" ry="8" fill="#f97316" opacity="0.7" />
-            <ellipse cx="85" cy="137" rx="12" ry="8" fill="#f97316" opacity="0.7" />
+            {/* D4 - two blobs */}
+            <g transform="translate(10, 102)">
+              <text x="0" y="10" fill="#f97316" fontSize="10">D4:</text>
+              <ellipse cx="60" cy="8" rx="18" ry="10" fill="#f97316" opacity="0.7" />
+              <ellipse cx="120" cy="8" rx="18" ry="10" fill="#f97316" opacity="0.7" />
+              <text x="165" y="10" textAnchor="end" fill="#9ca3af" fontSize="9">two blobs</text>
+            </g>
 
-            <line x1="10" y1="155" x2="110" y2="155" stroke="#374151" strokeWidth="1" />
+            <line x1="10" y1="122" x2="175" y2="122" stroke="#4b5563" strokeWidth="1" />
 
-            {/* All - noise */}
-            <text x="10" y="175" fill="#6b7280" fontSize="9">All:</text>
-            <rect x="35" y="165" width="72" height="14" fill="#4b5563" opacity="0.5" rx="2" />
-            <text x="60" y="190" textAnchor="middle" fill="#6b7280" fontSize="7">noise (patterns cancel)</text>
+            {/* All combined - noise */}
+            <g transform="translate(10, 130)">
+              <text x="0" y="10" fill="#6b7280" fontSize="10">All:</text>
+              <rect x="30" y="0" width="120" height="14" fill="#4b5563" opacity="0.5" rx="2" />
+              <text x="165" y="10" textAnchor="end" fill="#6b7280" fontSize="9">no pattern</text>
+            </g>
+
+            {/* Punchline */}
+            <text x="92" y="162" textAnchor="middle" fill="#9ca3af" fontSize="9">
+              Patterns were always there—
+            </text>
+            <text x="92" y="174" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">
+              sorting reveals them!
+            </text>
           </g>
         )}
+
+        {/* Arrow marker definitions */}
+        <defs>
+          <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="#fbbf24" />
+          </marker>
+          <marker id="arrowCyan" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6" fill="#06b6d4" />
+          </marker>
+        </defs>
       </svg>
 
-      {/* Controls */}
-      <div className="mt-4 flex items-center justify-center gap-4">
-        <button
-          onClick={() => { setIsPlaying(false); setStep(Math.max(0, step - 1)); }}
-          disabled={step === 0}
-          className="px-3 py-1 text-sm bg-gray-800 text-gray-400 rounded hover:bg-gray-700 disabled:opacity-30"
-        >
-          ← Prev
-        </button>
-
-        <div className="flex gap-1">
-          {steps.map((s, i) => (
-            <button
-              key={i}
-              onClick={() => { setIsPlaying(false); setStep(i); }}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i === step ? 'bg-cyan-500 w-4' : 'bg-gray-600 hover:bg-gray-500'
-              }`}
-              title={s.label}
-            />
-          ))}
-        </div>
-
-        <button
-          onClick={() => { setIsPlaying(false); setStep(Math.min(steps.length - 1, step + 1)); }}
-          disabled={step === steps.length - 1}
-          className="px-3 py-1 text-sm bg-gray-800 text-gray-400 rounded hover:bg-gray-700 disabled:opacity-30"
-        >
-          Next →
-        </button>
-
-        <button
-          onClick={handlePlay}
-          disabled={isPlaying}
-          className="px-3 py-1 text-sm bg-cyan-700 text-white rounded hover:bg-cyan-600 disabled:opacity-50"
-        >
-          {isPlaying ? '▶ Playing' : '▶ Auto'}
-        </button>
+      {/* Step buttons */}
+      <div className="mt-4 flex items-center justify-center gap-2">
+        {steps.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setStep(i)}
+            className={`w-8 h-8 rounded-full text-sm font-medium transition-all ${
+              i === step
+                ? 'bg-cyan-600 text-white ring-2 ring-cyan-400'
+                : i < step
+                ? 'bg-gray-700 text-gray-300'
+                : 'bg-gray-800 text-gray-500 hover:bg-gray-700'
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
       </div>
 
-      {/* Step description */}
-      <div className="mt-3 p-3 bg-gray-800 rounded text-center">
-        <p className="text-sm text-gray-300">{steps[step].description}</p>
+      {/* Current step description */}
+      <div className="mt-3 p-3 bg-gray-800 rounded-lg">
+        <p className="text-sm font-medium text-white text-center">{steps[step].title}</p>
+        <p className="text-xs text-gray-400 text-center mt-1">{steps[step].desc}</p>
+      </div>
+
+      {/* Always-visible punchline */}
+      <div className="mt-3 pt-3 border-t border-gray-700">
+        <p className="text-xs text-gray-500 text-center">
+          <strong className="text-gray-400">The resolution:</strong> Nothing was rewritten.
+          The later measurement sorts data that was always correlated.
+        </p>
       </div>
     </div>
   );

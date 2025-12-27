@@ -11,6 +11,8 @@ import {
   DelayedChoiceDiagram,
   ProjectionDiagram,
   DimensionalCollapse,
+  HilbertProjectionDemo,
+  NoncommutationDemo,
 } from '@/components/blog/quantum-mechanics-without-math';
 
 export function generateStaticParams() {
@@ -60,6 +62,16 @@ const simulationEmbeds: Record<string, {
   'projection': {
     component: <ProjectionDiagram />,
     caption: 'The same 3D object looks completely different from different angles.',
+    link: '',
+  },
+  'hilbert-projection': {
+    component: <HilbertProjectionDemo />,
+    caption: 'Measurement is projection. The probability is the squared length of the projected vector.',
+    link: '',
+  },
+  'noncommutation': {
+    component: <NoncommutationDemo />,
+    caption: 'Try measuring Z then X, vs X then Z. The order determines the outcomes.',
     link: '',
   },
 };
