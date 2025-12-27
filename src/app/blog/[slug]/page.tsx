@@ -21,6 +21,8 @@ import {
 } from '@/components/blog/quantum-gravity-without-the-paradox';
 // Time from dimensions blog post components
 import { TimeApertureDemo } from '@/components/blog/time-from-dimensions';
+// Black hole aperture blog post components
+import { BlackHoleObserversDemo } from '@/components/blog/black-hole-aperture';
 // Series keyboard navigation
 import SeriesNavigation from '@/components/blog/SeriesNavigation';
 
@@ -98,6 +100,12 @@ const simulationEmbeds: Record<string, {
   'time-aperture': {
     component: <TimeApertureDemo />,
     caption: 'Squeeze the aperture → reduce state-space exploration → slow the system clock relative to external time.',
+    link: '',
+  },
+  // Black hole aperture blog post
+  'black-hole-observers': {
+    component: <BlackHoleObserversDemo />,
+    caption: 'Same dynamics, different apertures. External observer: k drops, S drops, Q spikes, τ freezes. Infalling observer: everything normal.',
     link: '',
   },
 };

@@ -14,7 +14,7 @@ relatedPapers:
   - high-dimensional-coherence
   - falsifiability
   - minimal-embedding
-draft: true
+draft: false
 ---
 
 ## Part I: Without the Math
