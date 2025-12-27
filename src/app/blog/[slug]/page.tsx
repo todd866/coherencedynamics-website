@@ -4,11 +4,14 @@ import { getAllBlogSlugs, getBlogPostBySlug } from '@/data/blog';
 import { getPaperBySlug } from '@/data/papers';
 import Markdown from '@/components/Markdown';
 import SoupVsSparks from '@/components/SoupVsSparks';
-import QuantumEraserDemo from '@/components/QuantumEraserDemo';
 import EmbeddingDimensionDemo from '@/components/EmbeddingDimensionDemo';
-import DoubleSlitDiagram from '@/components/DoubleSlitDiagram';
-import DelayedChoiceDiagram from '@/components/DelayedChoiceDiagram';
-import ProjectionDiagram from '@/components/ProjectionDiagram';
+// Quantum mechanics blog post components
+import {
+  QuantumEraserDemo,
+  DoubleSlitDiagram,
+  DelayedChoiceDiagram,
+  ProjectionDiagram,
+} from '@/components/blog/quantum-mechanics-without-math';
 
 export function generateStaticParams() {
   return getAllBlogSlugs().map((slug) => ({ slug }));

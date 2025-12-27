@@ -47,40 +47,43 @@ export default function DoubleSlitDiagram({ className = '' }: Props) {
         {/* Photon path to slits */}
         <line x1="45" y1="100" x2="120" y2="100" stroke="#fbbf24" strokeWidth="2" strokeDasharray="4,4" opacity="0.6" />
 
-        {/* Barrier with slits */}
-        <rect x="120" y="20" width="10" height="65" fill="#4b5563" />
-        <rect x="120" y="115" width="10" height="65" fill="#4b5563" />
+        {/* Barrier with TWO slits (three barrier pieces) */}
+        <rect x="120" y="20" width="10" height="50" fill="#4b5563" />
+        <rect x="120" y="80" width="10" height="40" fill="#4b5563" />
+        <rect x="120" y="130" width="10" height="50" fill="#4b5563" />
         <text x="125" y="15" textAnchor="middle" fill="#9ca3af" fontSize="10">
           Barrier
         </text>
 
-        {/* Slit labels */}
-        <text x="145" y="95" fill="#9ca3af" fontSize="9">Slit A</text>
-        <text x="145" y="115" fill="#9ca3af" fontSize="9">Slit B</text>
+        {/* Slit labels - positioned in the gaps */}
+        <text x="145" y="75" fill="#9ca3af" fontSize="9">Slit A</text>
+        <text x="145" y="128" fill="#9ca3af" fontSize="9">Slit B</text>
 
         {/* Which-path detector (conditional) */}
         {mode === 'which-path' && (
           <>
-            <rect x="135" y="80" width="20" height="12" fill="#f97316" rx="2" />
-            <rect x="135" y="108" width="20" height="12" fill="#f97316" rx="2" />
-            <text x="175" y="75" fill="#f97316" fontSize="9">Detectors</text>
-            <text x="175" y="85" fill="#f97316" fontSize="8">(which slit?)</text>
+            <rect x="135" y="68" width="20" height="10" fill="#f97316" rx="2" />
+            <rect x="135" y="122" width="20" height="10" fill="#f97316" rx="2" />
+            <text x="175" y="70" fill="#f97316" fontSize="9">Detectors</text>
+            <text x="175" y="80" fill="#f97316" fontSize="8">(which slit?)</text>
           </>
         )}
 
         {/* Paths through slits */}
         {mode === 'interference' ? (
           <>
-            {/* Interference: waves spread and overlap */}
+            {/* Interference: waves spread and overlap from both slits */}
+            {/* From Slit A (y~75) */}
             <path
-              d="M130 90 Q200 70 280 60 M130 90 Q200 90 280 90 M130 90 Q200 110 280 120 M130 90 Q200 130 280 150"
+              d="M130 75 Q200 55 280 50 M130 75 Q200 75 280 80 M130 75 Q200 95 280 110 M130 75 Q200 115 280 140"
               stroke="#06b6d4"
               strokeWidth="1"
               fill="none"
               opacity="0.4"
             />
+            {/* From Slit B (y~125) */}
             <path
-              d="M130 110 Q200 90 280 60 M130 110 Q200 110 280 90 M130 110 Q200 130 280 120 M130 110 Q200 150 280 150"
+              d="M130 125 Q200 105 280 50 M130 125 Q200 115 280 80 M130 125 Q200 125 280 110 M130 125 Q200 145 280 140"
               stroke="#06b6d4"
               strokeWidth="1"
               fill="none"
@@ -89,9 +92,9 @@ export default function DoubleSlitDiagram({ className = '' }: Props) {
           </>
         ) : (
           <>
-            {/* Which-path: distinct trajectories */}
-            <line x1="130" y1="90" x2="280" y2="70" stroke="#f97316" strokeWidth="2" opacity="0.6" />
-            <line x1="130" y1="110" x2="280" y2="130" stroke="#f97316" strokeWidth="2" opacity="0.6" />
+            {/* Which-path: distinct trajectories from each slit */}
+            <line x1="130" y1="75" x2="280" y2="65" stroke="#f97316" strokeWidth="2" opacity="0.6" />
+            <line x1="130" y1="125" x2="280" y2="135" stroke="#f97316" strokeWidth="2" opacity="0.6" />
           </>
         )}
 

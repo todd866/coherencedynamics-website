@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import QuantumEraserDemo from '@/components/QuantumEraserDemo';
+import { QuantumEraserDemo } from '@/components/blog/quantum-mechanics-without-math';
 
 export default function QuantumEraserPage() {
   return (
