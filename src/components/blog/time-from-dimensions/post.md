@@ -144,7 +144,13 @@ This connects to time in a striking way:
 - **$k = 3$ (optimal):** Full classical dynamics. Maximal correlation rate. Time flows.
 - **$k > 3$:** Too many degrees of freedom to integrate. Time fragments.
 
-The implication: **classical observers operate at $k = 3$ because that's what "classical" means in our universe.** More than that—without k=3, you don't get the conditions for observers to appear in the first place. This isn't anthropic hand-waving; it's a constraint. Complex, time-tracking, memory-forming systems require a dimensional aperture wide enough for dynamics but narrow enough for integration. k=3 is that aperture.
+The implication: **classical observers operate at $k = 3$ because that's what "classical" means in our universe.**
+
+The constraints are asymmetric:
+- **Below k=3:** Complexity is impossible. You can't embed the dynamics needed for memory, prediction, or self-reference. Hard floor.
+- **Above k=3:** Complexity might be possible, but it's thermodynamically expensive. Integration costs scale with dimensionality. Soft ceiling.
+
+k=3 is the minimum aperture that supports observers—and probably the thermodynamically optimal one. Not anthropic hand-waving; a constraint.
 
 The question isn't whether k=3 is special—it is. The question is whether this aperture framework correctly describes *why* deviations produce time effects.
 
