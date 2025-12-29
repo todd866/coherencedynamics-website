@@ -211,7 +211,7 @@ The connections run deep:
 
 These ideas converge with [Michael Levin's](https://drmichaellevin.org/) work on what he calls [TAME—Technological Approach to Mind Everywhere](https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/technological-approach-to-mind-everywhere-an-experimentally-grounded-framework-for-understanding-diverse-bodies-and-minds/D1888C08244A29591DCA72C20F45D894). Levin, a developmental biologist at Tufts, has been arguing for years that agency is graded and that cognitive processes extend far beyond brains.
 
-His response to critics who accuse him of "anthropomorphism" or "mysterianism" for using agentic language about cells is instructive:
+His [response to critics](https://thoughtforms.life/qa-from-the-internet-and-recent-presentations-4/) who accuse him of "anthropomorphism" or "mysterianism" for using agentic language about cells is instructive:
 
 > "Declaring cognition outside the brain as some sort of 'anthropomorphism' is a pre-scientific notion, incompatible with advances in evolutionary biology (precursors of brains) and in developmental biology (we were all single cells once). The more informed position is that we now have non-magical sciences of mind, from the most minimal to the most advanced, and the real question is which cybernetic/agentic model is appropriate in any given case."
 
