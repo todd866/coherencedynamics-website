@@ -207,6 +207,30 @@ The connections run deep:
 
 ---
 
+## Convergence with Levin's TAME Framework
+
+These ideas converge with [Michael Levin's](https://drmichaellevin.org/) work on what he calls [TAME—Technological Approach to Mind Everywhere](https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/technological-approach-to-mind-everywhere-an-experimentally-grounded-framework-for-understanding-diverse-bodies-and-minds/D1888C08244A29591DCA72C20F45D894). Levin, a developmental biologist at Tufts, has been arguing for years that agency is graded and that cognitive processes extend far beyond brains.
+
+His response to critics who accuse him of "anthropomorphism" or "mysterianism" for using agentic language about cells is instructive:
+
+> "Declaring cognition outside the brain as some sort of 'anthropomorphism' is a pre-scientific notion, incompatible with advances in evolutionary biology (precursors of brains) and in developmental biology (we were all single cells once). The more informed position is that we now have non-magical sciences of mind, from the most minimal to the most advanced, and the real question is which cybernetic/agentic model is appropriate in any given case."
+
+This flips the usual critique. It's not that applying agency to cells is "mysterian"—it's that *refusing* to reveals an implicit belief that agency can't be studied scientifically. Decades of cybernetics and behavioral science say otherwise.
+
+Levin's empirical work on [bioelectricity and morphogenesis](https://www.sciencedirect.com/science/article/pii/S0959438820301653) demonstrates the point concretely. Cells navigate "morphospace"—the high-dimensional space of possible anatomies—using bioelectric signals as a kind of distributed cognition. They solve problems (regenerating limbs, correcting developmental errors, coordinating tissue growth) that require representing goals and selecting actions to achieve them. Not metaphorically. Operationally.
+
+This connects directly to our framework:
+
+- **Graded agency** (Part 1): Levin's TAME framework provides empirical grounding for the claim that agency exists on a continuum. His lab has demonstrated goal-directed behavior in systems ranging from individual cells to bioengineered "xenobots"—organisms with no evolutionary history for the behaviors they exhibit.
+
+- **Coordination without mind-reading** (Part 2): Levin's work on bioelectric networks shows how cells coordinate without direct access to each other's internal states. They use voltage gradients and gap junctions as a kind of primitive signaling system—not unlike the costly signaling mechanisms we discuss.
+
+- **Multi-scale competency** (Part 3): Levin emphasizes that competency exists at multiple scales simultaneously. A cell has goals. A tissue has goals. An organism has goals. These can align or conflict. This multi-scale structure is exactly what creates the dimensional mismatch we call epistemic frustration—different levels "see" different projections of the same underlying optimization problem.
+
+The convergence isn't coincidental. We're both taking seriously the idea that the mechanisms underlying human cognition and social coordination didn't appear from nowhere—they're elaborations of patterns that exist at every biological scale. If you want to understand why institutions resist evidence or why coalitions demand costly signals, it helps to understand that these are solutions to problems that life has been solving for billions of years.
+
+---
+
 ## Why This Matters
 
 If this framework is right, it has practical implications:
@@ -253,3 +277,5 @@ Each paper has specific predictions:
 - Penn, D. J., & Számadó, S. (2020). [The handicap principle: how an erroneous hypothesis became a scientific principle](https://pmc.ncbi.nlm.nih.gov/articles/PMC7004190/). *Biological Reviews*, 95(1), 267-290.
 - Czárán, T., & Hoekstra, R. F. (2009). [Microbial communication, cooperation and cheating: quorum sensing drives the evolution of cooperation in bacteria](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2722019/). *PLOS ONE*.
 - Pollak, S., et al. (2022). [Cheater suppression and stochastic clearance through quorum sensing](https://pmc.ncbi.nlm.nih.gov/articles/PMC9333318/). *PLOS Computational Biology*.
+- Levin, M. (2022). [Technological Approach to Mind Everywhere: An experimentally-grounded framework for understanding diverse bodies and minds](https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/technological-approach-to-mind-everywhere-an-experimentally-grounded-framework-for-understanding-diverse-bodies-and-minds/D1888C08244A29591DCA72C20F45D894). *Behavioral and Brain Sciences*, 45, e207.
+- Levin, M. (2021). [Bioelectric signaling: Reprogrammable circuits underlying embryogenesis, regeneration, and cancer](https://www.sciencedirect.com/science/article/pii/S0959438820301653). *Cell*, 184(6), 1656-1672.
