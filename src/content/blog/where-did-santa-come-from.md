@@ -43,6 +43,57 @@ This is *consilience*, not documentation. The standard of proof is explanatory p
 
 ---
 
+## Cross-Cultural Evidence
+
+Before diving into theory, let's look at the evidence. If Santa-like institutions are convergent solutions, we should find structurally similar traditions in societies without shared ancestry or diffusion pathways.
+
+We do.
+
+### Hopi and Zuni Kachinas (American Southwest)
+
+The Puebloan peoples have maintained Kachina traditions for approximately one thousand years. Kachinas are spirit beings who visit villages during an extended ceremonial season (December through July). Adult men don elaborate masks and costumes to embody the spirits.
+
+The parallels to Santa are striking:
+
+- **Masked/spirit attribution.** The gift-giver is the Kachina spirit, not "Uncle Joe in a costume"
+- **Gifts to children.** Kachinas distribute gifts specifically to children: bows and arrows for boys, carved dolls (*tihu*) for girls
+- **Behavioral enforcement.** "The Kachinas are watching" functions identically to "Santa is watching"
+- **Adult conspiracy.** Adults maintain the fiction; children eventually learn and join the conspiracy
+- **Seasonal timing.** The Kachina season provides a bounded window for intensified ceremonial and exchange activity
+
+There is no diffusion pathway connecting Puebloan Kachina traditions to European Santa traditions. Spanish contact occurred in the 16th century, but the Kachina cult predates contact. This is independent invention.
+
+### Yoruba Egungun (West Africa)
+
+The Egungun masquerade tradition of the Yoruba people (Nigeria, Benin) provides a second independent case. Egungun are ancestral spirits who periodically return to visit the living. Adult men wearing elaborate layered cloth costumes become vessels for the spirits of the collective dead.
+
+The Egungun case differs in that the primary "gift" is blessing rather than material goods—health, fertility, prosperity, protection. But the functional logic is identical:
+
+- **Depersonalized attribution.** The blessing comes from "the ancestors" as a collective
+- **Behavioral enforcement.** Egungun publicly expose moral failings, functioning as supernatural norm monitors
+- **Seasonal aggregation.** Egungun festivals bring together dispersed community members
+
+This suggests material gift-giving may be one instantiation of a more general pattern: depersonalized redistribution of valued goods (material or immaterial) at aggregation, attributed to spirit figures.
+
+### European Masked Gift-Bringers
+
+The European tradition—source of modern Santa—is itself internally diverse:
+
+- **Krampus and Perchten** (Alpine regions): Masked devil figures with pre-Christian origins who accompany St. Nicholas. Reward/punishment binary.
+- **La Befana** (Italy): An old woman or witch who delivers gifts on Epiphany, entering through chimneys
+- **Christkind** (Germany, Austria): An angel-like figure who delivers gifts *unseen*—explicit anonymity
+- **Yule Lads** (Iceland): Thirteen spirit figures who visit in sequence before Christmas
+
+The diversity within Europe alone suggests "Santa" is not a single artifact but a family of solutions to a common problem.
+
+### The Pattern
+
+Across three continents with no plausible shared ancestry: masked or spirit-attributed gift-givers, seasonal timing coinciding with aggregation, gifts specifically to children, behavioral surveillance narratives, adult maintenance of the fiction.
+
+This pattern is consistent with convergent cultural evolution. The theoretical task is to explain *why* this particular solution is stable.
+
+---
+
 ## The Winter Problem
 
 Every year, dispersed groups re-aggregate. Hunter-gatherers return to winter camps. Pastoral nomads converge on trading sites. Agricultural villages hold harvest festivals.
