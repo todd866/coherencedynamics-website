@@ -1,9 +1,12 @@
+export type PaperCategory = 'biology' | 'neuroscience' | 'physics' | 'math' | 'philosophy' | 'methods';
+
 export interface Paper {
   slug: string;
   title: string;
   journal: string;
   year: number;
   status: 'published' | 'submitted' | 'in_prep';
+  category: PaperCategory; // discipline/field
   doi?: string;
   ssrn?: string;
   github?: string;
@@ -24,6 +27,7 @@ export const papers: Paper[] = [
     journal: 'BioSystems (October 2025)',
     year: 2025,
     status: 'published',
+    category: 'physics',
     doi: '10.1016/j.biosystems.2025.105608',
     simulation: 'protein-observer',
     image: 'falsifiability.png',
@@ -48,6 +52,7 @@ This isn't a call to abandon scientific rigor. Falsifiability works brilliantly 
     journal: 'BioSystems (November 2025)',
     year: 2025,
     status: 'published',
+    category: 'physics',
     doi: '10.1016/j.biosystems.2025.105632',
     simulation: 'maxwells-ledger',
     image: 'timing-inaccessibility.png',
@@ -74,6 +79,7 @@ This isn't a trick or an approximation. It's a fundamentally different computati
     journal: 'BioSystems (R2 minor revision)',
     year: 2025,
     status: 'submitted',
+    category: 'biology',
     github: 'todd866/intelligence-biosystems',
     pdf: 'https://github.com/todd866/intelligence-biosystems/blob/main/intelligence.pdf',
     image: 'high-dimensional-coherence.png',
@@ -98,6 +104,7 @@ The same principle applies at every scale: bacteria tracking chemical gradients,
     journal: 'Information Geometry (submitted)',
     year: 2025,
     status: 'submitted',
+    category: 'math',
     image: 'minimal-embedding.png',
     simulation: 'dimensional-collapse',
     description: `**You need at least 3 dimensions for continuous cyclic dynamics — below that, trajectories collide and the system is forced into discrete categories.** This is a hard geometric constraint with implications for neural coding, latent spaces, and any dimensionality reduction scheme.
@@ -124,6 +131,7 @@ The same constraint applies to neural network latent spaces: if you compress too
     journal: 'BioSystems (submitted)',
     year: 2025,
     status: 'submitted',
+    category: 'neuroscience',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5018691',
     github: 'todd866/coherence-time-biosystems',
     pdf: 'https://github.com/todd866/coherence-time-biosystems/blob/main/coherence_time.pdf',
@@ -149,6 +157,7 @@ Consciousness may depend more on these synchronised fields than on individual sp
     journal: 'Journal of Computational Neuroscience (submitted)',
     year: 2025,
     status: 'submitted',
+    category: 'neuroscience',
     github: 'todd866/brainwavedimensionality',
     pdf: 'https://raw.githubusercontent.com/todd866/brainwavedimensionality/main/paper/slow_waves_high_D.pdf',
     image: 'cortical-oscillations.png',
@@ -176,6 +185,7 @@ Cognitive maturity may be the capacity to sustain $k \\geq 3$ dynamics despite o
     journal: 'BioSystems (submitted)',
     year: 2025,
     status: 'submitted',
+    category: 'biology',
     ssrn: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5846665',
     github: 'todd866/nonergodic-development',
     pdf: 'https://github.com/todd866/nonergodic-development/blob/main/nonergodic_development.pdf',
@@ -201,6 +211,7 @@ Cancer, in this view, is cellular bifurcation into an alternative stable state. 
     journal: 'Biological Cybernetics (submitted)',
     year: 2025,
     status: 'submitted',
+    category: 'neuroscience',
     image: 'substrate-dimensionality.png',
     description: `**AI may hit a hard capability ceiling because digital hardware has the wrong dimensionality** — one global clock versus $10^{14}$–$10^{18}$ continuous degrees of freedom in a biological brain.
 
@@ -227,6 +238,7 @@ The implication is uncomfortable: we may already be approaching the ceiling of w
     journal: 'Information Geometry (in preparation)',
     year: 2025,
     status: 'in_prep',
+    category: 'math',
     github: 'todd866/code-emergence',
     pdf: 'https://github.com/todd866/code-emergence/blob/main/code_emergence.pdf',
     image: 'quotient-geometry.png',
@@ -254,6 +266,7 @@ This forms a two-paper program with the minimal embedding result: Paper 1 gives 
     journal: 'Journal of Complex Networks (in preparation)',
     year: 2025,
     status: 'in_prep',
+    category: 'methods',
     github: 'todd866/spectral-decoupling',
     description: `**Network complexity is two-dimensional: capacity (how many slow modes topology supports) and entropy (how spread the dynamics are).** These axes are orthogonal — you can match entropy while having completely different capacities, or vary entropy while capacity stays fixed.
 
@@ -269,6 +282,72 @@ The $(C, H)$ phase portrait provides a diagnostic: where does your network sit, 
       'Fixed topology means fixed capacity regardless of noise level',
     ],
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
+  },
+  {
+    slug: 'agency-power',
+    title: 'Agency and Power Across Biological Scales: A Framework for Cross-Scale Analysis',
+    journal: 'Biology & Philosophy (submitted)',
+    year: 2025,
+    status: 'submitted',
+    category: 'philosophy',
+    github: 'todd866/agency-power',
+    pdf: 'https://github.com/todd866/agency-power/blob/main/paper/agency_power.pdf',
+    description: `**Power is control of controllers** — the capacity to reliably steer another agent's action by acting on the variables that govern its action selection. This paper develops a graded framework for agency and power that applies uniformly from bacteria to human institutions.
+
+Agency admits degrees: a system is an agent to the extent it maintains internal states representing self/environment and uses them to guide action selection. Power operates through two routes: representation-mediated (manipulating perception and values) and constraint/controller-hijack (limiting action sets or modifying control systems directly).
+
+The same mechanisms trace continuously from quorum sensing in bacteria, through parasitic manipulation in insects, to prestige and coercion in human societies. "Demi-agents" like corporations present agent-like interfaces but outsource their decision-making to constituent minds.`,
+    keyFindings: [
+      'Graded agency via code formation: explicit criteria distinguish agents from non-agents',
+      'Two routes to power: representation-mediated vs constraint/controller-hijack',
+      'Cross-scale continuity from bacteria → fungi → insects → primates → humans',
+      'Demi-agents: entities that present agent-like interfaces but outsource cognition',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting; GPT-5.2 (OpenAI) and Gemini 3 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
+  },
+  {
+    slug: 'epistemic-frustration',
+    title: 'Epistemic Frustration: Dimensional Collapse and the Limits of Falsifiability in Complex Systems',
+    journal: 'Biology & Philosophy (in preparation)',
+    year: 2025,
+    status: 'in_prep',
+    category: 'philosophy',
+    github: 'todd866/epistemic-frustration',
+    pdf: 'https://github.com/todd866/epistemic-frustration/blob/main/paper/epistemic_frustration.pdf',
+    description: `**Complex systems undergo a predictable transition from truth-seeking to coordination-preserving epistemics** — and this explains why mature institutions resist evidence, moralize dissent, and absorb anomalies rather than revising their frameworks.
+
+When high-dimensional optima project into low-dimensional discourse, the "right answer" can map to contradictory positions. Different agents seeing different constraints are each locally correct but globally incompatible. This is *epistemic frustration* — disagreement that is geometric, not epistemic.
+
+As coordination stakes increase, systems shift from epistemic-first (truth-seeking) to coordination-first (stability-seeking) regimes. This isn't irrationality — it's optimization under a different objective function. The paper provides a quantitative diagnostic: systems become unfalsifiable when error-model degrees of freedom exceed informational constraints.`,
+    keyFindings: [
+      'Epistemic frustration: high-D optima projecting to contradictory low-D positions',
+      'Coordination-first transition: predictable shift under high stakes',
+      'DOF diagnostic for unfalsifiability: R = error-model DOF / informational constraints',
+      'Scale-bound normativity: local moral intuitions becoming globally misleading',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting and simulation code; GPT-5.2 (OpenAI) and Gemini 3 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
+  },
+  {
+    slug: 'costly-signaling',
+    title: 'Costly Signaling and Coalition Formation Across Biological Scales',
+    journal: 'Biology & Philosophy (in preparation)',
+    year: 2025,
+    status: 'in_prep',
+    category: 'philosophy',
+    github: 'todd866/costly-signaling',
+    pdf: 'https://github.com/todd866/costly-signaling/blob/main/paper/costly_signaling.pdf',
+    description: `**Coalition formation requires commitment verification** — and costly signaling provides a general solution from bacteria to belief systems. Signals must cost more to fake than defection pays.
+
+As coordination stakes increase, signals become increasingly "individually dominated" (appearing irrational from the individual's perspective). A structural cluster emerges: ritual, sacred markers, deviation punishment, identity fusion, evidence resistance. These are functional homologies — convergent solutions to the commitment verification problem.
+
+The key insight: defectors pay more because they discount future coalition benefits more heavily. Evidence against beliefs can strengthen commitment by raising signal cost. Internal deviation is punished more severely than external opposition.`,
+    keyFindings: [
+      'Separation condition: signal cost must exceed defection bonus + outside option value',
+      'Discount factor asymmetry explains why defectors pay more',
+      'Cross-scale homology: quorum sensing → colony recognition → immune tolerance → human ideologies',
+      'Evidence-resistance prediction: counter-evidence raises commitment by raising signal cost',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting; GPT-5.2 (OpenAI) and Gemini 3 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
   },
 ];
 
@@ -286,6 +365,10 @@ export const getSubmittedPapers = (): Paper[] => {
 
 export const getInPrepPapers = (): Paper[] => {
   return papers.filter(p => p.status === 'in_prep');
+};
+
+export const getPapersByCategory = (category: PaperCategory): Paper[] => {
+  return papers.filter(p => p.category === category);
 };
 
 export const getAdjacentPapers = (slug: string): { prev: Paper | null; next: Paper | null } => {
