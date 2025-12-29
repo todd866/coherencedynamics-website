@@ -61,22 +61,27 @@ This isn't relativism. The underlying reality exists. But falsification is frame
     status: 'published',
     category: 'physics',
     doi: '10.1016/j.biosystems.2025.105632',
+    github: 'todd866/timing-inaccessibility',
+    pdf: 'https://github.com/todd866/timing-inaccessibility/blob/main/v2.0/timing_inaccessibility_v2.pdf',
     simulation: 'maxwells-ledger',
     image: 'timing-inaccessibility.png',
     description: `**The brain is 100,000× more energy-efficient than silicon because it defers thermodynamic costs** — computing reversibly until the moment it must commit to a discrete output.
 
-Here's what makes this possible: below the Landauer limit ($\\sim 3 \\times 10^{-21}$ J), you can't irreversibly record *when* things happen. You can detect that something occurred, but not its temporal order. This creates massive "path degeneracy" — exponentially many micro-trajectories ($10^{50}$ to $10^{100}$ in neural systems) that all look the same from the outside.
+## [Version 2.0 now available](https://github.com/todd866/timing-inaccessibility/blob/main/v2.0/timing_inaccessibility_v2.pdf)
 
-Biology exploits this systematically. The brain integrates weak signals across many dimensions, accumulating evidence without paying thermodynamic rent, then pays the Landauer cost only when it commits to a discrete output (a decision, a word, a muscle command). Digital computers, by contrast, pay for every bit at every clock cycle — they're burning energy to track timing information that biology simply ignores.
+**v2.0 (December 2025)** extends the published paper with three new arguments: (1) *Framework dependence of timing* — what counts as "simultaneous" vs "sequential" depends on the measurement framework, making temporal structure framework-relative. (2) *The "when" is created, not revealed* — temporal order does not pre-exist measurement but emerges at projection. (3) *AI substrate constraints* — digital architectures cannot access the sub-Landauer integration regime regardless of scale, though behavioral approximation may remain possible.
 
-This isn't a trick or an approximation. It's a fundamentally different computational strategy, and it explains why neuromorphic and analog computing can be so much more efficient: they're exploiting the same principle. The brain doesn't violate thermodynamics — it plays a different game.`,
+The paper now explicitly traces the Maxwell's demon lineage (Maxwell → Szilard → Landauer → Bennett → this paper), showing how biological systems extend the resolution to continuous substrates via path degeneracy. The key insight: the Landauer-Bennett resolution assumed discrete memory states; biology operates with continuous dynamics where "memory" is structural correlation, not written bits.
+
+Below the Landauer limit ($\\sim 3 \\times 10^{-21}$ J), you can't irreversibly record *when* things happen without paying $\\ge k_BT\\ln 2$ per stabilized order bit. This creates massive "path degeneracy" — exponentially many micro-trajectories ($10^{50}$ to $10^{100}$ in neural systems) that all look the same from the outside. Biology exploits this via a two-stage model: Stage 1 (reversible correlation) is thermodynamically cheap; Stage 2 (stabilization/projection) is where the cost appears.`,
     keyFindings: [
       'Derived the Projection Bound: energy cost scales with dimensional collapse, not bit operations',
+      'Two-stage model: reversible coupling (free) vs stabilization/registration (Landauer cost)',
       'Path degeneracies of 10^42 to 10^94 (proteins) and 10^50 to 10^100 (neural)',
-      'Digital tracking costs scale exponentially; projection costs scale logarithmically',
+      'Digital efficiency depends on projection boundary placement, not "digital vs analog"',
       'Explains 10^5 to 10^8× efficiency gap between brains and silicon',
     ],
-    workflow: 'Claude 4.5 Sonnet (Anthropic) for drafting and conceptual development; GPT-5 (OpenAI) and Grok (xAI) for feedback and review. Author reviewed all content and takes full responsibility.',
+    workflow: 'v1.0: Claude 4.5 Sonnet (Anthropic) for drafting; GPT-5 (OpenAI) and Grok (xAI) for review. v2.0: Claude 4.5 Opus (Anthropic) for extended framework-dependence, demon lineage, and AI implications; GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
 
   // === UNDER REVIEW ===
