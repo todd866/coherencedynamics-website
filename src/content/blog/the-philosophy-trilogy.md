@@ -254,6 +254,18 @@ The determinist says option three is illegitimate—any gap must be fillable wit
 
 Wigner's famous observation was about physics—why do abstract mathematical structures map so well onto physical reality? But agency, if it's real, is precisely what *doesn't* map. It's the causal work done by factors that external measurement cannot access. Mathematics describes the constraints on what can happen; agency is what happens *within* those constraints, from the inside.
 
+Actually, let's go deeper. How does math describe *any* high-dimensional system?
+
+It doesn't. Not directly. Any mathematical description is necessarily finite—you can only write down finitely many symbols, equations, variables. Real systems, especially biological ones, have state spaces of enormous or effectively infinite dimension. So every mathematical model is already a projection, a shadow of the actual dynamics.
+
+We don't notice this with physics because physics has historically focused on systems where the projection loss is small—isolated systems, controlled conditions, symmetric situations where the relevant degrees of freedom are few. The "unreasonable effectiveness" of mathematics is partly selection bias: we call "physics" the domains where math works, and everything else gets other names.
+
+Biology is where the projection loss becomes obvious. Living systems maintain high-dimensional internal states that exceed observational access. That's not a bug—it's the feature that makes them alive. A cell's state space includes every molecular configuration, every protein fold, every membrane potential. No finite description captures it. Every model is a shadow.
+
+Agency is just the case where we have *direct access* to something being projected away. We experience choice from the inside while the models describe only the shadows visible from outside. The "hard problem of consciousness" is a special case of the projection problem—what happens when the observer *is* the high-dimensional system being inadequately modeled?
+
+This reframes the whole debate. It's not that agency is magically exempt from mathematical description while everything else submits. It's that *all* mathematical description is dimensional reduction, and agency is where the loss becomes undeniable because we're inside the system being reduced.
+
 This connects to Levin's frustration with critics who demand mechanistic reduction of everything. The demand assumes that if something can't be reduced to mechanism, it doesn't exist. But that's not a scientific conclusion—it's a metaphysical commitment dressed up as rigor.
 
 What if some things are real but not mathematically describable? Not because they're supernatural, but because they're the *inside* of processes that math can only describe from the outside?
