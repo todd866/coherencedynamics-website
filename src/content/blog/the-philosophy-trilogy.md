@@ -336,12 +336,15 @@ Each paper has specific predictions:
 
 ---
 
+*The trilogy builds on [The Limits of Falsifiability in High-Dimensional Systems](https://www.sciencedirect.com/science/article/pii/S0303264725002187) (published in BioSystems), which establishes the formal framework for projection and dimensional collapse.*
+
 *The trilogy: [Agency and Power](/papers/agency-power) (under review), [Costly Signaling](/papers/costly-signaling) (in preparation), [Epistemic Frustration](/papers/epistemic-frustration) (in preparation). All targeted at Biology & Philosophy.*
 
 ---
 
 **Sources:**
 
+- Todd, I. (2025). [The Limits of Falsifiability in High-Dimensional Systems](https://www.sciencedirect.com/science/article/pii/S0303264725002187). *BioSystems*, 258, 105608.
 - Elowitz, M. B., Levine, A. J., Siggia, E. D., & Swain, P. S. (2002). [Stochastic gene expression in a single cell](https://www.science.org/doi/10.1126/science.1070919). *Science*, 297(5584), 1183-1186.
 - Pal, M. (2024). [Living in a noisy world—origins of gene expression noise and its impact on cellular decision-making](https://febs.onlinelibrary.wiley.com/doi/10.1002/1873-3468.14898). *FEBS Letters*.
 - Moris, N., Pina, C., & Arias, A. M. (2016). [Transition states and cell fate decisions in epigenetic landscapes](https://www.nature.com/articles/nrg.2016.98). *Nature Reviews Genetics*, 17(11), 693-703.
