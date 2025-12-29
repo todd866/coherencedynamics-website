@@ -35,9 +35,11 @@ export const papers: Paper[] = [
     image: 'falsifiability.png',
     description: `**Popper's falsifiability criterion breaks down for high-dimensional biological systems** — not because biology is messy, but because of fundamental limits at three distinct levels.
 
+## [Version 2.0 now available](https://github.com/todd866/limits-of-falsifiability/blob/main/v2.0/falsifiability_v2.pdf)
+
 **v2.0 (December 2025)** extends the published paper with a deeper argument: *falsifiability in any field depends on axiomatic assumptions about how you structure the question*. Before any measurement occurs, the choice of what counts as a test, what counts as evidence, and how the question is structured has already made a dimensional reduction. The framework is itself a projection.
 
-The paper now identifies **three levels of limitation**: (1) Physical measurement limits — many biological patterns exist below the Landauer threshold. (2) Dimensional projection — a binary test on a 100-neuron circuit preserves $\\sim 10^{-100}$ of the information. (3) Framework dependence — axiomatic choices precede all measurement and cannot be tested from within the framework.
+The paper identifies **three levels of limitation**: (1) Physical measurement limits — many biological patterns exist below the Landauer threshold. (2) Dimensional projection — a binary test on a 100-neuron circuit preserves less than 1% of the information ($1/(n \\log_2 k) \\approx 0.3\\%$). (3) Framework dependence — axiomatic choices precede all measurement and cannot be tested from within the framework.
 
 Wigner's "unreasonable effectiveness of mathematics" in physics reflects selection bias: physics has focused on domains where projection loss is small. Biology is where this selection breaks down — where the gap between system dimensionality and observer capacity becomes undeniable.
 
@@ -46,10 +48,10 @@ This isn't relativism. The underlying reality exists. But falsification is frame
       'Three levels of limitation: physical, dimensional, and framework-dependent',
       'Framework dependence is the deepest: axiomatic choices precede all measurement',
       'Wigner\'s "unreasonable effectiveness" as selection bias toward low projection-loss domains',
-      'Binary projection destroys nearly all information ($10^{-100}$ for 100 neurons)',
+      'Binary projection preserves <1% of information (not 10^-100 — that was a math error in early drafts)',
       'Proposes scale-aware, framework-transparent epistemology',
     ],
-    workflow: 'v1.0: Claude 4.5 Sonnet (Anthropic) for drafting. v2.0: Claude 4.5 Opus (Anthropic) for extended framework-dependence argument. Author reviewed all content and takes full responsibility.',
+    workflow: 'v1.0: Claude 4.5 Sonnet (Anthropic) for drafting. v2.0: Claude 4.5 Opus (Anthropic) for extended framework-dependence argument; GPT-5.2 (OpenAI) for peer review that caught a math error. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'timing-inaccessibility',
