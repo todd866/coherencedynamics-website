@@ -10,6 +10,10 @@ tags:
   - coordination
   - anthropology
 summary: There are two ways to ask where Santa came from. The historical question has a documented answer. The functional question is harder—why do so many cultures independently invent winter gift-spirits? The answer involves game theory, gift economies, and a surprising comparison to ant colonies.
+paper:
+  title: "The Santa Effect: Anonymous Redistribution as Convergent Cultural Solution"
+  url: https://github.com/todd866/santa-effect
+  status: preprint
 ---
 
 There are two ways to ask "where did Santa come from?"
@@ -180,6 +184,24 @@ That's cultural bootstrapping. Animals cannot do it.
 Humans add a final layer: a fictional but authoritative agent that depersonalizes giving, stabilizes expectations, and replicates across generations.
 
 Santa represents the point at which redistribution ceases to be merely a mechanism and becomes an institution.
+
+---
+
+## The Dimensionality Threshold
+
+How early could something Santa-like have emerged? Earlier than you might think.
+
+The cognitive prerequisites for Santa form a gradient, not a cliff:
+
+1. **Memory of absent individuals.** Elephants remember their dead—visiting bones, touching skulls, showing behavioral responses to deceased group members years after death. This is step one.
+
+2. **Using the recently deceased to guide action.** "Mother would have wanted us to share." The dead become normative reference points.
+
+3. **Invoking the dead long after death.** "What would Grandfather say?" The ancestor becomes a stable authority across time.
+
+4. **Inventing an abstract ancestor.** At this point, the Ancestor need never have existed. The "Old One" or "Spirit of the Winter People" is a composite—a useful fiction that serves the same coordination function.
+
+The gap between step 1 and step 4 is not cognitive magic. It's cultural ratcheting. And if elephants are already at step 1, the path to Santa is shorter than it looks.
 
 ---
 
