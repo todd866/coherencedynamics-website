@@ -48,10 +48,10 @@ This isn't relativism. The underlying reality exists. But falsification is frame
       'Three levels of limitation: physical, dimensional, and framework-dependent',
       'Framework dependence is the deepest: axiomatic choices precede all measurement',
       'Wigner\'s "unreasonable effectiveness" as selection bias toward low projection-loss domains',
-      'Binary projection preserves <1% of information (not 10^-100 — that was a math error in early drafts)',
+      'Binary projection preserves <1% of information in high-dimensional systems',
       'Proposes scale-aware, framework-transparent epistemology',
     ],
-    workflow: 'v1.0: Claude 4.5 Sonnet (Anthropic) for drafting. v2.0: Claude 4.5 Opus (Anthropic) for extended framework-dependence argument; GPT-5.2 (OpenAI) for peer review that caught a math error. Author reviewed all content and takes full responsibility.',
+    workflow: 'v1.0: Claude 4.5 Sonnet (Anthropic) for drafting. v2.0: Claude 4.5 Opus (Anthropic) for extended framework-dependence argument; GPT-5.2 (OpenAI) and Gemini 3 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'timing-inaccessibility',
