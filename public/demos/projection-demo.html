@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Framework Dependence | Coherence Dynamics</title>
+    <style>
+        :root {
+            --color-bg: #f8f9fa;
+            --color-text: #2c3e50;
+            --color-accent: #E63946;
+            --color-frame-a: #2A9D8F;
+            --color-frame-b: #E76F51;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            max-width: 800px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .visualization-container {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            aspect-ratio: 2.5 / 1;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .panel-header {
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #eee;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .panel-content {
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .label-a { color: var(--color-frame-a); border-bottom: 3px solid var(--color-frame-a); }
+        .label-b { color: var(--color-frame-b); border-bottom: 3px solid var(--color-frame-b); }
+        .label-reality { color: #333; border-bottom: 3px solid #333; }
+
+        .insight-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-left: 4px solid var(--color-accent);
+            max-width: 800px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .back-link {
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .back-link a {
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .visualization-container {
+                grid-template-columns: 1fr;
+                aspect-ratio: auto;
+                height: auto;
+            }
+            .panel {
+                height: 300px;
+            }
+            .panel:nth-child(2) { order: -1; }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Framework Dependence</h1>
+        <p class="subtitle">
+            An interactive demonstration of <strong>Dimensional Projection Loss</strong>.<br>
+            Rotate the center object ("Reality") to see how different frameworks project contradictory truths.
+        </p>
+    </header>
+
+    <div class="visualization-container">
+        <div class="panel">
+            <div class="panel-header label-a">Framework A (Top View)</div>
+            <div id="canvas-a" class="panel-content"></div>
+            <div style="position:absolute; bottom:10px; width:100%; text-align:center; color:var(--color-frame-a); font-weight:bold;">
+                "It is a CIRCLE"
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header label-reality">REALITY (3D System)</div>
+            <div id="canvas-main" class="panel-content"></div>
+            <div style="position:absolute; bottom:10px; width:100%; text-align:center; color:#666; font-size:0.8rem;">
+                (Click & Drag to Rotate)
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header label-b">Framework B (Side View)</div>
+            <div id="canvas-b" class="panel-content"></div>
+            <div style="position:absolute; bottom:10px; width:100%; text-align:center; color:var(--color-frame-b); font-weight:bold;">
+                "It is a RECTANGLE"
+            </div>
+        </div>
+    </div>
+
+    <div class="insight-box">
+        <strong>The Insight:</strong> Neither Framework A nor Framework B is "wrong." They are both rigorous projections of the same high-dimensional reality. Yet, Framework A cannot falsify Framework B because they do not share the same dimensional subspace.
+        <br><br>
+        <em>"Falsifiability is framework-relative. The framework is itself a projection."</em> — Todd (2025)
+    </div>
+
+    <div class="back-link">
+        <a href="/blog/why-biology-cant-be-falsified">← Back to Blog Post</a> |
+        <a href="/papers/falsifiability">Read the Paper</a>
+    </div>
+
+    <script>
+        const CYLINDER_COLOR = 0xeeeeee;
+        const WIREFRAME_COLOR = 0x333333;
+        const BG_COLOR = 0xffffff;
+
+        const geometry = new THREE.CylinderGeometry(1, 1, 2.5, 32);
+
+        const materialSolid = new THREE.MeshPhongMaterial({
+            color: CYLINDER_COLOR,
+            polygonOffset: true,
+            polygonOffsetFactor: 1,
+            polygonOffsetUnits: 1,
+            shininess: 30,
+            flatShading: false
+        });
+
+        const materialWire = new THREE.MeshBasicMaterial({
+            color: WIREFRAME_COLOR,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3
+        });
+
+        function createCylinderGroup() {
+            const group = new THREE.Group();
+            const mesh = new THREE.Mesh(geometry, materialSolid);
+            const wire = new THREE.Mesh(geometry, materialWire);
+            group.add(mesh);
+            group.add(wire);
+
+            const particleGeo = new THREE.BufferGeometry();
+            const particleCount = 200;
+            const positions = [];
+            for(let i=0; i<particleCount; i++) {
+                const r = Math.random() * 0.9;
+                const theta = Math.random() * Math.PI * 2;
+                const y = (Math.random() - 0.5) * 2.4;
+                positions.push(r * Math.cos(theta), y, r * Math.sin(theta));
+            }
+            particleGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            const particles = new THREE.Points(particleGeo, new THREE.PointsMaterial({color: 0xE63946, size: 0.05}));
+            group.add(particles);
+
+            return group;
+        }
+
+        function createScene(containerId, cameraType = 'perspective', position = [0, 0, 5]) {
+            const container = document.getElementById(containerId);
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(BG_COLOR);
+
+            let camera;
+            if (cameraType === 'orthographic') {
+                const aspect = width / height;
+                const frustumSize = 4;
+                camera = new THREE.OrthographicCamera(
+                    frustumSize * aspect / -2, frustumSize * aspect / 2,
+                    frustumSize / 2, frustumSize / -2,
+                    0.1, 1000
+                );
+            } else {
+                camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+            }
+
+            camera.position.set(...position);
+            camera.lookAt(0, 0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(width, height);
+            container.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0x404040, 1.5);
+            scene.add(ambientLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 10, 7);
+            scene.add(dirLight);
+
+            const object = createCylinderGroup();
+            scene.add(object);
+
+            return { scene, camera, renderer, object };
+        }
+
+        const main = createScene('canvas-main', 'perspective', [3, 2, 4]);
+        const controls = new THREE.OrbitControls(main.camera, main.renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 2.0;
+
+        const frameA = createScene('canvas-a', 'orthographic', [0, 10, 0]);
+        const frameB = createScene('canvas-b', 'orthographic', [0, 0, 10]);
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            const time = Date.now() * 0.001;
+            const rotX = Math.sin(time * 0.5) * 0.3;
+            const rotZ = Math.cos(time * 0.3) * 0.3;
+
+            main.object.rotation.x = rotX;
+            main.object.rotation.z = rotZ;
+
+            frameA.object.rotation.copy(main.object.rotation);
+            frameB.object.rotation.copy(main.object.rotation);
+
+            main.renderer.render(main.scene, main.camera);
+            frameA.renderer.render(frameA.scene, frameA.camera);
+            frameB.renderer.render(frameB.scene, frameB.camera);
+        }
+
+        window.addEventListener('resize', () => {
+            [main, frameA, frameB].forEach(sys => {
+                const container = sys.renderer.domElement.parentElement;
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                sys.renderer.setSize(width, height);
+
+                if (sys.camera.isPerspectiveCamera) {
+                    sys.camera.aspect = width / height;
+                } else {
+                    const aspect = width / height;
+                    const frustumSize = 4;
+                    sys.camera.left = -frustumSize * aspect / 2;
+                    sys.camera.right = frustumSize * aspect / 2;
+                    sys.camera.top = frustumSize / 2;
+                    sys.camera.bottom = -frustumSize / 2;
+                }
+                sys.camera.updateProjectionMatrix();
+            });
+        });
+
+        animate();
+    </script>
+</body>
+</html>
