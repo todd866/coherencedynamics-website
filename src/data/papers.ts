@@ -29,22 +29,27 @@ export const papers: Paper[] = [
     status: 'published',
     category: 'physics',
     doi: '10.1016/j.biosystems.2025.105608',
+    github: 'todd866/limits-of-falsifiability',
+    pdf: 'https://github.com/todd866/limits-of-falsifiability/blob/main/v2.0/falsifiability_v2.pdf',
     simulation: 'protein-observer',
     image: 'falsifiability.png',
-    description: `**Popper's falsifiability criterion breaks down for high-dimensional biological systems** — not because biology is messy, but because of a fundamental physical limit on what yes/no tests can tell us.
+    description: `**Popper's falsifiability criterion breaks down for high-dimensional biological systems** — not because biology is messy, but because of fundamental limits at three distinct levels.
 
-Here's the problem: biological systems exist in absurdly high-dimensional spaces. A single cell needs thousands of variables to describe. When you try to test a yes/no hypothesis about such systems, you're projecting all that complexity onto a single bit. For a modest 100-neuron circuit, a binary test preserves about $10^{-100}$ of the information. That's not approximately zero — it's functionally indistinguishable from zero.
+**v2.0 (December 2025)** extends the published paper with a deeper argument: *falsifiability in any field depends on axiomatic assumptions about how you structure the question*. Before any measurement occurs, the choice of what counts as a test, what counts as evidence, and how the question is structured has already made a dimensional reduction. The framework is itself a projection.
 
-It gets worse. Many biological patterns operate below the Landauer limit — the minimum energy needed to record one bit ($\\sim 3 \\times 10^{-21}$ J). Sub-threshold neural fluctuations, quantum coherence in photosynthesis, [ephaptic coupling](https://news.mit.edu/2023/brain-networks-encoding-memory-come-together-via-electric-fields-0724) between neurons: these patterns are too weak to measure discretely, yet they're causally important through collective effects. Measuring them destroys them.
+The paper now identifies **three levels of limitation**: (1) Physical measurement limits — many biological patterns exist below the Landauer threshold. (2) Dimensional projection — a binary test on a 100-neuron circuit preserves $\\sim 10^{-100}$ of the information. (3) Framework dependence — axiomatic choices precede all measurement and cannot be tested from within the framework.
 
-This isn't a call to abandon scientific rigor. Falsifiability works brilliantly for low-dimensional, strong-signal biology — enzyme kinetics, action potentials, Mendelian genetics. But for consciousness, protein folding, ecological networks, evolution on fitness landscapes — we need different validation methods. The paper proposes scale-aware, ensemble-based epistemology as an alternative.`,
+Wigner's "unreasonable effectiveness of mathematics" in physics reflects selection bias: physics has focused on domains where projection loss is small. Biology is where this selection breaks down — where the gap between system dimensionality and observer capacity becomes undeniable.
+
+This isn't relativism. The underlying reality exists. But falsification is framework-relative, and the appropriate response is scale-aware, ensemble-based epistemology that acknowledges the limits physics places on what can be known.`,
     keyFindings: [
-      'Binary projection of high-D systems destroys nearly all information ($10^{-100}$ preservation for 100-neuron circuits)',
-      'Sub-Landauer patterns exist below measurement thresholds yet remain causally significant',
-      'Quantum measurement necessarily collapses coherent states, destroying the phenomenon being studied',
-      'Proposes scale-aware, ensemble-based epistemology as alternative to binary hypothesis testing',
+      'Three levels of limitation: physical, dimensional, and framework-dependent',
+      'Framework dependence is the deepest: axiomatic choices precede all measurement',
+      'Wigner\'s "unreasonable effectiveness" as selection bias toward low projection-loss domains',
+      'Binary projection destroys nearly all information ($10^{-100}$ for 100 neurons)',
+      'Proposes scale-aware, framework-transparent epistemology',
     ],
-    workflow: 'Claude 4.5 Sonnet (Anthropic) for drafting and conceptual development; GPT-5 (OpenAI) and Grok (xAI) for feedback and review. Author reviewed all content and takes full responsibility.',
+    workflow: 'v1.0: Claude 4.5 Sonnet (Anthropic) for drafting. v2.0: Claude 4.5 Opus (Anthropic) for extended framework-dependence argument. Author reviewed all content and takes full responsibility.',
   },
   {
     slug: 'timing-inaccessibility',
