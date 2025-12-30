@@ -13,6 +13,7 @@ summary: There are two ways to ask where Santa came from. The historical questio
 paper:
   title: "The Santa Effect: Anonymous Redistribution as Convergent Cultural Solution"
   url: https://github.com/todd866/santa-effect
+  pdf: https://github.com/todd866/santa-effect/blob/main/paper/santa_effect.pdf
   status: preprint
 ---
 
