@@ -113,6 +113,14 @@ export default async function PaperPage({
               Paper Summary (HTML) &rarr;
             </Link>
           )}
+          {paper.blogPost && (
+            <Link
+              href={`/blog/${paper.blogPost}`}
+              className="text-teal-400 hover:text-teal-300"
+            >
+              Blog Post &rarr;
+            </Link>
+          )}
         </div>
       </div>
 

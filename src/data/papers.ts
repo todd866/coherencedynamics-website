@@ -13,6 +13,7 @@ export interface Paper {
   pdf?: string; // direct link to PDF (e.g., GitHub raw URL)
   simulation?: string; // slug of companion simulation
   image?: string; // filename in /images/ (e.g., 'falsifiability.jpeg')
+  blogPost?: string; // slug of related blog post
   description: string;
   whyItMatters?: string;
   keyFindings?: string[];
@@ -360,6 +361,33 @@ The key insight: defectors pay more because they discount future coalition benef
       'Evidence-resistance prediction: counter-evidence raises commitment by raising signal cost',
     ],
     workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting; GPT-5.2 (OpenAI) and Gemini 3 Pro (Google) for review. Author reviewed all content and takes full responsibility.',
+  },
+  {
+    slug: 'thermodynamic-gravity',
+    title: 'Gravity as Constraint Compliance: A Thermodynamic Framework for Quantum Gravity',
+    journal: 'Foundations of Physics (in preparation)',
+    year: 2026,
+    status: 'in_prep',
+    category: 'physics',
+    github: 'todd866/thermodynamic-gravity',
+    pdf: 'https://github.com/todd866/thermodynamic-gravity/blob/main/paper/thermodynamic_gravity.pdf',
+    blogPost: 'thermodynamic-gravity',
+    description: `**Jacobson showed Einstein's equation emerges from horizon thermodynamics. This paper answers the question he left open: what should be quantized?**
+
+The answer: the constraint interface itself. Null surfaces aren't thermodynamic systems—they're checkpoints that validate whether metric deformations are admissible. The Clausius relation δQ = TδS is an admissibility constraint, not emergent thermodynamics.
+
+The central object is the *Clausius residual* Δ_Σ ≡ δQ - TδS. Classical GR corresponds to ⟨Δ_Σ⟩ = 0. Quantum corrections arise from Var(Δ_Σ) > 0—fluctuations in what the interface certifies as admissible.
+
+This yields two correction channels: (1) stochastic focusing noise in the Raychaudhuri equation, scaling as ℓ_P²/A and distinct from stress-energy fluctuations; (2) higher-curvature EFT corrections from non-equilibrium certification response. Planck's constant ℏ sets the interface's resolution scale via ΔA_min ~ Gℏ.
+
+Gravity is classical for the same reason hydrodynamics is classical: it's an equation of state describing averaged constraint compliance. Quantum gravity describes what happens when the constraint interface has finite resolution.`,
+    keyFindings: [
+      'The quantized subsystem is the certification interface, not the metric or "horizon microstates"',
+      'Clausius residual Δ_Σ as central object: classical GR = ⟨Δ_Σ⟩ = 0; quantum corrections = Var(Δ_Σ) > 0',
+      'Distinct noise channel from certification fluctuations, independent of stress-energy correlators',
+      'ℏ interpretation: certification resolution scale via ΔA_min ~ Gℏ → ΔS_min ~ O(1)',
+    ],
+    workflow: 'Claude Code with Opus 4.5 (Anthropic) for drafting; GPT-5.2 (OpenAI) for review. Author reviewed all content and takes full responsibility.',
   },
 ];
 
