@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
 // Site navigation order (loops)
-const PAGES = ['/', '/papers', '/simulations', '/about'];
+const PAGES = ['/', '/framework', '/papers', '/simulations', '/blog', '/about'];
 
 export default function SiteNavigation() {
   const router = useRouter();
