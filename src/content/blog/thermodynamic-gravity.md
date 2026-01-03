@@ -19,13 +19,15 @@ This was stunning. It suggested gravity isn't a fundamental force like electroma
 
 But Jacobson's derivation left a question hanging: if gravity is thermodynamic, *what should be quantized* to get quantum gravity?
 
+My claim: Jacobson already tells you what to quantize—*the constraint interface*, not geometry.
+
 ---
 
 ## The Standard Options
 
 The obvious candidates are:
 
-**The metric itself.** This is the traditional approach — treat spacetime geometry as a quantum field, quantize it, and see what happens. The problem: we've been trying this for 70 years and it doesn't work cleanly. The infinities don't go away the way they do in electromagnetism.
+**The metric itself.** This is the traditional approach — treat spacetime geometry as a quantum field, quantize it, and see what happens. The problem: we've been trying this for decades, and the straightforward perturbative route stays technically hostile.
 
 **Horizon microstates.** This is the string theory / loop quantum gravity approach — posit that horizons have microscopic degrees of freedom (like atoms in a gas), and the thermodynamics emerges from counting these microstates. The problem: nobody knows what these microstates actually are. "Microstates" is a placeholder for "the thing we need to explain the entropy."
 
@@ -33,13 +35,13 @@ There's a third option that's been hiding in plain sight.
 
 ---
 
-## The Interface Itself
+## The Null Surface as Interface
 
 What if we've been thinking about this wrong?
 
 Jacobson's derivation uses a local Rindler horizon — a tiny null surface defined by an accelerating observer. Heat flows across it. The Clausius relation (δQ = TδS) holds. Einstein's equation falls out.
 
-But here's the reframe: that Clausius relation isn't *thermodynamics*. It's an **admissibility constraint**.
+In this framing, that Clausius relation can be treated less as "spacetime thermodynamics" and more as an **admissibility constraint**—a compatibility condition for an information-limited interface. The interface can only certify geometry up to some tolerance, which makes Δ_Σ (defined below) a real physical residual, not a bookkeeping error.
 
 Think of it this way. The null surface isn't a physical system with microstates and temperature. It's a *checkpoint*. It's asking: "Is this metric deformation consistent with the rules?" The Clausius relation is the certification criterion. If δQ = TδS, the deformation is admissible. If not, something's wrong.
 
@@ -57,9 +59,11 @@ This is the *Clausius residual* — the amount by which a local patch fails to s
 
 In classical GR: ⟨Δ_Σ⟩ = 0. The expectation value vanishes. All checkpoints certify.
 
-In quantum gravity: Var(Δ_Σ) > 0. The residual fluctuates. The checkpoint has finite resolution — it can't certify arbitrarily small differences.
+In quantum gravity: Var(Δ_Σ) > 0. The residual fluctuates. The stochasticity lives in the interface's certification outcome—not primarily in matter stress-energy fluctuations. The checkpoint has finite resolution; it can't certify arbitrarily small differences.
 
 This is where quantization enters. Not in the metric. Not in mysterious microstates. In the *interface layer itself* — the certification process that checks whether metric deformations are admissible.
+
+(If you want the formal definition of the certification map and the postulates, the [full paper](/papers/thermodynamic-gravity) is here.)
 
 ---
 
@@ -69,7 +73,7 @@ If the certification interface has finite resolution, two things happen:
 
 **1. Stochastic noise.** The Raychaudhuri equation — which governs how light rays focus in curved spacetime — picks up a noise term. This isn't noise from matter fluctuations. It's noise from *certification fluctuations*. The checkpoint can't decide perfectly, and that uncertainty shows up as random focusing/defocusing of geodesics.
 
-The amplitude scales as ℓ_P²/A — Planck length squared over area. At macroscopic scales, this is negligible. Near Planck-scale horizons, it becomes significant.
+The amplitude scales parametrically as ℓ_P²/A — Planck length squared over area. At macroscopic scales, this is negligible. Near Planck-scale horizons, it becomes significant.
 
 **2. Higher-curvature corrections.** When certification is slow (non-equilibrium), the effective action picks up higher-derivative terms. This is the standard effective field theory story, but now with a clear origin: certification that doesn't keep up with rapid metric changes produces a dissipative correction.
 
@@ -103,9 +107,9 @@ The answer might involve entanglement across the horizon, or constraints from th
 
 Gravity is classical for the same reason hydrodynamics is classical. Both are *equations of state* — relationships that hold when you average over many microscopic details.
 
-You don't quantize hydrodynamics by making water molecules quantum. You recognize that hydrodynamics breaks down at small scales, and the breakdown follows predictable patterns (viscosity, noise, etc.).
+You don't get "quantum hydrodynamics" by quantizing the Navier-Stokes field variables directly. You identify the microphysics and the regime of validity, and the breakdown shows up as noise and transport corrections.
 
-Similarly, you don't quantize gravity by making spacetime quantum. You recognize that the certification interface breaks down at small scales, and the breakdown follows predictable patterns (stochastic focusing noise, higher-curvature corrections).
+Similarly, you don't quantize gravity by quantizing the metric directly. You identify the interface breakdown scale and the universal correction structure—stochastic focusing noise, higher-curvature terms.
 
 The metric stays classical. What's quantum is the resolution limit of the admissibility check.
 
@@ -121,4 +125,4 @@ Sometimes the right question isn't "how do we quantize this?" but "what should w
 
 ---
 
-*This post summarizes [Gravity as Constraint Compliance](/papers/thermodynamic-gravity), currently in preparation for Foundations of Physics. The paper develops the full mathematical framework including seven explicit postulates, a formal definition of certification, and comparison with existing approaches (Jacobson, Eling-Jacobson, Einstein-Langevin stochastic gravity).*
+*This post is the intuition layer. The [full paper](/papers/thermodynamic-gravity) contains the precise postulates, definitions, and derivations—including where this framing differs from Jacobson, Eling-Jacobson, and Einstein-Langevin stochastic gravity. If you want the careful version, go there.*
