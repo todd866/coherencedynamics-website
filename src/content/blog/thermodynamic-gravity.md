@@ -109,7 +109,9 @@ The brain projecting to language. A statistical manifold projecting to observabl
 - The lattice forces discreteness by selecting admissible outputs
 - The "quantum" of discreteness is set by the lattice resolution
 
-The metric stays classical—it's the high-dimensional embedding. What's quantum is the resolution limit of the admissibility check at the interface.
+**The big claim:** Standard quantum mechanics treats quantization as ontological—the substrate itself is discrete at the Planck scale. This paper proposes instead that the substrate can be arbitrarily high-dimensional and continuous. Quantization describes the *communication channel*, not the substrate. Discreteness is a property of the interface, not of reality.
+
+The metric stays classical—it's the high-dimensional embedding. What's quantum is the resolution limit of the channel through which we observe it.
 
 This connects to a [broader pattern](/papers): whenever you project high-dimensional systems through low-dimensional channels, information is lost (conditional entropy appears), continuous dynamics are forced discrete (collision/lattice selection), and the channel's structure determines what survives.
 
